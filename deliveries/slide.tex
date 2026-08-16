@@ -1,0 +1,196 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thanks to Xu Minghao's work                        %
+% I modify it into uchicago version                  %
+% to not make new bug, I don't alter "Ritsumeikan"   %
+% keywords in file. Pls feel free to use             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A Beamer template for Ritsumeikan University       %
+% Author: Ming-Hao Xu (Xu Minghao)                   %
+% Date:   April 2022.                                %
+% LPPL Licensed.                                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{beamer}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+
+% other packages
+\usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
+\usepackage{graphicx,pstricks,listings,stackengine}
+
+\graphicspath{{pic/}}
+
+\author{Yuru} % TODO: fill in full name
+\title{Direct Regret Optimization}
+\subtitle{Diagnosing and Scaling a Decision-Transformer Policy for Bayesian Optimization}
+\institute{
+    Department of Statistics \\
+    University of Chicago \\
+    % TODO: confirm advisor name/lab
+    Advisor: Prof.\ Yuxin Chen
+}
+\date{\small \today}
+\usepackage{Ritsumeikan}
+
+% defs
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{RGB}{153,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+\definecolor{halfgray}{gray}{0.55}
+
+\begin{document}
+
+% ---------------------------------------------------------------
+% TITLE
+% NOTE: no pic/uchicago.png shipped in this template copy -- add
+% your own logo file at deliveries/pic/uchicago.png, or delete the
+% figure block below if you don't want a logo on the title slide.
+% ---------------------------------------------------------------
+\begin{frame}
+    \titlepage
+    % \vspace*{-0.6cm}
+    % \begin{figure}[htpb]
+    %     \begin{center}
+    %         \includegraphics[keepaspectratio, scale=0.14]{uchicago.png}
+    %     \end{center}
+    % \end{figure}
+\end{frame}
+
+\begin{frame}
+\tableofcontents[sectionstyle=show,
+subsectionstyle=show/shaded/hide,
+subsubsectionstyle=show/shaded/hide]
+\end{frame}
+
+% =================================================================
+\section{Background}
+% =================================================================
+
+\begin{frame}{What is DRO?}
+    \begin{itemize}
+        \item Bayesian Optimization with a \textbf{learned} query policy
+        \item GP ensemble $\rightarrow$ uncertainty
+        \item Decision Transformer $\rightarrow$ policy
+        \item DT trained on \textbf{simulated rollouts}, conditioned on target return-to-go (RTG)
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{dro_architecture_diagram.png}
+    \end{center}
+\end{frame}
+
+% =================================================================
+\section{Motivating Problem}
+% =================================================================
+
+\begin{frame}{Hartmann\_6D: the DT Gets Stuck}
+    \begin{itemize}
+        \item 20 real iterations, \textbf{every} DRO variant tested
+        \item Regret flat from iteration 1 $\rightarrow$ never beats random init
+        \item Not a reward-type, RTG-schema, or rollout-length issue
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.75\textwidth]{hartmann_flat_regret_all_variants.png}
+    \end{center}
+\end{frame}
+
+% =================================================================
+\section{Diagnosis}
+% =================================================================
+
+\begin{frame}{Root Cause}
+    \begin{itemize}
+        \item Tracked queried points across iterations
+        \item DT proposals drift toward domain \textbf{corner}
+        \item Base state vector: \textbf{zero} location-sensitive GP signal
+        \item Only cue: frozen best-position, stops updating once stuck
+    \end{itemize}
+\end{frame}
+
+% =================================================================
+\section{Attempted Fixes}
+% =================================================================
+
+\begin{frame}{Fix 1 --- Augment the State}
+    \begin{itemize}
+        \item Add GP posterior mean/std over candidate region
+        \item Add distributional uncertainty (std quantiles, $\sigma$-IQR)
+        \item \textbf{Result:} did not fix Hartmann\_6D plateau
+        \item Ablation: raw GP hyperparameters \emph{do} carry real signal (removing them hurt)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Fix 2 --- Reformulate the RTG}
+    \begin{itemize}
+        \item \texttt{entropy\_joint}: RTG $= H(y^\ast \mid \mathcal{D}_\tau)$, pure differential entropy
+        \item Thompson sampling (not Gumbel) $\rightarrow$ removes an independence bias
+        \item Validated on Ackley\_5D (a benchmark where the DT \emph{does} learn)
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.75\textwidth]{Ackley_5D_regret_final.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Fix 2 --- Result}
+    \begin{itemize}
+        \item Rollout length 8: underperforms baseline ($>$1 SE worse)
+        \item Rollout length 4: within 1 SE of baseline
+        \item Paired with MES acquisition: also within 1 SE
+        \item[$\Rightarrow$] rollout length matters more than the RTG formula itself
+    \end{itemize}
+\end{frame}
+
+% =================================================================
+\section{Current Stage}
+% =================================================================
+
+\begin{frame}{Large-Scale Validation}
+    \begin{itemize}
+        \item \textbf{8 variants:} acquisition (rotate / MES) $\times$ reward (Improvement / MES) $\times$ RTG (per-step / entropy\_joint) + 2 NaiveBO baselines
+        \item \textbf{3 benchmarks:} Ackley 2D / 5D / 10D
+        \item \textbf{5 seeds}, \textbf{200 iterations} $\rightarrow$ 120 runs total
+        \item Running now on the UChicago AI cluster
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.75\textwidth]{mes_switching_v2_regret_summary.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Infrastructure Built for This Scale}
+    \begin{itemize}
+        \item Resumable checkpointing (survives the cluster's 4-hour job limit)
+        \item Verified bit-identical resume across repeated kills
+        \item Per-phase cost tracking (GP refit / rollout / DT train / query)
+        \item Mechanism diagnostics: rollout diversity, RTG statistics
+        \item Automated sanity checks before every launch
+    \end{itemize}
+\end{frame}
+
+% =================================================================
+\section{Goals}
+% =================================================================
+
+\begin{frame}{Next Steps}
+    \begin{itemize}
+        \item Finish the 120-run cluster experiment
+        \item Analyze cost vs.\ performance across variants
+        \item Identify the best acquisition + reward + RTG combination
+        \item Feed results into the AISTATS submission
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+        {\Huge\calligra Thank You}
+        \vspace{1cm}
+
+        {\large Questions?}
+    \end{center}
+\end{frame}
+
+\end{document}

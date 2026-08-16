@@ -1,0 +1,278 @@
+================================================================================
+DRO-MES COMPUTATIONAL COST INVESTIGATION: SUMMARY
+================================================================================
+Prompted by the Phase 1-4 joint-RTG investigation's conclusion (see
+validation/PHASE1-4_SUMMARY.txt): joint RTG's actual motivation was
+information-theoretic soundness, not cost, and it turned out to be MORE
+expensive per rollout step than the existing per-step reward (extra
+Thompson sampling + GP fantasy-conditioning), not less. This investigation
+asks a different, orthogonal question: if the actual goal is reducing
+DRO-MES's computational cost, what are the real opportunities, and do they
+cost anything in final performance?
+
+Benchmark used throughout: Hartmann_6D, use_mes_reward=True,
+rtg_schema="floored" (the current production default -- NOT "joint"),
+gp_num_models=5, rollouts_per_iter=75, rollout_length=4, bo_iterations=30,
+initial_points=5, dt_hidden=128/dt_layers=4/dt_heads=4. Chosen because
+roi_candidates stays large throughout (~990-1000 points at every stage per
+earlier Phase 2 v4 data), making any cost-savings signal maximally visible.
+
+
+================================================================================
+PART 1: MES REWARD COMPUTATION (compute_mes_reward, mes_reward.py)
+================================================================================
+
+--- Proposed alternatives (before implementing anything) ---
+Six alternatives were proposed for reducing MES reward's cost:
+  1. Replace the brentq/product-CDF Gumbel fit with Thompson sampling + MLE
+     fit (reusing gumbel_thompson.py, already built and validated in
+     Phase 1 of the joint-RTG investigation).
+  2. Decouple the reward's candidate-set size from the acquisition's
+     (subsample roi_candidates for the reward specifically).
+  3. Cache the Gumbel(a,b) parameters across rollout steps instead of
+     refitting every step.
+  4. Vectorize compute_mes_reward's two separate .posterior() calls
+     (roi_candidates, x_tau) into one batched call.
+  5. Reduce mes_k (MC sample count for Term 2), currently 10.
+  6. Reduce rollouts_per_iter or rollout_length for MES variants.
+Alternatives #1 and #4 were selected as the most promising (cheap AND fixes
+a real accuracy bug found in Phase 1; free engineering win, respectively)
+and implemented first.
+
+--- Implementation: solution #1 ---
+compute_mes_reward's y* sampling changed from gumbel_sample_y_star
+(product-CDF Gumbel fit via _bracket_for_quantiles + two brentq root-finds,
+each evaluating an O(N_roi) product-of-CDFs ~30-50 times) to Thompson
+sampling (one batched posterior.rsample() call, then max). Also fixes a
+real accuracy problem: gumbel_sample_y_star uses the same independence
+assumption Phase 1 of the joint-RTG investigation found to be a poor fit
+under RBF-kernel correlation (KS 0.16-0.86); Thompson sampling removes that
+assumption (Phase 1 re-run: KS 0.03-0.10).
+gumbel_sample_y_star, _cdf_of_max, _bracket_for_quantiles, and the private
+constants are left unchanged in mes_reward.py (still used by
+validation/phase1_gumbel_quality.py's own audit, and available for anyone
+wanting the old method) -- only compute_mes_reward's internals changed.
+
+--- Implementation: solution #4 ---
+The two separate .posterior() calls (roi_candidates, then x_tau) merged
+into one .posterior() call over their concatenation. A GP's marginal
+mean/variance at any point is unaffected by what other points are queried
+alongside it, so this is a pure efficiency change, not an approximation.
+
+--- CRITICAL FINDING: solution #1 alone made things WORSE at realistic scale ---
+A direct scaling comparison (compute_mes_reward_baseline vs the new
+implementation, varying N_roi) found a crossover:
+    N_roi     baseline    fast (#1+#4)   ratio (fast/baseline)
+      50       1.04ms        0.54ms          0.52x (faster)
+     200       1.48ms        0.98ms          0.66x (faster)
+     500       2.21ms        1.82ms          0.82x (faster)
+    1000       3.80ms        5.16ms          1.36x (SLOWER)
+Root cause: the original product-CDF method only ever touches MARGINAL
+means/variances -- O(N_roi) per CDF evaluation, no covariance matrix --
+which is exactly the independence assumption that makes it inaccurate, but
+also what makes it cheap. rsample() needs the FULL joint covariance over
+roi_candidates (a Cholesky factorization that scales worse than linearly),
+so Thompson sampling is only cheaper up to roughly N_roi~500-700. Since
+roi_candidates commonly reaches ~1000 in this codebase (and Hartmann_6D was
+deliberately chosen to make this visible), solution #1 as originally
+implemented would have made the full pipeline SLOWER, not faster.
+
+--- Fix: roi_subsample ---
+Added a roi_subsample parameter (default 150) to compute_mes_reward: when
+roi_candidates exceeds this, a random subsample is used for the
+rsample()-based y* estimation only (mu_x/sigma_x for term1 are unaffected,
+since they only depend on x_tau). This keeps the rsample() call in the
+cheaper regime regardless of the real roi_candidates size. Re-verified the
+scaling comparison after the fix:
+    N_roi     baseline    fast (subsampled)   ratio
+      50       1.05ms        0.55ms              0.52x
+     200       1.56ms        0.82ms              0.52x
+     500       2.27ms        0.75ms              0.33x
+    1000       3.92ms        0.79ms              0.20x (5x faster)
+The fast implementation's cost is now roughly flat regardless of N_roi
+(capped by roi_subsample), while baseline keeps growing.
+
+--- Full before/after result (3 seeds, 30 BO iterations, 75 rollouts/iter) ---
+                          Wall-clock (s)      MES-reward time (s)   Final regret
+DRO-MES-Baseline          329.0 +/- 0.8           27.75 +/- 0.12     2.3185 +/- 0.0801
+DRO-MES-Fast (#1+#4+sub)  305.6 +/- 0.4            6.92 +/- 0.00     2.2970 +/- 0.0694
+
+Per-seed (baseline / fast):
+  seed 42: wall_clock 328.4s / 306.1s   mes_reward_time 27.66s / 6.93s   final_regret 2.4511 / 2.3867
+  seed 43: wall_clock 330.9s / 306.0s   mes_reward_time 28.03s / 6.91s   final_regret 2.1271 / 2.1271
+  seed 44: wall_clock 327.7s / 304.7s   mes_reward_time 27.55s / 6.91s   final_regret 2.3772 / 2.3772
+
+MES-reward-time speedup: 4.01x (27.75s -> 6.92s).
+Overall wall-clock speedup: 1.08x (329.0s -> 305.6s) -- modest, because MES
+reward computation was only ~8.4% of total wall-clock time even at
+Hartmann_6D's large roi_candidates.
+Final regret: statistically unchanged (2.3185 -> 2.2970, well within the
++/-0.07-0.08 seed noise) -- the optimization is accuracy-neutral, as
+expected (confirmed, not just assumed, from Phase 1's KS-test validation).
+
+CONCLUSION: solutions #1+#4+roi_subsample are a clean win. Live in
+production mes_reward.py; no changes needed in dro.py (compute_mes_reward's
+signature and both call sites are unchanged). Script:
+mes_cost_benchmark.py. Full results: results/mes_cost_benchmark.json.
+
+
+================================================================================
+PART 2: WHERE DOES THE REMAINING ~92% OF WALL-CLOCK TIME GO?
+================================================================================
+Profiled one full 30-iteration, 75-rollout/iteration run (DRO-MES-Fast
+implementation, single seed=42) by wrapping the sequential top-level phases
+of the per-iteration loop with timers.
+
+Total wall-clock: 310.5s
+
+--- Top-level breakdown (sequential, sums to ~total) ---
+  _update_models (GP fitting)                        5.1s   ( 1.6%)   31 calls
+  _simulate_trajectory (rollout simulation)         129.9s   (41.8%)  2250 calls
+  _train_decision_transformer (DT training)         175.3s   (56.4%)    30 calls
+  residual (DT inference for real candidate,
+            objective eval, logging)                  0.3s   ( 0.1%)
+
+--- Nested breakdown WITHIN rollout-simulation time (overlaps, not additive) ---
+  _optimize_acquisition       117.9s   (90.8% of rollout-sim, 38.0% of total)   9000 calls
+  compute_mes_reward             7.1s   ( 5.5% of rollout-sim,  2.3% of total)  9000 calls
+  residual (posterior.sample(), _extract_state, etc.)   4.9s  (3.8% of rollout-sim)
+
+KEY FINDING: DT training (56.4%) and _optimize_acquisition inside rollouts
+(38.0%) together account for 94.4% of total wall-clock. MES reward, even
+before optimization, was only ever 8.4%; after Part 1's fix, 2.3%.
+
+IMPORTANT ARCHITECTURAL FACT (verified by grepping all call sites):
+_optimize_acquisition is called ONLY from within simulated rollouts
+(_simulate_trajectory / _simulate_trajectory_joint) -- never for the real
+candidate each BO iteration, which comes directly from the trained Decision
+Transformer's forward pass. So any change to _optimize_acquisition's cost
+only affects simulated-rollout fidelity / DT training data quality, never
+a real-time decision directly.
+
+Script: profile_dro_iteration.py. Raw log: this was a diagnostic run, not
+saved to a persistent JSON (see /tmp/profile_dro_run.log if still present;
+otherwise re-run the script to reproduce -- it is read-only/non-invasive).
+
+
+================================================================================
+PART 3: DT TRAINING EPOCHS -- ABANDONED (killed mid-run, no usable data)
+================================================================================
+A combined experiment (dt_acq_cost_benchmark.py) was designed to test BOTH
+reducing DT training epochs (100 -> 50) AND the rollout-acquisition budget
+(see Part 4) together, plus each individually, against the DRO-MES-Fast
+baseline. Before that, a loss-curve diagnostic was run: one representative
+75-rollout batch, DT trained for 100 "epochs" (100 separate 1-epoch calls
+to _train_decision_transformer on the same batch, tracking loss each time,
+since self.decision_transformer and self.optimizer persist across calls
+and this is a faithful reproduction of what one real 100-epoch call does).
+
+Loss curve (selected epochs):
+  epoch   1: L_loc=0.001612
+  epoch  16: L_loc=0.001336
+  epoch  36: L_loc=0.001226
+  epoch  56: L_loc=0.001205
+  epoch  76: L_loc=0.001144
+  epoch  96: L_loc=0.001106
+  epoch 100: L_loc=0.001103   (min loss 0.001023 at epoch 99)
+
+FINDING: loss does NOT plateau early -- it is still improving (slowly,
+noisily) all the way to epoch 100. Cutting epochs to 50 would leave real
+loss reduction on the table (epoch 50 loss ~0.0013 vs epoch 100's ~0.0011,
+roughly 15-20% higher), an unquantified but real accuracy/speed tradeoff.
+
+The full 9-run experiment (DT-Epochs50, RolloutAcq-Reduced, and Combined,
+each x 3 seeds) was launched but ran far longer than estimated (~55+
+minutes of CPU time without a single completed run) and was killed by
+explicit user request before producing any usable data. Root cause of the
+slowdown was not diagnosed (possible causes: background system load,
+thermal throttling, or the DT-epochs cost not scaling as linearly with
+epoch count as assumed -- not confirmed either way).
+
+STATUS: DT training epoch reduction was never empirically tested. Given
+the loss-curve diagnostic already shows a real, unquantified cost to
+cutting epochs, and given the profiling in Part 2 shows this is the single
+largest cost bucket (56.4%), this remains the most promising unexplored
+lever if further wall-clock reduction is wanted -- but requires a properly
+scoped, monitored experiment (single seed first, unbuffered output) before
+drawing conclusions.
+
+
+================================================================================
+PART 4: ROLLOUT-ACQUISITION BUDGET REDUCTION -- TESTED, NOT ADOPTED
+================================================================================
+_optimize_acquisition (called only within simulated rollouts, see Part 2)
+was made to accept a for_rollout: bool parameter (default False, fully
+backward-compatible). When True, it reads separate rollout_opt_samples /
+rollout_opt_restarts / rollout_refinement_samples config keys (each falls
+back to the standard key's value if unset), instead of the standard
+opt_samples/opt_restarts/refinement_samples used for the (never-invoked-
+for-rollouts) real-candidate path. _simulate_trajectory's two call sites
+were updated to pass for_rollout=True; _simulate_trajectory_joint's call
+site was left unchanged (out of scope -- rtg_schema="joint" is not the
+production default per the Phase 1-4 conclusion).
+
+--- Per-call timing diagnostic (varying acquisition budget, fixed GP) ---
+  opt_samples=1000 opt_restarts=10 refine_samples=100 (current)        -> 12.68ms/call
+  opt_samples=500  opt_restarts=10 refine_samples=100 (half broad only) -> 12.12ms/call (barely changed)
+  opt_samples=250  opt_restarts=5  refine_samples=50  (moderate cut)    ->  6.59ms/call (~1.9x faster)
+  opt_samples=100  opt_restarts=3  refine_samples=30  (aggressive cut)  ->  3.93ms/call (~3.2x faster)
+FINDING: halving broad-search samples alone barely helps -- the REFINEMENT
+loop (num_restarts separate small-batch GP calls), not the broad search,
+dominates _optimize_acquisition's cost.
+
+--- Single-seed (seed=42) real-run result, Hartmann_6D, 30 iterations ---
+                          Wall-clock    Speedup   Final regret   Delta vs baseline
+DRO-MES-Fast (baseline)    306.1s        1.00x      2.3867            --
+RolloutAcq-Moderate        248.0s        1.23x      2.7347          +0.348 (worse)
+RolloutAcq-Aggressive      229.9s        1.33x      2.8497          +0.463 (worse)
+
+Wall-clock speedups (1.23x/1.33x) are much smaller than the per-call
+numbers (1.9x/3.2x) suggested, consistent with _optimize_acquisition being
+only ~38% of total time (same pattern seen with MES reward in Part 1).
+Both variants showed WORSE regret than baseline at this one seed, with
+Aggressive worse than Moderate -- a plausible, monotonic fidelity/speed
+tradeoff, though unconfirmed at N=1 (final_regret has shown +/-0.07-0.8
+seed noise in every multi-seed experiment in this investigation).
+
+DECISION (explicit user call, given the single-seed regret cost and modest
+speedup): do not adopt. Full 3-seed confirmation was not run.
+
+STATUS: for_rollout parameter and rollout_opt_samples/rollout_opt_restarts/
+rollout_refinement_samples config keys remain in src/policy/dro.py as
+working, backward-compatible machinery (no-op unless explicitly
+configured -- no production config sets them). Easy to revisit with a full
+3-seed run or a milder cut if there's reason to later.
+Script: rollout_acq_cost_benchmark.py (has a --seeds CLI flag for partial
+runs; a summary-printing bug for the single-seed/N=1 case was found and
+fixed after this run -- future single-seed runs will print cleanly).
+
+
+================================================================================
+OVERALL SUMMARY
+================================================================================
+                                    Wall-clock effect   Regret effect        Status
+MES reward (#1+#4+roi_subsample)   1.08x faster         None (confirmed)    ADOPTED, live in production
+DT training epochs (100->50)       Unknown (untested)   Real cost (loss     NOT TESTED (experiment killed)
+                                                          curve still
+                                                          improving @ ep.100)
+Rollout-acquisition budget cut     1.23-1.33x faster    Worse (single       NOT ADOPTED (explicit decision)
+                                    (single seed)         seed, unconfirmed
+                                                          at scale)
+
+Of the ~92% of wall-clock time NOT spent on MES reward, DT training (56.4%
+of total) and rollout-scoped acquisition optimization (38.0% of total) are
+the only two levers identified. Only one (MES reward itself) has produced
+a confirmed, free win so far. The rollout-acquisition lever was tested and
+explicitly rejected due to an apparent (if unconfirmed) regret cost. DT
+training epoch reduction remains the single largest unexplored opportunity,
+but the loss-curve diagnostic already suggests it will not be free either.
+
+Files:
+  mes_reward.py                    -- production change (#1+#4+roi_subsample), live
+  src/policy/dro.py                -- for_rollout parameter + rollout_opt_* config keys, dormant (no-op) by default
+  mes_cost_benchmark.py            -- Part 1's before/after script
+  profile_dro_iteration.py         -- Part 2's profiling script
+  dt_acq_cost_benchmark.py         -- Part 3's abandoned combined-experiment script (unused, kept for reference)
+  rollout_acq_cost_benchmark.py    -- Part 4's script (bug-fixed after the single-seed run)
+  results/mes_cost_benchmark.json  -- Part 1's full results
+================================================================================

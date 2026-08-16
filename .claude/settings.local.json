@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PYTHONUNBUFFERED=1 nohup .venv/bin/python run_experiment_parallel.py --experiment rtg_schema --workers 15 --threads-per-worker 1)",
+      "Bash(disown)",
+      "Bash(echo \"Launched PID: $!\")",
+      "Bash(top -l 1 -n 0)",
+      "Bash(.venv/bin/python /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/_diag_rtg_sensitivity.py)",
+      "Bash(.venv/bin/python analysis.py --experiment rtg_schema)",
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(.venv/bin/python /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/_diag_causal_mask.py)",
+      "Bash(PYTHONUNBUFFERED=1 .venv/bin/python _diag_rtg_sensitivity.py)",
+      "Bash(PYTHONUNBUFFERED=1 .venv/bin/python _diag_mes_gumbel.py)",
+      "Bash(sysctl -n hw.ncpu)",
+      "Bash(PYTHONUNBUFFERED=1 nohup .venv/bin/python run_experiment_parallel.py --experiment mes_reward --variants DRO_MES --workers 15 --threads-per-worker 1)",
+      "Bash(echo \"Exp1 rerun PID: $!\")",
+      "Bash(kill 33603)",
+      "Bash(pkill -9 -f \"multiprocessing.spawn\")"
+    ]
+  }
+}

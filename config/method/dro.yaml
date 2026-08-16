@@ -1,0 +1,67 @@
+# This is a configuration file for a Decision Transformer with Bayesian Optimization.
+# General settings
+seed: 42
+save_dir: "res"
+verbose: True # 1 for verbose, 0 for silent, 2 for debug
+device: "cpu" # Will automatically fall back to "cpu" if CUDA is not available
+name: "dro"
+
+# GP model configuration
+gp:
+  kernel: "rbf"  # Options: rbf, matern, rq
+  noise_constraint: 1e-4
+  lengthscale_min: 0.1
+  lengthscale_max: 10.0
+  num_models: 5  # Number of GPs in the ensemble
+  verbose: false
+  retrain: false
+
+# Acquisition function configuration
+acquisition:
+  # function: "ei"  # Options: ei, ucb, pi, mes, rotate_acq
+  function: "rotate_acq"  
+  kappa: 2.0  # For UCB
+  ucb_lcb_kappa: 6.0  # For UCB and LCB
+  xi: 0.01  # For EI and PI
+  early_stop_threshold: 1e-4
+  constrain_ucb_lcb: True  # Constrain UCB and LCB to be within the domain
+
+# Decision Transformer configuration
+transformer:
+  hidden_size: 128
+  num_layers: 4
+  num_heads: 4
+  dropout: 0.1
+  lr: 1e-4
+  weight_decay: 1e-5
+  batch_size: 32
+  num_epochs: 100
+  max_seq_length: 20
+
+# Simulation configuration
+simulation:
+  num_rollouts: 10 # originally 50
+  max_rollout_length: 4 # originally 4
+  early_stop: true
+  early_stop_threshold: 1e-4
+  verbose: false
+
+# Bayesian Optimization configuration
+bo:
+  max_iterations: 30
+  input_dim: 2
+  domain_min: [-5.0, -5.0]  # List for each dimension
+  domain_max: [5.0, 5.0]    # List for each dimension
+  initial_points: 5
+  objective: "maximize"  # or "minimize"
+
+# --- Ablation flags (MES reward + RTG schema experiments) ---
+# Leave at these defaults to reproduce the original DRO behavior exactly.
+use_mes_reward: false
+rtg_schema: "fixed"    # "fixed" | "dynamic" | "floored" | "quantile"
+alpha_floor: 0.5
+alpha_inference: null  # only used when rtg_schema == "quantile"
+lambda_rtg: 1.0        # only used when rtg_schema == "quantile"
+rtg_warmup: 3          # iterations before the "quantile" schema is trusted
+known_optimal_value: 0.0  # true global min of the raw objective, for regret logging
+

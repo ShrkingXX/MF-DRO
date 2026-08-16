@@ -1,0 +1,43 @@
+{
+  "regret_curve": [
+    17.14787052999689,
+    17.14787052999689,
+    17.14787052999689
+  ],
+  "best_observed": [
+    -17.14787052999689,
+    -17.14787052999689,
+    -17.14787052999689
+  ],
+  "mean_reward": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "zero_frac": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "rtg_target": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "batch_max_rtg": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "running_max_rtg": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "iter_times": [
+    0.03793075000000101,
+    0.06293454100000062,
+    0.04456745899999959
+  ],
+  "acq_name_used": "ei"
+}

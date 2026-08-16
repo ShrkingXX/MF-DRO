@@ -1,0 +1,126 @@
+========================================================================================
+PHASE 1: GUMBEL APPROXIMATION QUALITY AUDIT
+========================================================================================
+
+Audits mes_reward.py's Gumbel(a,b) approximation to the max-value distribution
+against the empirical (true, correlated) GP posterior maximum, across 5
+benchmarks x 3 GP-training stages (early=5, mid=25, late=45 real LHS points).
+
+PASS: KS_stat < 0.15   WARN: 0.15 <= KS_stat <= 0.25   FAIL: KS_stat > 0.25
+
+Benchmark       Stage     N_roi   KS_stat         KS_p     gumbel_b      mean_bias  std_ratio  STATUS
+-----------------------------------------------------------------------------------------------------
+Ackley_2D       early      1000    0.8500    1.73e-185       0.4570         1.6861     0.7655  FAIL
+Ackley_2D       mid        1000    0.8140    7.73e-167       0.2667         1.1472     0.5339  FAIL
+Ackley_2D       late        254    0.5660     3.37e-74       0.2180         0.4787     0.6514  FAIL
+
+Ackley_5D       early      1000    0.1880     3.87e-08       0.8216         0.4346     0.8880  WARN
+Ackley_5D       mid         999    0.5140     1.44e-60       0.3146         0.5468     0.7603  FAIL
+Ackley_5D       late        692    0.1580     7.29e-06       0.1583         0.0630     0.9459  WARN
+
+Rosenbrock_2D   early      1000    0.8620    3.92e-192   32491.3091    138917.1937     0.6320  FAIL
+Rosenbrock_2D   mid         741    0.7420    2.65e-134    4578.5543     14352.7904     0.6460  FAIL
+Rosenbrock_2D   late        716    0.7280    1.34e-128    4791.7425     14800.2668     0.6727  FAIL
+
+Hartmann_6D     early      1000    0.6460     1.33e-98       0.0320         0.0795     0.6709  FAIL
+Hartmann_6D     mid        1000    0.5560     1.90e-71       0.0975         0.1923     0.7287  FAIL
+Hartmann_6D     late        992    0.1920     1.80e-08       0.0858         0.0471     0.9296  WARN
+
+Currin_2D       early      1000    0.2300     5.28e-12       0.4925         0.2970     0.9347  WARN
+Currin_2D       mid         195    0.5040     3.93e-58       0.2083         0.3933     0.6387  FAIL
+Currin_2D       late         62    0.4040     7.32e-37       0.1736         0.2208     0.7274  FAIL
+
+-----------------------------------------------------------------------------------------------------
+Totals: PASS=0  WARN=4  FAIL=11  (of 15 combinations)
+
+========================================================================================
+DETAIL PER COMBINATION (Gumbel-fitted vs. empirical max distribution)
+========================================================================================
+
+--- Ackley_2D ---
+  [early] N_roi=1000  status=FAIL
+      Gumbel:    mean=-14.3362  std=0.5861  (b=0.4570)
+      Empirical: mean=-16.0223  std=0.7657
+      KS_stat=0.8500  KS_p=1.731e-185  mean_bias=1.6861  std_ratio=0.7655
+  [mid] N_roi=1000  status=FAIL
+      Gumbel:    mean=-15.3651  std=0.3421  (b=0.2667)
+      Empirical: mean=-16.5123  std=0.6407
+      KS_stat=0.8140  KS_p=7.726e-167  mean_bias=1.1472  std_ratio=0.5339
+  [late] N_roi=254  status=FAIL
+      Gumbel:    mean=-11.9777  std=0.2796  (b=0.2180)
+      Empirical: mean=-12.4563  std=0.4292
+      KS_stat=0.5660  KS_p=3.370e-74  mean_bias=0.4787  std_ratio=0.6514
+
+--- Ackley_5D ---
+  [early] N_roi=1000  status=WARN
+      Gumbel:    mean=2.0779  std=1.0537  (b=0.8216)
+      Empirical: mean=1.6434  std=1.1866
+      KS_stat=0.1880  KS_p=3.874e-08  mean_bias=0.4346  std_ratio=0.8880
+  [mid] N_roi=999  status=FAIL
+      Gumbel:    mean=-5.8866  std=0.4035  (b=0.3146)
+      Empirical: mean=-6.4335  std=0.5306
+      KS_stat=0.5140  KS_p=1.444e-60  mean_bias=0.5468  std_ratio=0.7603
+  [late] N_roi=692  status=WARN
+      Gumbel:    mean=-5.2098  std=0.2030  (b=0.1583)
+      Empirical: mean=-5.2727  std=0.2146
+      KS_stat=0.1580  KS_p=7.292e-06  mean_bias=0.0630  std_ratio=0.9459
+
+--- Rosenbrock_2D ---
+  [early] N_roi=1000  status=FAIL
+      Gumbel:    mean=242449.1680  std=41671.7230  (b=32491.3091)
+      Empirical: mean=103531.9744  std=65938.7212
+      KS_stat=0.8620  KS_p=3.917e-192  mean_bias=138917.1937  std_ratio=0.6320
+  [mid] N_roi=741  status=FAIL
+      Gumbel:    mean=31099.3515  std=5872.2241  (b=4578.5543)
+      Empirical: mean=16746.5611  std=9089.6839
+      KS_stat=0.7420  KS_p=2.646e-134  mean_bias=14352.7904  std_ratio=0.6460
+  [late] N_roi=716  status=FAIL
+      Gumbel:    mean=30199.1118  std=6145.6486  (b=4791.7425)
+      Empirical: mean=15398.8449  std=9135.2868
+      KS_stat=0.7280  KS_p=1.336e-128  mean_bias=14800.2668  std_ratio=0.6727
+
+--- Hartmann_6D ---
+  [early] N_roi=1000  status=FAIL
+      Gumbel:    mean=0.5840  std=0.0410  (b=0.0320)
+      Empirical: mean=0.5045  std=0.0611
+      KS_stat=0.6460  KS_p=1.327e-98  mean_bias=0.0795  std_ratio=0.6709
+  [mid] N_roi=1000  status=FAIL
+      Gumbel:    mean=1.4569  std=0.1251  (b=0.0975)
+      Empirical: mean=1.2646  std=0.1717
+      KS_stat=0.5560  KS_p=1.900e-71  mean_bias=0.1923  std_ratio=0.7287
+  [late] N_roi=992  status=WARN
+      Gumbel:    mean=1.7936  std=0.1100  (b=0.0858)
+      Empirical: mean=1.7465  std=0.1183
+      KS_stat=0.1920  KS_p=1.796e-08  mean_bias=0.0471  std_ratio=0.9296
+
+--- Currin_2D ---
+  [early] N_roi=1000  status=WARN
+      Gumbel:    mean=13.3341  std=0.6317  (b=0.4925)
+      Empirical: mean=13.0371  std=0.6758
+      KS_stat=0.2300  KS_p=5.275e-12  mean_bias=0.2970  std_ratio=0.9347
+  [mid] N_roi=195  status=FAIL
+      Gumbel:    mean=14.4406  std=0.2671  (b=0.2083)
+      Empirical: mean=14.0473  std=0.4182
+      KS_stat=0.5040  KS_p=3.934e-58  mean_bias=0.3933  std_ratio=0.6387
+  [late] N_roi=62  status=FAIL
+      Gumbel:    mean=14.8265  std=0.2226  (b=0.1736)
+      Empirical: mean=14.6057  std=0.3061
+      KS_stat=0.4040  KS_p=7.321e-37  mean_bias=0.2208  std_ratio=0.7274
+
+========================================================================================
+SUMMARY
+========================================================================================
+Phase 1 WARNING on ['Ackley_5D', 'Currin_2D', 'Hartmann_6D']. Gumbel approximation is marginal on these
+benchmarks at ['early', 'late']. Proceed to Phase 2 with caution for these benchmarks.
+Phase 1 FAILED on ['Ackley_2D', 'Ackley_5D', 'Currin_2D', 'Hartmann_6D', 'Rosenbrock_2D']. Do NOT switch to joint formulation for these benchmarks.
+
+Note: Rosenbrock_2D's large gumbel_b/mean_bias values reflect its raw objective
+scale (values in the thousands), not a qualitatively different failure mode --
+KS_stat (scale-invariant) is the metric that determines PASS/WARN/FAIL.
+
+Mechanism: the Gumbel formula assumes independence across roi_candidates
+(product of per-candidate CDFs). With few real data points and an RBF kernel,
+many of the 1000 broad-search candidates fall within one lengthscale of each
+other and are highly correlated under the true GP posterior -- violating that
+independence assumption and inflating the Gumbel-estimated max relative to the
+true (correlated) empirical maximum (mean_bias is positive in all 15 rows).

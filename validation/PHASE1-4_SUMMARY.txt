@@ -1,0 +1,338 @@
+================================================================================
+JOINT RTG VALIDATION: PHASE 1-4 SUMMARY
+================================================================================
+Investigation into whether the Decision Transformer's RTG training label
+should switch from the current per-step reward-sum formulation to a "joint"
+formulation: RTG[tau] = log(b_tau / b_T), the log-ratio of Gumbel scale
+parameters (fit via Thompson sampling on the GP posterior) before and after
+a simulated rollout. b parameterizes an entropy estimate of y* = max_x f(x),
+so this log-ratio directly measures how much a rollout reduced uncertainty
+about the global optimum.
+
+Benchmarks referenced: Ackley_2D, Ackley_5D, Rosenbrock_2D, Hartmann_6D,
+Currin_2D. Stages: early (5 real points), mid (25), late (45).
+
+Full JSON results: validation/results/phase1_gumbel_quality.json,
+phase1_thompson_gumbel.json, phase2_rtg_correlation.json (v3),
+phase2_rtg_correlation_v4.json, phase3_scale_check.json (v3),
+phase3_scale_check_v4.json. Scripts: validation/phase1_*.py, phase2_*.py,
+phase3_*.py, phase4_*.py. All phases 1-3 are read-only diagnostics (do not
+modify src/policy/dro.py); Phase 4 makes real production changes to dro.py.
+
+
+================================================================================
+PHASE 1: GUMBEL APPROXIMATION QUALITY
+================================================================================
+Question: is the Gumbel distribution a good fit to the true max-value
+distribution of y* = max_x f(x), which the "joint" RTG's entropy term
+requires?
+
+--- Phase 1 original: product-CDF Gumbel approximation ---
+Method: closed-form Gumbel parameters fit via 25th/75th-percentile matching
+of the product-of-independent-CDFs formula (same method used elsewhere in
+the codebase's MES reward, mes_reward.py). Compared against empirical
+maxima drawn from the TRUE (correlated) GP posterior via joint rsample().
+
+Result: 0/15 (benchmark, stage) combinations PASS, 4/15 WARN, 11/15 FAIL.
+KS statistic range: 0.158 - 0.862 (threshold: PASS<0.15, WARN<=0.25).
+Worst failures on Ackley_2D (KS 0.57-0.85) and Rosenbrock_2D (KS 0.73-0.86).
+
+Diagnosis: the product-CDF formula assumes independence across candidate
+points, which is violated under RBF-kernel posterior correlation. This is
+the source of the failure, not the Gumbel family itself.
+
+--- Phase 1 re-run: Thompson-sampling-based Gumbel fit ---
+Method: same benchmarks/stages, but y* samples drawn via TRUE joint
+rsample() from the GP posterior (Thompson sampling, K=500), then Gumbel(a,b)
+fit via scipy MLE (gumbel_r.fit) to those samples directly -- no
+independence assumption anywhere.
+
+Result: 15/15 PASS. KS statistic range: 0.034 - 0.102.
+
+CONCLUSION: the Gumbel family is a correct model for y*'s distribution.
+The failure in Phase 1 original was entirely due to the independence
+assumption in the product-CDF shortcut, not a problem with using Gumbel
+per se. Thompson sampling + MLE fit is the right method going forward.
+
+
+================================================================================
+PHASE 2: PER-STEP RTG vs JOINT RTG CORRELATION
+================================================================================
+Question: on matched simulated rollouts, how well does joint RTG[0]
+(= log(b_0/b_T), via Thompson+Gumbel) correlate with the current per-step
+RTG[0] (backward cumsum of rewards)? High correlation would mean the two
+formulations are close to interchangeable as DT training targets.
+
+Method: validation/phase2_rtg_correlation.py's simulate_with_gumbel_b
+reimplements the rollout loop with GP fantasy-conditioning
+(condition_on_observations) at each step (since _simulate_trajectory itself
+does NOT fantasy-condition -- confirmed by direct code reading), and a
+FIXED roi_candidates set computed once before the rollout loop (not
+regenerated each step, per explicit instruction to avoid resampling noise).
+100 rollouts x 4-step trajectories per (benchmark, stage). Also checks an
+entropy-monotonicity diagnostic (H_0 >= H_T should hold; more conditioning
+= less uncertainty about y*).
+
+--- v3 (initial run, after fixing 4 earlier reported bugs: MES reward
+    default, same-seed-same-dimension collision, violation criterion,
+    RTG clamping) ---
+                                rho_all   neg_frac  status
+Ackley_2D       early            0.052     0.515    FAIL
+Ackley_2D       mid              0.014     0.525    FAIL
+Ackley_2D       late            -0.014     0.535    FAIL
+Ackley_5D       early            0.024     0.410    FAIL
+Ackley_5D       mid              0.022     0.485    FAIL
+Ackley_5D       late            -0.058     0.568    FAIL
+Rosenbrock_2D   early           -0.014     0.495    FAIL
+Rosenbrock_2D   mid             -0.006     0.480    FAIL
+Rosenbrock_2D   late             0.037     0.470    FAIL
+Hartmann_6D     early            0.774     0.098    WARN
+Hartmann_6D     mid              0.857     0.045    PASS
+Hartmann_6D     late             0.857     0.052    WARN
+Currin_2D       early            0.832     0.070    WARN
+Currin_2D       mid              0.852     0.070    WARN
+Currin_2D       late             0.823     0.068    WARN
+
+--- CRITICAL BUG FOUND (before v4) ---
+validation/phase2_rtg_correlation.py:120 had:
+    roi_candidates, _ = optimizer._optimize_acquisition(gp_idx, observed_best)
+_optimize_acquisition returns (best_x, roi_candidates) in that order (every
+other call site in the codebase gets this right, including
+_simulate_trajectory and both Phase 1 scripts). This line silently swapped
+them: "roi_candidates" was actually the single best_x point (shape [1,D]),
+discarding the real ~1000-point domain-spanning candidate set. Consequences:
+  1. x_tau selection always picked the same single point at every rollout
+     step (rollouts never actually explored the domain).
+  2. Thompson sampling degenerated to the marginal predictive distribution
+     at that one point, not a genuine max-over-domain estimate -- so b_tau
+     was measuring "variance at one repeatedly-conditioned point" rather
+     than "uncertainty about the global max."
+  3. The MES reward's Term 2 quadrature also degenerated to a single-
+     candidate integral.
+Fixed by swapping the assignment order. Phase 3 reuses this same function
+(simulate_with_gumbel_b), so it inherited the identical bug.
+
+--- v4 (post-bugfix, same config as v3 otherwise) ---
+                                rho_all   neg_frac  roi_size  status
+Ackley_2D       early           -0.063     0.575      1000   FAIL
+Ackley_2D       mid             -0.023     0.522      1000   FAIL
+Ackley_2D       late             0.058     0.537       261   FAIL
+Ackley_5D       early            0.012     0.502      1000   FAIL
+Ackley_5D       mid             -0.008     0.495      1000   FAIL
+Ackley_5D       late             0.006     0.458       761   FAIL
+Rosenbrock_2D   early           -0.048     0.555      1000   FAIL
+Rosenbrock_2D   mid             -0.031     0.475       716   FAIL
+Rosenbrock_2D   late             0.049     0.545       708   FAIL
+Hartmann_6D     early            0.059     0.480      1000   FAIL   <- collapsed vs v3
+Hartmann_6D     mid              0.662     0.098       991   WARN  <- dropped from PASS/high-WARN
+Hartmann_6D     late             0.603     0.117       999   WARN  <- dropped from high-WARN
+Currin_2D       early            0.675     0.120       481   WARN
+Currin_2D       mid              0.779     0.060       162   WARN
+Currin_2D       late             0.766     0.105        95   WARN
+
+Entropy-monotonicity violations (v4): 496/1500 rollouts (33.1%).
+
+CONCLUSION: with the real domain-spanning candidate set, Hartmann_6D's
+early-stage (5 real points) correlation collapses entirely (rho_all=0.06,
+neg_frac=48%). Mid/late-stage Hartmann_6D drops from what appeared to be a
+strong signal in v3 down to WARN-level (0.60-0.66). Currin_2D is the ONLY
+benchmark with a consistent, if modest (WARN-level, 0.68-0.78), signal
+across ALL 3 stages. Ackley_2D/5D and Rosenbrock_2D show near-zero
+correlation and ~41-58% negative joint-RTG fraction at every stage in both
+v3 and v4 -- ruled out regardless of the bug.
+
+
+================================================================================
+PHASE 3: RTG SCALE COMPATIBILITY (Hartmann_6D, Currin_2D only)
+================================================================================
+Question: is joint RTG's scale compatible with the existing floored-dynamic
+RTG schema (target = max(batch_max, alpha_floor * running_max)), and is the
+signal strong enough (relative to its own noise) to be a useful DT target?
+Scoped to Hartmann_6D/Currin_2D per Phase 2's finding that the other 3
+benchmarks show ~41-58% negative-RTG fraction regardless.
+
+Method: regenerates 100 rollouts x 3 stages via the same
+simulate_with_gumbel_b (so it also inherited, and was fixed by, the same
+roi_candidates bug as Phase 2). Reports scale_ratio (per-step-RTG-mean /
+joint-RTG-mean), SNR (joint-RTG mean/std), neg_frac.
+PASS: 0.2<=scale_ratio<=5.0, SNR>=0.5, neg_frac<0.15.
+
+--- v3 (buggy roi_candidates) ---
+                       scale_ratio    SNR    neg_frac   status
+Hartmann_6D  early        3.518      6.364    0.000     PASS
+Hartmann_6D  mid          1.701      7.233    0.000     PASS
+Hartmann_6D  late         1.657      9.479    0.000     PASS
+Currin_2D    early        2.370      8.665    0.000     PASS
+Currin_2D    mid          2.152      9.787    0.000     PASS
+Currin_2D    late         2.665      7.587    0.000     PASS
+
+--- v4 (post-bugfix) ---
+                       scale_ratio    SNR    neg_frac   status
+Hartmann_6D  early       45.430      0.007    0.480     FAIL   <- collapsed
+Hartmann_6D  mid          1.564      3.112    0.000     PASS
+Hartmann_6D  late         1.681      2.551    0.000     PASS
+Currin_2D    early        1.007      6.335    0.000     PASS
+Currin_2D    mid          1.628      7.347    0.000     PASS
+Currin_2D    late         2.214      6.234    0.000     PASS
+
+CONCLUSION: Hartmann_6D's early stage completely fails on signal strength
+too (SNR collapses from 6.36 to 0.01) once the real candidate set is used --
+the joint-RTG signal there is indistinguishable from noise. Mid/late-stage
+Hartmann_6D still passes scale/SNR criteria (though at a lower margin than
+v3 suggested). Currin_2D is essentially unaffected by the bugfix -- PASS at
+every stage in both versions.
+
+Combined with Phase 2: Currin_2D is the only benchmark with a defensible
+signal at every BO stage. Hartmann_6D is stage-dependent and fails outright
+exactly where a real BO run starts (early, sparse data) -- excluded from
+Phase 4 by explicit decision.
+
+
+================================================================================
+PHASE 4: PRODUCTION IMPLEMENTATION AND EMPIRICAL VALIDATION (Currin_2D only)
+================================================================================
+
+--- Step 1: implementation ---
+rtg_schema="joint" implemented as a real option in
+DirectRegretOptimization (src/policy/dro.py):
+  - New method _simulate_trajectory_joint: mirrors the validated (bugfixed)
+    simulate_with_gumbel_b -- roi_candidates computed once per rollout, GP
+    fantasy-conditioned via condition_on_observations at each step,
+    Thompson-sampled b_tau/b_T, joint_rtg[tau]=log(b_tau/b_T) stored
+    unclamped.
+  - _propose_next_candidate dispatches to _simulate_trajectory_joint and
+    uses trajectory['joint_rtg'][0] (not rewards.sum()) when
+    rtg_schema=="joint".
+  - _compute_rtg_target's "floored" branch extended to also cover "joint"
+    (same formula; Phase 3 confirmed dimensional compatibility).
+  - _train_decision_transformer reads traj['joint_rtg'][:traj_len] directly
+    as the RTG label for this schema, bypassing the backward-cumsum-of-
+    rewards computation used by all other schemas.
+  - New shared module gumbel_thompson.py created (thompson_sample_y_star,
+    fit_gumbel_to_samples) to avoid a circular import: dro.py importing
+    directly from validation/phase1_thompson_gumbel.py would cycle back
+    through phase1_gumbel_quality.py's own "from src.policy.dro import
+    DirectRegretOptimization".
+  - rtg_schema validation whitelist in __init__ extended to include "joint".
+
+--- Step 2: debug checks (Currin_2D, seed=42, 5 rollouts) ---
+7 checks on the real production class (not a re-implementation), all core
+checks PASS: roi_candidates sanity (real domain-spanning set, not a single
+point), fantasy-conditioning has a measurable effect across rollouts,
+joint_rtg has no NaN/Inf, _propose_next_candidate dispatch confirmed,
+_compute_rtg_target merged floored/joint formula correct,
+_train_decision_transformer trains on joint_rtg (not reward-cumsum),
+confirmed both statically (source inspection) and dynamically (corrupted-
+rewards test).
+
+Follow-up: neg_frac at seed=42, early (n_initial=5) vs mid (n_initial=25)
+stage, N=30 rollouts each:
+  early: neg_frac=40.0%, joint_rtg[0] mean=0.0104 std=0.0923,
+         b_0=0.5684 b_T=0.5624 (barely any entropy decrease -- noise-level)
+  mid:   neg_frac=3.3%,  joint_rtg[0] mean=0.9638 std=0.1540,
+         b_0=0.3687 b_T=0.1403 (b_T is ~38% of b_0 -- strong, real signal)
+Interpretation (per pre-declared decision rule): problem confined to the
+first handful of iterations; proceed to Step 3.
+
+--- Step 3: full empirical comparison ---
+DRO-MES-PerStep vs DRO-MES-Joint, Currin_2D, seeds 42/43/44, 30 BO
+iterations, 75 rollouts/iteration, use_mes_reward=True for both.
+
+Final simple regret (mean +/- SE, N=3 seeds):
+  DRO-MES-PerStep:  0.1997 +/- 0.1170
+  DRO-MES-Joint:    1.5534 +/- 0.6330   (~8x worse)
+
+Per-seed final regret:
+  seed   PerStep    Joint
+  42     0.0048     2.4833  (Joint: FLAT for all 30 iterations, 0 improvements)
+  43     0.1151     0.0139  (Joint: 1 improvement at iter ~2-3, then flat for 28 iters)
+  44     0.4792     2.1629  (Joint: FLAT for all 30 iterations, 0 improvements)
+
+DRO-MES-PerStep shows continuous multi-step improvement on every seed.
+DRO-MES-Joint: 3/3 seeds show 0-1 total improving iterations out of 30.
+
+--- Root-cause diagnosis ---
+Reproduced one real iteration's 75-rollout batch (iteration 1, seed 42) for
+both variants using the exact production rollout-generation logic:
+                    mean     std     min      max    CV(std/mean)
+DRO-MES-PerStep    0.0412   0.0169  0.0170   0.0826    0.41
+DRO-MES-Joint      0.0260   0.1301 -0.3177   0.2999    5.01
+
+PerStep's batch is tight, always-positive, low relative noise. Joint's
+batch is centered near ZERO with std 5x the mean -- roughly half the batch
+is negative, meaning the metric is dominated by Thompson-sampling/Gumbel-
+MLE noise at this stage, not real signal (consistent with the Step 2
+early-stage neg_frac/b_0-vs-b_T finding above).
+
+Mechanism: _compute_rtg_target uses
+    rtg_target = max(batch_max_rtg, alpha_floor * running_max_rtg)
+and running_max_rtg is a RATCHET that only ever increases, never decays
+(confirmed in __init__: self.running_max_rtg = 0.0, only ever updated via
+max()). batch_max_rtg = max() of 75 rollouts mostly selects a rare noise
+spike for Joint (not a real achievable value); because running_max_rtg
+never decays, that early noise spike permanently inflates the floor for
+every later iteration -- even once the GP has 20-30 real points and the
+underlying joint-RTG signal genuinely improves (per Phase 2's own mid/late-
+stage numbers). Confirmed empirically: seed 42's rtg_target climbed from
+0.30 (iter 1) to 1.90 (iter 30); seed 44's running_max_rtg climbed to 2.99.
+The DT is left extrapolating to an increasingly out-of-distribution target
+it never learned a reliable action mapping for, producing the observed
+degenerate/stuck policy.
+
+--- Attempted fix: DRO-MES-Joint-P90 ---
+Change: batch_max_rtg = 90th percentile of batch_rtg0_list (instead of raw
+max), scoped to rtg_schema=="joint" only (src/policy/dro.py
+_compute_rtg_target). Same 3-seed, 30-iteration comparison re-run.
+
+Final simple regret (mean +/- SE, N=3 seeds):
+  DRO-MES-Joint-P90: 1.5467 +/- 0.6358   (statistically unchanged vs 1.5534)
+
+Per-seed final regret:
+  seed 42: 2.4772  (was fully flat; now exactly 1 tiny improvement at iter 20,
+                     0.006 change -- still essentially stuck)
+  seed 43: 0.00007 (was 1 early improvement then flat; still 1 early
+                     improvement then flat, lands marginally better)
+  seed 44: 2.1629  (still completely flat, 0/30 improvements, unchanged)
+
+CONCLUSION: percentile alone reduces target noise (smoother, less
+extreme early rtg_target values) but does NOT resolve the lock-in -- 2/3
+seeds remain almost entirely stuck. The non-decaying running_max_rtg
+ratchet is at least as important as the noisy max(); a real fix would
+likely need BOTH a more robust batch statistic AND a decaying or warmup-
+gated running_max_rtg. Out of scope for this investigation.
+
+
+================================================================================
+FINAL RECOMMENDATION
+================================================================================
+KEEP PER-STEP RTG (rtg_schema="floored") IN PRODUCTION.
+
+Joint RTG is theoretically well-motivated (Phase 1: the Gumbel family is a
+correct model for y*, once Thompson sampling replaces the flawed product-
+CDF approximation) and passes WARN-level correlation/scale checks in
+isolated validation on Currin_2D specifically (Phases 2-3). But the
+empirical 3-seed comparison (Phase 4 Step 3) shows it produces a
+substantially worse and often-degenerate policy in practice on that exact
+benchmark: the theoretical gap between the formulations matters a great
+deal empirically, not just marginally, and a straightforward percentile-
+based fix to the most obvious failure mode (noisy batch-max selection) is
+insufficient on its own.
+
+A viable joint RTG implementation would require redesigning the target-
+selection mechanism -- a more robust batch statistic AND a decaying or
+warmup-gated running-max ratchet -- rather than reusing the existing
+floored-schema machinery unchanged. This is a well-defined but currently
+unexplored direction for future work.
+
+Code state: rtg_schema="joint" (and the "joint"-only percentile variant
+inside _compute_rtg_target) remain in src/policy/dro.py as real, working
+options -- not deleted, just not the recommended default. All validation
+scripts, plots, and this summary are preserved under validation/ for
+reproducibility.
+
+Plots: validation/results/plots/ (Phase 3 v3), plots_v4/ (Phase 3 v4),
+plots_phase4/ (Phase 4 Step 4: regret curves, batch distribution,
+running_max_rtg trajectories, final regret summary -- also copied into
+results/ and referenced from results/MF_DRO_results.tex and report.tex,
+section "Phase 4: Joint RTG Empirical Validation").
+================================================================================

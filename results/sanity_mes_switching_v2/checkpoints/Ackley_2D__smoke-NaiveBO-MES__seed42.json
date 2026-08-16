@@ -1,0 +1,43 @@
+{
+  "regret_curve": [
+    17.14787052999689,
+    17.14787052999689,
+    17.14787052999689
+  ],
+  "best_observed": [
+    -17.14787052999689,
+    -17.14787052999689,
+    -17.14787052999689
+  ],
+  "mean_reward": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "zero_frac": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "rtg_target": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "batch_max_rtg": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "running_max_rtg": [
+    NaN,
+    NaN,
+    NaN
+  ],
+  "iter_times": [
+    0.08639558400000169,
+    0.10361220800000126,
+    0.0440862089999996
+  ],
+  "acq_name_used": "mes"
+}

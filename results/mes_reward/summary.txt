@@ -1,0 +1,41 @@
+=== mes_reward: Final Regret Summary (mean +/- SE, iteration 50) ===
+
+Ackley_2D:
+  DRO_Improvement*        : 0.0814 +/- 0.0421  (N=5)
+  **DRO_MES**             : 0.0476 +/- 0.0249  (N=5)
+  NaiveBO                 : 1.6830 +/- 0.3809  (N=5)
+  Mann-Whitney U tests:
+    DRO_Improvement vs DRO_MES: p=0.8294
+    DRO_MES vs NaiveBO: p=0.0119
+
+Ackley_5D:
+  **DRO_Improvement**     : 0.0192 +/- 0.0067  (N=5)
+  DRO_MES*                : 0.0196 +/- 0.0062  (N=5)
+  NaiveBO                 : 2.0452 +/- 0.1715  (N=5)
+  Mann-Whitney U tests:
+    DRO_Improvement vs DRO_MES: p=0.9166
+    DRO_MES vs NaiveBO: p=0.0079
+
+Rosenbrock_2D:
+  DRO_Improvement         : 370.0360 +/- 315.8436  (N=5)
+  **DRO_MES**             : 0.7878 +/- 0.3120  (N=5)
+  NaiveBO                 : 5.0993 +/- 0.8847  (N=5)
+  Mann-Whitney U tests:
+    DRO_Improvement vs DRO_MES: p=0.0952
+    DRO_MES vs NaiveBO: p=0.0159
+
+Hartmann_6D:
+  DRO_Improvement         : 2.4594 +/- 0.1425  (N=5)
+  DRO_MES                 : 2.3839 +/- 0.1490  (N=5)
+  **NaiveBO**             : 0.2834 +/- 0.1887  (N=5)
+  Mann-Whitney U tests:
+    DRO_Improvement vs DRO_MES: p=0.8335
+    DRO_MES vs NaiveBO: p=0.0079
+
+Currin_2D:
+  DRO_Improvement         : 0.5308 +/- 0.2086  (N=5)
+  DRO_MES                 : 0.8661 +/- 0.4551  (N=5)
+  **NaiveBO**             : 0.0187 +/- 0.0098  (N=5)
+  Mann-Whitney U tests:
+    DRO_Improvement vs DRO_MES: p=1.0000
+    DRO_MES vs NaiveBO: p=0.1508

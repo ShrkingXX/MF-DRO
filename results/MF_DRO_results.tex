@@ -1,0 +1,627 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+
+% -- Colors -------------------------------------------------------------------
+\definecolor{maroon}{RGB}{128,0,0}
+\definecolor{slate}{RGB}{60,60,80}
+\definecolor{codeblue}{RGB}{20,60,130}
+\definecolor{warnorange}{RGB}{180,80,0}
+
+% -- Hyperref -----------------------------------------------------------------
+\hypersetup{colorlinks=true,linkcolor=maroon,urlcolor=maroon,citecolor=maroon}
+
+% -- Header / footer ----------------------------------------------------------
+\pagestyle{fancy}\fancyhf{}
+\rhead{\small MF-DRO Experimental Results}
+\lhead{\small Yuru Cui \quad University of Chicago}
+\rfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% -- Section formatting -------------------------------------------------------
+\titleformat{\section}{\large\bfseries\color{maroon}}{{\thesection}}{1em}{}%
+    [\vspace{-4pt}\rule{\linewidth}{0.4pt}]
+\titleformat{\subsection}{\normalsize\bfseries\color{slate}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\small\bfseries\color{codeblue}}{\thesubsubsection}{1em}{}
+
+\newtcolorbox{warnbox}{
+    breakable, enhanced,
+    colback=warnorange!6, colframe=warnorange!60,
+    title={\small\bfseries\color{warnorange} Implementation Note},
+    fonttitle=\bfseries,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    before skip=4pt, after skip=4pt,
+}
+
+% -----------------------------------------------------------------------------
+\begin{document}
+\begin{center}
+    {\Large\bfseries MF-DRO}\\[6pt]
+    {\large Experimental Results: Quantile RTG, MES Reward, and MES Switching}\\[4pt]
+    {\small Yuru Cui \quad University of Chicago \quad Summer 2026}\\[2pt]
+    {\small Supervisor: Prof.\ Yuxin Chen}
+\end{center}
+
+\section{Experiment 1: MES Reward Ablation}
+
+\subsection{Design}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Benchmarks} & Ackley\_2D, Ackley\_5D, Rosenbrock\_2D, Hartmann\_6D, Currin\_2D \\
+\textbf{Variants} & DRO\_Improvement, DRO\_MES, NaiveBO \\
+\textbf{Seeds} & 42--46 (N=5) \\
+\textbf{BO iterations} & 50 \\
+\textbf{Rollouts per iteration} & 75 \\
+\textbf{Rollout length} & 4 \\
+\textbf{RTG schema} & floored ($\alpha_{\text{floor}}=0.5$), held fixed to isolate reward effect \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Results}
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Benchmark} & \textbf{DRO\_Improvement} & \textbf{DRO\_MES} & \textbf{NaiveBO} \\
+\midrule
+Ackley\_2D      & $0.0814 \pm 0.0421$ & $\mathbf{0.0476 \pm 0.0249}$ & $1.6830 \pm 0.3809$ \\
+Ackley\_5D      & $\mathbf{0.0192 \pm 0.0067}$ & $0.0196 \pm 0.0062$ & $2.0452 \pm 0.1715$ \\
+Rosenbrock\_2D  & $370.04 \pm 315.84$ & $\mathbf{0.7878 \pm 0.3120}$ & $5.0993 \pm 0.8847$ \\
+Hartmann\_6D    & $2.4594 \pm 0.1425$ & $2.3839 \pm 0.1490$ & $\mathbf{0.2834 \pm 0.1887}$ \\
+Currin\_2D      & $0.5308 \pm 0.2086$ & $0.8661 \pm 0.4551$ & $\mathbf{0.0187 \pm 0.0098}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\captionof{table}{Final simple regret (mean $\pm$ SE, iteration 50, N=5 seeds). Bold = best mean.
+DRO\_Improvement vs.\ DRO\_MES is never significant at $p<0.05$ (Mann--Whitney U); the largest
+gap (Rosenbrock\_2D) has $p=0.095$, limited by N=5.}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{mes_reward_regret_Ackley_2D.png}
+\captionof{figure}{Experiment 1, Ackley\_2D: regret curves (left) and reward
+sparsity / zero-fraction (right). \emph{[Placeholder filename --
+figures to be inserted by author.]}}
+\end{center}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{mes_reward_regret_Rosenbrock_2D.png}
+\captionof{figure}{Experiment 1, Rosenbrock\_2D: DRO\_MES converges
+$\sim$2.5 orders of magnitude below DRO\_Improvement.}
+\end{center}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{mes_reward_regret_Currin_2D.png}
+\captionof{figure}{Experiment 1, Currin\_2D: both DRO variants plateau near
+iteration 13; NaiveBO continues improving for the full run.}
+\end{center}
+
+\subsection{Analysis}
+
+\textbf{Core finding: MES reward is non-inferior to improvement reward.} On
+4 of 5 benchmarks, DRO\_MES is statistically indistinguishable from or
+numerically better than DRO\_Improvement. On Rosenbrock\_2D, MES is dramatically
+better in practice (a single DRO\_Improvement seed exhibits reward blow-up to
+regret $1782$ -- traced to raw, unbounded improvement reward destabilizing the
+RTG target on large-magnitude objectives; MES's reward stays bounded in nats
+regardless of the objective's raw scale). The right-panel reward-sparsity plots
+confirm the mechanism: DRO\_MES sits at zero\_frac $\approx 0\%$ throughout
+(dense signal every rollout step) versus DRO\_Improvement's 75--92\% (sparse,
+improvement-only signal).
+
+\textbf{Currin\_2D is a genuine negative result, not a bug.} Both DRO variants
+stall hard after $\sim$13 iterations while NaiveBO keeps improving for the full
+50, ending $\sim$1.5 orders of magnitude ahead. Section~\ref{sec:diagnosis}
+traces this to a structural weakness in DRO's rollout query-selection mechanism,
+independent of reward type.
+
+\FloatBarrier
+\section{Experiment 2: RTG Schema Comparison}
+
+\subsection{Design}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Benchmarks} & Ackley\_2D, Ackley\_5D, Eggholder, Hartmann\_6D \\
+\textbf{Variants} & DRO\_Fixed, DRO\_Dynamic, DRO\_Floored, DRO\_Quantile\_$\{0.25,0.5,0.75,0.9\}$ \\
+\textbf{Seeds} & 42--46 (N=5) \\
+\textbf{Reward} & Improvement, held fixed to isolate the RTG-schema effect \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Results}
+
+\begin{center}
+\begin{tabular}{lccccccc}
+\toprule
+& \textbf{Fixed} & \textbf{Dynamic} & \textbf{Floored} & \textbf{Q(.25)} & \textbf{Q(.5)} & \textbf{Q(.75)} & \textbf{Q(.9)} \\
+\midrule
+Ackley\_2D  & 0.033 & 0.069 & 0.081 & 0.048 & 0.039 & $\mathbf{0.026}$ & 0.027 \\
+Ackley\_5D  & 0.030 & 0.021 & $\mathbf{0.019}$ & 0.044 & 0.040 & 0.034 & 0.044 \\
+Eggholder   & 596 & 609 & $\mathbf{543}$ & 571 & 604 & 551 & 590 \\
+Hartmann\_6D & 2.448 & 2.459 & 2.459 & 2.630 & 2.630 & 2.630 & 2.630 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\captionof{table}{Final simple regret (mean, N=5 seeds; SE omitted for space). Bold = best per row.
+Hartmann\_6D values are bit-identical within each schema family -- see Section~\ref{sec:diagnosis}.}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{rtg_schema_regret_Ackley_5D.png}
+\captionof{figure}{Experiment 2, Ackley\_5D: quantile variants converge
+faster early ($\sim$iteration 10) but plateau, while Fixed/Dynamic/Floored
+improve steadily through iteration 50 and finish ahead.}
+\end{center}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{rtg_schema_regret_Hartmann_6D.png}
+\captionof{figure}{Experiment 2, Hartmann\_6D: every schema variant is a flat
+line from iteration 1 -- zero improvement over the entire run.}
+\end{center}
+
+\subsection{Analysis}
+
+\textbf{Ackley\_5D shows a real anytime-vs-final-performance tradeoff.} The
+self-predicted quantile RTG target adapts quickly to achievable returns,
+giving faster early progress, but the fixed/dynamic/floored schemas' slower,
+steadily-growing target sustains improvement longer and wins by iteration 50.
+
+\textbf{Hartmann\_6D: a diagnostic dead end that turned out to be informative.}
+All four quantile levels report \emph{bit-identical} regret per seed (not
+merely similar means -- verified by direct comparison of raw per-seed values).
+Investigation showed \texttt{regret\_curve[0] == regret\_curve[-1]} exactly for
+every variant: DRO never improves on its initial Latin Hypercube sample for the
+entire 50-iteration run, regardless of reward or RTG schema. Since the
+underlying data never changes, every downstream computation (RTG target
+regardless of $\alpha$, DT training, real queries) is trivially identical
+across schema variants. This is \emph{not} a regression of the causal-mask bug
+(independently verified fixed on Ackley\_2D, Stage~3 of the debugging protocol,
+Section~\ref{sec:diagnosis}) -- it is the same structural mechanism responsible
+for the Currin\_2D failure, more severe here due to Hartmann\_6D's higher
+dimensionality (6D vs.\ Currin's 2D).
+
+\FloatBarrier
+\section{Structural Diagnosis: Local Trust-Region Collapse}
+\label{sec:diagnosis}
+
+\subsection{Mechanism}
+
+\texttt{\_optimize\_acquisition} generates rollout candidates as
+\[
+x_{\text{samples}} \sim \mathcal{N}\big(x_{\text{best}},\ \text{diameter}^2 I\big), \qquad
+\text{diameter} = \lVert x_{\text{best}} - x_{\text{2nd-best}} \rVert,
+\]
+gated by a UCB $\geq \max(\text{LCB})$ filter (\texttt{constrain\_ucb\_lcb}).
+A real 20-iteration trace on Currin\_2D (seed 42) made the failure mode
+concrete: after iteration 2 finds a point near the true optimum, \emph{no
+further point ever beats it}, so \texttt{diameter} -- defined by exactly the
+top-2 observed points -- freezes at 6\% of the domain width for the remaining
+18 iterations. The true optimum requires moving $x_1$ a distance larger than
+this frozen radius; the search is permanently confined to a ball too small to
+reach it. Crucially, this only affects \emph{simulated rollouts} (which train
+the DT) -- the real query comes from the DT's learned policy, so the collapse
+cascades: narrow rollout data $\to$ DT trained only on a narrow action
+distribution $\to$ narrow real queries.
+
+\textbf{Why NaiveBO escapes this:} it uses BoTorch's \texttt{optimize\_acqf}
+directly (10 restarts $\times$ 512 raw samples, full-domain, no trust region),
+which is exactly why it reaches near-optimal regret on Currin\_2D
+(0.019) while DRO stalls at 0.5--0.9.
+
+\subsection{Two attempted fixes, both informative negative results}
+
+\textbf{Attempt 1 (top-$K$ diameter + stall-widening).} Basing \texttt{diameter}
+on the mean distance to the top-$K{=}5$ points instead of just the top-2, and
+widening it after $N$ stalled iterations, was tested on the same Currin\_2D
+trace. Result: \emph{worse}, not better -- \texttt{best\_observed} never beat
+the initial LHS baseline across 30 iterations. Mechanism: widening a Gaussian's
+spread \emph{dilutes} sample density everywhere, including the narrow good
+region -- it does not reliably increase coverage there. This approach was
+reverted.
+
+\textbf{Attempt 2 (global/local hybrid candidate generation).} Replacing the
+purely local Gaussian with a 50/50 mix of domain-wide uniform samples
+($x_{\text{global}}$) and local Gaussian samples ($x_{\text{local}}$), the
+latter with a floor on \texttt{diameter} so it cannot itself collapse to
+near-zero spread. Two validations were run on Currin\_2D (seed 42) before this
+fix was judged sufficient or insufficient.
+
+\textit{Validation 1: candidate coverage.} \texttt{\_optimize\_acquisition} was
+called 5 times sequentially (same DRO instance, real state), and each call's
+returned \texttt{roi\_candidates} ($N=1000$) was checked for the fraction of
+samples landing near the true optimum ($x_1 \in [0.15, 0.30]$, near
+$x_1^*\approx0.217$; $x_2 \in [0.0, 0.05]$, near the $x_2\to0$ ridge).
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+\textbf{Call} & \textbf{frac($x_1\in[0.15,0.30]$)} & \textbf{frac($x_2\in[0.0,0.05]$)} & \textbf{Pass ($\geq$0.02)} \\
+\midrule
+1 & 0.1280 & 0.2410 & Yes \\
+2 & 0.1420 & 0.2370 & Yes \\
+3 & 0.1250 & 0.2350 & Yes \\
+4 & 0.1410 & 0.2310 & Yes \\
+5 & 0.1460 & 0.2450 & Yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+\captionof{table}{Validation 1: candidate coverage near Currin\_2D's true optimum, before
+(Attempt 1: $\approx$0\%, not shown) vs.\ after the hybrid fix (12--15\% and
+23--25\%). All 5 calls clear the 2\% pass threshold with a wide margin.}
+
+\textit{Validation 2: does coverage translate into an escaped trajectory?} A
+real 20-iteration DRO run (\texttt{DRO\_Improvement}, seed 42, hybrid fix
+active) was traced query-by-query.
+
+\begin{center}
+\small
+\begin{tabular}{crrrr}
+\toprule
+\textbf{Iter} & \textbf{$x_1$} & \textbf{$x_2$} & \textbf{$f_H$} & \textbf{best\_so\_far} \\
+\midrule
+1  & 0.0198 & 0.0000 & 5.0439  & 11.3154 \\
+2  & 0.0612 & 0.0054 & 8.8383  & 11.3154 \\
+3  & 0.0168 & 0.1004 & 4.7055  & 11.3154 \\
+4  & 0.0506 & 0.0698 & 7.9474  & 11.3154 \\
+5  & 0.0417 & 0.0555 & 7.1637  & 11.3154 \\
+6  & 0.0588 & 0.0564 & 8.6411  & 11.3154 \\
+7  & 0.0524 & 0.0547 & 8.1098  & 11.3154 \\
+8  & 0.0466 & 0.0804 & 7.5872  & 11.3154 \\
+9  & 0.0640 & 0.0954 & 9.0065  & 11.3154 \\
+10 & 0.0824 & 0.0706 & 10.3568 & 11.3154 \\
+11 & 0.0814 & 0.0656 & 10.2964 & 11.3154 \\
+12 & 0.0837 & 0.0820 & 10.4260 & 11.3154 \\
+13 & 0.0848 & 0.0758 & 10.5090 & 11.3154 \\
+14 & 0.0778 & 0.0812 & 10.0429 & 11.3154 \\
+15 & 0.0805 & 0.0890 & 10.2079 & 11.3154 \\
+16 & 0.0618 & 0.0861 & 8.8618  & 11.3154 \\
+17 & 0.0414 & 0.0672 & 7.1274  & 11.3154 \\
+18 & 0.0448 & 0.0651 & 7.4420  & 11.3154 \\
+19 & 0.0289 & 0.0487 & 5.9472  & 11.3154 \\
+20 & 0.0313 & 0.0347 & 6.1825  & 11.3154 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\captionof{table}{Validation 2: full 20-iteration trace with the hybrid fix active.
+Despite $\geq$1000 candidates/iteration with 12--25\% coverage near the true optimum
+(Validation 1), every single queried point stays clustered in $x_1\in[0.017,0.085]$,
+$x_2\in[0.0,0.10]$ -- never approaching $x_1^*\approx0.217$ -- and \texttt{best\_so\_far}
+never moves from the initial LHS value of 11.3154 (true optimum: 13.7987). This is
+\emph{worse} than the pre-fix trajectory, which at least found 12.7168 at iteration 2
+before freezing.}
+
+\textbf{Diagnosis: candidates with good coverage don't help if the
+\emph{acquisition function ranking} never selects them.} EI/UCB/PI are
+myopic: a candidate near the true optimum has a GP posterior mean pulled low by
+extrapolation from nearby (unfavorable) data, so its EI/UCB score loses to the
+already-good local incumbent regardless of how many such candidates exist in
+the pool -- exactly what Validation 2 shows happening in practice. This fix
+(candidate coverage) is retained as a genuine correctness improvement, but is
+not sufficient on its own.
+
+\textbf{This directly motivates Experiment 3.} MES ranks candidates by
+information gain about $y^*$, $I(y^*; f(x) \mid \mathcal{D})$, which rewards
+high posterior \emph{variance} regardless of posterior mean -- exactly the
+property myopic acquisition functions lack. If MES-driven rollout query
+selection escapes this trap where EI/UCB/PI cannot, that is the core evidence
+needed before committing to MES as MF-DRO's fidelity-switching criterion.
+
+\FloatBarrier
+\section{Experiment 3: MES Switching-Condition Ablation (In Progress)}
+
+\subsection{Design}
+
+A 2$\times$2 crossing of rollout query-selection criterion and reward signal,
+plus two NaiveBO references:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+& \textbf{Improvement reward} & \textbf{MES reward} \\
+\midrule
+\textbf{EI selection}  & DRO-EI-Impr & DRO-EI-MES \\
+\textbf{MES selection} & DRO-MES-Impr & DRO-MES-MES \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{l}
+\toprule
+\textbf{References} \\
+\midrule
+NaiveBO-EI \\
+NaiveBO-MES \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{rollout\_acq\_function} is a new, independent per-variant config
+parameter (default \texttt{"ei"}), decoupled from the pipeline's old shared
+\texttt{rotate\_acq} rotation. \texttt{rollout\_acq\_function} controls only
+which locations simulated rollouts query (i.e., DT \emph{training data}
+quality) -- the DT's real query at inference is always from its learned
+policy, never the acquisition function directly. NaiveBO-MES was added as a new
+baseline (\texttt{qMaxValueEntropy} with domain-wide candidates, mirroring the
+DRO-side fix). Benchmarks, seeds, and hyperparameters match Experiment 1
+(5 benchmarks $\times$ 6 variants $\times$ 5 seeds $=$ 150 runs).
+
+\begin{warnbox}
+\textbf{Status (as of this writing):} All Stage 0--4 unit/debugging checks
+(acquisition decoupling, candidate-set shape, reward/selection differentiation,
+3-seed smoke test) passed before launch. 90/150 runs complete, 0 failures.
+Ackley\_2D and Ackley\_5D have all 6 variants $\times$ 5 seeds complete;
+Rosenbrock\_2D is missing the two MES-selection DRO variants; Hartmann\_6D has
+only the two EI-selection variants so far; Currin\_2D has not started. The
+partial results below cover only the two fully-complete benchmarks and are
+\emph{not} yet the decisive test -- Currin\_2D and Hartmann\_6D are precisely
+the benchmarks where the structural trust-region collapse
+(Section~\ref{sec:diagnosis}) matters most, so the interpretation guide below
+should not be applied until those are in.
+\end{warnbox}
+
+\subsection{Partial results: Ackley\_2D and Ackley\_5D}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Variant} & \textbf{Ackley\_2D} & \textbf{Ackley\_5D} \\
+\midrule
+DRO-EI-Impr   & $0.7373 \pm 0.3020$ & $0.0508 \pm 0.0136$ \\
+DRO-EI-MES    & $0.2392 \pm 0.1704$ & $0.0596 \pm 0.0184$ \\
+DRO-MES-Impr  & $\mathbf{0.0870 \pm 0.0361}$ & $\mathbf{0.0302 \pm 0.0083}$ \\
+DRO-MES-MES   & $0.0894 \pm 0.0456$ & $0.0524 \pm 0.0168$ \\
+NaiveBO-EI    & $1.6830 \pm 0.3809$ & $2.0452 \pm 0.1715$ \\
+NaiveBO-MES   & $4.1480 \pm 3.2487$ & $2.7989 \pm 0.9572$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\captionof{table}{Final simple regret (mean $\pm$ SE, iteration 50, N=5 seeds). Bold = best per column.
+NaiveBO-EI values match Experiment 1's NaiveBO exactly (same seeds, same
+algorithm) -- a useful consistency check that nothing else changed.}
+
+\textbf{MES selection effect} (DRO-MES vs.\ DRO-EI, same reward, Mann--Whitney U):
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& \textbf{Ackley\_2D} & \textbf{Ackley\_5D} \\
+\midrule
+Impr reward -- diff (MES$-$EI) & $-0.650$ ($p=0.39$) & $-0.021$ ($p=0.35$) \\
+MES reward -- diff (MES$-$EI)  & $-0.150$ ($p=1.00$) & $-0.007$ ($p=0.75$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Early read (not yet conclusive):} MES query selection reduces regret
+in \emph{all four} available comparisons (both benchmarks, both reward types)
+-- a consistent direction, though none reach significance at N=5. Also notable:
+pinned EI-only rollout selection (DRO-EI-Impr, 0.737 on Ackley\_2D) performs
+substantially worse than Experiment 1's DRO\_Improvement (0.081), which used
+the old shared \texttt{rotate\_acq} rotation across ei/ucb/pi -- suggesting the
+acquisition-function \emph{diversity} that rotation provided was itself doing
+useful work, independent of the MES-selection question. NaiveBO-MES
+underperforms NaiveBO-EI on both benchmarks with high variance, which is
+worth watching as more benchmarks complete.
+
+\subsection{Interpretation guide (pre-registered)}
+
+\begin{itemize}[itemsep=3pt]
+    \item If MES selection reduces regret under \emph{both} reward types with
+          $p<0.05$: MES query selection is beneficial in the single-fidelity
+          setting -- the MF-DRO switching condition is well motivated.
+    \item If the effect is near zero or $p>0.1$ for both: query selection is
+          neutral -- fidelity selection, not location, will be MF-DRO's key
+          differentiator.
+    \item If MES selection increases regret: flag for discussion before
+          proceeding to MF-DRO implementation.
+    \item If results are benchmark-dependent (plausible, given Section~\ref{sec:diagnosis}'s
+          finding that Currin\_2D/Hartmann\_6D fail structurally regardless of
+          reward): report per-benchmark, with particular attention to whether
+          MES selection specifically rescues Currin\_2D/Hartmann\_6D.
+\end{itemize}
+
+\FloatBarrier
+\section{Phase 4: Joint RTG Empirical Validation}
+\label{sec:phase4}
+
+Independent of Experiment 3, a separate line of investigation asked whether
+the RTG label used to train the Decision Transformer should be a
+\emph{joint} formulation -- $\mathrm{RTG}[\tau] = \log(b_\tau / b_T)$, the
+log-ratio of Gumbel scale parameters (fit via Thompson sampling from the
+GP posterior) before and after conditioning on a simulated rollout -- rather
+than the current per-step reward-sum. This is motivated by information
+theory: $b$ parameterizes an entropy estimate of $y^\ast = \max_x f(x)$, so
+the log-ratio directly measures how much a rollout reduced uncertainty
+about the global optimum, which is closer to what an ideal RTG target
+should reward than a sum of per-step MES mutual-information terms.
+
+\subsection{Validation Phases 1--3 (summary)}
+
+Four validation passes preceded any production code change, using
+standalone scripts under \texttt{validation/} (read-only with respect to
+\texttt{src/policy/dro.py} throughout):
+\begin{itemize}[itemsep=3pt]
+    \item \textbf{Phase 1} found the product-CDF Gumbel approximation used
+          elsewhere in the codebase is a poor fit to the true max-value
+          distribution under GP posterior correlation (0/15 benchmark-stage
+          combinations passed a KS test), but that Thompson sampling (exact
+          joint \texttt{rsample()}, removing the independence assumption)
+          fixes this completely (15/15 passed).
+    \item \textbf{Phase 2} found a real implementation bug in its own
+          reference script: \texttt{roi\_candidates} and \texttt{best\_x}
+          were swapped in an unpacking assignment, silently collapsing every
+          rollout's candidate set to a single point. After the fix (v4),
+          joint RTG's rank correlation with per-step RTG is
+          benchmark- and stage-dependent: Hartmann\_6D fails outright at the
+          early BO stage (5 initial points; $\rho=0.06$, 48\% of joint-RTG
+          values negative) though it recovers to WARN-level ($\rho\approx0.60$--$0.66$)
+          at mid/late stages; Currin\_2D is the only benchmark with a
+          consistent (if not strong) WARN-level signal at every stage
+          ($\rho=0.68$--$0.78$). Ackley/Rosenbrock fail throughout.
+    \item \textbf{Phase 3} (Hartmann\_6D, Currin\_2D only, per Phase 2's
+          findings) confirmed joint RTG is scale-compatible with the
+          existing floored-dynamic schema, but Hartmann\_6D's early stage
+          fails on signal strength too (SNR $=0.01$, vs.\ SNR $>2.5$ at
+          mid/late stage and $>6$ for Currin\_2D throughout).
+\end{itemize}
+
+Given Hartmann\_6D's early-stage failure directly overlaps the regime a
+real BO run always starts in, Phase 4 was scoped to \textbf{Currin\_2D
+only}.
+
+\subsection{Production implementation and empirical result}
+
+\texttt{rtg\_schema="joint"} was implemented as a real option in
+\texttt{DirectRegretOptimization} (\texttt{\_simulate\_trajectory\_joint},
+mirroring the validated Phase 2/3 mechanics: GP fantasy-conditioning via
+\texttt{condition\_on\_observations} within a rollout, a fixed
+\texttt{roi\_candidates} set computed once per rollout, Thompson-sampled
+$b_\tau$ at each step). Seven debug checks confirmed the production wiring
+matched the validated reference exactly. A genuine 3-seed comparison
+(\texttt{DRO-MES-PerStep} vs.\ \texttt{DRO-MES-Joint}, seeds 42/43/44, 30 BO
+iterations, Currin\_2D) then gave a decisively negative result:
+
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+\textbf{Variant} & \textbf{Final simple regret (mean $\pm$ SE, N=3)} \\
+\midrule
+DRO-MES-PerStep & $\mathbf{0.1997 \pm 0.1170}$ \\
+DRO-MES-Joint   & $1.5534 \pm 0.6330$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\captionof{table}{Final regret after 30 BO iterations, Currin\_2D. DRO-MES-Joint
+is $\sim$8$\times$ worse and 3/3 seeds show 0--1 total improving iterations
+out of 30 (vs.\ 0/3 for DRO-MES-PerStep).}
+
+\begin{center}
+\includegraphics[width=0.95\textwidth]{phase4_regret_curves.png}
+\captionof{figure}{Per-seed regret curves. Two of three DRO-MES-Joint seeds
+never improve past the initial 5 LHS points across all 30 iterations; the
+third improves once (iteration 2--3) and then also goes flat.}
+\end{center}
+
+\subsection{Root cause}
+
+The inference-time RTG target uses the same floored formula as the
+existing schema: $\mathrm{target} = \max(\mathrm{batch\_max\_rtg},\
+\alpha_{\text{floor}} \cdot \mathrm{running\_max\_rtg})$, where
+\texttt{running\_max\_rtg} is a ratchet that only ever increases. This
+formula is well-behaved for a bounded, low-variance per-step reward sum,
+but breaks down for joint RTG:
+
+\begin{center}
+\includegraphics[width=0.85\textwidth]{phase4_batch_distribution.png}
+\captionof{figure}{Batch $\mathrm{RTG}[0]$ distribution at iteration 1
+(75 rollouts, Currin\_2D, seed 42). Joint's distribution is centered near
+zero with coefficient of variation $\approx 5$ (std $5\times$ the mean) --
+i.e.\ dominated by Thompson-sampling/Gumbel-MLE noise rather than real
+signal, versus PerStep's tight, always-positive distribution
+(CV $\approx 0.4$).}
+\end{center}
+
+Because \texttt{batch\_max\_rtg} is the maximum of 75 stochastic rollouts,
+it mostly selects a rare noise spike for joint RTG rather than a genuinely
+achievable value -- and because \texttt{running\_max\_rtg} never decays,
+that early spike permanently inflates the floor for every later iteration
+(Figure~\ref{fig:phase4-ratchet}), even once the GP has enough real data
+for the underlying signal to genuinely improve (per Phase 2's mid/late-stage
+numbers). The DT is left extrapolating to an increasingly out-of-distribution
+target it never learned a reliable mapping for, producing a degenerate,
+stuck policy.
+
+\begin{center}
+\includegraphics[width=0.95\textwidth]{phase4_running_max_rtg.png}
+\captionof{figure}{\texttt{running\_max\_rtg} over 30 iterations, all three
+seeds. Both formulations' ratchets climb, but PerStep's underlying metric
+stays learnable at any scale while Joint's does not.}
+\label{fig:phase4-ratchet}
+\end{center}
+
+\textbf{A targeted fix was tested and found insufficient.} Replacing
+\texttt{batch\_max\_rtg} with the 90th percentile of the batch (instead of
+the raw max), for \texttt{rtg\_schema=="joint"} only, produces smoother,
+less noise-driven targets but does not resolve the lock-in: 2 of 3 seeds
+remain almost entirely stuck (Figure~\ref{fig:phase4-summary}), and the
+aggregate final regret is statistically unchanged ($1.5467 \pm 0.6358$).
+The non-decaying ratchet is at least as important as the noisy max -- a
+viable fix would likely need both a more robust batch statistic \emph{and}
+a decaying or warmup-gated \texttt{running\_max\_rtg}, which is out of
+scope for this investigation.
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{phase4_final_regret_summary.png}
+\captionof{figure}{Final regret summary, all three variants tested.}
+\label{fig:phase4-summary}
+\end{center}
+
+\subsection{Recommendation}
+
+\textbf{Keep per-step RTG (\texttt{rtg\_schema="floored"}) in production.}
+Joint RTG is theoretically well-motivated and passes WARN-level correlation
+checks in isolated validation, but the empirical 3-seed comparison shows it
+produces a substantially worse and often-degenerate policy in practice --
+the gap between the two formulations matters a great deal empirically, not
+just marginally. A viable joint RTG implementation would require
+redesigning the target-selection mechanism (robust batch statistic \emph{and}
+a decaying/warmup-gated running-max ratchet) rather than reusing the
+existing floored-schema machinery unchanged.
+
+\FloatBarrier
+\section{Summary}
+
+\begin{itemize}[itemsep=3pt]
+    \item All reported results are from a corrected pipeline (several real
+          bugs in the DT training, MES reward, and MES acquisition code were
+          found and fixed beforehand).
+    \item \textbf{MES reward is confirmed non-inferior to improvement reward}
+          across 4/5 benchmarks, with a large practical win on Rosenbrock\_2D
+          -- the prerequisite result for using MES as MF-DRO's reward signal.
+    \item RTG schema comparison surfaces a genuine anytime-vs-final tradeoff
+          (quantile schemas on Ackley\_5D) and, more importantly, an
+          independent structural finding.
+    \item \textbf{DRO's local trust-region rollout mechanism can catastrophically
+          collapse}, independent of reward or RTG schema (Currin\_2D,
+          Hartmann\_6D). Two candidate-generation fixes were tried and both
+          failed to resolve it on their own -- the bottleneck is acquisition
+          \emph{ranking}, not candidate \emph{coverage}.
+    \item This motivates Experiment 3, testing MES as the rollout query-selection
+          criterion itself -- currently running.
+\end{itemize}
+
+\section{Next Steps}
+
+\begin{enumerate}[itemsep=3pt]
+    \item Complete and analyze Experiment 3; apply the pre-registered
+          interpretation guide above.
+    \item If MES selection is validated: begin MF-DRO implementation, using
+          MES mutual information for both the fidelity-switching condition and
+          the low-fidelity information-gain reward.
+    \item If MES selection is neutral or negative: investigate the local
+          trust-region mechanism further (e.g., a small $\epsilon$-fraction of
+          pure-uniform candidates surviving directly into the acquisition
+          argmax, bypassing ranking altogether) before MF-DRO implementation.
+    \item Re-run Experiment 1/2 at full seed count (N=10) once Experiment 3's
+          direction is settled, for publication-quality confidence intervals.
+\end{enumerate}
+
+\end{document}
