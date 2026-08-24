@@ -165,3 +165,48 @@ duplicate compute.
 mean 0.4486 vs MI-Greedy 0.5091 +/- 0.1266. Encouraging but NOT reportable: the
 completion-order bias documented earlier means finished runs over-represent
 HF-heavy behaviour, and n=4 of 10. No claim until all seeds land.
+
+## Tick — h1 complete (FAIL), H6 inconclusive, extension pre-registered
+
+**The frozen evaluation is answered.** MF-DRO 0.5047 +/- 0.0395 vs MF-MI-Greedy
+0.5091 +/- 0.1266 at matched cost. Success test: **FAIL** (0.5442 >= 0.3825),
+reported exactly as pre-registered. PROTOCOL.md permits this and it is the
+honest headline: the fixes do not produce a method that strictly beats
+MI-Greedy.
+
+What DID change: **0/10 runs frozen** vs a pre-fix 9/12. The named pathology is
+resolved. But the paired analysis corrects the naive reading — the near-zero
+mean difference (-0.0045) is carried almost entirely by seed45, where MI-Greedy
+failed badly; on the MEDIAN seed MF-DRO is slightly worse (+0.09).
+
+**H6 established nothing at n=10 and I am not pretending otherwise.** The paired
+estimate changed sign across the run of the experiment: n=1 -0.208, n=5 -0.103,
+n=7 -0.010, n=9 +0.062, n=10 +0.098. Final CI [-0.097, +0.292] straddles zero,
+Wilcoxon p=0.322. The variance ratio looked strong (4.79x) but the tests
+disagree: F p=0.029 and Bartlett p=0.029 versus **Levene p=0.209**. Regret is
+right-skewed and bounded below, so the robust test is the one to believe, and
+last tick's "variance is the robust finding" claim does not survive. Both arms
+are also paired, which independent-sample variance tests do not respect.
+
+A post-hoc power analysis explains all of it: paired sd is 0.3138, LARGER than
+the effect being chased. The design resolves only effects >= ~0.3 regret units
+against arms sitting near 0.5. Roughly 80 seeds would be needed for the observed
++0.098.
+
+**Extension pre-registered (b00dacd) with explicit anti-p-hacking guards**: final
+n fixed at 30 in advance, n=30 analysis is primary AND final, no further
+extension regardless of outcome, and the primary prediction is a NULL (CI still
+contains zero) precisely so a null cannot later be spun as a finding. It is also
+stated up front that n=30 cannot resolve the mean. This does not touch
+PROTOCOL.md — H6 is an MF-DRO-vs-MF-DRO internal comparison, not the frozen
+evaluation.
+
+**Same power caveat now propagated to the headline**: MF-DRO and MI-Greedy
+differ by 0.0045 with MI-Greedy sd 0.400. That is "underpowered to distinguish",
+not "demonstrated equivalence", and findings.md/research-state.yaml both say so.
+
+Self-inflicted error worth logging: I wrote invalid YAML into research-state.yaml
+(an unquoted list item beginning with a quote) and the commit went through
+because I ran the validator on a separate line instead of chaining it with &&.
+Caught on the next validation, fixed, commit amended. Chain validators to the
+commit.
