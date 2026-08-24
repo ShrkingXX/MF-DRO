@@ -1,0 +1,37 @@
+project: mfdro-hartmann-freeze
+question: >
+  Does MF-DRO's incumbent-freeze on Hartmann 6D have a within-DRO-frame fix
+  that yields lower final simple regret than MF-MI-Greedy and MF-GP-UCB at
+  matched real cost?
+protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
+branch: mfdro-hartmann-autoresearch
+phase: inner-loop
+status: hypothesis-revision-pending-user
+
+evaluation:
+  benchmark: Hartmann_6D
+  baselines: [MF-MI-Greedy, MF-GP-UCB]
+  seeds: 10
+  metric: final simple regret at matched real cost
+  success_test: MF-DRO mean+SE < best-baseline mean-SE
+
+hypotheses:
+  H0:
+    statement: Narrow-basin coverage failure at initialization
+    status: REFUTED by inventory
+    evidence: MF-MI-Greedy freezes 0/10 on the same benchmark and init family
+    note: pre-registered as leading; requires user amendment to PROTOCOL.md
+  H1:
+    statement: Freeze originates in the DRO/DT component, not multi-fidelity
+    status: SUPPORTED (untested directly)
+    evidence: SF-DRO freezes 12/12 (100%), more than MF-DRO's 9/12
+    next: isolate mechanism via existing _diag_dt_action_collapse / _diag_sf_* harnesses
+  H2:
+    statement: Freeze is a DRO x narrow-basin interaction
+    status: SUPPORTED (untested directly)
+    evidence: MF-DRO does not freeze on Ackley 10D (incumbent-improved 7/9/8)
+
+completed:
+  - inventory of 1280 runs -> data/results_inventory.csv
+  - freeze-rate table by method
+  - verification that REVISION_LOG Hartmann claim is wrong
