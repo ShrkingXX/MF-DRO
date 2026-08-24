@@ -57,6 +57,43 @@ in the codebase.</p>
 
 
 
+
+<h2>Two stages, two different causes (H21)</h2>
+<div class="card">
+<div class="kicker">Trained vs randomly-initialised encoder — identical architecture, states, pools</div>
+<div class="scroll"><table>
+<tr><th></th><th class="n">s &rarr; h (encoder)</th><th class="n">h &rarr; w (head)</th><th class="n">argmax moved</th></tr>
+<tr><td>trained</td><td class="n">0.3898&times;</td><td class="n bad">0.3348&times;</td><td class="n">0/12</td></tr>
+<tr><td>random init</td><td class="n">0.4601&times;</td><td class="n good">1.6039&times;</td><td class="n">0/12</td></tr>
+</table></div>
+<p>The encoder's contraction is <strong>architectural</strong> — a random
+transformer contracts almost as hard as a trained one (ratio 1.18). The head's is
+<strong>learned</strong>: a random head <em>amplifies</em> variation where the
+trained head contracts it, a <strong>4.8&times; swing</strong> from fitting alone.
+<span class="bad">Training actively collapses the scoring head.</span></p>
+<p>But neither is near the threshold that would matter. Even with
+<strong>5.7&times;</strong> more coefficient variation, the random network still
+moves the argmax 0/12 at cosine 0.99978. The invariance is <em>far</em> from
+tipping, not marginally short.</p>
+<p class="sub">Guard fixed in advance and it binds: this is a channel-capacity
+probe only. An untrained network's choices are meaningless for performance, and
+nothing here suggests skipping training.</p>
+</div>
+
+<h2>Paper drafted &mdash; and audited</h2>
+<div class="card">
+<p><strong>39 numeric claims</strong> in the draft were checked programmatically
+against recorded data. <strong>38 matched; one did not.</strong> The paper had
+inherited <code>sd(x_t)=0.166&ndash;0.213</code> from an earlier phase; recomputing on
+the post-fix runs gives <strong>0.121&ndash;0.228</strong>. Corrected in both the paper
+and <code>findings.md</code>.</p>
+<p>All 8 citations were fetched from arXiv/CrossRef, never written from memory —
+and the <em>claims</em> were verified too, not just existence. Two caveats you
+should see: CrossRef returns Kennedy &amp; O'Hagan (2000) with an incomplete
+author list, and <strong>the paper has never been compiled</strong> — no LaTeX
+toolchain exists on this machine.</p>
+</div>
+
 <h2>The answer to the research question</h2>
 <img src="figs/final_frozen_result.png" alt="Final frozen evaluation, 10 seeds, four arms">
 <div class="card">
