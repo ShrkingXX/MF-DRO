@@ -180,3 +180,39 @@ This is the **fourth** auto-printed verdict of this phase to be wrong:
 **Lesson: a script's auto-verdict must key on the decisive measurement, not on a
 proxy that correlates with it.** Every one of these proxies looked reasonable
 when written and produced a confident, wrong sentence when run.
+
+---
+
+# Localising the attenuation: it is DISTRIBUTED, not one broken module
+
+Relative spread (mean pairwise distance / mean norm) of each representation
+across the 12 real-iteration states:
+
+| stage | relative spread | attenuation |
+|---|---|---|
+| state `s` | 0.215545 | — |
+| hidden `h` | 0.074498 | **0.346×** (encoder) |
+| coefficients `w` | 0.021864 | **0.294×** (head) |
+
+End-to-end `s → w`: **0.101×**, i.e. a **~10× attenuation** of state variation,
+split almost evenly between the transformer encoder (3×) and `coef_head` (3×).
+
+**There is no single broken layer.** The signal decays through the stack, which
+is why interventions aimed at one module (H4's AdaLN conditioning, H5's feature
+denial) could not recover it — each addresses at most half of a compounding loss.
+
+## The fidelity head is state-invariant too
+
+Holding the weights fixed and varying only the state across all 12 real
+iterations:
+
+    fidelity_head p : min 0.1248, max 0.1286  (spread 0.0038)
+
+So *both* readouts are effectively state-invariant. The `fid_mean` values that
+visibly move during a run (0.27–0.58 in the H17 logs) move because the network is
+**retrained** between iterations — not because it responds to its input. That is
+the same re-fit-not-condition signature, now shown for the fidelity head as well
+as the location head.
+
+*(This script still prints the stale "NARROW" auto-verdict, already retracted
+above; the argmax measurement is decisive and reads 0/12.)*

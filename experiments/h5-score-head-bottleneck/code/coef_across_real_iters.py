@@ -57,7 +57,25 @@ def hid(st):
 # FINAL weights, states from every real iteration -> isolates the STATE channel
 mf.dt.eval()
 with torch.no_grad():
-    W = np.stack([mf.dt.coef_head(hid(s['state'])).double().numpy() for s in snaps])
+    Hs = np.stack([hid(s['state']).double().numpy() for s in snaps])
+    W = np.stack([mf.dt.coef_head(torch.tensor(h_,dtype=FD)).double().numpy() for h_ in Hs])
+    FID = np.array([float(mf.dt.fidelity_head(torch.tensor(h_,dtype=FD))) for h_ in Hs])
+
+# LOCALISE the collapse: is it the state ENCODER (h barely varies) or the HEAD
+# (h varies but coef_head compresses it)? Compare relative spreads.
+def relspread(M):
+    n = np.linalg.norm(M, axis=1)
+    d = [np.linalg.norm(M[i]-M[j]) for i in range(len(M)) for j in range(i+1,len(M))]
+    return np.mean(d)/np.mean(n)
+Sm = np.stack([sn['state'].numpy() for sn in snaps])
+print("\nLOCALISING THE COLLAPSE (mean pairwise distance / mean norm):")
+print(f"  state s   : {relspread(Sm):.6f}")
+print(f"  hidden h  : {relspread(Hs):.6f}   <- does the ENCODER pass state through?")
+print(f"  coef w    : {relspread(W):.6f}   <- does the HEAD pass h through?")
+print(f"  attenuation s->h : {relspread(Hs)/relspread(Sm):.4f}x")
+print(f"  attenuation h->w : {relspread(W)/relspread(Hs):.4f}x")
+print(f"  fidelity_head p across real iterations: "
+      f"min {FID.min():.4f} max {FID.max():.4f} (spread {FID.max()-FID.min():.4f})")
 S = np.stack([s['state'].numpy() for s in snaps])
 print(f"state vectors across iterations: mean pairwise L2 = "
       f"{np.mean([np.linalg.norm(S[i]-S[j]) for i in range(len(S)) for j in range(i+1,len(S))]):.4f}")
