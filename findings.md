@@ -211,6 +211,48 @@ Note also that `n_improved` and final regret are only loosely coupled: seed51
 improved once and reached 0.407; seed46 improved five times and reached 0.441.
 "Freeze" and "regret" are separate axes and should be reported separately.
 
+## H6 first result (n=1, DIRECTION ONLY): continued DT training may be *harmful*
+
+seed43, FROZEN (DT weights frozen after iteration 5) vs LIVE (retrained every
+iteration, the current default):
+
+| | regret | HF rate | n_improved | iters | wall |
+|---|---|---|---|---|---|
+| FROZEN | **0.3134** | **24/34 = 70.6%** | 4 | 34 | 30 min |
+| LIVE | 0.5218 | 21/58 = 36.2% | 1 | 58 | 57 min |
+
+Freezing the policy after 5 iterations made this seed **40% better** on regret,
+improved the incumbent 4x more often, and did it in half the wall time.
+
+**This is pre-registered outcome #3**, written into the protocol before the run:
+*"FROZEN is clearly better -> continued training is actively harmful
+(overfitting to fresh rollouts), which is itself a concrete, actionable finding
+about num_epochs / retraining cadence."*
+
+### It also supplies the missing mechanism for a standing open question
+
+Three previously-separate observations now compose into one causal chain:
+
+1. `fid_mean_per_iter` **declines over every run** — the fidelity head drifts
+   toward LF as training continues. (Previously logged as "unexplained".)
+2. Regret moves **only** on HF queries, never on accumulated LF cost.
+3. Freezing the DT at iteration 5 **stops the drift**, preserving a much higher
+   HF rate (70.6% vs 36.2%) — and regret improves accordingly.
+
+So the proposed mechanism is: **continued training progressively destroys the
+policy's willingness to spend on HF, and since only HF queries can move the HF
+incumbent, more training makes the method worse.** That is a far more specific
+and testable claim than "the DT contributes nothing".
+
+### Do not over-read this
+
+**n = 1.** One seed, one comparison. It is a direction, not a result. The
+remaining 9 FROZEN seeds are running and the locked primary prediction was that
+FROZEN would land *within 1 SE* of LIVE — a clearly-better FROZEN arm would
+refute that prediction in the informative direction. Report the full 10 before
+claiming anything, and note that seed43 was LIVE's *worst* HF-rate seed, so
+regression to the mean could account for part of the gap.
+
 ## Lessons and Constraints
 
 - **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
