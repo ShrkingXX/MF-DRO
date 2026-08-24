@@ -20,13 +20,32 @@ and does that fix beat MF-MI-Greedy and MF-GP-UCB at matched real cost?
 
 | | result |
 |---|---|
-| Frozen success test | **FAIL** (MF-DRO mean+SE 0.5442 >= MI-Greedy mean-SE 0.3825) |
+| Frozen success test, **both rewards** | **FAIL** (0.5442 and 0.4481, vs MI-Greedy mean−SE 0.3825) |
 | Freeze pathology | **RESOLVED** — 0/10 frozen, vs 9/12 (75%) pre-fix |
-| Mean regret | 1.31 (pre-fix, non-comparable) -> **0.5047 ± 0.0395** |
+| Best mean regret | 1.31 (pre-fix, non-comparable) → 0.5047 → **0.4007 ± 0.0475** |
 
-At matched cost ~200: MF-DRO **0.5047 ± 0.0395**, MI-Greedy 0.5091 ± 0.1266,
-GP-UCB 1.7934 ± 0.1223. `PROTOCOL.md` explicitly permits "no within-frame fix
-closes the gap"; that is the honest headline.
+At matched cost ~200, all under the frozen evaluation:
+
+| method | final simple regret | sd |
+|---|---|---|
+| **MF-DRO / `mes_entropy`** (H17) | **0.4007 ± 0.0475** | 0.1501 |
+| MF-DRO / `improvement` (h1) | 0.5047 ± 0.0395 | 0.1250 |
+| MF-MI-Greedy | 0.5091 ± 0.1266 | 0.4004 |
+| MF-GP-UCB | 1.7934 ± 0.1223 | 0.3868 |
+
+The joint-MES reward is **lower in mean than both baselines** with 2.7× smaller
+sd than MI-Greedy — and **none of it is significant** at the pre-registered
+n=10: paired −0.1085 vs MI-Greedy, 6/10 seeds, Wilcoxon p = 0.432. Paired sd
+0.2339 implies **~40 seeds** for 80% power; `PROTOCOL.md` fixes 10, and
+extending to chase significance is precisely the optional stopping the frozen
+protocol exists to prevent.
+
+The only significant win is over MF-GP-UCB (p = 0.002), which H3 showed never
+queries HF at all — so it is not evidence of much.
+
+`PROTOCOL.md` explicitly permits "no within-frame fix closes the gap"; that is
+the honest headline. **The gap narrowed by roughly half across two rewards. It
+did not close.**
 
 **Paired analysis matters more than the means.** Better on 4/10 seeds, worse on
 6/10; mean paired diff -0.0045 but **median +0.0915**; Wilcoxon p = 0.2754. The
