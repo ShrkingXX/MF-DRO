@@ -297,10 +297,21 @@ the diversity gate failed: distinct trajectories collapsed 131 -> 62. My
 protocol's reasoning was wrong — I claimed diversity would survive because the
 behaviour policy stays stochastic, but the teacher is deterministic given the KO
 model, so the fantasy draw was the *dominant* source of trajectory diversity.
-The finding: in GP-fantasy-rollout RCSL the fantasy draw is **both** `eps` and
-the generator of `alpha_f`. The bound `eps*(1/alpha_f+3)*H^2` treats them as
-independent; here they are not. H19 decouples them by moving the noise into
-`beta`.
+**RETRACTED the same day.** That diversity measurement was broken: the signature
+was `(rtg, ell)` with no query locations, so rollouts with a dead reward (63%)
+and matching fidelity pattern counted as identical. With locations included,
+every arm is **200/200 distinct** — diversity does not collapse at all, and the
+`eps`/`alpha_f` coupling claim is withdrawn. H18's G1 (determinism verified)
+stands; its G2 does not.
+
+**H19 then delivered the strongest negative result of the project.** With
+deterministic dynamics *and* full diversity — the regime RCSL theory says should
+work — the DT still moves the argmax **0/12**. Near-determinism is therefore not
+the binding constraint. The proximate cause is the score-head bottleneck H5
+already isolated: swapping `h` changes the argmax 0/12, so nothing reaching `h`
+can move the decision. This also tempers the RCSL framing above: the theory
+explains why the conditioning-side remedies failed, not why the architecture
+does.
 
 **Running:** H17 (frozen evaluation on the joint-MES reward, 10 jobs) and H19.
 

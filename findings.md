@@ -298,10 +298,16 @@ scales as `C_f/α_f`. And Corollary 2's exact-optimality requirement
 `f(s₁)=V*(s₁)` is hopeless for us — our target is a heuristic whose band is
 provably capped at `1/α`.
 
-**Consequence for the write-up.** This reframes a messy sequence of failures as
-one theory-predicted claim, and it retroactively explains why H4's refutation of
-the RADT/DDT attention mechanism was not an implementation failure: *no*
-architectural conditioning fix could have worked here.
+**But the theory is NOT the whole explanation — H19 checked.** With
+`fantasy_mode="mean"` the transition is deterministic (verified: repeat-difference
+`0.000e+00`) and diversity is intact (200/200 distinct trajectories). That is the
+regime RCSL theory says should work. **The argmax still moves 0/12.**
+
+So near-determinism is *not* the binding constraint in MF-DRO. The honest,
+narrower claim: **the failure is architectural — the score head barely reads `h`
+(H5) — and RCSL theory explains why the many conditioning-side remedies could
+not have rescued it.** Nothing that reaches `h` can move a decision that is not
+a function of `h`.
 
 ## Methodological lessons (transferable)
 
