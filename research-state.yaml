@@ -6,7 +6,7 @@ question: >
 protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
 branch: mfdro-hartmann-autoresearch
 phase: inner-loop
-status: running-h1-leak-fix-validation
+status: running-h1-leak-fix-validation; H4 protocol locked (350c0a3)
 
 evaluation:
   benchmark: Hartmann_6D
@@ -56,6 +56,27 @@ hypotheses:
     evidence: >
       src/baselines/mf_baselines.py:206-213 documents it; smoke run at
       cost_budget=25 gave n_hf_queries=0. Resolves a standing open question.
+
+  H4:
+    statement: >
+      MF-DRO's RTG-insensitivity is attention under-allocation to the scalar
+      conditioning tokens -- a named, published DT failure mode
+    status: PROTOCOL LOCKED (350c0a3), not yet run
+    evidence_from_literature: >
+      RADT (arXiv:2402.03923) diagnoses exactly our measurement: DT
+      under-allocates attention to return-to-go tokens, decoupling actual from
+      target return, and argues the fix must be STRUCTURAL not parametric.
+      DDT (arXiv:2601.15953) gives an implementable mechanism: drop RTG from
+      the input, condition via AdaLN-Zero on the last RTG (D4RL hopper-medium
+      99.4 vs 68.3). See literature/rtg-attention-underallocation.md
+    why_ours_should_be_worse: >
+      Our layout is 4 tokens [rtg, btg, state, action] -- TWO of four are
+      scalar conditioning signals competing for attention, vs one of three in
+      standard DT.
+    prediction_locked: >
+      Under AdaLN, an RTG sweep over {0.1,0.5,1,2,5,10}x changes the proposed
+      argmax on >30% of sweeps, vs a measured 0% under token conditioning.
+    note: orthogonal to the 7bcc3b8 leak fix; that was labels, this is conditioning strength
 
 running:
   - id: h1-leak-fix-validation

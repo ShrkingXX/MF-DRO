@@ -57,3 +57,41 @@ protocol. Protocol locked in d1f557f before launch; prediction (MF-DRO mean
 < 1.0) recorded there. Measured 41 s/iter for MF-DRO after
 `rollouts_per_model` 7 -> 20, projecting ~2.3 h worst case per run;
 15 workers x 1 thread = 15, 92% user CPU at launch.
+
+## Tick — literature resolves the RTG puzzle; interim baseline surprise
+
+**Returned to literature rather than running more experiments**, because the
+RTG-insensitivity had been measured exhaustively with no theory: sweeping the
+target 0.1x-10x never moved the argmax, in any configuration, and a degenerate
+reward embedding had been ruled out.
+
+It is a **named, published DT failure mode.** RADT (arXiv:2402.03923): DT
+"struggles to align the actual return with the target return due to the
+under-allocation of attention scores to the return-to-go tokens," and the fix
+must be *structural, not parametric* — which retroactively explains why nothing
+we tuned ever helped. DDT (arXiv:2601.15953) supplies a concrete mechanism:
+drop RTG from the input, condition via AdaLN-Zero on the last RTG.
+
+Our architecture is the worse case: 4 tokens per step means **two of four** are
+scalar conditioning signals competing for attention, vs one of three in standard
+DT. Orthogonal to the 7bcc3b8 leak fix — that was heads reading their own
+labels; this is conditioning strength once the leak is gone.
+
+H4 protocol locked (350c0a3) with a **mechanism-level** prediction (argmax moves
+on >30% of RTG sweeps vs a measured 0%) that is falsifiable in minutes without a
+full BO run. Deliberately not launched while the grid owns the pool.
+
+**Interim result from the running grid, worth flagging now.** All 10 baseline
+seeds are done at matched cost=200:
+
+  MF-MI-Greedy: mean 0.509 (min 0.188, max 1.540), mean realized cost 207.2
+  MF-GP-UCB:    mean 1.933 (min 1.471, max 2.375), mean realized cost 200.0
+
+The inherited MI-Greedy figure this project has been calibrating against was
+**0.279**. At genuinely matched cost it is **0.509**, with large seed spread.
+This is direct evidence for the standing suspicion that prior cross-method
+numbers were never cost-matched (MI-Greedy median 53 iters vs MF-DRO 100 vs
+MF-GP-UCB 800), and it roughly halves the apparent gap MF-DRO must close.
+MI-Greedy's realized cost overshoots by ~3.6% because its run() checks the
+budget at round start and a round costs up to 2*c_H; small, but it is a real
+asymmetry and the analysis flags it.
