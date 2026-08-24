@@ -546,7 +546,7 @@ class DecisionTransformer(nn.Module):
 
     def propose_mf(self, state, rtg_target, btg_target, timestep=0,
                     use_candidate_scoring=False, candidate_features=None,
-                    fidelity_sampling=True):
+                    fidelity_sampling=True, hist=None):
         """
         Single-step MF inference.
         state:      [state_dim] tensor
@@ -605,12 +605,31 @@ class DecisionTransformer(nn.Module):
             # known yet (it's what we're computing), so a zero placeholder
             # fills the 4th token slot before the transformer runs, exactly
             # as this method already did when it called forward_mf.
-            s = state.unsqueeze(0).unsqueeze(0)  # [1,1,state_dim]
-            r = torch.tensor([[[rtg_target]]], dtype=state.dtype)
-            b = torch.tensor([[[btg_target]]], dtype=state.dtype)
-            ax = torch.zeros(1, 1, self.action_dim, dtype=state.dtype)
-            ae = torch.zeros(1, 1, dtype=torch.long)
-            ts = torch.tensor([[timestep]], dtype=torch.long)
+            # SLIDING-WINDOW INFERENCE (hist is None => original T=1 path,
+            # bit-for-bit unchanged). hist is a list of dicts with keys
+            # state/rtg/btg for the K-1 PRECEDING real queries, oldest first;
+            # the current (state, rtg_target, btg_target) is appended last so
+            # the readout position is the final state token. Positions run
+            # 0..T-1, staying inside the trained range (0..rollout_length-1).
+            if hist:
+                _st = [h['state'] for h in hist] + [state]
+                _rt = [float(h['rtg']) for h in hist] + [float(rtg_target)]
+                _bt = [float(h['btg']) for h in hist] + [float(btg_target)]
+                T = len(_st)
+                s = torch.stack(_st).unsqueeze(0)                 # [1,T,state_dim]
+                r = torch.tensor(_rt, dtype=state.dtype).view(1, T, 1)
+                b = torch.tensor(_bt, dtype=state.dtype).view(1, T, 1)
+                ax = torch.zeros(1, T, self.action_dim, dtype=state.dtype)
+                ae = torch.zeros(1, T, dtype=torch.long)
+                ts = torch.arange(T, dtype=torch.long).unsqueeze(0)
+            else:
+                T = 1
+                s = state.unsqueeze(0).unsqueeze(0)  # [1,1,state_dim]
+                r = torch.tensor([[[rtg_target]]], dtype=state.dtype)
+                b = torch.tensor([[[btg_target]]], dtype=state.dtype)
+                ax = torch.zeros(1, 1, self.action_dim, dtype=state.dtype)
+                ae = torch.zeros(1, 1, dtype=torch.long)
+                ts = torch.tensor([[timestep]], dtype=torch.long)
 
             H = self.hidden_size
             # FIX 2: same LayerNorm modules as forward_mf -- required for
@@ -630,18 +649,20 @@ class DecisionTransformer(nn.Module):
             _tps = 2 if _adaln else 4
             pos_emb = self.position_embedding(ts).repeat_interleave(_tps, dim=1)
             if _adaln:
-                seq = torch.stack([s_emb, a_emb], dim=2).reshape(1, 2, H)
+                seq = torch.stack([s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
             else:
-                seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, 4, H)
+                seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
             seq = seq + pos_emb
             # FIX 4: apply the SAME causal mask training uses. Without it
             # inference was BIDIRECTIONAL while training was causal -- a
             # train/inference mismatch in the attention pattern itself.
-            _cm = torch.triu(torch.ones(_tps, _tps, dtype=torch.bool, device=seq.device),
+            _L = _tps * T
+            _cm = torch.triu(torch.ones(_L, _L, dtype=torch.bool, device=seq.device),
                               diagonal=1)
-            h_full = self.transformer(seq, mask=_cm)  # [1,_tps,H]
-            # FIX 3: STATE token, matching forward_mf's h_act.
-            h = h_full[0, (0 if _adaln else 2)::_tps, :][0]   # [H]
+            h_full = self.transformer(seq, mask=_cm)  # [1,_L,H]
+            # FIX 3: STATE token, matching forward_mf's h_act. With a sliding
+            # window the readout is the LAST state token (the current step).
+            h = h_full[0, (0 if _adaln else 2)::_tps, :][-1]   # [H]
             if _adaln:
                 _cond = torch.tensor([[rtg_target, btg_target]],
                                       dtype=h.dtype, device=h.device)

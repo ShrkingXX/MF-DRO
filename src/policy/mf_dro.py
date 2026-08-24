@@ -1912,6 +1912,11 @@ class DirectMFRegretOptimization:
             c_L=config.c_L, c_H=config.c_H
         )
 
+        # SLIDING-WINDOW INFERENCE: the real (state, rtg, btg) actually used at
+        # each past real iteration, oldest first. inference_context_k=1 (default)
+        # leaves the T=1 path bit-for-bit unchanged.
+        self._real_hist = []
+        self.inference_context_k = int(getattr(config, 'inference_context_k', 1))
         self.data_hf_x = []
         self.data_hf_y = []
         self.data_lf_x = []
@@ -2661,13 +2666,23 @@ class DirectMFRegretOptimization:
         # call site and holds even if propose_mf's internals change.
         self.dt.eval()
         with torch.no_grad():
+            _K = self.inference_context_k
+            _hist = None
+            if _K > 1 and self._real_hist:
+                _hist = [{'state': h['state'].float(), 'rtg': h['rtg'], 'btg': h['btg']}
+                          for h in self._real_hist[-(_K - 1):]]
+            self._last_ctx_len = (len(_hist) + 1) if _hist else 1
             x_t, ell_t = self.dt.propose_mf(
                 state.float(), rtg_tgt, btg_now,
                 timestep=0,
                 use_candidate_scoring=self.use_candidate_scoring,
                 candidate_features=(cand_feats.float() if cand_feats is not None else None),
                 fidelity_sampling=self.fidelity_sampling,
+                hist=_hist,
             )
+            # Record AFTER proposing, so the current step never sees itself.
+            self._real_hist.append({'state': state.detach().clone(),
+                                     'rtg': float(rtg_tgt), 'btg': float(btg_now)})
         # H7: replay the SAME inputs through the iteration-k snapshot. Nothing
         # here is executed -- only the LIVE x_t/ell_t below drive the run --
         # so the trajectory is an ordinary MF-DRO run and the evaluation is
