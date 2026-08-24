@@ -72,8 +72,12 @@ training was causal — a second, silent mismatch).
   trajectories**.
 - **Soft teacher target uninformative**: entropy exactly **100% of log K**.
 - **Candidate features leaked the label again** (MES columns, corr ~0.80).
-- **Reward**: `mes_entropy` Spearman +0.129 (5/10 groups negative, p~0.32) ->
-  regret-based `improvement` **+0.191, z=2.63, p=0.0085**, 9/10 positive.
+- **Reward**: switched `mes_entropy` -> `improvement` on a gate reading +0.129
+  (p~0.32) -> +0.191 (z=2.63, p=0.0085). **RETRACTED — does not reproduce.**
+  H15 re-measured it on current code and the ordering *reverses*:
+  `improvement` +0.052 (p=0.544) vs `mes_entropy` +0.173 (p=0.047). The original
+  was measured in the same commit as the RTG-cap fix and other compounding
+  changes (`research-log.md:47-52`); that code state no longer exists.
 
 ---
 
@@ -230,10 +234,15 @@ The joint-MES mode dominates every variant I built. LF credit is automatic:
 an LF observation shrinks the y* distribution through `rho`, so its discount is
 derived from the fitted KO model rather than hand-specified.
 
-**Open tension:** `mes_entropy` was abandoned on a teacher-quality gate
-(+0.129, p~0.32 vs `improvement` +0.191, p=0.0085). If that gate is
-regret-anchored it favours `improvement` by construction. It must be re-read and,
-if so, re-measured fairly before the reward is switched back.
+**The gate that abandoned it does not reproduce.** It was
+within-group Spearman(`rtg[0]`, true `f_hf(x_0)`) — i.e. *step-0 greediness*,
+an axis `improvement` satisfies by construction and an information reward is
+designed not to. H15 re-ran it on current code and the ordering **reverses**
+(`improvement` +0.052 p=0.544; `mes_entropy` +0.173 p=0.047). Per H15's own
+protocol a reproduction failure makes **both** conclusions suspect, so no winner
+is declared — but `improvement`'s selection justification is gone, and it is the
+**current default** (`dro_runner.py:439`) under which the frozen headline was
+produced. The headline number stands; the reason for that configuration does not.
 
 ## Methodological lessons (transferable)
 
