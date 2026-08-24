@@ -1,4 +1,4 @@
-<title>Reward Starvation</title>
+<title>MF-DRO Conditioning Failure</title>
 <style>
 :root{--bg:#fbfbfa;--fg:#1d1c1a;--mut:#6b6862;--line:#e3e0da;--card:#fff;
       --bad:#b23223;--warn:#c9862c;--good:#1f7a5a;--accent:#2b5fa8;}
@@ -39,7 +39,7 @@ ul{padding-left:1.2rem}li{margin:.3rem 0}
 </style>
 
 <div class="wrap">
-<h1>The RTG confound was a starved reward</h1>
+<h1>MF-DRO re-fits; it does not condition</h1>
 <p class="sub">MF-DRO · Hartmann 6D · autoresearch progress report · 2026-08-24</p>
 
 <div class="card">
@@ -55,6 +55,51 @@ class="good">starved</span> — with a fixable cause that was already implemente
 in the codebase.</p>
 </div>
 
+
+
+<h2>The answer to the research question</h2>
+<img src="figs/final_frozen_result.png" alt="Final frozen evaluation, 10 seeds, four arms">
+<div class="card">
+<div class="kicker">H17 — frozen evaluation, joint-MES reward, 10/10 runs in 98 min</div>
+<div class="scroll"><table>
+<tr><th>method</th><th class="n">final simple regret</th><th class="n">sd</th></tr>
+<tr class="hi"><td><strong>MF-DRO / joint MES</strong></td><td class="n">0.4007 &plusmn; 0.0475</td><td class="n">0.150</td></tr>
+<tr><td>MF-DRO / improvement</td><td class="n">0.5047 &plusmn; 0.0395</td><td class="n">0.125</td></tr>
+<tr><td>MF-MI-Greedy</td><td class="n">0.5091 &plusmn; 0.1266</td><td class="n">0.400</td></tr>
+<tr><td>MF-GP-UCB</td><td class="n">1.7934 &plusmn; 0.1223</td><td class="n">0.387</td></tr>
+</table></div>
+<p>The joint-MES reward gives the <strong>best MF-DRO number on record</strong> —
+a 20.6% mean reduction, lower in mean than <em>both</em> baselines, with 2.7&times;
+smaller sd than MI-Greedy.</p>
+<p><span class="bad">And none of it is significant.</span> Paired vs MI-Greedy:
+&minus;0.1085, 6/10 seeds, Wilcoxon p = 0.432. The frozen success test
+<strong>FAILS</strong> (0.4481 &ge; 0.3825) — as it did for the first reward
+(0.5442). Paired sd 0.2339 implies <strong>~40 seeds</strong> for 80% power;
+<code>PROTOCOL.md</code> fixes 10, and extending to chase significance is exactly
+the optional stopping a frozen protocol exists to prevent.</p>
+<p><strong>The gap narrowed by roughly half across two rewards. It did not
+close.</strong></p>
+</div>
+
+<h2>Why: the conditioning channel is attenuated ~10&times;</h2>
+<div class="scroll"><table>
+<tr><th>stage</th><th class="n">relative spread</th><th class="n">attenuation</th></tr>
+<tr><td>state <code>s</code></td><td class="n">0.2155</td><td class="n">—</td></tr>
+<tr><td>hidden <code>h</code> (encoder)</td><td class="n">0.0745</td><td class="n">0.346&times;</td></tr>
+<tr><td>coefficients <code>w</code> (head)</td><td class="n">0.0219</td><td class="n">0.294&times;</td></tr>
+</table></div>
+<p>A full run's worth of state change (mean pairwise L2 = 1.4968) rotates the
+coefficient vector by <strong>2.04&deg;</strong> and changes the decision on
+<strong>0 of 12</strong> candidate pools — both across ensemble members and
+across real iterations. The fidelity head is equally inert (<code>p</code> spans
+0.1248&ndash;0.1286 with weights fixed).</p>
+<p><strong>There is no single broken layer</strong> — the loss compounds, ~3&times; at
+the encoder and ~3&times; at the head. That is why every module-specific
+intervention could address at most half of it.</p>
+<p>H17 is the <em>only</em> intervention that moved regret, and it changed the
+<strong>training signal</strong>, not the conditioning pathway. MF-DRO improves
+the way a re-fitted acquisition function improves, not the way a conditioned
+policy improves.</p>
 
 <h2>The strongest result: it isn't the conditioning signal at all</h2>
 <img src="figs/intervention_ladder.png" alt="Ten pre-registered interventions, all null or void, beside the H5 measurement that explains them">
