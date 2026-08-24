@@ -192,7 +192,16 @@ within their pools (control: 94.2nd percentile of `mu_H`). The aversion is
 uncertainty (Spearman +0.1585) but its *argmax* is dominated by the posterior
 mean (+0.8517), and high-`mu` regions are where data already sits. **MF-MES's
 realised behaviour here is exploitative even though its scoring rule is not** —
-so a better student cannot fix it; only changing what the teacher selects can.
+so a better student cannot fix it.
+
+**And it is INTRINSIC (H29).** Sweeping cost ratio {2,4,8,16} × y* samples
+{5,10,50}, the chosen-`sigma_H` percentile never exceeds **5.5%** in any of 12
+cells (control 93.6–94.7%). The y* sample count is irrelevant (K=5/10/50
+identical), and an 8× cost-ratio swing moves it only ~1% → ~5%. So: **a student
+imitating the *choices* of an argmax-of-MES teacher cannot learn to explore at
+any operating point tested.** The fix is not a better student or a different
+cost ratio — it is learning from the teacher's *scores* over the full candidate
+set, or an exploration-augmented demonstrator.
 
 ### The mechanism, measured
 

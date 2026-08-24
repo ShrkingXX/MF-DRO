@@ -277,9 +277,19 @@ benchmark is exploitative even though its scoring rule is not, and a student
 trained to imitate \emph{choices} can only learn the exploitative part.
 
 This relocates the fault: a better student cannot repair an exploitative teacher.
-Any remedy must change what the teacher \emph{selects}---the cost ratio, the
-$y^\ast$ sampling, or the acquisition---not how faithfully the student copies
-it.
+And the teacher's exploitativeness is \textbf{intrinsic, not a tuning artefact}.
+Sweeping the cost ratio over $\{2,4,8,16\}$ and the $y^\ast$ sample count over
+$\{5,10,50\}$, the chosen-$\sigma_H$ percentile never exceeds $5.5\%$ in any of
+the twelve cells (control $93.6$--$94.7\%$ throughout). Ten times more Monte
+Carlo changes nothing, and an $8\times$ swing in the cost ratio moves the
+percentile only from ${\sim}1\%$ to ${\sim}5\%$.
+
+The conclusion is therefore structural rather than incidental: \emph{a student
+trained to imitate the choices of an argmax-of-MES teacher cannot learn to
+explore at any operating point we tested}. Remedying it requires learning from
+the teacher's \emph{scores} over the full candidate set rather than its argmax,
+or an explicitly exploration-augmented demonstrator---not a better student and
+not a different cost ratio.
 
 \section{Eleven Interventions}
 \label{sec:interventions}
