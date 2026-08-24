@@ -1889,6 +1889,14 @@ class DirectMFRegretOptimization:
         # Last (L_loc, L_fid, fid_mean, fid_std); reused for logging when the
         # DT is frozen (see run()'s freeze_dt_after branch).
         self._last_train_stats = (0.0, 0.0, 0.0, 0.0)
+        # H7 (decision divergence): a deepcopy of the DT taken at iteration
+        # config.decision_snapshot_at, plus one record per later iteration
+        # comparing what the LIVE policy and that SNAPSHOT propose on the
+        # IDENTICAL state/RTG/BTG/candidate pool. Measures the DT's marginal
+        # contribution as decision agreement (~50-200 paired decisions/run)
+        # instead of through final regret (1 noisy scalar/run).
+        self._dt_snapshot = None
+        self.decision_divergence_log = []
         # Gated behind self._diag_xstar exactly like the [ROLLOUT-DIAG] print
         # block itself (see _generate_rollout_batch) -- stays empty unless a
         # diagnostic script sets _diag_xstar before calling .run(). Records
@@ -2586,6 +2594,27 @@ class DirectMFRegretOptimization:
                 candidate_features=(cand_feats.float() if cand_feats is not None else None),
                 fidelity_sampling=self.fidelity_sampling,
             )
+        # H7: replay the SAME inputs through the iteration-k snapshot. Nothing
+        # here is executed -- only the LIVE x_t/ell_t below drive the run --
+        # so the trajectory is an ordinary MF-DRO run and the evaluation is
+        # untouched. Records whether the extra training changed the decision.
+        if self._dt_snapshot is not None:
+            with torch.no_grad():
+                x_s, ell_s = self._dt_snapshot.propose_mf(
+                    state.float(), rtg_tgt, btg_now,
+                    timestep=0,
+                    use_candidate_scoring=self.use_candidate_scoring,
+                    candidate_features=(cand_feats.float() if cand_feats is not None else None),
+                    fidelity_sampling=False,   # deterministic: isolate the policy, not the coin flip
+                )
+            _dist = (x_t.double() - x_s.double()).norm().item()
+            self.decision_divergence_log.append({
+                'iter': len(self.iteration_log),
+                'argmax_agree': bool(_dist < 1e-9),
+                'dist': _dist,
+                'fid_agree': bool(int(ell_t) == int(ell_s)),
+            })
+
         # propose_mf's location head is normalized to [0,1]^d (see its own
         # x_pred.clamp(0.0, 1.0)) -- rescale to the benchmark's actual
         # domain bounds HERE, the single exit point for real x_t, so every
@@ -2766,12 +2795,17 @@ class DirectMFRegretOptimization:
             # given that H4/H5 showed the proposal is near-independent of the
             # conditioning within a single trained model. None (default) =
             # unchanged behaviour.
+            _snap_at = getattr(self.config, 'decision_snapshot_at', None)
             _freeze_after = getattr(self.config, 'freeze_dt_after', None)
             if _freeze_after is not None and t >= _freeze_after:
                 L_loc, L_fid, fid_mean, fid_std = self._last_train_stats
             else:
                 L_loc, L_fid, fid_mean, fid_std = self._train_dt(batch)
                 self._last_train_stats = (L_loc, L_fid, fid_mean, fid_std)
+            if _snap_at is not None and t == _snap_at and self._dt_snapshot is None:
+                import copy as _copy
+                self._dt_snapshot = _copy.deepcopy(self.dt)
+                self._dt_snapshot.eval()
             x_t, ell_t = self._propose_next_query()
             self._last_p_pred = self.dt.last_p_pred
             # Fidelity-bottleneck measurement: p_pred_inference was only
@@ -2928,6 +2962,7 @@ class DirectMFRegretOptimization:
             'query_dist_to_xstar_per_iter': self.query_dist_to_xstar_per_iter,
             'query_dist_to_x2_per_iter': self.query_dist_to_x2_per_iter,
             'p_pred_inference_per_iter': self.p_pred_inference_per_iter,
+            'decision_divergence_log': self.decision_divergence_log,
             # Rollout-exploration diagnostic, only non-empty when a
             # diagnostic script set self._diag_xstar before .run() (see
             # __init__ and the [ROLLOUT-DIAG] block in _generate_rollout_batch).
