@@ -1,0 +1,28 @@
+{
+  "g1": true,
+  "g2": false,
+  "sample+mes": {
+    "distinct_traj": 131,
+    "n_traj": 200,
+    "moved": 0,
+    "frac": 0.0
+  },
+  "sample+thompson": {
+    "distinct_traj": 20,
+    "n_traj": 200,
+    "moved": 0,
+    "frac": 0.0
+  },
+  "mean+mes": {
+    "distinct_traj": 62,
+    "n_traj": 200,
+    "moved": 0,
+    "frac": 0.0
+  },
+  "mean+thompson": {
+    "distinct_traj": 2,
+    "n_traj": 200,
+    "moved": 0,
+    "frac": 0.0
+  }
+}
