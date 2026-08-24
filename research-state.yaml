@@ -7,10 +7,16 @@ protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
 branch: mfdro-hartmann-autoresearch
 phase: inner-loop
 status: >
-  Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted and now SAFE
-  (H8 removed the OOD confound). H6 inconclusive at n=10; n=30 extension nearly
-  done (FROZEN 19/20, LIVE 14/20). H7 (decision divergence) launched.
-  findings.md consolidated to a paper backbone; chronology archived.
+  Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted and SAFE (H8
+  removed the OOD confound). H6 complete at the pre-specified n=30 (null, as
+  registered); H7 complete (377 paired decisions, 0.817 agreement).
+  BREAKTHROUGH: the long-running 'is RTG inert or starved?' confound is
+  RESOLVED as STARVED, with a measured cause -- under rollout_reward=
+  "improvement" an LF step earns EXACTLY 0.0, so 63.0% of trajectories carry
+  rtg[0]==0. That one fact explains why THREE separate manipulations (H9 floor,
+  H10 normalisation, H11 arm C DT-style decrement) each voided on their own
+  check: a signal that is identically zero cannot be made to vary by rescaling
+  it. Now iterating on a reward that credits both fidelities (H12 -> H13).
 
 headline_result:
   experiment: h1-leak-fix-validation (30/30 runs, 6979 s wall)
@@ -162,16 +168,14 @@ hypotheses:
       believe. NOTHING established at n=10.
 
 running:
-  - id: h6-extension
-    protocol: experiments/h6-frozen-dt/protocol-extension.md
-    locked_commit: b00dacd
-    design: seeds 52-71 for BOTH arms -> final n=30, fixed in advance
-    guards: >
-      n=30 is primary AND final; no further extension regardless of outcome;
-      primary prediction is a NULL (CI still contains zero) so a null cannot be
-      spun as a finding. Stated up front that n=30 cannot resolve the +0.098
-      mean (that needs ~80 seeds).
-    compute: 7 + 8 = 15 workers x 1 thread
+  - id: h13-kg-dense-reward
+    protocol: experiments/h13-kg-dense-reward/protocol.md
+    design: >
+      2x2 over the two clips that starved H12's LF credit -- kg_signed (keep the
+      sign of dV) and kg_topk (V = mean of top-k HF posterior means instead of a
+      hard max). Arm B isolates the clip so the 2x2 says WHICH cause dominates.
+    gate: dead-signal <20% AND LF-nonzero >50%; stop on failure
+    compute: 1 worker x 1 thread (~35 s per 200-trajectory batch)
 
 completed:
   - inventory of 1280 runs -> data/results_inventory.csv
@@ -192,6 +196,23 @@ lessons:
     sign four times before settling.
 
 next:
-  - analyze h6 at the pre-specified n=30; report as primary AND final
-  - if inconclusive: report "inconclusive at n=30", do NOT extend again
-  - unresolved: RTG still does not move the argmax under a 0.1x-10x sweep
+  - H13 gate; drop whichever of kg_signed/kg_topk proves inert
+  - >
+    only if the gate passes, re-ask the RTG-sensitivity question on a signal
+    that is actually alive (the first time it will have been asked fairly)
+  - then, and only then, a regret comparison under the frozen evaluation
+
+lessons_added_this_phase:
+  - >
+    Derive the reachable range of a formula you control BEFORE experimenting on
+    it. target = max(batch_max, alpha*running_max) with batch_max <= running_max
+    caps the band at 1/alpha -- two lines of algebra that would have prevented
+    both H9 and H10.
+  - >
+    Put the manipulation check FIRST as a standalone gate, and commit to
+    stopping on failure. H12 did this and stopped cleanly; H9/H10/H11 spent full
+    experiments before discovering their manipulation never happened.
+  - >
+    A null-guard must be CONDITIONED on the manipulation check passing. H11's
+    guard fired on 'all arms ~0%' even though arm C's manipulation never
+    occurred, and auto-printed a conclusion that had to be retracted.
