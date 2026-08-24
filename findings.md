@@ -192,6 +192,49 @@ trajectory to ~1 regardless of quality — and which my own RTG-cap fix
 introduced while correctly removing a different pathology. Fixing one RTG defect
 manufactured another.
 
+
+## RESOLVED: the RTG confound was a starved reward, not an inert network
+
+Three separate experiments (H9 floor, H10 normalisation, H11 arm C DT-style
+decrement) each voided on their own manipulation check. They share one cause.
+
+**Under `rollout_reward="improvement"` an LF step earns exactly `0.0`**
+(`mf_dro.py:1290+`). Measured on a 200-trajectory batch: **63.0%** of
+trajectories have `rtg[0] == 0`, only **23.7%** of steps carry any nonzero
+reward, and `Spearman(n_HF, rtg[0]) = +0.355` (p<1e-6) — the return partly just
+counts HF queries. **A signal that is identically zero cannot be made to vary by
+rescaling it**, which is all H9 and H10 did.
+
+Two structural facts, both provable without compute:
+
+1. `target = max(batch_max, alpha*running_max)` with `batch_max <= running_max`
+   caps the band ratio at `1/alpha` — 2x at `alpha=0.5`, always. H10 measured
+   1.76x and 2.59x, i.e. at the ceiling. Two lines of algebra would have
+   prevented both experiments.
+2. `mes_entropy`'s RTG is `log(b_tau) - log(b_T)` with `b_T` drawn from the
+   **fully-conditioned** end-of-rollout model. Since `H(Gumbel) = ln b + gamma + 1`,
+   that equals `H[y*|D_0] - H[y*|D_T] = I(y*; y_1..y_T)` — the **joint set-level
+   information gain**, not a per-step cumsum.
+
+### Reward signal health (200 trajectories, identical seed)
+
+| reward | dead `rtg[0]==0` | LF credit | mean / CV | negative |
+|---|---|---|---|---|
+| `improvement` (current default) | 63.0% | 0.0% | 0.1022 / 1.964 | 0.0% |
+| `kg_incumbent` topk=1 clipped | 4.5% | 27.2% | 0.1396 / 1.374 | 0.0% |
+| `kg` topk=1 signed | 0.0% | 100% | −0.0204 / −12.93 | 67.0% |
+| `kg` topk=5 signed | 0.0% | 100% | 0.0676 / 3.677 | 38.5% |
+| **`mes_entropy` (JOINT)** | **0.0%** | **100%** | **0.2903 / 0.661** | **5.5%** |
+
+The joint-MES mode dominates every variant I built. LF credit is automatic:
+an LF observation shrinks the y* distribution through `rho`, so its discount is
+derived from the fitted KO model rather than hand-specified.
+
+**Open tension:** `mes_entropy` was abandoned on a teacher-quality gate
+(+0.129, p~0.32 vs `improvement` +0.191, p=0.0085). If that gate is
+regret-anchored it favours `improvement` by construction. It must be re-read and,
+if so, re-measured fairly before the reward is switched back.
+
 ## Methodological lessons (transferable)
 
 1. **Measure the mechanism, not the downstream metric.** Every near-deterministic
@@ -210,15 +253,26 @@ manufactured another.
 6. **Completion order in a cost-budgeted grid is biased** toward HF-heavy runs.
 7. "Regret moves only on HF queries *within* a run" does **not** imply "more HF
    *across* runs -> better regret".
-8. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
+8. **Derive the reachable range of a formula you control before experimenting
+   on it.** Two experiments died against a cap provable in two lines.
+9. **Put the manipulation check first, as a standalone gate, and commit to
+   stopping on failure.** H12 did and stopped cleanly; H9/H10/H11 each spent a
+   full experiment before discovering the manipulation never happened.
+10. **A null-guard must be conditioned on the manipulation check passing.**
+11. **A discriminating metric must not be able to saturate** in the arms
+   compared — H13's decomposition rule hit 100% in both arms and said nothing.
+12. **Spec the codebase before building the fix.** H12/H13 reinvented, worse, a
+   joint-information-gain reward that already existed.
+13. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
    `bes_delta`, soft-target temperature).
 
 ---
 
 ## Open questions
 
-- **Is RTG inert, or merely starved?** The [0.5,1.0] clamp confounds these. Top
-  lead; needs a schema change plus retrain.
+- ~~Is RTG inert, or merely starved?~~ **RESOLVED: starved.** See above.
+- **Is the teacher-quality gate regret-anchored?** If so it disqualified the
+  joint-MES reward unfairly and must be re-measured. Blocks the reward switch.
 - **Does continued DT training matter?** H6 underpowered; H7 (decision agreement
   between the live policy and an iteration-5 snapshot — ~50-200 paired decisions
   per run instead of one regret scalar) is implemented and queued.

@@ -20,13 +20,13 @@ def fig_starvation(gate_path):
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.2))
     x = np.arange(len(order))
 
-    ax[0].bar(x, dead, color=["#b23", "#e8a33d", "#4a90d9", "#3a9"][:len(x)])
+    ax[0].bar(x, dead, color=["#b23","#e8a33d","#c85","#4a90d9","#2a8"][:len(x)])
     ax[0].axhline(20, ls="--", c="k", lw=1)
     ax[0].text(len(x) - .45, 21.5, "gate G1 (<20%)", ha="right", fontsize=8)
     ax[0].set_ylabel("trajectories with rtg[0] == 0  (%)")
     ax[0].set_title("Dead conditioning signal", fontsize=11)
 
-    ax[1].bar(x, lfnz, color=["#b23", "#e8a33d", "#4a90d9", "#3a9"][:len(x)])
+    ax[1].bar(x, lfnz, color=["#b23","#e8a33d","#c85","#4a90d9","#2a8"][:len(x)])
     ax[1].axhline(50, ls="--", c="k", lw=1)
     ax[1].text(len(x) - .45, 52, "gate G2 (>50%)", ha="right", fontsize=8)
     ax[1].set_ylabel("LF steps earning nonzero reward  (%)")
@@ -73,7 +73,7 @@ def fig_band_cap():
 
 
 if __name__ == "__main__":
-    gp = os.path.join(REPO, "experiments", "h13-kg-dense-reward",
-                      "results", "gate13.json")
+    gp = os.path.join(REPO, "experiments", "h14-joint-mes-reward",
+                      "results", "gate14.json")
     print(fig_starvation(gp))
     print(fig_band_cap())
