@@ -244,6 +244,34 @@ policy's willingness to spend on HF, and since only HF queries can move the HF
 incumbent, more training makes the method worse.** That is a far more specific
 and testable claim than "the DT contributes nothing".
 
+### CORRECTION: the proposed mechanism does NOT survive contact with all 9 runs
+
+I proposed above that "continued training progressively destroys the policy's
+willingness to spend on HF". Testing that directly on the 9 completed LIVE runs
+(HF rate in the first vs last quartile of each run):
+
+    mean HF rate, first quartile : 39.8%
+    mean HF rate, last  quartile : 31.9%
+    drop                          : only 7.9 points
+
+    per-run: 40%->0%, 71%->57%, 10%->33%, 18%->18%, 50%->6%,
+             15%->35%, 15%->35%, 100%->86%, 39%->17%
+
+**Four of nine runs INCREASED their HF rate.** The trend is weak, noisy, and
+reverses in a third of runs. This is not the clean monotonic collapse the
+mechanism story needs.
+
+The distinction I blurred: `fid_mean_per_iter` (the head's mean predicted P(HF)
+over the *training batch*) declining — measured earlier on 3 seeds — is **not**
+the same quantity as the realized HF *query* rate declining. The first may still
+be true; the second is largely not, across 9 runs.
+
+So the seed43 FROZEN result (0.313 vs 0.522) still stands as an observation, but
+my causal explanation for it is **not supported** and should not be carried
+forward as if it were. Wait for the full 10 FROZEN seeds before proposing any
+mechanism, and prefer a mechanism that survives all seeds rather than one built
+from the single most favourable comparison.
+
 ### Do not over-read this
 
 **n = 1.** One seed, one comparison. It is a direction, not a result. The
