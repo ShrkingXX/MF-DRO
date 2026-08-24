@@ -129,3 +129,54 @@ Note the earlier `[W-DIAG] across-batch VAR(w)` numbers (0.004–0.018) are not 
 conflict: that variance is dominated by the τ>0 **fantasy** states, which do
 differ substantially. Variation exists in the head — just not over the inputs
 inference ever presents.
+
+---
+
+# Does the state channel work ACROSS real iterations? No.
+
+The "constant `coef_head`" result above compared the 10 **ensemble members** at a
+single iteration — states that are nearly identical by construction. The
+practically important question is different: over a real run, the state changes a
+great deal as data accumulates. Does the head respond *then*?
+
+Captured all 12 real-iteration states from an actual MF-DRO run and evaluated the
+final weights on each:
+
+| quantity | across ensemble members | **across real iterations** |
+|---|---|---|
+| mean pairwise state L2 | ~0 (10 unique, tiny spread) | **1.4968** |
+| pairwise cosine(w_i, w_j), min | 0.99999224 | 0.99936628 |
+| implied rotation of `w` | ~0° | **2.04°** |
+| ‖w‖ ratio | 1.001× | 1.0230× |
+| sv₁/Σsv | 0.997691 | 0.973401 |
+| **argmax moved** | **0/12** | **0/12** |
+| distinct argmaxes per pool | 1.00 | **1.00 (max 1)** |
+
+**A state change of L2 = 1.4968 — the full spread of a real run — rotates the
+coefficient vector by 2.04° and changes the decision on 0 of 12 candidate
+pools.** The head is not literally constant across iterations; its response is
+simply far too small to move an argmax over 200 candidates.
+
+So the state channel is non-functional at decision level **both within and
+across** iterations. The claim is broader than the ensemble-member result
+established, not narrower.
+
+## RETRACTION of this script's own auto-verdict
+
+The script printed **"NARROW: the head DOES vary across real iterations"**. That
+verdict is **wrong** and is retracted. It keyed on a cosine threshold
+(`min > 0.9999`) rather than on the argmax measurement that actually decides the
+question — and the argmax says 0/12.
+
+This is the **fourth** auto-printed verdict of this phase to be wrong:
+
+| script | verdict keyed on | decisive quantity |
+|---|---|---|
+| H11 | "all arms ~0%" without requiring the manipulation to pass | manipulation check |
+| H13 | LF-nonzero fraction, which saturated at 100% in both arms | mean/CV of `rtg[0]` |
+| H19 | a diversity signature omitting query locations | signature *with* locations |
+| this | cosine similarity of `w` | **argmax movement** |
+
+**Lesson: a script's auto-verdict must key on the decisive measurement, not on a
+proxy that correlates with it.** Every one of these proxies looked reasonable
+when written and produced a confident, wrong sentence when run.
