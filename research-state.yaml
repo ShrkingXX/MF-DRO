@@ -5,7 +5,7 @@ question: >
   matched real cost?
 protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
 branch: mfdro-hartmann-autoresearch
-phase: inner-loop
+phase: concluding
 status: >
   Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted and SAFE (H8
   removed the OOD confound). H6 complete at the pre-specified n=30 (null, as
@@ -141,6 +141,22 @@ hypotheses:
       scalar. Replay forces fidelity_sampling=False so the comparison isolates
       the policy, not the Bernoulli draw. Snapshot output is never executed.
     prediction_locked: mean argmax agreement over t>5 is > 0.70
+  H20:
+    statement: >
+      Is the conditioning failure an artefact of the LINEAR score head, which
+      makes h influence the ranking only through an 11-dim coefficient vector?
+    status: REFUTED -- the failure is architecture-independent
+    evidence: >
+      MLP score head over [h;cf], manipulation verified (affine residual 0.0863
+      vs the linear head's exactly 0.000000), still moves the argmax 0/12 on a
+      genuine state swap. Sharpens the mechanism: attenuation is ~3x encoder +
+      ~3x head, but the ENCODER half alone suffices -- h's relative spread
+      across real states is 0.0745, so an unbottlenecked head reading that h
+      still cannot move a decision over 200 candidates.
+    bug_found: >
+      use_linear_score_head was never forwarded into dt_cfg and had been
+      UNREACHABLE since written. Caught by an assert inside the probe, not by
+      reading code. Default unchanged, so no recorded result moved.
   H19:
     statement: >
       Is RCSL's near-determinism condition the binding constraint? Test the ONE
@@ -230,6 +246,17 @@ lessons:
     data; they disagreed here and it changed the conclusion.
   - Report intermediate n as DIRECTION, never as result -- H6's estimate changed
     sign four times before settling.
+
+conclusion: >
+  The research question is ANSWERED: no within-frame fix beats MF-MI-Greedy and
+  MF-GP-UCB at matched real cost. Two rewards were run under the frozen
+  evaluation and both FAIL the success test (0.5442 and 0.4481 vs 0.3825). The
+  gap narrowed by roughly half; it did not close. Eleven pre-registered
+  interventions on the conditioning pathway are all null or void, and the
+  mechanism is measured: a ~10x attenuation of state variation (0.346x encoder,
+  0.294x head) leaves the argmax invariant 0/12 both within and across
+  iterations. H20 refuted the one architectural fix that could have made this a
+  positive result. Empirical programme COMPLETE; proceeding to write-up.
 
 next:
   - >

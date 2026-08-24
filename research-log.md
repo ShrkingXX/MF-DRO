@@ -320,3 +320,43 @@ experimenting on it; put the manipulation check first as a standalone gate and
 commit to stopping; condition null-guards on the manipulation passing; never
 choose a discriminating metric that can saturate; spec the codebase before
 building the fix.
+
+---
+
+## 2026-08-24 (evening) — the programme closes
+
+**H17 answered the research question.** Frozen evaluation on the joint-MES
+reward, 10/10 runs, 5876.6 s. MF-DRO/`mes_entropy` **0.4007 ± 0.0475** — the best
+MF-DRO number on record, lower in mean than *both* baselines (MI-Greedy
+0.5091 ± 0.1266, GP-UCB 1.7934 ± 0.1223), with 2.7× smaller sd than MI-Greedy.
+And **not significant**: paired −0.1085 vs MI-Greedy, 6/10 seeds, Wilcoxon
+p = 0.432. The frozen success test **FAILS** (0.4481 ≥ 0.3825), as it did for the
+first reward (0.5442). Paired sd 0.2339 implies ~40 seeds for 80% power;
+`PROTOCOL.md` fixes 10 and was not extended — extending to chase significance is
+the exact optional stopping a frozen protocol exists to prevent.
+
+**The mechanism, measured end-to-end.** Relative spread across the 12 real-
+iteration states: state 0.2155 → hidden 0.0745 (0.346×) → coefficients 0.0219
+(0.294×). A ~10× attenuation, split evenly between encoder and head. A full run's
+worth of state change rotates the coefficient vector 2.04° and changes the
+decision on **0 of 12** pools — both across ensemble members and across real
+iterations. The fidelity head is equally inert (p spans 0.1248–0.1286).
+
+**H20 closed the last escape route.** An MLP score head over `[h;cf]` — no
+factorisation through a coefficient vector, manipulation verified (affine
+residual 0.0863 vs 0.000000) — still moves the argmax 0/12. The failure is
+architecture-independent, and the encoder half of the attenuation is sufficient
+on its own.
+
+**Three self-audits this phase, all of which changed what I would have written.**
+H5's h-swap compared a state with itself (12/12 identical) — conclusion survived
+re-measurement but the evidence had been worthless. H18's diversity signature
+omitted query locations, so its ε/α_f coupling claim was withdrawn. H20's first
+run failed its own assert, exposing `use_linear_score_head` as a flag that had
+never been reachable. Four auto-printed verdicts were also wrong, each keyed on a
+proxy rather than the decisive measurement.
+
+**Verdict: the empirical programme is complete.** Eleven pre-registered
+interventions, one measured mechanism, one answered research question, and the
+one lever that remains (more seeds) is forbidden by the frozen protocol.
+Proceeding to write-up.
