@@ -264,9 +264,22 @@ are the robust results.
 This supplies the causal link to Section~\ref{sec:frozen}. A rule that penalises
 HF uncertainty concentrates queries where the model is already confident,
 gathering little new information and improving the incumbent slowly---the
-pathology this investigation began from. MF-DRO does not merely fail to
-condition: trained on rollouts from an information-seeking MF-MES teacher, it
-converges to a fixed rule that inverts the sign of its teacher's defining term.
+pathology this investigation began from.
+
+The aversion is \textbf{inherited, not learned wrong}. Over $1600$ teacher
+decisions, the MF-MES teacher's own choices sit at the $2.9$th percentile of
+$\sigma_H$ within their candidate pools (control: the $94.2$nd percentile of
+$\mu_H$). Its \emph{score} does mildly reward uncertainty
+(Spearman $+0.1585$ with $\sigma_H$), but its \emph{argmax} is dominated by the
+posterior mean (Spearman $+0.8517$), and in a GP the high-$\mu$ region is
+precisely where data already sits. So MF-MES's realised behaviour on this
+benchmark is exploitative even though its scoring rule is not, and a student
+trained to imitate \emph{choices} can only learn the exploitative part.
+
+This relocates the fault: a better student cannot repair an exploitative teacher.
+Any remedy must change what the teacher \emph{selects}---the cost ratio, the
+$y^\ast$ sampling, or the acquisition---not how faithfully the student copies
+it.
 
 \section{Eleven Interventions}
 \label{sec:interventions}

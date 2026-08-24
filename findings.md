@@ -185,8 +185,14 @@ with a two-way tie on 12 pools, too weak for an identity claim.
 This is the causal link to the performance result: penalising HF uncertainty
 concentrates queries where the model is already confident → little information →
 slow incumbent improvement, the pathology this investigation began from.
-**Trained on an information-seeking MF-MES teacher, the student inverted the sign
-of its teacher's defining term.**
+**RETRACTED (H28): the student inverts nothing.** Over 1600 teacher decisions,
+the MF-MES teacher's own choices sit at the **2.9th percentile** of `sigma_H`
+within their pools (control: 94.2nd percentile of `mu_H`). The aversion is
+**inherited by faithful imitation**. The teacher's *score* mildly rewards
+uncertainty (Spearman +0.1585) but its *argmax* is dominated by the posterior
+mean (+0.8517), and high-`mu` regions are where data already sits. **MF-MES's
+realised behaviour here is exploitative even though its scoring rule is not** —
+so a better student cannot fix it; only changing what the teacher selects can.
 
 ### The mechanism, measured
 
