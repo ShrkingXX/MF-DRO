@@ -95,3 +95,37 @@ MF-GP-UCB 800), and it roughly halves the apparent gap MF-DRO must close.
 MI-Greedy's realized cost overshoots by ~3.6% because its run() checks the
 budget at round start and a round costs up to 2*c_H; small, but it is a real
 asymmetry and the analysis flags it.
+
+## Tick — H4 refuted; the bottleneck is downstream of conditioning
+
+Implemented AdaLN-Zero return conditioning (DDT mechanism) behind
+`rtg_conditioning="adaln"` and ran the locked mechanism probe on 1 core
+alongside the grid (10 + 1 = 11 <= 15).
+
+**Refuted, in the opposite direction.** Sweeping RTG 0.1x-10x over 12 resampled
+candidate pools: `token` moved the argmax on 25% of sweeps, `adaln` on **0%**.
+The locked prediction was >30% for adaln.
+
+Two corrections I am recording against myself rather than burying:
+1. The prediction asserted "a measured 0% under token." Under this probe's
+   protocol token measures **25%** — the earlier 0% came from a differently
+   trained model and a single pool. The valid comparison is the within-probe
+   one: 25% vs 0%.
+2. AdaLN-Zero initializes to identity by design, and the probe trains 10 epochs
+   on one batch. That is plausibly too little for the modulation layer to leave
+   its zero init, which would produce exactly 0%. So this refutes "AdaLN is a
+   cheap win at this scale", not the RADT/DDT mechanism itself.
+
+**The valuable part is the sharper diagnosis.** Both arms show
+argmax(score)==argmax(mu_H) on 67-75% of pools. Combined with the earlier result
+that a batch-mean or *shuffled* h changes the argmax only ~8% of the time:
+
+    rtg -> h     works    (embeddings differ, score vectors shift)
+    h   -> score nearly severed
+
+The bottleneck is **downstream of the conditioning**. That retroactively
+explains why every conditioning-side intervention has failed — including this
+one — and predicts that further conditioning work is wasted effort. Logged as
+H5. Next intervention should target the score head's collapse onto mu_H, e.g.
+by removing mu_H from candidate features the way removing the MES columns
+already took argmax(mu_H) agreement from 100% to 70%.

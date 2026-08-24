@@ -61,7 +61,7 @@ hypotheses:
     statement: >
       MF-DRO's RTG-insensitivity is attention under-allocation to the scalar
       conditioning tokens -- a named, published DT failure mode
-    status: PROTOCOL LOCKED (350c0a3), not yet run
+    status: REFUTED (1e53812) -- adaln 0% vs token 25% of sweeps moved the argmax
     evidence_from_literature: >
       RADT (arXiv:2402.03923) diagnoses exactly our measurement: DT
       under-allocates attention to return-to-go tokens, decoupling actual from
@@ -77,6 +77,24 @@ hypotheses:
       Under AdaLN, an RTG sweep over {0.1,0.5,1,2,5,10}x changes the proposed
       argmax on >30% of sweeps, vs a measured 0% under token conditioning.
     note: orthogonal to the 7bcc3b8 leak fix; that was labels, this is conditioning strength
+    result: >
+      AdaLN REMOVED what RTG sensitivity existed rather than adding it.
+      Two self-corrections logged: (a) the prediction's "0% under token"
+      premise was measured under different conditions -- this probe measures
+      token at 25%; (b) AdaLN-Zero inits to identity and had only 10 epochs on
+      one batch, a real confound, so this refutes "AdaLN is a cheap win", not
+      the RADT/DDT mechanism at full training scale.
+  H5:
+    statement: >
+      The bottleneck is h -> score (the score head is nearly indifferent to its
+      hidden state and ranks largely by mu_H), NOT rtg -> h
+    status: PROPOSED by the H4 result, not yet tested
+    evidence: >
+      Both H4 arms show argmax(score)==argmax(mu_H) on 67-75% of pools.
+      Independently, replacing h with the batch mean or a SHUFFLED h changes
+      the argmax only ~8% of the time. So conditioning reaches h fine, but h
+      barely reaches the score. This explains why every conditioning-side
+      intervention has failed and predicts further ones will too.
 
 running:
   - id: h1-leak-fix-validation
