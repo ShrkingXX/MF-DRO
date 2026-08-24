@@ -196,7 +196,11 @@ lessons:
     sign four times before settling.
 
 next:
-  - H13 gate; drop whichever of kg_signed/kg_topk proves inert
+  - >
+    DONE (H16): reward selected as mes_entropy on two pre-committed lines --
+    signal health (0.0% vs 63.0% dead rtg) and teacher quality on a fair axis
+    (+0.0962 paired, Wilcoxon p=0.0195, 8/10 seeds).
+  - switch the rollout_reward default, then run the frozen evaluation on it
   - >
     only if the gate passes, re-ask the RTG-sensitivity question on a signal
     that is actually alive (the first time it will have been asked fairly)

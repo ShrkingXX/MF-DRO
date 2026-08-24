@@ -234,6 +234,21 @@ The joint-MES mode dominates every variant I built. LF credit is automatic:
 an LF observation shrinks the y* distribution through `rho`, so its discount is
 derived from the fitted KO model rather than hand-specified.
 
+### Resolved: joint MES is the better reward (H16, 10 seeds, pre-registered)
+
+| axis | `improvement` | `mes_entropy` | paired | Wilcoxon |
+|---|---|---|---|---|
+| M3 `f_hf(x_0)` (original axis) | +0.1250 | +0.1648 | +0.0398, 7/10 | p=0.193 |
+| **M1 best HF point (PRIMARY)** | +0.0863 | **+0.1826** | **+0.0962, 8/10** | **p=0.0195** |
+| M1b best any point | **−0.0246** | +0.0706 | +0.0952, 9/10 | p=0.0645 |
+
+`mes_entropy` leads on **all three** axes, including the one originally used to
+reject it. `improvement`'s return is *negatively* correlated with the best point
+its own trajectory visited — worse than uninformative as a conditioning target.
+Effect is modest (would not survive a strict 3-axis Bonferroni, though M1 was the
+pre-registered primary). Two independent lines — signal health (decisive) and
+teacher quality on a fair axis (modest) — agree.
+
 **The gate that abandoned it does not reproduce.** It was
 within-group Spearman(`rtg[0]`, true `f_hf(x_0)`) — i.e. *step-0 greediness*,
 an axis `improvement` satisfies by construction and an information reward is
