@@ -129,3 +129,39 @@ one — and predicts that further conditioning work is wasted effort. Logged as
 H5. Next intervention should target the score head's collapse onto mu_H, e.g.
 by removing mu_H from candidate features the way removing the MES columns
 already took argmax(mu_H) agreement from 100% to 70%.
+
+## Tick — H5 refuted; the finding escalates to the frame itself
+
+H4 (AdaLN conditioning) and H5 (deny the score head its GP features) were both
+locked, run, and **both refuted**. H5's refutation is the important one because
+the manipulation demonstrably worked: stripping the GP features drove
+argmax(mu_H) agreement 66.7% -> 0.0%, so the shortcut really was removed — and
+the head *still* ignored `h` entirely (0/12), while RTG movement FELL
+(16.7% -> 8.3%). That is pre-registered outcome #2, written into the protocol
+before the run.
+
+Five independent probes now agree that within a single trained model the
+proposal is near-independent of the conditioning. Since `x_t_trace` std is
+0.166-0.213, queries plainly do move, so the reconciliation is that the DT is
+**retrained every iteration**: it changes because its weights are re-fit, not
+because it conditions. MF-DRO is behaving as a per-iteration acquisition
+function parameterised by a transformer.
+
+That claim explains every failed conditioning-side intervention at once, and it
+escalates the question from "which component is broken" to "does the learned
+policy do any work at all" — which is PROTOCOL.md's actual question about the
+DRO *frame*. Hence H6 (freeze the DT after k=5) rather than a third component
+patch.
+
+`freeze_dt_after` implemented and **verified**, not assumed: a 9-iteration smoke
+run gives L_loc = [0.2989, 0.2642, 0.2566, 0.2475, 0.2530, 0.2530, 0.2530,
+0.2530, 0.2530] — constant from index 5, so training genuinely stops.
+
+H6 FROZEN arm launched on spare capacity (6 grid workers still live + 6 H6
+workers = 12 <= 15). Its control arm is h1's MF-DRO arm, already running, so no
+duplicate compute.
+
+**h1 partial (4/10 MF-DRO):** regrets 0.4073, 0.4239, 0.4412, 0.5218, partial
+mean 0.4486 vs MI-Greedy 0.5091 +/- 0.1266. Encouraging but NOT reportable: the
+completion-order bias documented earlier means finished runs over-represent
+HF-heavy behaviour, and n=4 of 10. No claim until all seeds land.
