@@ -136,6 +136,15 @@ of state change is far too small a stimulus to move a decision over 200
 candidates. The state channel is non-functional at decision level *both within
 and across* iterations.
 
+**The two stages have different causes (H21).** Against a randomly initialised
+network with identical architecture and states: the encoder's contraction is
+*architectural* (random 0.4601× vs trained 0.3898×, ratio 1.18), while the
+head's is *learned* — a random head **amplifies** at 1.6039× where the trained
+head contracts at 0.3348×, a **4.8× swing** from fitting alone. Yet even with
+5.7× more coefficient variation the random net still moves the argmax 0/12 at
+cosine 0.99978, so the invariance is far from its threshold, not marginally
+short.
+
 And the head is near-constant partly because the within-iteration input is
 degenerate: real τ=0 states
 vary **2.2× less** than fantasy states within a single rollout

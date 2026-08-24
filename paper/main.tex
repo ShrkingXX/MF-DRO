@@ -176,10 +176,28 @@ worth of state change rotates the scoring coefficient vector by $2.04^\circ$
 small to reorder $200$ candidates. The fidelity head is equally inert: with
 weights fixed, its output spans only $0.1248$--$0.1286$ across the whole run.
 
-\paragraph{Both halves matter, and the encoder half suffices.} Because $h$'s own
-relative spread is already only $0.0745$, even a scoring head with no bottleneck
-inherits too little variation to act on. Section~\ref{sec:interventions} tests
-this directly.
+\paragraph{The two stages have different causes.} Comparing the trained network
+against a randomly initialised one with identical architecture, identical states
+and identical pools separates learning from shape. The encoder's contraction is
+\emph{architectural}: a random transformer contracts state variation by
+$0.4601\times$ against the trained network's $0.3898\times$, a ratio of only
+$1.18$. The head's contraction is \emph{learned}, and dramatically so: a random
+head \emph{amplifies} variation ($1.6039\times$) where the trained head contracts
+it ($0.3348\times$)---a $4.8\times$ swing attributable entirely to fitting.
+
+Training therefore collapses the scoring head, while the encoder was never
+passing much through to begin with. The two stages need different remedies and
+should not be treated as one phenomenon.
+
+Neither, however, is close to the threshold that would matter. Even at random
+initialisation, with $5.7\times$ more coefficient variation, the argmax still
+moves $0/12$ and the coefficient vectors remain at cosine $0.99978$. The
+invariance is robust to a $5.7\times$ increase in the quantity driving it.
+(These figures are measured over ensemble-member states, whose spread is
+$0.013993$; Table~\ref{tab:atten} is measured over real-iteration states, about
+$15\times$ more varied. The two are consistent in magnitude but are different
+state sets.) Section~\ref{sec:interventions} tests an unbottlenecked head
+directly.
 
 \section{Eleven Interventions}
 \label{sec:interventions}
@@ -367,9 +385,12 @@ is underpowered by roughly a factor of four, so we can state that MF-DRO does
 not clear the pre-registered bar but not that it is equivalent to MF-MI-Greedy.
 The attenuation measurement is taken at the end of training on trained weights;
 we did not track it through training. We show that an unbottlenecked scoring
-head does not restore conditioning, but we did not attempt an encoder-side
-remedy, so ``the conditioning channel in this architecture is unusable'' is
-better supported than ``no architecture in this family could condition''.
+head does not restore conditioning, and a random-initialisation control shows
+the encoder's share of the contraction is architectural rather than learned. We
+did not, however, attempt an explicit encoder-side \emph{remedy} (wider hidden
+state, state standardisation, or an input-scaling correction), so ``the
+conditioning channel in this architecture is unusable'' remains better supported
+than ``no architecture in this family could condition''.
 Finally, the pre-fix results are excluded rather than re-run, so we cannot say
 how much of the original method's reported behaviour was leakage.
 
