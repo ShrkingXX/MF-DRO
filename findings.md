@@ -451,3 +451,12 @@ cannot be attributed to any single one. Ablation flags exist for exactly this:
 `use_state_standardization`, `use_teacher_pool`, `use_linear_score_head`,
 `fidelity_sampling`, `rollout_reward`, `rtg_conditioning`, `freeze_dt_after`,
 `decision_snapshot_at`.
+
+**Correction:** `use_linear_score_head` was **dead** until H20 found it.
+`dt_cfg` — the `SimpleNamespace` handed to `DecisionTransformer` — never
+forwarded it, so the DT's `getattr(config, 'use_linear_score_head', True)`
+always defaulted to `True` and the `False` branch was unreachable. Found by an
+`assert` inside H20's probe, not by reading the code. Default unchanged, so no
+recorded result moves. An audit of every other config attribute the DT reads
+(`cand_feature_dim`, `rtg_conditioning`, `score_temp`) confirms those **are**
+forwarded; this was the only dead one.

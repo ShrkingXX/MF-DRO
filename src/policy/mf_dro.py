@@ -1873,6 +1873,13 @@ class DirectMFRegretOptimization:
             # DecisionTransformer.__init__ and
             # experiments/h4-adaln-rtg-conditioning/protocol.md
             rtg_conditioning=getattr(config, 'rtg_conditioning', 'token'),
+            # H20 BUG FIX: this was NEVER forwarded, so DecisionTransformer's
+            # `getattr(config, 'use_linear_score_head', True)` always saw a
+            # dt_cfg without the attribute and silently defaulted to True.
+            # `use_linear_score_head=False` -- documented in findings.md as an
+            # available ablation -- was therefore UNREACHABLE. Default is
+            # unchanged (True), so no previously-recorded result moves.
+            use_linear_score_head=getattr(config, 'use_linear_score_head', True),
         )
         # DT weight-init seed override (weight-init-seed-sweep ablation --
         # tests whether the DT's random weight initialization, independent
