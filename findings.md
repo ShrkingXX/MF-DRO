@@ -110,7 +110,11 @@ training was causal — a second, silent mismatch).
 | state perturbation at 1x batch sd | argmax unchanged, corr 0.9997 |
 | **RTG swept across its realised band [0.5,1.0]** | argmax moved **0/12**, corr 0.99993 |
 
-Yet queries do move (`x_t_trace` sd 0.166-0.213). Reconciliation: **the DT is
+Yet queries do move (`x_t_trace` sd **0.121-0.228** across the ten
+post-fix frozen-protocol runs — per-coordinate sd averaged over coordinates.
+The previously recorded range 0.166-0.213 came from an earlier phase and does
+**not** reproduce on the post-fix data; corrected during the paper's number
+audit). Reconciliation: **the DT is
 retrained every iteration** — it changes because its *weights* are re-fit, not
 because it conditions. **MF-DRO appears to re-fit rather than condition**,
 behaving as a per-iteration acquisition function parameterised by a transformer.

@@ -62,8 +62,10 @@ Our central finding is negative and, we argue, generalizable: \textbf{the policy
 never conditions.} It behaves as a per-iteration acquisition function that is
 re-fitted from scratch, not as a policy that reads its inputs.
 
-This is easy to miss. The queries do move between iterations
-($\mathrm{sd}(x_t)\!=\!0.166$--$0.213$), so any behavioural test suggests
+This is easy to miss. The queries do move between iterations---across the ten
+frozen-protocol runs, the per-coordinate standard deviation of the query
+sequence, averaged over coordinates, spans $0.121$--$0.228$---so any behavioural
+test suggests
 adaptation. The movement comes entirely from the weights being re-fitted each
 iteration, not from the inputs. Separating these requires freezing the weights
 and varying only the inputs---which is what we do throughout.
