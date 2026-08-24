@@ -211,7 +211,60 @@ Note also that `n_improved` and final regret are only loosely coupled: seed51
 improved once and reached 0.407; seed46 improved five times and reached 0.441.
 "Freeze" and "regret" are separate axes and should be reported separately.
 
-## H6 (n=7/10): freezing the DT costs NOTHING — and the estimate was volatile
+## H6 (n=9/10): the experiment is UNDERPOWERED — and that is the finding
+
+The paired estimate did not converge. It **changed sign**:
+
+| n | mean paired diff (FROZEN - LIVE) | reading at the time |
+|---|---|---|
+| 1 | -0.2084 | "freezing helps 40%" |
+| 5 | -0.1033 | outside 1 SE, prediction refuted |
+| 7 | -0.0102 | within 1 SE, prediction supported |
+| **9** | **+0.0623** | outside 1 SE, *opposite* sign |
+
+At n=9: FROZEN 0.5577 vs LIVE 0.4953, Wilcoxon **p = 0.4961**, FROZEN better on
+only 3/9.
+
+### The power calculation that should have been done first
+
+    sd of paired differences = 0.311
+    SE (n=9)                 = 0.104
+    95% CI on the difference = [-0.141, +0.265]
+
+    n needed at 80% power, alpha=.05:
+      to detect 0.05 regret units  ->  ~303 seeds
+      to detect 0.10               ->   ~76 seeds
+      to detect 0.20               ->   ~19 seeds
+      to detect 0.30               ->    ~8 seeds
+
+**The sd of the paired differences (0.311) is larger than the entire effect we
+are trying to detect.** With 10 seeds this design can only resolve effects of
+roughly 0.3 regret units or bigger — and both arms sit around 0.5 total. H6 as
+specified cannot answer its own question, and neither the "freezing helps"
+reading nor the "freezing is neutral" reading was ever supported.
+
+The 95% CI **[-0.141, +0.265] straddles zero**, so the honest statement is:
+*we cannot distinguish freezing the DT from retraining it at this sample size.*
+That is weaker than the n=7 conclusion I recorded last tick, and it supersedes it.
+
+### One thing that IS reasonably clear
+
+Freezing roughly **doubles the variance** (FROZEN sd 0.248 vs LIVE sd 0.129,
+1.93x). That is a larger, more consistent effect than anything in the means, and
+it suggests continued training has a *stabilising* role even if it does not
+improve the average. That is a more defensible claim than either mean-based
+story, though still n=9.
+
+### Consequence for the whole project
+
+This same power problem applies to the **headline h1 result**: MF-DRO vs
+MI-Greedy differ by 0.0045 in the mean, with MI-Greedy's sd at 0.400. Detecting
+a difference that small would need many hundreds of seeds. The frozen success
+test's FAIL verdict stands as pre-registered, but "MF-DRO and MI-Greedy are
+statistically indistinguishable" should be stated as *underpowered to
+distinguish*, not as demonstrated equivalence.
+
+## (superseded, n=7) freezing the DT costs NOTHING
 
 | n | mean paired diff (FROZEN - LIVE) | verdict vs the locked 1-SE band (0.0395) |
 |---|---|---|
