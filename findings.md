@@ -420,6 +420,48 @@ If agreement is *low* while regret is unchanged, that is an equally strong and
 more surprising result: the policy changes substantially and it does not matter,
 meaning the decision space is flat and the GP/MES teacher is doing the real work.
 
+## The secondary-basin story is real as description but does NOT explain regret
+
+Mined the 10 post-fix seeds for `query_dist_to_xstar` vs `query_dist_to_x2`
+(x2 = Hartmann-6D's second optimum, f=3.2031, ||x2-x*||=1.103):
+
+| | post-fix (n=10) | pre-fix (n=3) |
+|---|---|---|
+| mean d(x*) | 0.899 | 0.97-1.10 |
+| mean d(x2) | 0.709 | 0.62-0.70 |
+| closer to x2 | **7/10 seeds** | 3/3 seeds |
+
+So the attraction to the secondary basin **persists but is no longer
+universal** — seeds 46, 49 and 50 now sit closer to x*. Seed46 in particular
+gets genuinely close (d(x*) = 0.307).
+
+### The part that kills the explanation
+
+    corr(mean d(x*), final regret) = +0.091
+    corr(mean d(x2), final regret) = -0.145
+
+**Where the policy queries does not predict how well it does.** Concretely:
+
+- seed46 gets *closest to x\** (0.307) and lands at a middling regret 0.4412
+- seed42 stays *far from x\** (1.038) and achieves the **best** regret 0.3126
+
+I had recorded "the policy was converging on the wrong basin" as an explanation
+for poor performance. It is not one. The mechanism is straightforward in
+hindsight: **regret depends on the single best point ever evaluated, not on where
+queries sit on average.** A policy can average far from x* and still stumble onto
+one good HF point; a policy can hover near x* and never evaluate HF at the right
+spot. Average query location and best-found-value are only loosely coupled.
+
+This retires a plausible-sounding story. It also explains why `query_dist_to_x*`
+looked so damning earlier: it is a real description of behaviour that happens to
+carry almost no information about outcome.
+
+**Generalisable lesson**: a diagnostic can be simultaneously (a) correctly
+measured, (b) a true description of the policy, and (c) causally irrelevant to
+the metric. Before promoting any diagnostic to an explanation, correlate it
+against the outcome it is supposed to explain. I did not do that when I first
+recorded the secondary-basin finding.
+
 ## Lessons and Constraints
 
 - **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
