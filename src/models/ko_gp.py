@@ -13,6 +13,7 @@ docstring in dro.py for why condition_on_observations/get_fantasy_model are
 broken for Normalize+Standardize-transformed SingleTaskGPs).
 """
 import math
+import time
 import warnings
 
 import torch
@@ -25,8 +26,97 @@ from botorch.models.transforms.outcome import Standardize
 from botorch.exceptions import InputDataWarning
 from gpytorch.likelihoods import GaussianLikelihood
 from gpytorch.kernels import ScaleKernel, RBFKernel
-from gpytorch.constraints import GreaterThan, Interval
+from gpytorch.constraints import GreaterThan
+from gpytorch.priors import LogNormalPrior
 from gpytorch.mlls import ExactMarginalLogLikelihood
+
+# Lengthscale prior (replaces the old hard Interval constraint -- see
+# KennedyOHaganGP's docstring). Module-level so DirectMFRegretOptimization's
+# ensemble-diversity lengthscale grid (mf_dro.py) can derive a sensible
+# spread from these SAME two numbers instead of duplicating them -- a
+# duplicate is exactly the bug class that broke when the old
+# _lengthscale_bounds() formula last changed (mf_dro.py kept generating
+# grid values the updated bound rejected).
+LENGTHSCALE_PRIOR_LOC = math.log(0.5)
+LENGTHSCALE_PRIOR_SCALE = 0.5
+
+
+# ════════════════════════════════════
+# Deep Kernel Learning (Wilson et al. 2015, DKL.pdf) -- see docstrings below
+# for the sparse-data RBF/DKL switching rationale (DRO.pdf Appendix C.2
+# cites Zhang, Desautels & Chen 2025 [44] for deep kernels in MF-BO).
+# ════════════════════════════════════
+
+class DeepKernelFeatureExtractor(nn.Module):
+    """
+    Small MLP mapping d-dimensional input to d_feature-dimensional feature
+    space. Jointly learned with GP hyperparameters through MLL
+    backpropagation (Wilson et al. 2015, Eq. 5: k(x,x'|theta) ->
+    k(g(x,w), g(x',w)|theta,w)).
+
+    Architecture: d -> hidden -> d_feature, single hidden layer of FIXED
+    width (not d-dependent). Tanh activation (bounded, unlike ReLU, which
+    matters here since feature-space magnitude directly scales the RBF
+    base kernel's distance computation).
+
+    Previously d -> [d*2, d*2] -> d_feature (two d-dependent hidden
+    layers): the middle layer's O(d^2) parameter scaling (d*2 x d*2) blew
+    up to 266-450 params for d=6/d=8 benchmarks even at d_feature=2,
+    breaking the fixed dkl_threshold=30 design (30/266=0.11x,
+    30/450=0.07x data-to-parameter ratio). A single fixed-width hidden
+    layer keeps parameter count roughly constant across benchmark
+    dimensions (38-46 params at hidden=4, d_feature=2, threshold=30 -->
+    ~0.65-0.79x ratio, just under 1:1) instead of scaling with d.
+
+    d_feature default: max(4, d // 2) -- small enough to avoid overfitting
+    on the 5-50 point regime KO GP operates in (see KennedyOHaganGP's
+    dkl_threshold), expressive enough to learn nontrivial structure.
+    """
+
+    def __init__(self, d, d_feature=None, hidden=4):
+        super().__init__()
+        if d_feature is None:
+            d_feature = max(4, d // 2)
+        self.d_feature = d_feature
+        self.net = nn.Sequential(
+            nn.Linear(d, hidden),
+            nn.Tanh(),
+            nn.Linear(hidden, d_feature),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class DeepKernel(gpytorch.kernels.Kernel):
+    """
+    Deep kernel: k_DKL(x, x') = k_base(g(x,w), g(x',w)) where g is
+    DeepKernelFeatureExtractor and k_base is RBF (Wilson et al. 2015).
+    Drop-in replacement for ScaleKernel(RBFKernel) in
+    KennedyOHaganGP._build_gp() when DKL is active. DNN weights w and base
+    RBF hyperparameters are jointly optimized through the same MLL
+    backprop loop _build_gp already uses -- no separate pretraining step
+    (unlike Wilson et al.'s own large-data DNN-pretrain-then-joint-tune
+    procedure, unnecessary here since the base network is tiny and the
+    whole point is joint learning on scarce data).
+
+    NOT combined with KISS-GP/inducing-point scalability machinery
+    (Wilson et al.'s Section 4 scalability extension) -- irrelevant at the
+    N<50 point regime this class operates in; exact GP inference is
+    already trivial at this scale.
+    """
+    has_lengthscale = False  # base kernel handles this
+
+    def __init__(self, d, d_feature=None, **kwargs):
+        super().__init__(**kwargs)
+        self.feature_extractor = DeepKernelFeatureExtractor(d, d_feature)
+        d_feat = self.feature_extractor.d_feature
+        self.base_kernel = ScaleKernel(RBFKernel(ard_num_dims=d_feat))
+
+    def forward(self, x1, x2, **params):
+        z1 = self.feature_extractor(x1)
+        z2 = self.feature_extractor(x2)
+        return self.base_kernel(z1, z2)
 
 
 class KennedyOHaganGP:
@@ -34,17 +124,47 @@ class KennedyOHaganGP:
     d: input dimension
     All GPs use: Normalize(d) + Standardize(m=1) transforms, RBF kernel with
     ARD=True, ScaleKernel wrapper, GaussianLikelihood with noise >= noise_lb.
-    Lengthscale is constrained to [0.05*sqrt(d), 2*sqrt(d)] (via an Interval
-    constraint on the RBF kernel, not just an initial value) and initialized
-    at that range's geometric mean.
+    Lengthscale has NO hard constraint (GPyTorch's default Positive/softplus
+    transform) -- instead a LogNormalPrior(loc=log(0.5), scale=0.5) softly
+    regularizes it toward 0.5, letting MLL settle shorter or longer if the
+    data genuinely supports it, rather than the previous hard Interval
+    constraint, which a diagnostic found MLL pinning against exactly (first
+    at 0.05*sqrt(d)=0.12 for d=6, then again at a raised floor of 0.2 --
+    the optimizer wanted shorter than *any* hard floor tried, on this
+    sparse-data/noise_lb regime, so a soft prior replaces the floor
+    entirely rather than raising it again). See LENGTHSCALE_PRIOR_LOC/
+    LENGTHSCALE_PRIOR_SCALE below.
     """
 
     def __init__(self, d, rho_init=0.8, lr=0.1, train_iter=50,
-                 noise_lb=1e-4, device='cpu', dtype=torch.float64):
+                 noise_lb=1e-2, device='cpu', dtype=torch.float64,
+                 dkl_threshold=30, dkl_train_iter=100, d_feature=None,
+                 rho_fixed=None, initial_lengthscale=None):
+        # noise_lb default raised from 1e-4: a near-zero noise floor made
+        # near-interpolation (very short lengthscale, near-exact fit to
+        # each training point) more attractive to the MLL optimizer on
+        # sparse high-D data -- see the class docstring's LogNormalPrior
+        # note for the diagnostic that found this. 1e-2 is light
+        # regularization, not expected to meaningfully change behavior
+        # once data is denser.
         self.d = d
+        self.rho_init = rho_init  # re-applied every fit() call when
+        # initial_lengthscale is set -- see fit()'s reset and
+        # initial_lengthscale's docstring below for why.
         self.log_rho = nn.Parameter(
             torch.tensor(math.log(rho_init / (1.0 - rho_init)))
         )
+        # rho_fixed: pin the autoregressive coefficient instead of fitting it.
+        # rho_fixed=1.0 degenerates the KO model f_H = rho*f_L + delta into the
+        # purely additive f_H = f_L + delta, which is the Additive-MES ablation
+        # in src/baselines/additive_mes.py -- with rho pinned, that variant
+        # differs from the KO model in exactly one respect (whether the global
+        # fidelity correlation is learned from data), so any performance gap is
+        # attributable to the fitted rho alone. sigmoid(log_rho) can never
+        # actually reach 1.0, so this is a genuine override of the `rho`
+        # property rather than an initialization, and fit()'s Step 4 skips the
+        # rho update entirely when it is set.
+        self.rho_fixed = rho_fixed
         self.gp_lf = None
         self.gp_delta = None
         self.device = device
@@ -60,34 +180,128 @@ class KennedyOHaganGP:
         self.train_iter = train_iter
         self.noise_lb = noise_lb
 
+        # GP warm-starting (Change 2, DRO.pdf Section D.2: "GPs are not
+        # retrained from scratch... retrain: False"). fit() stores each
+        # round-0 gp_lf/gp_delta's state_dict here after every call; the
+        # NEXT fit() call's round 0 loads it back via _build_gp's
+        # prev_state_dict, in place of a random cold-start init, and uses
+        # fewer Adam iterations (train_iter_warm instead of train_iter) --
+        # see fit()/_build_gp docstrings for exactly which round loads what.
+        # DISABLED (never populated/consumed) when initial_lengthscale is
+        # set -- see that param's docstring below for why.
+        self.prev_state_dict_lf = None
+        self.prev_state_dict_delta = None
+        self.train_iter_warm = max(10, train_iter // 2)
+
+        # Ensemble-diversity anchor (analogous to SF-DRO's dro.py
+        # _initialize_models/_update_models: each ensemble member gets a
+        # DIFFERENT fixed initial_lengthscale from a grid, re-applied via
+        # _build_gp's RBF branch on EVERY fit() call -- not just the first).
+        # None (default) means "use the fixed 0.5 init, the LogNormalPrior's
+        # own center" (unchanged behavior for any non-ensemble/single-
+        # instance use). The prior itself (regularization target) stays
+        # shared across ensemble members regardless of this setting -- only
+        # the Adam search's STARTING point differs per member.
+        # When set, this ALSO disables warm-starting for this instance:
+        # SF-DRO's own _update_models docstring is explicit that rebuilding
+        # from scratch, anchored to each member's own designated
+        # initial_lengthscale every call, is *why* its ensemble stays
+        # diverse -- warm-starting would let members drift from their
+        # distinct anchors toward whatever the (possibly shared) MLL
+        # landscape's gradient points to, exactly the "gradually converge
+        # toward each other over many iterations" failure this is meant to
+        # prevent. Applied uniformly (not just to the RBF lengthscale): the
+        # DKL branch also cold-restarts every call under this flag, rather
+        # than selectively warm-starting the DNN while the lengthscale
+        # resets -- a partial reset would be an inconsistent, hard-to-reason
+        # -about hybrid of the two designs. rho is reset the same way (see
+        # fit()) -- log_rho is a persistent nn.Parameter that otherwise
+        # keeps taking Adam steps every fit() call with nothing to re-anchor
+        # it, so even with per-member rho_init, ensemble rho std was
+        # observed to decay monotonically toward 0 over iterations (a
+        # diagnostic finding, not a hypothetical) if left unreset -- the
+        # exact convergence-toward-each-other failure this whole mechanism
+        # exists to prevent, just via a different parameter than lengthscale.
+        self.initial_lengthscale = initial_lengthscale
+
+        # DKL config -- see DeepKernel/fit() docstrings. Starts False;
+        # fit() activates it once n_hf reaches dkl_threshold.
+        # d_feature=2 (not max(4,d//2)) and dkl_threshold=30 (not 15):
+        # under the fixed-width single-hidden-layer architecture (see
+        # DeepKernelFeatureExtractor's docstring), d_feature=2/hidden=4
+        # gives 38-46 DNN params across d=6/d=8, and at threshold=30 the
+        # ~0.65-0.79x data-to-parameter ratio is in the regime where MLL
+        # regularization can actually constrain the DNN. The DKL paper's
+        # own results (Wilson et al. 2015) cover 2,565+ points -- its
+        # architecture choices aren't calibrated for n<50.
+        self.use_dkl = False
+        self.dkl_threshold = dkl_threshold  # HF obs needed before switching
+        self.dkl_train_iter = dkl_train_iter  # more iterations for DKL fitting
+        self.d_feature = d_feature if d_feature is not None else 2
+        self._last_rbf_fit_time = None  # for the DKL-activation timing check
+
     @property
     def rho(self):
+        if self.rho_fixed is not None:
+            return torch.tensor(self.rho_fixed, device=self.device, dtype=self.dtype)
         return torch.sigmoid(self.log_rho)
 
-    def _lengthscale_bounds(self):
-        # Deterministic in d -- recomputed (not stored) so _build_gp and
-        # _rebuild_frozen_gp always construct an IDENTICAL Interval constraint
-        # object for a given self.d, which matters for _rebuild_frozen_gp:
-        # load_state_dict copies the raw (pre-constraint-transform) parameter
-        # value, so decoding it through a differently-bounded Interval would
-        # silently produce a different actual lengthscale than the one being
-        # "frozen" from the source model.
-        return 0.05 * math.sqrt(self.d), 2.0 * math.sqrt(self.d)
-
-    def _build_gp(self, X_raw, Y_raw):
+    def _build_gp(self, X_raw, Y_raw, use_dkl=False, prev_state_dict=None):
         """
-        Build a fresh SingleTaskGP on (X_raw, Y_raw), MLL-fit via Adam for
-        train_iter steps. Mirrors dro.py's _construct_gp_model exactly (same
-        likelihood/kernel/transform choices), except the kernel is always RBF
-        with ARD and a bounded lengthscale, per this class's spec.
+        Build a fresh SingleTaskGP on (X_raw, Y_raw), MLL-fit via Adam.
+        Mirrors dro.py's _construct_gp_model exactly (same
+        likelihood/transform choices); covariance is either RBF+ARD with a
+        bounded lengthscale (use_dkl=False, this class's original spec) or
+        DeepKernel (use_dkl=True, requires more data -- see fit()).
         X_raw: [N, d], Y_raw: [N]. Returns model in eval() mode.
-        """
-        low, high = self._lengthscale_bounds()
-        likelihood = GaussianLikelihood(noise_constraint=GreaterThan(self.noise_lb))
-        base_kernel = RBFKernel(ard_num_dims=self.d, lengthscale_constraint=Interval(low, high))
-        base_kernel.initialize(lengthscale=math.sqrt(low * high))
-        covar_module = ScaleKernel(base_kernel)
 
+        prev_state_dict (Change 2, GP warm-starting -- DRO.pdf Section D.2):
+        if given, loaded into the freshly-constructed model via
+        load_state_dict(..., strict=False) BEFORE the Adam MLL loop below,
+        and the loop then runs self.train_iter_warm iterations instead of
+        the cold-start self.train_iter/self.dkl_train_iter count. The
+        caller (fit()) only ever passes a prev_state_dict captured from a
+        model with the SAME architecture (same use_dkl, same d) as the one
+        being built here, so shapes normally match -- strict=False guards
+        against the one thing that legitimately still differs, buffers
+        derived from train_inputs/train_targets (N changes every BO
+        iteration as data accumulates), skipping those instead of raising.
+        The except is a last-resort fallback (an incompatible dict slipping
+        through some other way) that falls back to a full cold-start init
+        rather than let fit() crash.
+        """
+        if use_dkl:
+            # Deep kernel -- no explicit lengthscale constraint (base
+            # kernel inside DeepKernel handles its own).
+            covar_module = DeepKernel(d=self.d, d_feature=self.d_feature)
+            train_iters = self.dkl_train_iter
+        else:
+            # No hard Interval constraint (GPyTorch's default Positive/
+            # softplus transform instead) -- a LogNormalPrior softly
+            # regularizes toward 0.5 without hard-blocking the optimizer
+            # from going shorter or longer if the data supports it. See
+            # KennedyOHaganGP's class docstring and LENGTHSCALE_PRIOR_LOC/
+            # LENGTHSCALE_PRIOR_SCALE above for why this replaced the old
+            # hard floor (MLL kept pinning against it, at two different
+            # floor values, rather than finding a genuine data-driven
+            # optimum below it).
+            base_kernel = RBFKernel(ard_num_dims=self.d)
+            base_kernel.register_prior(
+                'lengthscale_prior',
+                LogNormalPrior(loc=LENGTHSCALE_PRIOR_LOC, scale=LENGTHSCALE_PRIOR_SCALE),
+                'lengthscale'
+            )
+            # Ensemble-diversity anchor (see __init__'s initial_lengthscale
+            # docstring): each member re-anchors to its OWN fixed value on
+            # every call, instead of the shared 0.5 default -- the PRIOR
+            # (regularization target) is shared across members, but the
+            # starting point Adam searches from stays diverse.
+            init_ls = self.initial_lengthscale if self.initial_lengthscale is not None else 0.5
+            base_kernel.initialize(lengthscale=init_ls)
+            covar_module = ScaleKernel(base_kernel)
+            train_iters = self.train_iter
+
+        likelihood = GaussianLikelihood(noise_constraint=GreaterThan(self.noise_lb))
         train_x = X_raw.to(device=self.device, dtype=self.dtype)
         train_y = Y_raw.to(device=self.device, dtype=self.dtype).reshape(-1, 1)
 
@@ -103,15 +317,26 @@ class KennedyOHaganGP:
             )
             model = model.to(device=self.device, dtype=self.dtype)
 
+        if prev_state_dict is not None:
+            try:
+                model.load_state_dict(prev_state_dict, strict=False)
+                train_iters = self.train_iter_warm
+            except Exception as e:
+                print(f"[KO GP] warm-start load_state_dict failed "
+                      f"({e!r}), falling back to cold-start init")
+
         model.train()
         model.likelihood.train()
         mll = ExactMarginalLogLikelihood(model.likelihood, model)
         gp_optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
-        for _ in range(self.train_iter):
+        for _ in range(train_iters):
             gp_optimizer.zero_grad()
             output = model(train_x)
             loss = -mll(output, model.train_targets)
             loss.backward()
+            # Prevents NaN from poorly-conditioned DNN initialization
+            # (DeepKernel's feature_extractor) propagating into the GP fit.
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             gp_optimizer.step()
 
         model.eval()
@@ -124,18 +349,31 @@ class KennedyOHaganGP:
         old_model's frozen kernel/likelihood hyperparameters (no MLL
         refitting) -- the exact same pattern as dro.py's
         _make_fantasy_model, generalized from that method's RBF-or-Matern
-        branch to this class's always-RBF-with-ARD kernel.
+        branch to this class's RBF-with-ARD-or-DeepKernel covariance.
+
+        For DKL: copies both DNN weights (in covar_module.feature_extractor)
+        and GP hyperparameters via load_state_dict -- works for both cases
+        because DNN weights are ordinary registered nn.Module parameters,
+        included in covar_module's state_dict alongside the base kernel's.
         """
-        low, high = self._lengthscale_bounds()
         X_aug = X_aug_raw.to(device=self.device, dtype=self.dtype)
         Y_aug = Y_aug_raw.to(device=self.device, dtype=self.dtype).reshape(-1, 1)
 
         new_likelihood = GaussianLikelihood(noise_constraint=GreaterThan(self.noise_lb))
         new_likelihood.noise = old_model.likelihood.noise.detach().clone()
 
-        new_covar_module = ScaleKernel(
-            RBFKernel(ard_num_dims=self.d, lengthscale_constraint=Interval(low, high))
-        )
+        is_dkl = isinstance(old_model.covar_module, DeepKernel)
+        if is_dkl:
+            new_covar_module = DeepKernel(d=self.d, d_feature=self.d_feature)
+        else:
+            # No explicit lengthscale_constraint here either (must match
+            # _build_gp's construction exactly -- GPyTorch's default
+            # Positive/softplus transform, not the old Interval/sigmoid
+            # one): load_state_dict copies the RAW (pre-transform)
+            # parameter value, so decoding it through a differently-shaped
+            # transform would silently produce a different actual
+            # lengthscale than the one being "frozen" from old_model.
+            new_covar_module = ScaleKernel(RBFKernel(ard_num_dims=self.d))
         new_covar_module.load_state_dict(old_model.covar_module.state_dict())
 
         with warnings.catch_warnings():
@@ -162,20 +400,23 @@ class KennedyOHaganGP:
         bounds: [2, d] (row 0 = lower, row 1 = upper -- botorch convention).
         Stores X_lf, Y_lf, X_hf, Y_hf, Y_delta, bounds as raw-scale attrs.
 
-        Step 1 (gp_lf) runs only once, before the round loop: its training
-        data (X_lf, Y_lf) never depends on rho, so re-running its MLL
-        optimization every round would just reproduce the identical fit
-        (same data, same init) at 3x the cost. Steps 2-4 run once per round:
-        round 0 fits gp_delta via a fresh MLL optimization (_build_gp);
-        rounds 1-2 rebuild gp_delta with FROZEN hyperparameters copied from
-        round 0 (_rebuild_frozen_gp) on the newly-recomputed Y_delta target
-        (rho shifts slightly each round, so the residual VALUES change, but
-        there's no reason to assume delta's overall smoothness/kernel shape
-        needs re-learning every round too). rho gets one Adam step per
-        round (3 total, via a single persistent optimizer instance so its
-        momentum carries across rounds), not just one -- with only a single
-        step, rho barely moves from its rho_init prior regardless of how
-        much the data actually supports a different LF/HF correlation.
+        Activates DKL when n_hf >= self.dkl_threshold (both gp_lf and
+        gp_delta switch together): below threshold, RBF (stable for sparse
+        data); at/above, DeepKernel (learns feature structure once enough
+        HF data exists to support it -- see DeepKernel's docstring).
+
+        All 4 steps run fresh EVERY round (3 rounds total): gp_lf and
+        gp_delta are both rebuilt via a full MLL fit (_build_gp) each round
+        -- not the frozen-hyperparameter rebuild used elsewhere in this
+        class for fantasy conditioning -- and rho gets one Adam step per
+        round via a SINGLE optimizer constructed once before the round loop,
+        so momentum accumulates across all 3 rounds (a fresh optimizer per
+        round would discard momentum state, making the 3 rounds behave like
+        plain SGD instead of Adam). Re-fitting gp_lf on the same (X_lf, Y_lf)
+        every round is redundant computation under RBF (deterministic Adam
+        trajectory, so it reproduces the same fit each time) but kept for
+        exact parity with the specified alternating-optimization procedure;
+        under DKL it is NOT redundant (fresh random DNN init each round).
         """
         self.bounds = bounds.to(device=self.device, dtype=self.dtype)
         X_lf = X_lf.to(device=self.device, dtype=self.dtype)
@@ -183,41 +424,99 @@ class KennedyOHaganGP:
         X_hf = X_hf.to(device=self.device, dtype=self.dtype)
         Y_hf = Y_hf.to(device=self.device, dtype=self.dtype).reshape(-1)
 
-        # Step 1 (once)
-        self.gp_lf = self._build_gp(X_lf, Y_lf)
+        # Activate DKL if enough HF data.
+        n_hf = X_hf.shape[0]
+        use_dkl = (n_hf >= self.dkl_threshold)
+        just_activated = use_dkl and not self.use_dkl
+        if just_activated:
+            print(f"[KO GP] Activating DKL at n_hf={n_hf} "
+                  f"(threshold={self.dkl_threshold})")
+            # Change 2: a just-activated DKL model has a different
+            # architecture (DeepKernel vs ScaleKernel(RBFKernel)) than
+            # whatever produced the stored warm-start state dicts, so they
+            # are no longer valid initializations -- discard rather than
+            # let _build_gp's strict=False silently no-op-load them.
+            self.prev_state_dict_lf = None
+            self.prev_state_dict_delta = None
+        self.use_dkl = use_dkl
 
-        rho_optimizer = torch.optim.Adam([self.log_rho], lr=self.lr)
-        Y_delta = None
-        for round_idx in range(3):
-            # Step 2: residuals at HF, using rho as of the START of this
-            # round (rho_init on round 0, updated by the previous round's
-            # Step 4 otherwise).
-            rho_val = torch.sigmoid(self.log_rho).item()
+        # rho re-anchor (see initial_lengthscale's docstring above): reset
+        # log_rho to this instance's own rho_init EVERY fit() call, for the
+        # same diversity-preservation reason lengthscale re-anchors via
+        # _build_gp -- log_rho is otherwise a persistent nn.Parameter with
+        # no reset, so it keeps drifting via Step 4's Adam updates below
+        # regardless of how distinct rho_init was at construction.
+        if self.initial_lengthscale is not None and self.rho_fixed is None:
             with torch.no_grad():
-                mu_lf = self.gp_lf.posterior(X_hf).mean.reshape(-1)
-            Y_delta = Y_hf - rho_val * mu_lf
+                self.log_rho.fill_(math.log(self.rho_init / (1.0 - self.rho_init)))
 
-            # Step 3
-            if round_idx == 0:
-                self.gp_delta = self._build_gp(X_hf, Y_delta)
-            else:
-                self.gp_delta = self._rebuild_frozen_gp(self.gp_delta, X_hf, Y_delta)
+        _fit_t0 = time.time()
+        Y_delta = None
+        rho_optimizer = torch.optim.Adam([self.log_rho], lr=self.lr)
+        for round_idx in range(3):
+            # Step 1: fit gp_lf on LF data. Warm-start (Change 2) only on
+            # round 0, from the PREVIOUS fit() call's final state -- rounds
+            # 1-2 stay cold-start, unchanged from before (see fit()'s
+            # docstring on why every round rebuilds from scratch). Warm-start
+            # is disabled entirely (lf_prev always None) when
+            # initial_lengthscale is set -- see __init__'s docstring on why
+            # ensemble-diversity anchors and warm-starting are mutually
+            # exclusive for a given instance.
+            _warm_ok = self.initial_lengthscale is None
+            lf_prev = self.prev_state_dict_lf if (round_idx == 0 and _warm_ok) else None
+            self.gp_lf = self._build_gp(X_lf, Y_lf, use_dkl=use_dkl, prev_state_dict=lf_prev)
 
-            # Step 4: one Adam step tuning rho against the current gp_lf/gp_delta
+            # Step 2: recompute residuals using updated gp_lf and rho
+            rho_val = self.rho.item()
             with torch.no_grad():
                 mu_lf_at_hf = self.gp_lf.posterior(X_hf).mean.reshape(-1)
-                mu_delta_at_hf = self.gp_delta.posterior(X_hf).mean.reshape(-1)
-            rho_optimizer.zero_grad()
-            pred = self.rho * mu_lf_at_hf + mu_delta_at_hf
-            loss = torch.nn.functional.mse_loss(pred, Y_hf)
-            loss.backward()
-            rho_optimizer.step()
+            Y_delta = Y_hf - rho_val * mu_lf_at_hf
+
+            # Step 3: fit gp_delta on updated residuals (same round-0-only
+            # warm-start policy as gp_lf above).
+            delta_prev = self.prev_state_dict_delta if (round_idx == 0 and _warm_ok) else None
+            self.gp_delta = self._build_gp(X_hf, Y_delta, use_dkl=use_dkl, prev_state_dict=delta_prev)
+
+            # Step 4: one Adam step on rho -- skipped entirely when rho is
+            # pinned (rho_fixed), since the `rho` property ignores log_rho in
+            # that case and stepping it would be a no-op that still burns a
+            # posterior evaluation per round.
+            if self.rho_fixed is None:
+                with torch.no_grad():
+                    mu_lf_at_hf = self.gp_lf.posterior(X_hf).mean.reshape(-1)
+                    mu_delta_at_hf = self.gp_delta.posterior(X_hf).mean.reshape(-1)
+                rho_optimizer.zero_grad()
+                pred = (torch.sigmoid(self.log_rho)
+                        * mu_lf_at_hf + mu_delta_at_hf)
+                loss = torch.nn.functional.mse_loss(pred, Y_hf)
+                loss.backward()
+                rho_optimizer.step()
 
         self.train_x_lf = X_lf
         self.train_y_lf = Y_lf
         self.train_x_hf = X_hf
         self.train_y_hf = Y_hf
         self.train_y_delta = Y_delta
+
+        # Change 2: snapshot this call's final hyperparameters for the
+        # NEXT fit() call's round-0 warm-start (see round loop above).
+        # Skipped when initial_lengthscale is set -- warm-starting is
+        # disabled for this instance, so there's nothing to read it back.
+        if self.initial_lengthscale is None:
+            self.prev_state_dict_lf = self.gp_lf.state_dict()
+            self.prev_state_dict_delta = self.gp_delta.state_dict()
+
+        # Timing checkpoint: verify DKL overhead is acceptable at the
+        # moment it first activates, comparing against the most recent
+        # RBF-mode fit() call's time (tracks the same accumulating data
+        # size the switch itself was triggered by).
+        fit_elapsed = time.time() - _fit_t0
+        if not use_dkl:
+            self._last_rbf_fit_time = fit_elapsed
+        elif just_activated:
+            rbf_str = (f"{self._last_rbf_fit_time:.2f}s"
+                       if self._last_rbf_fit_time is not None else "n/a")
+            print(f"DKL fit time: {fit_elapsed:.2f}s  (RBF was {rbf_str})")
 
     def hf_posterior(self, X):
         """
@@ -301,19 +600,31 @@ class KennedyOHaganGP:
         re-optimization of rho happens here, matching "hyperparameters are
         frozen" for the whole model, not just the GPs.
         """
-        new_ko = KennedyOHaganGP(self.d, device=self.device, dtype=self.dtype)
+        new_ko = KennedyOHaganGP(self.d, device=self.device, dtype=self.dtype,
+                                  rho_fixed=self.rho_fixed)
         new_ko.log_rho = nn.Parameter(self.log_rho.detach().clone())
         new_ko.bounds = self.bounds
         new_ko.lr = self.lr
         new_ko.train_iter = self.train_iter
         new_ko.noise_lb = self.noise_lb
+        # DKL config/status propagated too -- _rebuild_frozen_gp below
+        # determines DKL-vs-RBF per rebuilt GP via isinstance(old_model.
+        # covar_module, DeepKernel) regardless of this flag, so the actual
+        # covariance type is already correct without this; without it,
+        # though, new_ko.use_dkl would read back False even when its own
+        # gp_lf/gp_delta are genuinely DeepKernel-based, which would mislead
+        # any future code (or debugging) that trusts this flag directly.
+        new_ko.use_dkl = self.use_dkl
+        new_ko.dkl_threshold = self.dkl_threshold
+        new_ko.dkl_train_iter = self.dkl_train_iter
+        new_ko.d_feature = self.d_feature
 
         x_new = x_new.to(device=self.device, dtype=self.dtype)
         if x_new.ndim == 1:
             x_new = x_new.unsqueeze(0)
         y_new_raw = y_new_raw.to(device=self.device, dtype=self.dtype).reshape(-1)
 
-        rho_val = torch.sigmoid(self.log_rho).detach().item()
+        rho_val = self.rho.detach().item()
 
         if fidelity == 'L':
             aug_x_lf = torch.cat([self.train_x_lf, x_new], dim=0)

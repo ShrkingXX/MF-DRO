@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import numpy as np
 
 # # Define test functions (no changes needed)
@@ -571,6 +572,395 @@ class HartmannLF(SyntheticTestFunction):
         inner_sum = torch.sum(self.A * (X.unsqueeze(-2) - 0.0001 * self.P) ** 2, dim=-1)
         H = -(torch.sum(self.ALPHA * torch.exp(-inner_sum), dim=-1))
         return H
+
+
+class HartmannWidened6D(SyntheticTestFunction):
+    """
+    Hartmann 6D with controllable basin width. alpha_basin scales the WHOLE
+    A matrix by a single scalar: smaller alpha_basin = wider basin.
+
+    evaluate_true returns the already-positive, maximization-ready sum
+    directly (negate defaults to False here, unlike HartmannLF above which
+    returns minimization-style + negate=True) -- verified against BoTorch's
+    own Hartmann(dim=6, negate=True) (the HF objective this codebase's plain
+    Hartmann_6D_HF entry actually uses): evaluate_true(x*) with
+    alpha_basin=1.0 equals +3.32237, matching Hartmann(negate=True)(x*)
+    exactly, so this class's un-negated evaluate_true is equivalent to the
+    rest of this module's negate=True convention, just implemented directly.
+
+    CAUTION (see benchmarks.py's Hartmann6D_w* registration comment): despite
+    _optimal_value=3.3224 below, evaluate_true(x_star) is NOT actually
+    invariant to alpha_basin for this construction -- scaling the full A
+    matrix by one scalar is not a coordinate reparametrization around x_star,
+    since Hartmann-6 is a weighted mixture of 4 anisotropic Gaussian bumps at
+    4 different centers (P rows), not a single bump. Verified numerically:
+    f(x_star; alpha_basin=1.0/0.3/0.1) = 3.322/4.127/5.683, and the true
+    argmax location also shifts away from x_star as alpha_basin shrinks.
+    _optimal_value/_optimizers here describe ONLY the alpha_basin=1.0 case
+    (identical to standard Hartmann-6); benchmarks.py computes each
+    variant's actual optimum empirically instead of trusting this constant.
+    """
+
+    dim = 6
+    _bounds = [(0.0, 1.0)] * 6
+    _optimal_value = 3.3224
+
+    A_base = torch.tensor([
+        [10.0,  3.0,  17.0,  3.5,  1.7,  8.0],
+        [0.05, 10.0,  17.0,  0.1,  8.0, 14.0],
+        [3.0,   3.5,   1.7, 10.0, 17.0,  8.0],
+        [17.0,  8.0,  0.05, 10.0,  0.1, 14.0],
+    ], dtype=torch.float64)
+
+    alpha_coef = torch.tensor([1.0, 1.2, 3.0, 3.2], dtype=torch.float64)
+
+    P = torch.tensor([
+        [0.1312, 0.1696, 0.5569, 0.0124, 0.8283, 0.5886],
+        [0.2329, 0.4135, 0.8307, 0.3736, 0.1004, 0.9991],
+        [0.2348, 0.1451, 0.3522, 0.2883, 0.3047, 0.6650],
+        [0.4047, 0.8828, 0.8732, 0.5743, 0.1091, 0.0381],
+    ], dtype=torch.float64)
+
+    def __init__(self, alpha_basin=1.0):
+        super().__init__()
+        self.alpha_basin = alpha_basin
+
+    def evaluate_true(self, X):
+        A = self.A_base * self.alpha_basin
+        result = torch.zeros(X.shape[0], dtype=torch.float64)
+        for i in range(4):
+            exponent = -(A[i] * (X - self.P[i]) ** 2).sum(dim=-1)
+            result += self.alpha_coef[i] * torch.exp(exponent)
+        return result
+
+
+class HartmannWidenedLF6D(SyntheticTestFunction):
+    """
+    Low-fidelity counterpart to HartmannWidened6D: identical construction
+    (same A_base, same alpha_basin scaling of the FULL A matrix, same P),
+    with HartmannLF's existing ALPHA_LF=[0.5,0.5,2.0,4.0] (see
+    _HARTMANN6_ALPHA_LF above) in place of HartmannWidened6D's
+    ALPHA=[1.0,1.2,3.0,3.2] -- the same fidelity-differentiating
+    substitution HartmannLF makes against standard Hartmann-6.
+
+    Mirrors HartmannWidened6D's own evaluate_true convention (already
+    maximization-ready, negate defaults to False) rather than HartmannLF's
+    (minimization-style + negate=True), so the paired HF/LF widened classes
+    stay structurally symmetric. Like HartmannWidened6D, has no reliable
+    closed-form optimum per alpha_basin -- benchmarks.py determines each
+    variant's LF optimum empirically, matching HartmannLF's own convention.
+    """
+
+    dim = 6
+    _bounds = [(0.0, 1.0)] * 6
+
+    A_base = HartmannWidened6D.A_base
+    P = HartmannWidened6D.P
+    alpha_coef = torch.tensor(_HARTMANN6_ALPHA_LF, dtype=torch.float64)
+
+    def __init__(self, alpha_basin=1.0):
+        super().__init__()
+        self.alpha_basin = alpha_basin
+
+    def evaluate_true(self, X):
+        A = self.A_base * self.alpha_basin
+        result = torch.zeros(X.shape[0], dtype=torch.float64)
+        for i in range(4):
+            exponent = -(A[i] * (X - self.P[i]) ** 2).sum(dim=-1)
+            result += self.alpha_coef[i] * torch.exp(exponent)
+        return result
+
+
+# Borehole bounds (Harper & Gupta 1983 / Kandasamy et al. 2016), shared by
+# both fidelities: rw, r, Tu, Hu, Tl, Hl, L, Kw, in that order.
+_BOREHOLE_BOUNDS = [
+    (0.05, 0.15),      # rw: radius of borehole (m)
+    (100.0, 50000.0),  # r:  radius of influence (m)
+    (63070.0, 115600.0),  # Tu: transmissivity, upper aquifer (m^2/yr)
+    (990.0, 1110.0),   # Hu: potentiometric head, upper aquifer (m)
+    (63.1, 116.0),     # Tl: transmissivity, lower aquifer (m^2/yr)
+    (700.0, 820.0),    # Hl: potentiometric head, lower aquifer (m)
+    (1120.0, 1680.0),  # L:  length of borehole (m)
+    (9855.0, 12045.0),  # Kw: hydraulic conductivity of borehole (m/yr)
+]
+
+
+class BoreholeFunctionHF(SyntheticTestFunction):
+    r"""Standard 8-dimensional Borehole function (water flow rate, m^3/yr).
+    x = [rw, r, Tu, Hu, Tl, Hl, L, Kw]:
+
+        f_H(x) = 2*pi*Tu*(Hu-Hl) /
+                 ( ln(r/rw) * (1 + 2*L*Tu/(ln(r/rw)*rw^2*Kw) + Tu/Tl) )
+
+    Following this module's convention (CurrinExpHF/HartmannLF above),
+    evaluate_true returns the NEGATIVE of f_H (minimization-style), with
+    negate=True flipping it back to the natural to-be-maximized form (i.e.
+    treating higher borehole flow rate as the optimization target, matching
+    every other benchmark in this module being set up as a maximization
+    problem via negate=True).
+
+    NOTE ON OPTIMAL VALUE: unlike Hartmann (published closed-form optimum)
+    or CurrinExpHF (analytically derived here), Borehole has no established
+    closed-form optimum used in this codebase. `_optimal_value`/
+    `_optimizers` are deliberately left unset, matching CurrinExpLF/
+    HartmannLF's convention -- benchmarks.py determines it empirically via
+    dense grid search instead.
+    """
+
+    dim = 8
+    _bounds = list(_BOREHOLE_BOUNDS)
+
+    def __init__(
+        self,
+        noise_std: Optional[float] = None,
+        negate: bool = True,
+        bounds: Optional[list[tuple[float, float]]] = None,
+    ) -> None:
+        """
+        Args:
+            noise_std: Standard deviation of observation noise. Default: None.
+            negate: If True, negate the function for maximization. Default: True.
+            bounds: Custom bounds for the function domain. If None, uses the
+                standard Borehole bounds (NOT [0,1]^8 -- each dimension has
+                its own physical range).
+        """
+        if bounds is not None:
+            self._bounds = bounds
+        super().__init__(noise_std=noise_std, negate=negate)
+
+    @staticmethod
+    def _unpack(X: torch.Tensor):
+        return (X[..., 0], X[..., 1], X[..., 2], X[..., 3],
+                X[..., 4], X[..., 5], X[..., 6], X[..., 7])
+
+    def evaluate_true(self, X: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluate the Borehole function (minimization-style, i.e. -f_H; see
+        class docstring).
+
+        Args:
+            X: A (batch_shape) x 8 tensor of inputs [rw, r, Tu, Hu, Tl, Hl, L, Kw].
+
+        Returns:
+            A (batch_shape) tensor of function values.
+        """
+        if X.ndim < 1 or X.shape[-1] != self.dim:
+            raise ValueError(f"Input tensor X must have last dimension equal to {self.dim}")
+
+        rw, r, Tu, Hu, Tl, Hl, L, Kw = self._unpack(X)
+        log_r_rw = torch.log(r / rw)
+        numerator = 2.0 * math.pi * Tu * (Hu - Hl)
+        denominator = log_r_rw * (
+            1.0 + (2.0 * L * Tu) / (log_r_rw * rw ** 2 * Kw) + Tu / Tl
+        )
+        f_h = numerator / denominator
+        return -f_h
+
+
+class AckleyFunctionHF(SyntheticTestFunction):
+    r"""10-dimensional Ackley function, high-fidelity member of the
+    Ackley_10D two-fidelity pair. Domain [0,1]^10, internally rescaled to
+    Ackley's natural [-5,5]^10 range (so this class's own _bounds/domain
+    stays [0,1]^10, matching Currin_2D/Hartmann_6D's convention rather than
+    Borehole_8D's native-physical-range one).
+
+        f_H(x) = -20*exp(-0.2*sqrt(mean(x_scaled^2)))
+                 - exp(mean(cos(2*pi*x_scaled))) + 20 + e
+        x_scaled = x*10 - 5
+
+    Global minimum (of this minimization-style formula) is 0 at
+    x_scaled=0, i.e. x=[0.5]*10 -- see AckleyFunctionLF for why LF shares
+    this exact optimum location.
+
+    Following this module's convention (evaluate_true returns a
+    minimization-style value, with negate=True flipping it back to the
+    natural to-be-maximized form -- see CurrinExpHF/BoreholeFunctionHF
+    above), evaluate_true does NOT negate internally.
+    """
+
+    dim = 10
+    _bounds = [(0.0, 1.0)] * 10
+    _optimizers = [(0.5,) * 10]
+    _optimal_value = 0.0
+
+    def __init__(
+        self,
+        noise_std: Optional[float] = None,
+        negate: bool = True,
+        bounds: Optional[list[tuple[float, float]]] = None,
+    ) -> None:
+        """
+        Args:
+            noise_std: Standard deviation of observation noise. Default: None.
+            negate: If True, negate the function for maximization. Default: True.
+            bounds: Custom bounds for the function domain. If None, uses [0,1]^10.
+        """
+        if bounds is not None:
+            self._bounds = bounds
+        super().__init__(noise_std=noise_std, negate=negate)
+
+    @staticmethod
+    def _raw_ackley(X: torch.Tensor, b: float = 0.2, c: float = 2.0 * math.pi) -> torch.Tensor:
+        """Standard (minimization-style) Ackley value on the *rescaled*
+        [-5,5]^10 domain, shared by HF and LF -- see class docstrings.
+        b/c are Ackley's own decay-rate/frequency parameters (HF uses the
+        textbook defaults 0.2/2*pi); AckleyFunctionLF overrides them to
+        reshape the LF landscape -- see its docstring for why. Note that
+        for ANY b>0, c>0 this formula's minimum is always exactly 0 at
+        x_scaled=0 (x=[0.5]*10), so HF/LF keep the identical global
+        optimum regardless of b/c."""
+        x = X * 10.0 - 5.0
+        term1 = -20.0 * torch.exp(-b * (x ** 2).mean(dim=-1).sqrt())
+        term2 = -torch.exp(torch.cos(c * x).mean(dim=-1))
+        return term1 + term2 + 20.0 + math.e
+
+    def evaluate_true(self, X: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluate the Ackley function (minimization-style; see class
+        docstring). X is on [0,1]^10; internally rescaled to [-5,5]^10.
+        """
+        if X.ndim < 1 or X.shape[-1] != self.dim:
+            raise ValueError(f"Input tensor X must have last dimension equal to {self.dim}")
+        return self._raw_ackley(X)
+
+
+class AckleyFunctionLF(SyntheticTestFunction):
+    r"""Low-fidelity Ackley_10D: same formula family as AckleyFunctionHF but
+    with reshaped decay-rate (b) and frequency (c) parameters, instead of an
+    additive distance-from-center bias.
+
+    DEVIATION FROM THE ORIGINALLY SPECIFIED DESIGN, FLAGGED EXPLICITLY: the
+    originally requested mechanism was an additive bias, f_L(x) = f_H(x) -
+    bias*||x-0.5||_2 (continuous-fidelity formulation from
+    arXiv:2009.05700, distance-based bias per arXiv:2410.00544), targeting
+    Pearson r(HF,LF) in [0.70, 0.85]. Empirically (see benchmarks.py's
+    module-level self-test / _ackley_sanity_checks.py CHECK B) that
+    mechanism could not hit the target range in this codebase's d=10, iid-
+    uniform-on-[0,1]^10 sampling setting even at bias=20 (40x the suggested
+    0.5), only reaching r~=0.98: in 10D, Ackley's value is dominated by its
+    term1 (-20*exp(-b*rms_distance)), which concentration-of-measure makes
+    an almost deterministic function of ||x-0.5|| for random x -- so ANY
+    perturbation that is itself primarily a function of ||x-0.5|| (as the
+    additive distance bias is, by construction) stays highly correlated
+    with HF regardless of its scale, rather than decorrelating.
+
+    Reshaping b (decay rate) and c (cosine frequency) instead changes the
+    LOCAL curvature/oscillation structure of the landscape -- a genuinely
+    different source of variation from HF's, not just a scaled copy of the
+    same radial trend -- while leaving the analytic global minimum
+    UNCHANGED (see _raw_ackley's docstring: for any b>0, c>0 the minimum
+    stays exactly 0 at x=[0.5]*10), preserving the "LF and HF share the
+    same true optimum" property the original design was after. b=0.05,
+    c=0.5*pi (vs HF's b=0.2, c=2*pi) empirically gives Pearson r ~= 0.75
+    (range 0.68-0.75 across several random seeds at n=500), inside the
+    target [0.70, 0.85] at the seed this module's own sanity check uses.
+    """
+
+    dim = 10
+    _bounds = [(0.0, 1.0)] * 10
+    _b = 0.05
+    _c = 0.5 * math.pi
+    # No known closed-form optimal_value/optimizers stored for the LF
+    # surface (matching CurrinExpLF/HartmannLF/BoreholeFunctionLF's
+    # convention) even though its analytic minimum location IS known (see
+    # class docstring) -- LF is never the target of simple_regret, only HF
+    # is, so benchmarks.py's Ackley_10D_LF entry sets known_optimal_value
+    # directly rather than relying on an _optimal_value class attribute here.
+
+    def __init__(
+        self,
+        noise_std: Optional[float] = None,
+        negate: bool = True,
+        bounds: Optional[list[tuple[float, float]]] = None,
+        b: Optional[float] = None,
+        c: Optional[float] = None,
+    ) -> None:
+        """
+        Args:
+            noise_std: Standard deviation of observation noise. Default: None.
+            negate: If True, negate the function for maximization. Default: True.
+            bounds: Custom bounds for the function domain. If None, uses [0,1]^10.
+            b: Override the class default decay-rate parameter (0.05).
+            c: Override the class default frequency parameter (0.5*pi).
+        """
+        if bounds is not None:
+            self._bounds = bounds
+        if b is not None:
+            self._b = b
+        if c is not None:
+            self._c = c
+        super().__init__(noise_std=noise_std, negate=negate)
+
+    def evaluate_true(self, X: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluate the low-fidelity Ackley function (minimization-style; see
+        class docstring).
+        """
+        if X.ndim < 1 or X.shape[-1] != self.dim:
+            raise ValueError(f"Input tensor X must have last dimension equal to {self.dim}")
+        return AckleyFunctionHF._raw_ackley(X, b=self._b, c=self._c)
+
+
+class BoreholeFunctionLF(SyntheticTestFunction):
+    r"""Low-fidelity Borehole approximation (Kandasamy et al. 2016), same
+    domain and input order as BoreholeFunctionHF:
+
+        f_L(x) = 5*Tu*(Hu-Hl) /
+                 ( ln(r/rw) * (1.5 + 2*L*Tu/(ln(r/rw)*rw^2*Kw) + Tu/Tl) )
+
+    Differs from f_H in exactly two places: the numerator coefficient
+    (5 vs 2*pi) and the denominator constant (1.5 vs 1) -- these reduce the
+    LF version's sensitivity to the borehole radius terms and introduce a
+    systematic bias relative to HF, making it a useful but imperfect proxy.
+
+    Same evaluate_true convention as BoreholeFunctionHF (returns -f_L,
+    negate=True flips to the natural to-be-maximized form). See
+    BoreholeFunctionHF's docstring for why `_optimal_value`/`_optimizers`
+    are deliberately left unset here too.
+    """
+
+    dim = 8
+    _bounds = list(_BOREHOLE_BOUNDS)
+
+    def __init__(
+        self,
+        noise_std: Optional[float] = None,
+        negate: bool = True,
+        bounds: Optional[list[tuple[float, float]]] = None,
+    ) -> None:
+        """
+        Args:
+            noise_std: Standard deviation of observation noise. Default: None.
+            negate: If True, negate the function for maximization. Default: True.
+            bounds: Custom bounds for the function domain. If None, uses the
+                standard Borehole bounds (NOT [0,1]^8).
+        """
+        if bounds is not None:
+            self._bounds = bounds
+        super().__init__(noise_std=noise_std, negate=negate)
+
+    def evaluate_true(self, X: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluate the low-fidelity Borehole function (minimization-style,
+        i.e. -f_L; see class docstring).
+
+        Args:
+            X: A (batch_shape) x 8 tensor of inputs [rw, r, Tu, Hu, Tl, Hl, L, Kw].
+
+        Returns:
+            A (batch_shape) tensor of function values.
+        """
+        if X.ndim < 1 or X.shape[-1] != self.dim:
+            raise ValueError(f"Input tensor X must have last dimension equal to {self.dim}")
+
+        rw, r, Tu, Hu, Tl, Hl, L, Kw = BoreholeFunctionHF._unpack(X)
+        log_r_rw = torch.log(r / rw)
+        numerator = 5.0 * Tu * (Hu - Hl)
+        denominator = log_r_rw * (
+            1.5 + (2.0 * L * Tu) / (log_r_rw * rw ** 2 * Kw) + Tu / Tl
+        )
+        f_l = numerator / denominator
+        return -f_l
 
 
 # Example Usage (Optional)

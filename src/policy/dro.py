@@ -30,7 +30,21 @@ from botorch.exceptions import InputDataWarning
 from gpytorch.likelihoods import GaussianLikelihood
 from gpytorch.kernels import ScaleKernel, RBFKernel, MaternKernel # Standard GPyTorch kernels
 from gpytorch.constraints import GreaterThan
+from gpytorch.priors import LogNormalPrior
 from gpytorch.mlls import ExactMarginalLogLikelihood # Often used for training
+
+# Same lengthscale-regularization convention as src/models/ko_gp.py's
+# KennedyOHaganGP (see that module's LENGTHSCALE_PRIOR_LOC/SCALE docstring):
+# a LogNormalPrior centered at 0.5 (geometric center of the useful RBF/Matern
+# lengthscale range on normalized [0,1]^d inputs) replaces having no
+# regularization at all on lengthscale here -- _construct_gp_model previously
+# left lengthscale fully unconstrained beyond GPyTorch's default Positive
+# transform, with noise_constraint=1e-4 (same value MF-DRO's KennedyOHaganGP
+# used before it was identified there as encouraging near-interpolation --
+# very short lengthscale, near-exact fit to each training point -- on sparse
+# high-D data). Both fixes ported here unchanged.
+DRO_LENGTHSCALE_PRIOR_LOC = math.log(0.5)
+DRO_LENGTHSCALE_PRIOR_SCALE = 0.5
 from botorch.acquisition import (
     ExpectedImprovement,
     UpperConfidenceBound,
@@ -126,6 +140,12 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
         self.rollout_acq_function = getattr(
             config, 'rollout_acq_function', getattr(self.acquisition_config, 'function', 'ei')
         )
+        # "argmax" (default, bit-for-bit unchanged): _simulate_trajectory's
+        # rollout action selection uses _optimize_acquisition as always.
+        # "softmax": routes through _optimize_acquisition_softmax instead --
+        # see that method's docstring.
+        self.rollout_teacher = getattr(config, 'rollout_teacher', 'argmax')
+        self.softmax_temperature = getattr(config, 'softmax_temperature', 0.5)
         self.rtg_schema = getattr(config, 'rtg_schema', 'fixed')
         self.alpha_floor = getattr(config, 'alpha_floor', 0.5)
         # MC sample count for Thompson-sampling the Gumbel scale b_tau, used only
@@ -498,6 +518,18 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
         # Generate the initial lengthscales to try for each model
         initial_lengthscales = np.linspace(min_scale, max_scale, num_models)
 
+        # Failure-mode-1 diagnostic (uniform_ensemble ablation): identical
+        # starting lengthscale for every member instead of the diverse
+        # linspace grid, to test whether ensemble basin-diversity is what
+        # drives the DT's multimodal-action-averaging failure. Noise is
+        # already uniform across members regardless of this flag --
+        # self.gp_config.noise_constraint is a single, non-member-varying
+        # value in _construct_gp_model, nothing to change there. False
+        # default -- bit-for-bit unchanged linspace init when off.
+        if getattr(self.config, 'uniform_ensemble', False):
+            fixed_ls = float(np.median(initial_lengthscales))
+            initial_lengthscales = np.full(num_models, fixed_ls)
+
         for i, initial_ls in enumerate(initial_lengthscales):
             if self.verbose: print(f"Initializing model {i} with initial lengthscale: {initial_ls:.4f}")
             self.gp_ensemble.append({
@@ -532,7 +564,12 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
         un-transform that .posterior() applies) -- both fixed at their call sites.
         """
         kernel_type = getattr(self.gp_config, 'kernel', 'rbf').lower()
-        noise_constraint_val = getattr(self.gp_config, 'noise_constraint', 1e-6)
+        # noise_constraint default raised 1e-6->1e-2: matches
+        # KennedyOHaganGP's own noise_lb fix (see module docstring above) --
+        # light regularization against the near-zero-noise/near-interpolation
+        # MLE attractor on sparse data, not expected to matter once data is
+        # denser.
+        noise_constraint_val = getattr(self.gp_config, 'noise_constraint', 1e-2)
         use_ard = getattr(self.gp_config, 'ard', False)
         input_dim = self.data_x.shape[-1]
 
@@ -545,6 +582,14 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
             base_kernel = MaternKernel(nu=matern_nu, ard_num_dims=ard_num_dims)
         else:
             raise ValueError(f"Unsupported kernel type: {kernel_type}")
+        # LogNormalPrior lengthscale regularization (module docstring above)
+        # -- soft pull toward 0.5 without hard-blocking the optimizer from
+        # going shorter/longer if the data genuinely supports it.
+        base_kernel.register_prior(
+            'lengthscale_prior',
+            LogNormalPrior(loc=DRO_LENGTHSCALE_PRIOR_LOC, scale=DRO_LENGTHSCALE_PRIOR_SCALE),
+            'lengthscale',
+        )
         covar_module = ScaleKernel(base_kernel)
         covar_module.base_kernel.initialize(lengthscale=float(initial_lengthscale))
 
@@ -1156,6 +1201,55 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
             best_x_out = best_x_overall.unsqueeze(0) if best_x_overall.ndim == 1 else best_x_overall
             return best_x_out, roi_candidates
 
+    def _optimize_acquisition_softmax(self, gp_idx: int, observed_best, acq_name: str = None) -> tuple:
+        """
+        Stochastic "softmax teacher" alternative to _optimize_acquisition,
+        for _simulate_trajectory's rollout action selection only (never used
+        for the real candidate, which always comes from the trained DT).
+        Gated behind self.rollout_teacher == "softmax" (default "argmax" ->
+        _optimize_acquisition, unchanged).
+
+        Same broad random search (uniform over the full domain, num_samples
+        = rollout_opt_samples/opt_samples) and the same
+        _acquisition_function_value_botorch scoring as
+        _optimize_acquisition's Step 1 -- but SAMPLES a candidate
+        proportional to softmax(scores / self.softmax_temperature) instead
+        of taking the argmax + local refinement. No refinement step: a
+        hill-climbing local search doesn't fit a stochastic-sampling design
+        (it would just re-collapse the sample back toward a single mode).
+
+        Tests whether stochastic exploration alone (independent of reward
+        scheme) produces more diverse, less mutually-coherent rollout
+        gradients than the current deterministic argmax teacher -- see the
+        cos_sim trajectory diagnostic this is built to feed.
+
+        Returns: (chosen_x [1, D], candidate_pool [N, D]) -- same shape
+        contract as _optimize_acquisition, so _simulate_trajectory's call
+        site doesn't need to branch on return type.
+        """
+        effective_acq_name = acq_name if acq_name is not None else self.rollout_acq_function
+        num_samples = getattr(self.acquisition_config, 'rollout_opt_samples',
+                               getattr(self.acquisition_config, 'opt_samples', 1000))
+        dim = self.bo_config.input_dim
+        domain_min, domain_max = self.bounds[0], self.bounds[1]
+
+        if isinstance(observed_best, torch.Tensor):
+            observed_best_t = observed_best
+        else:
+            observed_best_t = torch.tensor(observed_best, device=self.device, dtype=self.dtype)
+
+        with torch.no_grad():
+            x_samples = domain_min + (domain_max - domain_min) * torch.rand(
+                num_samples, dim, device=self.device, dtype=self.dtype
+            )
+            scores = self._acquisition_function_value_botorch(
+                x_samples, gp_idx, observed_best_t, acq_name=effective_acq_name,
+                candidate_set=x_samples,
+            ).reshape(-1)
+            probs = torch.nn.functional.softmax(scores / self.softmax_temperature, dim=0)
+            chosen = torch.multinomial(probs, 1).item()
+
+        return x_samples[chosen:chosen + 1], x_samples
 
     # --- State Extraction (Internal Helper) ---
     def _extract_state(self, current_data_x, current_data_y, current_step, roi_candidates=None) -> torch.Tensor:
@@ -1435,10 +1529,27 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
             # diagnostic _optimize_acquisition calls elsewhere still use whatever
             # rollout_acq_function is configured, unchanged.
             step_acq_name = ["ei", "ucb", "pi", "mes"][step % 4] if self.rollout_acq_function == "rotate" else None
-            if isinstance(observed_best, torch.Tensor):
-                next_x_tensor, roi_candidates = self._optimize_acquisition(gp_idx, observed_best, for_rollout=True, acq_name_override=step_acq_name) # [1, D], [N_roi, D]
+            _obs_best_t = observed_best if isinstance(observed_best, torch.Tensor) \
+                else torch.tensor(observed_best, device=self.device, dtype=self.dtype)
+            if self.rollout_teacher == "softmax":
+                next_x_tensor, roi_candidates = self._optimize_acquisition_softmax(
+                    gp_idx, _obs_best_t, acq_name=step_acq_name)
+            elif self.rollout_teacher == "gradient_ascent":
+                # Gradient-ascent rollout generation: trains the DT on
+                # trajectories whose x_tau came from the SAME UCB
+                # gradient-ascent mechanism validated at real inference
+                # (Variant D), instead of the old acquisition-argmax
+                # teacher -- tests whether the DT can learn to amortize
+                # that ascent rather than needing it re-run at inference.
+                _ga_beta = getattr(self.config, 'gp_refinement_beta', 2.0)
+                _ga_steps = getattr(self.config, 'rollout_ga_steps', 10)
+                x_ga = self._select_x_tau_gradient_ascent(model, _ga_beta, _ga_steps)
+                next_x_tensor = x_ga.unsqueeze(0)
+                d = self.bo_config.input_dim
+                roi_candidates = torch.rand(200, d, device=self.device, dtype=self.dtype)
             else:
-                next_x_tensor, roi_candidates = self._optimize_acquisition(gp_idx, torch.tensor(observed_best, device=self.device, dtype=self.dtype), for_rollout=True, acq_name_override=step_acq_name)
+                next_x_tensor, roi_candidates = self._optimize_acquisition(
+                    gp_idx, _obs_best_t, for_rollout=True, acq_name_override=step_acq_name)  # [1, D], [N_roi, D]
             actions.append(next_x_tensor.squeeze(0)) # Store as [D] tensor
 
             # 2. Sample simulated observation from GP posterior
@@ -1466,7 +1577,26 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
             else: # Minimize
                 improved = sampled_y_item < observed_best
 
-            if self.use_mes_reward:
+            _diag_oracle_xstar = getattr(self, '_diag_oracle_reward_xstar', None)
+            if _diag_oracle_xstar is not None:
+                # Diagnostic-only oracle reward (action-reward informativity
+                # test): reward = -||x_tau - x*||, guaranteed by construction
+                # to be maximized exactly at the true optimum -- unlike
+                # use_mes_reward/improvement, this can never be "insufficiently
+                # informative" about location quality. RTG = backward cumsum
+                # of this (below, unchanged) is then a literal, definite
+                # regret-to-x* signal. Uses oracle knowledge of x* (real
+                # deployments never have this) -- diagnostic only, gated
+                # behind self._diag_oracle_reward_xstar (unset/None by
+                # default, never active in the normal pipeline). Running-best
+                # bookkeeping (observed_best) still updates normally so
+                # _optimize_acquisition's EI/PI branches on later steps are
+                # unaffected.
+                reward = -(next_x_tensor.squeeze(0).detach().cpu()
+                           - _diag_oracle_xstar.cpu()).norm().item()
+                if improved:
+                    observed_best = sampled_y_item
+            elif self.use_mes_reward:
                 # Dense MES reward: mutual information between y* and the observation
                 # at this query point. roi_candidates is now itself drawn from a
                 # uniform, domain-wide candidate pool (see _optimize_acquisition),
@@ -1726,11 +1856,15 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
         all_masks = []
         
         max_len = 0
+        _diag_grad_active = getattr(self, '_diag_grad_instrumentation', False) \
+            or getattr(self, '_diag_coherence_check', False)
+        _zero_reward_count = 0
+        _total_reward_count = 0
         for traj in trajectories:
             # Get length of this trajectory
             traj_len = min(len(traj['states']) - 1, self.config.transformer.max_seq_length)
             max_len = max(max_len, traj_len)
-            
+
             # Add to lists
             all_states.append(traj['states'][:traj_len])
             all_actions.append(traj['actions'][:traj_len])
@@ -1748,6 +1882,12 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
                 rtg = torch.zeros_like(traj_rewards)
                 for i in range(traj_len):
                     rtg[i] = traj_rewards[i:].sum()  # Sum of future rewards
+                if _diag_grad_active:
+                    # zero_reward_frac (matches the original exp1 plot's
+                    # "fraction of zero-reward rollout steps"): raw PER-STEP
+                    # reward, not the cumulative rtg computed above.
+                    _zero_reward_count += int((traj_rewards == 0).sum().item())
+                    _total_reward_count += traj_rewards.numel()
             all_rewards.append(rtg)
             
             # Create timestep tensor (long, to match padded_timesteps and the
@@ -1777,13 +1917,25 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
             padded_rewards[i, :traj_len] = all_rewards[i]
             padded_timesteps[i, :traj_len] = all_timesteps[i]
             padded_masks[i, :traj_len] = all_masks[i]
-        
-
 
         # Training loop
         self.decision_transformer.train()
         use_quantile = self.decision_transformer.use_quantile_rtg
         num_epochs = self.config.transformer.num_epochs
+
+        # Gradient-norm instrumentation (RTG-insensitivity diagnosis, see
+        # _diag_sf_grad_instrumentation.py): epoch-0 loss captured for the
+        # print-line below; grad_rtg/grad_state captured from the LAST batch
+        # of the LAST epoch's backward() (before clip_grad_norm_, which
+        # would otherwise mask the raw imbalance the diagnostic is checking
+        # for). Gated behind self._diag_grad_instrumentation (unset/False by
+        # default -- never runs/prints in the normal pipeline).
+        _diag_grad = getattr(self, '_diag_grad_instrumentation', False)
+        _L_loc_epoch0 = None
+        _grad_rtg_last = None
+        _grad_state_last = None
+        _awr_mean_weight_last = None
+        _awr_max_weight_last = None
 
         epoch_iterator = tqdm(range(num_epochs), desc="Training Decision Transformer", disable=not self.verbose)
         for epoch in epoch_iterator:
@@ -1837,16 +1989,65 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
                         batch_timesteps,
                         batch_masks
                     )
-                    # Compute loss (MSE on action prediction)
-                    loss = torch.nn.functional.mse_loss(
-                        predicted_actions[batch_masks],
-                        batch_actions[batch_masks]
-                    )
+                    use_awr = getattr(self.config.transformer, 'use_awr', False)
+                    if use_awr:
+                        # AWR (advantage-weighted regression): exp(RTG/T)
+                        # per-example weights, so examples with higher RTG
+                        # (more information remaining / better outcome) pull
+                        # harder on the loss than examples with low/negative
+                        # RTG -- directly opposes the convergence-to-a-
+                        # single-state-only-minimum mechanism confirmed by
+                        # the cos_sim trajectory diagnostic (a plain
+                        # unweighted MSE loss has no reason to keep
+                        # discriminating by RTG once it finds a state-only
+                        # solution good enough for the AVERAGE example).
+                        # SF-DRO has no fidelity head (single-fidelity, MF-
+                        # only concept) -- weighting applies to the sole
+                        # (location) loss term, not a location+fidelity sum.
+                        awr_temp_cfg = getattr(self.config.transformer, 'awr_temperature', None)
+                        if awr_temp_cfg is not None:
+                            temperature = torch.tensor(
+                                float(awr_temp_cfg), device=self.device, dtype=self.dtype)
+                        else:
+                            rtg_valid = batch_rewards[batch_masks]
+                            if rtg_valid.numel() > 0:
+                                temperature = rtg_valid.abs().median().clamp(min=1e-4)
+                            else:
+                                temperature = torch.tensor(1.0, device=self.device, dtype=self.dtype)
+
+                        weights = (batch_rewards / temperature).exp().clamp(max=20.0)  # [B,T]
+                        vm = batch_masks.float()
+                        loss = (
+                            torch.nn.functional.mse_loss(
+                                predicted_actions, batch_actions, reduction='none'
+                            ).mean(dim=-1) * weights * vm
+                        ).sum() / vm.sum().clamp_min(1)
+
+                        if getattr(self, '_diag_coherence_check', False):
+                            valid_weights = weights[batch_masks]
+                            _awr_mean_weight_last = valid_weights.mean().item()
+                            _awr_max_weight_last = valid_weights.max().item()
+                    else:
+                        # Compute loss (MSE on action prediction) -- bit-for-
+                        # bit unchanged from before use_awr existed.
+                        loss = torch.nn.functional.mse_loss(
+                            predicted_actions[batch_masks],
+                            batch_actions[batch_masks]
+                        )
                     L_loc, L_pinball = loss, None
 
                 # Backward and optimize
                 self.optimizer.zero_grad()
                 loss.backward()
+
+                # Gradient-norm capture -- BEFORE clip_grad_norm_ (below),
+                # which would rescale away exactly the imbalance this is
+                # meant to measure. Only meaningful/captured on the last
+                # epoch (overwritten each batch, so holds the LAST batch's
+                # values once the epoch's batch loop finishes).
+                if _diag_grad and epoch == num_epochs - 1:
+                    _grad_rtg_last = self.decision_transformer.reward_embedding.weight.grad.norm().item()
+                    _grad_state_last = self.decision_transformer.state_embedding.weight.grad.norm().item()
 
                 # Gradient clipping
                 torch.nn.utils.clip_grad_norm_(
@@ -1864,10 +2065,94 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
 
             epoch_iterator.set_postfix(loss=total_loss / num_batches)
 
+            if _diag_grad and epoch == 0:
+                _L_loc_epoch0 = total_L_loc / num_batches
+
             if epoch == num_epochs - 1: # Diagnostics from the final epoch only
                 self._last_train_diagnostics = {"L_loc": total_L_loc / num_batches}
+                if _diag_grad:
+                    t = len(self.real_history_states)
+                    grad_ratio = _grad_state_last / max(_grad_rtg_last, 1e-8)
+                    print(f"iter {t} | L_loc[e0]={_L_loc_epoch0:.4f} | "
+                          f"L_loc[e{num_epochs-1}]={total_L_loc / num_batches:.4f} | "
+                          f"grad_rtg={_grad_rtg_last:.4f} grad_state={_grad_state_last:.4f} "
+                          f"ratio={grad_ratio:.1f}x", flush=True)
                 if use_quantile:
                     self._last_train_diagnostics["L_pinball"] = total_L_pinball / num_batches
+
+                # Multi-checkpoint coherence + RTG-sensitivity probe (extends
+                # the single-iteration coherence check): fires at whichever
+                # real BO iterations are listed in self._diag_checkpoint_iters
+                # (default {5}, matching the original single-checkpoint
+                # behavior), AFTER this iteration's training completes (not
+                # before, unlike the original version) so L_loc_final,
+                # mean_cos_sim and probe_spread all reflect the SAME
+                # end-of-iteration-t snapshot. Read-only: zero_grad() before
+                # and after, no optimizer.step() in this block.
+                _diag_ckpt_iters = getattr(self, '_diag_checkpoint_iters', {5})
+                if getattr(self, '_diag_coherence_check', False) and len(self.real_history_states) in _diag_ckpt_iters:
+                    t = len(self.real_history_states)
+                    L_loc_final = total_L_loc / num_batches
+
+                    self.decision_transformer.eval()
+                    grads = []
+                    for i in range(len(trajectories)):
+                        self.optimizer.zero_grad()
+                        s_i = padded_states[i:i + 1]
+                        a_i = padded_actions[i:i + 1]
+                        r_i = padded_rewards[i:i + 1]
+                        ts_i = padded_timesteps[i:i + 1]
+                        m_i = padded_masks[i:i + 1]
+                        if not m_i.any():
+                            continue
+                        pred_i = self.decision_transformer(s_i, a_i, r_i, ts_i, m_i)
+                        loss_i = torch.nn.functional.mse_loss(pred_i[m_i], a_i[m_i])
+                        loss_i.backward()
+                        g_i = self.decision_transformer.reward_embedding.weight.grad.detach().flatten().clone()
+                        grads.append(g_i)
+                    self.optimizer.zero_grad()
+
+                    G = torch.stack(grads)
+                    G_norm = G / G.norm(dim=1, keepdim=True).clamp_min(1e-12)
+                    cos_matrix = G_norm @ G_norm.T
+                    Nc = cos_matrix.shape[0]
+                    mean_cos_sim = ((cos_matrix.sum() - cos_matrix.diagonal().sum())
+                                     / (Nc * (Nc - 1))).item()
+
+                    # RTG-sensitivity probe: same design as MF-DRO's
+                    # propose_mf sweep, adapted to SF-DRO's own single-
+                    # timestep real-inference call (see
+                    # _propose_next_candidate: state_seq/dummy_action/
+                    # target_rtg/dummy_timestep, sequence length 1). No
+                    # single real target_rtg is in scope inside this method,
+                    # so the reference is this batch's own mean valid RTG --
+                    # a representative target for iteration t.
+                    valid_rtg_for_probe = padded_rewards[padded_masks]
+                    ref_rtg = valid_rtg_for_probe.mean().item()
+                    probe_state = padded_states[0:1, 0:1]  # [1,1,state_dim]
+                    dummy_action = torch.zeros(
+                        (1, 1, self.config.bo.input_dim), device=self.device, dtype=self.dtype)
+                    dummy_timestep = torch.zeros((1, 1), device=self.device, dtype=torch.long)
+                    probe_preds = []
+                    with torch.no_grad():
+                        for mult in (0.25, 0.5, 1.0, 2.0, 4.0):
+                            target_rtg = torch.tensor(
+                                [[ref_rtg * mult]], device=self.device, dtype=self.dtype)
+                            pred = self.decision_transformer(
+                                probe_state, dummy_action, target_rtg, dummy_timestep,
+                                attention_mask=None)
+                            probe_preds.append(pred.reshape(-1))
+                    probe_t = torch.stack(probe_preds)
+                    probe_spread = (probe_t - probe_t.mean(dim=0, keepdim=True)).norm(dim=1).mean().item()
+
+                    self.decision_transformer.train()
+                    _mw = f"{_awr_mean_weight_last:.3f}" if _awr_mean_weight_last is not None else "n/a"
+                    _xw = f"{_awr_max_weight_last:.3f}" if _awr_max_weight_last is not None else "n/a"
+                    _zrf = (_zero_reward_count / _total_reward_count) if _total_reward_count > 0 else float('nan')
+                    print(f"{self.benchmark_name} | iter {t} | L_loc_final={L_loc_final:.4f} | "
+                          f"mean_cos_sim={mean_cos_sim:.3f} | mean_weight={_mw} | "
+                          f"max_weight={_xw} | zero_reward_frac={_zrf:.4f} | "
+                          f"probe_spread={probe_spread:.4f} (N={Nc})", flush=True)
     
 
     # --- RTG Target Selection (Internal Helper) ---
@@ -2014,11 +2299,356 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
         return rtg_target.item()
 
     # --- Main Logic for Proposing Next Candidate ---
+    def _make_synthetic_expert_trajectory(self, x_star, rollout_length):
+        """
+        Synthetic-expert-demonstration trajectory (diagnostic only), ported
+        from _synthetic_expert_worker.py's MF-DRO regime: linearly
+        interpolates from a random x_start to the TRUE known optimum x_star
+        over rollout_length steps, evaluating the TRUE objective at each
+        point (no GP sampling) -- an unambiguously-correct demonstration.
+        Tests whether the DT can learn a working policy given clean data at
+        all; if it still can't, the problem is DT training/capacity, not
+        the KO-GP/MES rollout generator or reward informativity.
+
+        Reward is per-step true-value improvement, normalized so that
+        _train_decision_transformer's backward cumsum of rewards reproduces
+        exactly RTG[tau] = (y_final - y_tau) / (y_final - y_0) -- the
+        reference script's own formula ("cumulative reward" toward the true
+        optimum, by construction perfectly correlated with proximity to the
+        objective's actual value along this path).
+
+        best_value/best_position/step-count state slots (inside
+        _extract_state) are seeded from the REAL accumulated self.data_x/
+        self.data_y (exactly matching _simulate_trajectory's own
+        sim_data_x = self.data_x.clone() convention, and matching what
+        _propose_next_candidate's real-inference current_real_state uses),
+        with the synthetic expert path appended on top -- NOT an isolated
+        local history starting at x_start alone. That isolated-history
+        version (the reference script's original choice) was found to
+        create a severe train/inference state mismatch: training's
+        best_value there is the max of only 1-4 draws (mean ~0.66, 90%
+        range [0.09, 1.76] on Hartmann_6D) while real inference's
+        best_value is the max of ~36+ draws (mean ~1.67, actual observed
+        1.86 -- above the training distribution's 95th percentile), AND the
+        two are correlated oppositely: training's best_value/best_position
+        are always coupled (best-so-far is always near x*, since the
+        synthetic path walks straight there) while real data's are
+        essentially independent (i.i.d. LHS draws) -- an input combination
+        (high value, far from x*) never seen once during training. Grounding
+        in self.data_x/self.data_y eliminates this: states[0] here is
+        BIT-IDENTICAL to current_real_state at inference (same data, same
+        _extract_state call), so only the synthetic path's own few appended
+        points can differ. The GP-hyperparameter block still reflects the
+        REAL, currently-fitted self.gp_ensemble (unavoidable/appropriate --
+        there is no synthetic GP here).
+        """
+        d = self.bo_config.input_dim
+        domain_min, domain_max = self.bounds[0], self.bounds[1]
+        x_start = domain_min + (domain_max - domain_min) * torch.rand(
+            d, device=self.device, dtype=self.dtype
+        )
+
+        T = rollout_length
+        x_star_t = x_star.to(device=self.device, dtype=self.dtype)
+        xs = [x_start + (x_star_t - x_start) * (tau / max(T - 1, 1)) for tau in range(T)]
+
+        def _eval(x):
+            y = self.objective_function(x)
+            return y.item() if isinstance(y, torch.Tensor) else float(y)
+
+        ys = [_eval(x) for x in xs]
+
+        sim_x = list(self.data_x.clone())
+        sim_y = list(self.data_y.clone())
+        states = []
+        real_step0 = self.data_x.shape[0]
+        for tau in range(T):
+            cur_x = torch.stack(sim_x)
+            cur_y = torch.stack(sim_y) if sim_y and isinstance(sim_y[0], torch.Tensor) else torch.tensor(sim_y, device=self.device, dtype=self.dtype)
+            states.append(self._extract_state(cur_x, cur_y, real_step0 + tau, roi_candidates=None))
+            sim_x.append(xs[tau])
+            sim_y.append(torch.tensor(ys[tau], device=self.device, dtype=self.dtype))
+        # One more state after the final action, matching _simulate_trajectory's
+        # own states-has-one-more-entry-than-actions convention
+        # (_train_decision_transformer truncates to len(states)-1).
+        cur_x = torch.stack(sim_x)
+        cur_y = torch.stack(sim_y)
+        states.append(self._extract_state(cur_x, cur_y, real_step0 + T, roi_candidates=None))
+
+        y0, y_final = ys[0], ys[-1]
+        denom = max(y_final - y0, 1e-8)  # matches the reference script's own flooring exactly
+        rewards = [
+            ((ys[tau + 1] - ys[tau]) / denom) if tau < T - 1 else 0.0
+            for tau in range(T)
+        ]
+
+        return {
+            'states': torch.stack(states).to(self.device, self.dtype),
+            'actions': torch.stack(xs).to(self.device, self.dtype),
+            'rewards': torch.tensor(rewards, device=self.device, dtype=self.dtype),
+            'final_regret': self._compute_simulated_regret(cur_y),
+        }
+
+    def _select_x_tau_gradient_ascent(self, model, beta=2.0, steps=10):
+        """
+        Rollout-generation teacher (gated behind self.rollout_teacher ==
+        "gradient_ascent"): single random-start UCB gradient ascent, used
+        to pick x_tau during _simulate_trajectory instead of the old
+        broad-random-search-then-local-polish _optimize_acquisition
+        teacher. Cheap variant of _refine_ucb_core (steps=10 vs the 30
+        used once per real iteration at inference) -- called up to
+        rollouts_per_iter * rollout_length times per real BO iteration
+        (75*4=300 here), so a much smaller step budget than inference-time
+        refinement is needed to keep rollout generation's wall-clock
+        reasonable.
+        """
+        d = self.bo_config.input_dim
+        x_start = torch.rand(d, device=self.device, dtype=self.dtype)
+        return self._refine_ucb_core(x_start, model, beta, steps)
+
+    def _refine_ucb_core(self, x_init, model, beta, steps, lr=None):
+        """
+        Core single-GP UCB gradient ascent (Adam, warm-started from x_init,
+        clamped to [0,1]^d each step) -- shared by every refinement variant
+        below. Called from inside _propose_next_candidate's outer `with
+        torch.no_grad():` block -- torch.enable_grad() is required to
+        locally override that and actually build a graph for .backward().
+        """
+        lr = lr if lr is not None else self.config.gp_refinement_lr
+        with torch.enable_grad():
+            x = x_init.clone().detach().requires_grad_(True)
+            opt = torch.optim.Adam([x], lr=lr)
+            model.eval()
+            for _ in range(steps):
+                opt.zero_grad()
+                with gpytorch.settings.fast_pred_var():
+                    posterior = model.posterior(x.unsqueeze(0))
+                    mu = posterior.mean.squeeze()
+                    sigma = posterior.variance.clamp_min(1e-8).sqrt().squeeze()
+                ucb = mu + beta * sigma
+                (-ucb).backward()
+                opt.step()
+                with torch.no_grad():
+                    x.clamp_(0.0, 1.0)
+        return x.detach()
+
+    def _ucb_value(self, x, model, beta):
+        """UCB at x under `model`, no grad -- used for restart selection."""
+        with torch.no_grad():
+            posterior = model.posterior(x.reshape(1, -1))
+            mu = posterior.mean.squeeze()
+            sigma = posterior.variance.clamp_min(1e-8).sqrt().squeeze()
+            return (mu + beta * sigma).item()
+
+    def _refine_proposal_ucb(self, x_init):
+        """
+        VARIANT A (default): warm-start UCB gradient ascent from the DT's
+        proposal, single GP (gp_ensemble[0]), fixed beta/steps from config.
+        Diagnostic: isolates whether location quality is the bottleneck in
+        the SF setting, where fidelity is not a factor -- every query is
+        HF. Returns refined x in [0,1]^d. Gated behind
+        self.config.use_gp_refinement at the call site -- bit-for-bit
+        unchanged pipeline when off.
+        """
+        model = self.gp_ensemble[0]['model']
+        beta = getattr(self.config, 'gp_refinement_beta', 2.0)
+        return self._refine_ucb_core(x_init, model, beta, self.config.gp_refinement_steps)
+
+    def _refine_proposal_ucb_ensemble(self, x_init):
+        """
+        VARIANT B: multi-ensemble UCB -- gradient ascent on the MEAN UCB
+        score averaged across all M gp_ensemble members jointly (one
+        shared x, one Adam trajectory), instead of a single member's GP.
+        Tests whether a single ensemble member's posterior is an
+        unreliable/noisy refinement target and averaging over the ensemble
+        gives a more robust ascent direction.
+        """
+        beta = getattr(self.config, 'gp_refinement_beta', 2.0)
+        steps = self.config.gp_refinement_steps
+        with torch.enable_grad():
+            x = x_init.clone().detach().requires_grad_(True)
+            opt = torch.optim.Adam([x], lr=self.config.gp_refinement_lr)
+            for gp_dict in self.gp_ensemble:
+                gp_dict['model'].eval()
+            for _ in range(steps):
+                opt.zero_grad()
+                ucb_sum = 0.0
+                with gpytorch.settings.fast_pred_var():
+                    for gp_dict in self.gp_ensemble:
+                        posterior = gp_dict['model'].posterior(x.unsqueeze(0))
+                        mu = posterior.mean.squeeze()
+                        sigma = posterior.variance.clamp_min(1e-8).sqrt().squeeze()
+                        ucb_sum = ucb_sum + (mu + beta * sigma)
+                ucb_mean = ucb_sum / len(self.gp_ensemble)
+                (-ucb_mean).backward()
+                opt.step()
+                with torch.no_grad():
+                    x.clamp_(0.0, 1.0)
+        return x.detach()
+
+    def _refine_proposal_ucb_twostage(self, x_init):
+        """
+        VARIANT C: two-stage refinement, single GP (gp_ensemble[0]).
+        Stage 1: high beta=5.0, 20 steps -- coarse, exploration-weighted
+        ascent (uncertainty dominates, can move far from x_init). Stage 2:
+        low beta=0.5, 20 steps, warm-started from stage 1's endpoint --
+        fine, exploitation-weighted refinement (mean dominates, local
+        polish). Tests whether decoupling "which basin" from "where in the
+        basin" helps versus a single fixed-beta ascent throughout.
+        """
+        model = self.gp_ensemble[0]['model']
+        x_stage1 = self._refine_ucb_core(x_init, model, beta=5.0, steps=20)
+        x_stage2 = self._refine_ucb_core(x_stage1, model, beta=0.5, steps=20)
+        return x_stage2
+
+    def _refine_proposal_ucb_restarts(self, x_init, n_restarts=5):
+        """
+        VARIANT D: N=5 multi-start refinement, single GP (gp_ensemble[0]),
+        same beta/steps as Variant A. Runs independent UCB ascent from the
+        DT's own proposal PLUS (n_restarts-1) uniform-random starting
+        points, then keeps whichever converged point has the HIGHEST final
+        UCB value (evaluated under the same beta). Tests whether Variant
+        A's single ascent trajectory is getting stuck in a poor local
+        optimum of the UCB landscape.
+        """
+        model = self.gp_ensemble[0]['model']
+        beta = getattr(self.config, 'gp_refinement_beta', 2.0)
+        steps = self.config.gp_refinement_steps
+        d = x_init.shape[-1]
+        starts = [x_init] + [
+            torch.rand(d, device=self.device, dtype=self.dtype) for _ in range(n_restarts - 1)
+        ]
+        best_x, best_ucb = None, -float('inf')
+        for s in starts:
+            x_ref = self._refine_ucb_core(s, model, beta, steps)
+            u = self._ucb_value(x_ref, model, beta)
+            if u > best_ucb:
+                best_ucb, best_x = u, x_ref
+        return best_x
+
+    def _refine_proposal_ucb_restarts_pure(self, n_restarts=5):
+        """
+        DIAGNOSTIC 1 (D_nodt): same as _refine_proposal_ucb_restarts
+        (Variant D) but with NO DT proposal seeding any start -- all
+        n_restarts starts are uniform-random. Isolates whether Variant D's
+        DT-seeded start contributes anything beyond pure multi-start UCB.
+        """
+        model = self.gp_ensemble[0]['model']
+        beta = getattr(self.config, 'gp_refinement_beta', 2.0)
+        steps = self.config.gp_refinement_steps
+        d = self.bo_config.input_dim
+        starts = [torch.rand(d, device=self.device, dtype=self.dtype) for _ in range(n_restarts)]
+        best_x, best_ucb = None, -float('inf')
+        for s in starts:
+            x_ref = self._refine_ucb_core(s, model, beta, steps)
+            u = self._ucb_value(x_ref, model, beta)
+            if u > best_ucb:
+                best_ucb, best_x = u, x_ref
+        return best_x
+
+    def _measure_ucb_peak_spread(self):
+        """
+        Failure-mode-1 diagnostic: for each ensemble member, find its UCB
+        argmax over 500 random candidates, then return the mean pairwise
+        L2 distance between all M peak locations. High value = members
+        point to different basins (multimodal action distribution across
+        the ensemble); low value = members agree on the same basin.
+        Gated behind self._diag_ucb_spread (unset/None by default -- never
+        runs/prints in the normal pipeline).
+        """
+        d = self.bo_config.input_dim
+        peaks = []
+        X_probe = self.bounds[0] + (self.bounds[1] - self.bounds[0]) * torch.rand(
+            500, d, device=self.device, dtype=self.dtype
+        )
+        for gp_dict in self.gp_ensemble:
+            model = gp_dict['model']
+            with torch.no_grad():
+                post = model.posterior(X_probe)
+                mu = post.mean.squeeze()
+                sigma = post.variance.clamp_min(1e-8).sqrt().squeeze()
+                ucb = mu + 2.0 * sigma
+            peak_idx = ucb.argmax().item()
+            peaks.append(X_probe[peak_idx])
+        peaks = torch.stack(peaks)  # [M, d]
+        diffs = peaks.unsqueeze(0) - peaks.unsqueeze(1)
+        dists = diffs.norm(dim=-1)
+        n = len(peaks)
+        spread = dists.sum() / (n * (n - 1))
+        return spread.item()
+
+    def _propose_next_candidate_no_dt(self, propose_mode) -> torch.Tensor:
+        """
+        Bypasses rollout simulation and DT training entirely -- diagnostic
+        modes isolating whether DRO's learned proposal contributes anything
+        beyond the (already lognormal-prior-calibrated) GP itself
+        (_construct_gp_model already has the LogNormalPrior fix).
+
+        "multistart_ucb_nodt" (Diagnostic 1, D_nodt): 5 random-restart UCB
+        ascent, same beta/steps as Variant D, but with NO DT proposal
+        seeding any of the 5 starts (all uniform-random).
+
+        "naivebo_lognormal" (Diagnostic 2): single-shot _optimize_acquisition
+        (this class's own existing acquisition-optimization routine -- broad
+        random search + local gradient refinement, no restarts, no DT) on
+        gp_ensemble[0] with acq_name_override="ucb" -- standard NaiveBO on
+        the calibrated GP.
+        """
+        _real_query_t_start = time.perf_counter()
+        with torch.no_grad():
+            observed_best = self.data_y.max() if self.objective_mode == "maximize" else self.data_y.min()
+
+        if getattr(self, '_diag_ucb_spread', False):
+            _spread = self._measure_ucb_peak_spread()
+            self._diag_ucb_spread_log = getattr(self, '_diag_ucb_spread_log', [])
+            self._diag_ucb_spread_log.append(_spread)
+            print(f"iter {len(self._diag_ucb_spread_log) - 1}: ucb_peak_spread = {_spread:.4f} (mode={propose_mode})", flush=True)
+
+        if propose_mode == 'multistart_ucb_nodt':
+            next_action = self._refine_proposal_ucb_restarts_pure(n_restarts=5)
+        else:  # naivebo_lognormal
+            with torch.no_grad():
+                next_action_batched, _ = self._optimize_acquisition(
+                    0, observed_best, for_rollout=False, acq_name_override="ucb"
+                )
+            next_action = next_action_batched.squeeze(0)
+
+        domain_min, domain_max = self.bounds[0], self.bounds[1]
+        next_action = torch.min(torch.max(next_action.detach(), domain_min), domain_max)
+
+        self._last_real_query_time = time.perf_counter() - _real_query_t_start
+        self._last_iter_diagnostics = {"real_query_time": self._last_real_query_time}
+        self._last_diagnostics = {}
+        self._pending_log = True
+
+        with torch.no_grad():
+            current_real_state = self._extract_state(self.data_x, self.data_y, self.data_x.shape[0])
+        self.real_history_states.append(current_real_state.detach().clone())
+        self.real_history_actions.append(next_action.detach().clone())
+
+        _diag_xstar = getattr(self, '_diag_xstar', None)
+        if _diag_xstar is not None:
+            _t = len(self.real_history_states) - 1
+            _dist = (next_action.detach().cpu() - _diag_xstar.cpu()).norm().item()
+            print(f"iter {_t}: dist(x_t, x*) = {_dist:.4f} (mode={propose_mode})", flush=True)
+
+        return next_action.unsqueeze(0)
+
     def _propose_next_candidate(self) -> torch.Tensor:
         """
         Run simulations, train transformer, and use it to propose the next point.
         Returns tensor shape [1, input_dim].
         """
+        _propose_mode = getattr(self.config, 'propose_mode', 'dt')
+        if _propose_mode in ('multistart_ucb_nodt', 'naivebo_lognormal'):
+            return self._propose_next_candidate_no_dt(_propose_mode)
+
+        if getattr(self, '_diag_ucb_spread', False):
+            _spread = self._measure_ucb_peak_spread()
+            self._diag_ucb_spread_log = getattr(self, '_diag_ucb_spread_log', [])
+            self._diag_ucb_spread_log.append(_spread)
+            print(f"iter {len(self._diag_ucb_spread_log) - 1}: ucb_peak_spread = {_spread:.4f} (mode={_propose_mode})", flush=True)
+
         # 1. Simulate trajectories from current state using GP ensemble
         _rollout_sim_t_start = time.perf_counter()
         trajectories = []
@@ -2029,7 +2659,24 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
 
         use_joint_rtg = (self.rtg_schema in ("joint", "entropy_joint"))
 
-        for gp_idx in tqdm(range(len(self.gp_ensemble)), desc="Simulating Rollouts", disable=not self.verbose):
+        # Synthetic-expert-demonstration diagnostic (action-reward
+        # informativity / DT-capacity test, ported from
+        # _synthetic_expert_worker.py's MF-DRO regime): replaces ONLY this
+        # trajectory-generation block with hand-designed, unambiguously-
+        # correct trajectories -- _train_decision_transformer, the real
+        # DT-inference call below, and everything else in this method stay
+        # untouched. Gated behind self._diag_synthetic_expert_xstar
+        # (unset/None by default -- never active in the normal pipeline).
+        _diag_synth_xstar = getattr(self, '_diag_synthetic_expert_xstar', None)
+        if _diag_synth_xstar is not None:
+            for _ in range(num_rollouts):
+                trajectory = self._make_synthetic_expert_trajectory(_diag_synth_xstar, rollout_length)
+                trajectories.append(trajectory)
+                batch_rtg0_list.append(trajectory['rewards'].sum().item())
+            self._last_rollout_sim_time = time.perf_counter() - _rollout_sim_t_start
+            self._last_rollout_action_diversity = None
+        else:
+          for gp_idx in tqdm(range(len(self.gp_ensemble)), desc="Simulating Rollouts", disable=not self.verbose):
              # Determine how many rollouts per GP model
              rollouts_per_gp = max(1, num_rollouts // len(self.gp_ensemble))
              for _ in range(rollouts_per_gp):
@@ -2065,8 +2712,11 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
                       batch_rtg0_list.append(trajectory['rewards'].sum().item())
 
         # Handle remaining rollouts if num_rollouts not divisible by num_models
-        remaining_rollouts = num_rollouts % len(self.gp_ensemble)
-        for gp_idx in range(remaining_rollouts):
+        # (skipped entirely under the synthetic-expert diagnostic above --
+        # that branch already generated exactly num_rollouts trajectories).
+        if _diag_synth_xstar is None:
+          remaining_rollouts = num_rollouts % len(self.gp_ensemble)
+          for gp_idx in range(remaining_rollouts):
             if (self.use_roi_state or self.use_roi_std_quantiles or self.use_roi_sigma_iqr) and not use_joint_rtg:
                 _, roi_candidates_for_rollout = self._optimize_acquisition(
                     gp_idx, self.data_y.max(), for_rollout=True
@@ -2223,6 +2873,63 @@ class DirectRegretOptimization(BaseBayesianOptimizer):
             # 4. Ensure the proposed action is within bounds
             domain_min, domain_max = self.bounds[0], self.bounds[1]
             next_action = torch.min(torch.max(next_action, domain_min), domain_max)
+
+            # UCB refinement (warm-started from the DT's own proposal):
+            # isolates whether location quality is the bottleneck when
+            # fidelity is not a factor (SF-DRO always queries HF). Off by
+            # default -- bit-for-bit unchanged when use_gp_refinement is
+            # unset/False.
+            x_dt = next_action.detach().clone()
+            if getattr(self.config, 'use_gp_refinement', False):
+                _refine_variant = getattr(self.config, 'gp_refinement_variant', 'single')
+                if _refine_variant == 'ensemble':
+                    next_action = self._refine_proposal_ucb_ensemble(next_action)
+                elif _refine_variant == 'twostage':
+                    next_action = self._refine_proposal_ucb_twostage(next_action)
+                elif _refine_variant == 'restarts':
+                    next_action = self._refine_proposal_ucb_restarts(next_action)
+                else:
+                    next_action = self._refine_proposal_ucb(next_action)
+
+            # Decisive diagnostic: where does the DT actually propose at
+            # REAL inference, relative to the true optimum -- and, when UCB
+            # refinement is on, how much does refinement move it and does
+            # it actually raise UCB? Gated behind self._diag_xstar (unset/
+            # None by default -- never runs/prints in the normal pipeline).
+            # t = len(self.real_history_states) BEFORE this iteration's own
+            # append below, matching this file's existing "current real
+            # iteration index" convention. Per-iteration records are stored
+            # in self._diag_refine_log (list of dicts) for the worker
+            # script to zip with iteration_log_history's regret/improved
+            # afterward -- regret for this iteration isn't known yet here
+            # (it's computed after the real y-evaluation, later in the
+            # caller's loop).
+            _diag_xstar = getattr(self, '_diag_xstar', None)
+            if _diag_xstar is not None:
+                _t = len(self.real_history_states)
+                _xstar_cpu = _diag_xstar.cpu()
+                x_dt_dist = (x_dt.cpu() - _xstar_cpu).norm().item()
+                x_refined_dist = (next_action.detach().cpu() - _xstar_cpu).norm().item()
+                with torch.no_grad():
+                    _model = self.gp_ensemble[0]['model']
+                    ucb_beta = getattr(self.config, 'gp_refinement_beta', 2.0)
+                    _post_dt = _model.posterior(x_dt.reshape(1, -1))
+                    ucb_at_dt = (_post_dt.mean + ucb_beta * _post_dt.variance.clamp_min(1e-8).sqrt()).item()
+                    _post_ref = _model.posterior(next_action.detach().reshape(1, -1))
+                    ucb_at_refined = (_post_ref.mean + ucb_beta * _post_ref.variance.clamp_min(1e-8).sqrt()).item()
+                closer = x_refined_dist < x_dt_dist
+                if not hasattr(self, '_diag_refine_log'):
+                    self._diag_refine_log = []
+                self._diag_refine_log.append({
+                    'iter': _t, 'x_dt_dist': x_dt_dist, 'x_refined_dist': x_refined_dist,
+                    'ucb_at_dt': ucb_at_dt, 'ucb_at_refined': ucb_at_refined, 'closer': closer,
+                })
+                _n_closer = sum(1 for r in self._diag_refine_log if r['closer'])
+                _frac_closer = _n_closer / len(self._diag_refine_log)
+                print(f"iter {_t}: x_DT_dist_to_xstar={x_dt_dist:.4f} "
+                      f"x_refined_dist_to_xstar={x_refined_dist:.4f} "
+                      f"ucb_at_x_DT={ucb_at_dt:.4f} ucb_at_x_refined={ucb_at_refined:.4f} "
+                      f"frac_closer_running={_frac_closer:.3f}", flush=True)
 
         self._last_real_query_time = time.perf_counter() - _real_query_t_start
         self._last_iter_diagnostics["real_query_time"] = self._last_real_query_time

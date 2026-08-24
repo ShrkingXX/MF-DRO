@@ -1,0 +1,40 @@
+Currin LF optimum:  13.582493
+Hartmann LF optimum: 3.658890
+
+====================================================================================================
+=== DIAGNOSTIC SUMMARY: Hartmann_6D ===
+====================================================================================================
+
+Metric                        BASELINE      INIT  INIT+RTG      FULL
+--------------------------------------------------------------------
+mean max_hf_at_init               1.61      0.90      0.90      0.90
+seeds with max_hf>1.5             1/3        0/3        0/3        0/3  
+mean GP mu at x* (init)           0.85      0.86      0.86      0.86
+mean neg_rtg_frac(iter1)          0.87      0.95      0.99      0.91
+mean neg_rtg_frac(iter20)         0.99      1.00      1.00      1.00
+DKL activated?                     0/3       0/3       0/3       0/3
+mean iters incumbent_impr         1.00      0.33      0.67      0.67
+regret at cost=80               1.3599    1.2820    1.6144    1.4845
+regret at cost=240              1.3599    1.2820    1.6144    1.4845
+regret at cost=400              1.3599    1.2820    1.6144    1.4845
+
+====================================================================================================
+INTERPRETATION
+====================================================================================================
+
+A) SEQUENTIAL INIT IMPACT:
+Sequential init did not reliably improve init on Hartmann_6D. Basin still too narrow. (delta=-0.708)
+
+B) RTG GROUNDING IMPACT:
+RTG grounding has minimal effect on neg_rtg_frac. GP miscalibration still dominates RTG bias. (delta=-0.002)
+
+C) DKL ACTIVATION:
+DKL did not activate in any seed at cost=400. HF query rate too low to reach threshold=30.
+Recommendation: lower dkl_threshold to 25 or increase minimum_hf_fraction.
+
+D) INCUMBENT FREEZE:
+Incumbent freeze persists across all variants. Changes are insufficient without location architecture fix (Path 1 / candidate scoring).
+
+====================================================================================================
+Diagnostic test complete.
+====================================================================================================

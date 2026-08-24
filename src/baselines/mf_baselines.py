@@ -30,6 +30,8 @@ import math
 import warnings
 
 import torch
+import numpy as np
+from scipy.stats.qmc import LatinHypercube
 
 from botorch.models import SingleTaskGP
 from botorch.models.transforms.input import Normalize
@@ -42,6 +44,13 @@ from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.acquisition.analytic import LogExpectedImprovement
 
 from benchmarks import get_benchmark
+from gumbel_thompson import thompson_sample_y_star
+from src.models.ko_gp import KennedyOHaganGP
+from src.baselines.greedy_mf import GreedyMFBase, cost_normalized_argmax
+from src.utils.init_design import make_initial_design
+from src.policy.mf_dro import (
+    _build_hf_proxy_model, _compute_mes_hf_vectorized, _compute_mes_lf_vectorized,
+)
 
 DEFAULT_DTYPE = torch.float64
 _NOISE_LB = 1e-4
@@ -81,6 +90,20 @@ class MultiFidelityBenchmark:
 
 def _sample_candidates(bounds, d, n):
     return bounds[0] + (bounds[1] - bounds[0]) * torch.rand(n, d, dtype=DEFAULT_DTYPE)
+
+
+def _lhs_init_points(bounds, d, n, seed, seed_offset, use_sequential_init=False):
+    """
+    Thin wrapper over src/utils/init_design.py's dispatcher, kept because
+    every optimizer class in this module already calls it by this name. The
+    (seed, seed_offset) convention (offset=0 for HF, offset=1 for LF) is
+    shared with DirectMFRegretOptimization._sample_initial_points and
+    GreedyMFBase, so every method draws the identical initial design for a
+    given (benchmark, seed) -- the "same initialization across methods"
+    requirement -- under either design.
+    """
+    return make_initial_design(bounds, d, n, seed, seed_offset,
+                               use_sequential_init=use_sequential_init)
 
 
 def _build_gp(X, Y, bounds, d, train_iter=50, lr=0.1, noise_lb=_NOISE_LB):
@@ -190,11 +213,18 @@ class MFGPUCBOptimizer:
     learned policy.
     """
 
-    def __init__(self, benchmark, n_initial=5, delta=0.1):
+    def __init__(self, benchmark, n_initial=5, delta=0.1,
+                 n_initial_hf=None, n_initial_lf=None, seed=0,
+                 cost_budget=None, use_sequential_init=False):
+        self.use_sequential_init = use_sequential_init
         self.benchmark = benchmark
         self.d = benchmark.dim
         self.bounds = benchmark.bounds
         self.n_initial = n_initial
+        self.n_initial_hf = n_initial_hf if n_initial_hf is not None else n_initial
+        self.n_initial_lf = n_initial_lf if n_initial_lf is not None else n_initial
+        self.seed = seed
+        self.cost_budget = cost_budget
         self.delta = delta
         self.refit_every = 25  # per the Matlab reference implementation
 
@@ -285,33 +315,47 @@ class MFGPUCBOptimizer:
         return candidates[cand_idx], ('L' if fid_idx == 0 else 'H')
 
     def _sample_initial(self):
-        for _ in range(self.n_initial):
-            x = _sample_candidates(self.bounds, self.d, 1)[0]
+        X_lf = _lhs_init_points(self.bounds, self.d, self.n_initial_lf,
+                                 self.seed, seed_offset=1,
+                                 use_sequential_init=self.use_sequential_init)
+        for x in X_lf:
             y = self.benchmark.evaluate(x, 'L')
             self._add_obs(x, y, 'L')
-        for _ in range(self.n_initial):
-            x = _sample_candidates(self.bounds, self.d, 1)[0]
+        X_hf = _lhs_init_points(self.bounds, self.d, self.n_initial_hf,
+                                 self.seed, seed_offset=0,
+                                 use_sequential_init=self.use_sequential_init)
+        for x in X_hf:
             y = self.benchmark.evaluate(x, 'H')
             self._add_obs(x, y, 'H')
+        self.initial_hf_values = list(self.data_H_y)
         self._maybe_refit('L')
         self._maybe_refit('H')
 
     def run(self, bo_iterations):
         """
-        Standard BO loop. Returns regret curve and cost curve, plus the
-        fidelity selected at each iteration.
+        Standard BO loop. Returns regret curve and cost curve (POST-INIT --
+        starts near 0, excludes initialization spending, so methods with
+        different initialization sizes are comparable on the same x-axis),
+        plus the fidelity selected at each iteration. Terminates early once
+        post_init_cost reaches self.cost_budget (bo_iterations remains a
+        safety cap only when cost_budget is set).
         """
         self._sample_initial()
 
         regret_curve, cost_curve, fidelities = [], [], []
         cumulative_cost = sum(self.benchmark.c_L for _ in self.data_L_y) \
             + sum(self.benchmark.c_H for _ in self.data_H_y)
+        post_init_cost = 0.0
+        budget = self.cost_budget if self.cost_budget is not None else float('inf')
 
         for t in range(1, bo_iterations + 1):
+            if post_init_cost >= budget:
+                break
             x, ell = self.select_next(t)
             y = self.benchmark.evaluate(x, ell)
             cost = self.benchmark.c_L if ell == 'L' else self.benchmark.c_H
             cumulative_cost += cost
+            post_init_cost += cost
             self._add_obs(x, y, ell)
             self._maybe_refit(ell)
 
@@ -324,13 +368,17 @@ class MFGPUCBOptimizer:
             # maximize-mode regret convention (-best_observed - known_opt).
             regret = -best_hf - self.benchmark.known_optimal_value_hf
             regret_curve.append(regret)
-            cost_curve.append(cumulative_cost)
+            cost_curve.append(post_init_cost)
             fidelities.append(ell)
 
         return {
             'regret_curve': regret_curve,
             'cost_curve': cost_curve,
             'fidelities': fidelities,
+            'fidelity_trace': [0 if f == 'L' else 1 for f in fidelities],
+            'lf_fraction': sum(1 for f in fidelities if f == 'L')
+                / max(len(fidelities), 1),
+            'initial_hf_values': self.initial_hf_values,
         }
 
 
@@ -362,11 +410,18 @@ class MFMIGreedyOptimizer:
     the residual attached to LF instead of HF).
     """
 
-    def __init__(self, benchmark, n_initial=5):
+    def __init__(self, benchmark, n_initial=5,
+                 n_initial_hf=None, n_initial_lf=None, seed=0,
+                 cost_budget=None, use_sequential_init=False):
+        self.use_sequential_init = use_sequential_init
         self.benchmark = benchmark
         self.d = benchmark.dim
         self.bounds = benchmark.bounds
         self.n_initial = n_initial
+        self.n_initial_hf = n_initial_hf if n_initial_hf is not None else n_initial
+        self.n_initial_lf = n_initial_lf if n_initial_lf is not None else n_initial
+        self.seed = seed
+        self.cost_budget = cost_budget
 
         self.gp_H = None
         self.gp_error = None
@@ -499,12 +554,17 @@ class MFMIGreedyOptimizer:
         return candidates[best_idx]
 
     def _sample_initial(self):
-        for _ in range(self.n_initial):
-            x = _sample_candidates(self.bounds, self.d, 1)[0]
+        X_hf = _lhs_init_points(self.bounds, self.d, self.n_initial_hf,
+                                 self.seed, seed_offset=0,
+                                 use_sequential_init=self.use_sequential_init)
+        for x in X_hf:
             y = self.benchmark.evaluate(x, 'H')
             self._add_obs(x, y, 'H')
-        for _ in range(self.n_initial):
-            x = _sample_candidates(self.bounds, self.d, 1)[0]
+        self.initial_hf_values = list(self.data_H_y)
+        X_lf = _lhs_init_points(self.bounds, self.d, self.n_initial_lf,
+                                 self.seed, seed_offset=1,
+                                 use_sequential_init=self.use_sequential_init)
+        for x in X_lf:
             y = self.benchmark.evaluate(x, 'L')
             self._add_obs(x, y, 'L')
         self._refit_hf_gp()
@@ -514,25 +574,43 @@ class MFMIGreedyOptimizer:
         """
         Full run. Each round: Explore-LF (Phase 1) until its stopping
         conditions fire, then one HF query via SF-GP-OPT (Phase 2). Returns
-        regret and cost curves.
+        regret and cost curves (POST-INIT -- starts near 0, excludes
+        initialization spending). Terminates early once post_init_cost
+        reaches self.cost_budget; bo_iterations is a safety cap only.
+        Each round costs at most 2*c_H (Explore-LF is itself capped at
+        c_H by _explore_lf's own budget-proxy), so checking the budget
+        only at the top of each round bounds worst-case overshoot to
+        <2*c_H -- small relative to the cost_budget scales used here.
         """
         self._sample_initial()
         cumulative_cost = sum(self.benchmark.c_L for _ in self.data_L_y) \
             + sum(self.benchmark.c_H for _ in self.data_H_y)
+        post_init_cost = 0.0
+        budget = self.cost_budget if self.cost_budget is not None else float('inf')
 
         regret_curve, cost_curve = [], []
+        # Per-QUERY fidelity trace (not per-round): a round issues a variable
+        # number of LF queries followed by exactly one HF query, so counting
+        # rounds would misreport lf_fraction.
+        fidelity_trace = []
         for _ in range(bo_iterations):
+            if post_init_cost >= budget:
+                break
             lf_actions = self._explore_lf(self.benchmark.c_H)
+            fidelity_trace.extend([0] * len(lf_actions))
+            fidelity_trace.append(1)
             for x in lf_actions:
                 y = self.benchmark.evaluate(x, 'L')
                 self._add_obs(x, y, 'L')
                 cumulative_cost += self.benchmark.c_L
+                post_init_cost += self.benchmark.c_L
             self._refit_error_gp()
 
             x_hf = self._select_hf_by_ei()
             y_hf = self.benchmark.evaluate(x_hf, 'H')
             self._add_obs(x_hf, y_hf, 'H')
             cumulative_cost += self.benchmark.c_H
+            post_init_cost += self.benchmark.c_H
             self._refit_hf_gp()
             self._refit_error_gp()
 
@@ -545,6 +623,87 @@ class MFMIGreedyOptimizer:
             # maximize-mode regret convention (-best_observed - known_opt).
             regret = -best_hf - self.benchmark.known_optimal_value_hf
             regret_curve.append(regret)
-            cost_curve.append(cumulative_cost)
+            cost_curve.append(post_init_cost)
 
-        return {'regret_curve': regret_curve, 'cost_curve': cost_curve}
+        return {
+            'regret_curve': regret_curve,
+            'cost_curve': cost_curve,
+            'fidelity_trace': fidelity_trace,
+            'lf_fraction': sum(1 for e in fidelity_trace if e == 0)
+                / max(len(fidelity_trace), 1),
+            'initial_hf_values': self.initial_hf_values,
+        }
+
+
+# ════════════════════════════════════
+# BASELINE 3: Greedy MF-MES (DT-free ablation of MF-DRO's own acquisition)
+# ════════════════════════════════════
+
+class GreedyMFMESOptimizer(GreedyMFBase):
+    """
+    DT-free greedy ablation of MF-DRO's own joint MF-MES acquisition
+    (compute_joint_mf_mes in src/policy/mf_dro.py), and the "KO-MES" method
+    of the KO-vs-additive experiment. No DT, no rollouts, no training -- at
+    each real iteration, refit a single KO GP on all accumulated data and
+    greedily pick (x, ell) = argmax InfoGain(x,ell)/c(ell) over candidates
+    sampled uniformly across the FULL domain (not ROI-filtered, unlike
+    MF-DRO's real inference path -- guarantees full-domain coverage
+    regardless of whatever basin contains the optimum, sidestepping the
+    ROI-candidate-density question raised by the coverage-failure
+    diagnostic).
+
+    Isolates whether MF-DRO's underperformance traces to the DT policy
+    learner, or to something upstream shared by both (the KO GP itself, the
+    MES formula, or initialization/coverage).
+
+    Reuses _build_hf_proxy_model / _compute_mes_hf_vectorized /
+    _compute_mes_lf_vectorized from src.policy.mf_dro directly -- same
+    acquisition math MF-DRO's rollout teacher uses, just applied greedily
+    with no DT in the loop. The initial design, cost accounting and regret
+    convention come from GreedyMFBase, shared with Additive-MES/SF-MES.
+    """
+
+    def __init__(self, benchmark, n_initial_hf=5, n_initial_lf=5, seed=0,
+                 cost_budget=None, use_sequential_init=False,
+                 n_candidates=200, rho_fixed=None, use_dkl=False):
+        super().__init__(benchmark, n_initial_hf=n_initial_hf,
+                         n_initial_lf=n_initial_lf, seed=seed,
+                         cost_budget=cost_budget,
+                         use_sequential_init=use_sequential_init,
+                         n_candidates=n_candidates)
+        # use_dkl=False pushes KennedyOHaganGP's dkl_threshold out of reach so
+        # the run stays pure-RBF end to end. This has to be explicit: the KO
+        # GP's own default threshold is 30 HF observations, which EVERY
+        # benchmark here crosses partway through a run (Currin_2D starts at 6
+        # HF and reaches 30; Hartmann_6D starts at 18; Borehole_8D at 24), so
+        # leaving the default in place would silently switch the surrogate to
+        # a deep kernel mid-run. That would both contaminate the KO-MES
+        # reference and destroy the KO-MES vs KO-MES+DKL contrast, since the
+        # "no-DKL" arm would already be running DKL for its second half.
+        self.use_dkl = use_dkl
+        self.ko_ensemble = [KennedyOHaganGP(
+            d=self.d, rho_fixed=rho_fixed,
+            dkl_threshold=(30 if use_dkl else float('inf')),
+        )]
+
+    def _update_model(self):
+        X_hf = torch.stack(self.data_hf_x)
+        Y_hf = torch.tensor(self.data_hf_y, dtype=DEFAULT_DTYPE)
+        if self.data_lf_x:
+            X_lf = torch.stack(self.data_lf_x)
+            Y_lf = torch.tensor(self.data_lf_y, dtype=DEFAULT_DTYPE)
+        else:
+            X_lf = X_hf[:0]
+            Y_lf = Y_hf[:0]
+        self.ko_ensemble[0].fit(X_lf, Y_lf, X_hf, Y_hf, self.bounds)
+
+    def _propose_greedy(self, X_cand):
+        ko = self.ko_ensemble[0]
+        hf_proxy = _build_hf_proxy_model(ko)
+        y_star = thompson_sample_y_star(hf_proxy, X_cand, K=10)
+        mes_hf = _compute_mes_hf_vectorized(X_cand, hf_proxy, y_star)
+        mes_lf = _compute_mes_lf_vectorized(X_cand, ko, y_star, n_quad=32)
+        return cost_normalized_argmax(mes_lf, mes_hf, self.c_L, self.c_H, X_cand)
+
+    def final_rho(self):
+        return float(self.ko_ensemble[0].rho.item())

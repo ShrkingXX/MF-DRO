@@ -179,3 +179,5 @@ outputs/
 src/policy/multirun/
 /multirun
 /outputs_command_generator/
+# Model checkpoints (regenerable, ~19MB each)
+*.resume.pt

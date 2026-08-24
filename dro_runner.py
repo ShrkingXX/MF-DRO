@@ -29,6 +29,10 @@ MF_RESULT_KEYS = [
     "hf_regret_curve",
     "cost_curve",
     "fidelity_trace",
+    "x_t_trace",
+    "y_t_trace",
+    "initial_hf_values",
+    "cumulative_cost_curve",
     "lf_fraction",
     "rtg_target",
     "btg_target",
@@ -37,6 +41,14 @@ MF_RESULT_KEYS = [
     "L_loc_per_iter",
     "L_fid_per_iter",
     "neg_rtg_frac_per_iter",
+    "action_reward_corr_per_iter",
+    "rtg_frac_between_traj_var_per_iter",
+    "rtg_gpbelief_corr_per_iter",
+    "grad_coherency_per_iter",
+    "query_dist_to_xstar_per_iter",
+    "query_dist_to_x2_per_iter",
+    "diag_frac_rollout_near_xstar_per_iter",
+    "gp_refinement_log",
 ]
 
 # Separate '.mf.json'/'.mf.done' path scheme (not checkpoint.py's own
@@ -134,7 +146,13 @@ def _build_dro_config(exp_name, benchmark_name, variant_name, seed,
                        gp_kernel, gp_ard, verbose, mes_k=10,
                        rollout_acq_function="ei", use_roi_state=False,
                        use_roi_std_quantiles=False, state_hyperparams_enabled=True,
-                       use_roi_sigma_iqr=False):
+                       use_roi_sigma_iqr=False, use_awr=False, awr_temperature=None,
+                       rollout_teacher="argmax", softmax_temperature=0.5,
+                       use_gp_refinement=False, gp_refinement_steps=30,
+                       gp_refinement_lr=0.05, gp_refinement_beta=2.0,
+                       gp_refinement_variant="single",
+                       num_epochs=100, propose_mode="dt", rollout_ga_steps=10,
+                       uniform_ensemble=False):
     lengthscale_min, lengthscale_max = _scaled_lengthscale_bounds(benchmark_spec)
     cfg = OmegaConf.create({
         "seed": seed,
@@ -147,6 +165,37 @@ def _build_dro_config(exp_name, benchmark_name, variant_name, seed,
         "benchmark_name": benchmark_name,
         "use_mes_reward": use_mes_reward,
         "mes_k": mes_k,
+        # "argmax" default (bit-for-bit existing _optimize_acquisition
+        # behavior). "softmax" routes _simulate_trajectory's rollout action
+        # selection through _optimize_acquisition_softmax instead -- see
+        # that method's docstring in src/policy/dro.py.
+        "rollout_teacher": rollout_teacher,
+        "softmax_temperature": softmax_temperature,
+        # UCB refinement (warm-started gradient ascent from the DT's own
+        # proposal, single-fidelity GP): isolates whether location quality
+        # is the bottleneck when fidelity is not a factor. False default,
+        # bit-for-bit unchanged pipeline when off -- see
+        # DirectRegretOptimization._refine_proposal_ucb.
+        "use_gp_refinement": use_gp_refinement,
+        "gp_refinement_steps": gp_refinement_steps,
+        "gp_refinement_lr": gp_refinement_lr,
+        "gp_refinement_beta": gp_refinement_beta,
+        # "single" (Variant A, default) | "ensemble" (B) | "twostage" (C) |
+        # "restarts" (D) -- see the four _refine_proposal_ucb* methods.
+        "gp_refinement_variant": gp_refinement_variant,
+        # "dt" (default, unchanged pipeline) | "multistart_ucb_nodt"
+        # (Diagnostic 1) | "naivebo_lognormal" (Diagnostic 2) -- bypasses
+        # rollout simulation + DT training entirely when not "dt". See
+        # DirectRegretOptimization._propose_next_candidate_no_dt.
+        "propose_mode": propose_mode,
+        # Only read when rollout_teacher=="gradient_ascent" (see
+        # DirectRegretOptimization._select_x_tau_gradient_ascent).
+        "rollout_ga_steps": rollout_ga_steps,
+        # Failure-mode-1 diagnostic: forces identical (median) starting
+        # lengthscale across all GP ensemble members instead of the diverse
+        # np.linspace grid. False default -- bit-for-bit unchanged linspace
+        # init when off. See DirectRegretOptimization._initialize_models.
+        "uniform_ensemble": uniform_ensemble,
         "use_roi_state": use_roi_state,
         "use_roi_std_quantiles": use_roi_std_quantiles,
         "state_hyperparams_enabled": state_hyperparams_enabled,
@@ -158,7 +207,10 @@ def _build_dro_config(exp_name, benchmark_name, variant_name, seed,
         "rtg_warmup": rtg_warmup,
         "known_optimal_value": benchmark_spec["known_optimal_value"],
         "gp": {
-            "kernel": gp_kernel, "noise_constraint": 1e-4,
+            # noise_constraint raised 1e-4->1e-2, matching KennedyOHaganGP's
+            # own noise_lb fix -- see src/policy/dro.py's
+            # DRO_LENGTHSCALE_PRIOR_LOC/SCALE module docstring.
+            "kernel": gp_kernel, "noise_constraint": 1e-2,
             "lengthscale_min": lengthscale_min, "lengthscale_max": lengthscale_max,
             "num_models": gp_num_models, "verbose": False, "retrain": False,
             "ard": gp_ard,
@@ -178,7 +230,12 @@ def _build_dro_config(exp_name, benchmark_name, variant_name, seed,
         "transformer": {
             "hidden_size": dt_hidden, "num_layers": dt_layers, "num_heads": dt_heads,
             "dropout": 0.1, "lr": dt_lr, "weight_decay": 1e-5, "batch_size": 32,
-            "num_epochs": 100, "max_seq_length": 20,
+            "num_epochs": num_epochs, "max_seq_length": 20,
+            # AWR (advantage-weighted regression): False default, bit-for-bit
+            # unchanged existing loss when off. awr_temperature=None means
+            # compute adaptively per-batch (median |RTG|); set a float to
+            # pin it for ablation. See _train_decision_transformer.
+            "use_awr": use_awr, "awr_temperature": awr_temperature,
         },
         "simulation": {
             "num_rollouts": rollouts_per_iter, "max_rollout_length": rollout_length,
@@ -342,8 +399,11 @@ def run_single_seed(exp_name, benchmark_name, variant_name, seed,
 def _build_mf_dro_config(exp_name, benchmark_base_name,
                           variant_name, seed,
                           M=10,
-                          rollout_length=4,
-                          rollouts_per_model=7,
+                          rollout_length=8,
+                          # ITEM 3: raised 7 -> 20 (needed for the item-4
+                          # gate measurement to be statistically meaningful
+                          # at 10 ensemble-member groups).
+                          rollouts_per_model=20,
                           bo_iterations=30,
                           initial_points=5,
                           dt_hidden=128,
@@ -355,7 +415,32 @@ def _build_mf_dro_config(exp_name, benchmark_base_name,
                           alpha_rtg=0.5,
                           alpha_btg=0.5,
                           max_seq_length=80,
-                          minimum_hf_fraction=0.25):
+                          minimum_hf_fraction=0.25,
+                          real_hf_warmup=2,
+                          cost_budget=None,
+                          initial_hf=30,
+                          initial_lf=30,
+                          use_sequential_init=False,
+                          use_rtg_grounding=False,
+                          dkl_threshold=30,
+                          bes_delta=0.0,
+                          # Change 1a: candidate scoring is now MF-DRO's
+                          # default policy head (see mf_dro.py's
+                          # DirectMFRegretOptimization.__init__ for why MSE
+                          # regression structurally collapses to the
+                          # conditional mean of the teacher's argmax
+                          # distribution). This config builder sets the key
+                          # explicitly, so the class-level getattr default
+                          # never applies to configs built here.
+                          use_candidate_scoring=True,
+                          rollout_policy="mes",
+                          # ITEM 1: default switched to regret-based RTG.
+                          rollout_reward="improvement",
+                          use_lf_screened_init=False,
+                          use_real_rollout_queries=False,
+                          refit_hyperparams_in_rollout=False,
+                          known_optimal_x=None,
+                          known_secondary_x=None):
     """
     Config for MF-DRO. c_H and c_L from benchmark registry.
     NOTE: rollouts_per_model (7) NOT rollouts_per_iter (75).
@@ -363,7 +448,7 @@ def _build_mf_dro_config(exp_name, benchmark_base_name,
     """
     hf_spec = get_benchmark(benchmark_base_name + "_HF")
     lf_spec = get_benchmark(benchmark_base_name + "_LF")
-    return SimpleNamespace(
+    cfg = SimpleNamespace(
         exp_name=exp_name,
         benchmark_name=benchmark_base_name,
         variant_name=variant_name,
@@ -382,11 +467,42 @@ def _build_mf_dro_config(exp_name, benchmark_base_name,
         alpha_rtg=alpha_rtg,
         alpha_btg=alpha_btg,
         minimum_hf_fraction=minimum_hf_fraction,
+        real_hf_warmup=real_hf_warmup,
+        cost_budget=cost_budget,
+        initial_hf=initial_hf,
+        use_sequential_init=use_sequential_init,
+        use_rtg_grounding=use_rtg_grounding,
+        dkl_threshold=dkl_threshold,
+        bes_delta=bes_delta,
+        use_candidate_scoring=use_candidate_scoring,
+        rollout_policy=rollout_policy,
+        rollout_reward=rollout_reward,
+        use_lf_screened_init=use_lf_screened_init,
+        use_real_rollout_queries=use_real_rollout_queries,
+        refit_hyperparams_in_rollout=refit_hyperparams_in_rollout,
+        initial_lf=initial_lf,
         max_seq_length=max_seq_length,
         c_H=hf_spec["cost"],
         c_L=lf_spec["cost"],
         true_opt=hf_spec["known_optimal_value"]
     )
+    # known_optimal_x: explicit override takes precedence over the
+    # _KNOWN_OPTIMAL_X auto-lookup-by-benchmark_base_name -- needed for
+    # Ackley_10D specifically, whose name collides between the pre-existing
+    # standalone SF-only entry ([-32.768,32.768]^10 domain, optimum at the
+    # origin, _KNOWN_OPTIMAL_X's own [0.0]*10) and the newer MF pair
+    # (Ackley_10D_HF/LF, [0,1]^10 domain, optimum at [0.5]*10) -- same
+    # benchmark_base_name string, two different benchmarks, two different
+    # true optimum locations. The dict itself is left untouched (still
+    # correct for the SF-only entry); callers building configs for the MF
+    # pair must pass known_optimal_x=[0.5]*10 explicitly.
+    if known_secondary_x is not None:
+        cfg.known_secondary_x = known_secondary_x
+    if known_optimal_x is not None:
+        cfg.known_optimal_x = known_optimal_x
+    elif benchmark_base_name in _KNOWN_OPTIMAL_X:
+        cfg.known_optimal_x = _KNOWN_OPTIMAL_X[benchmark_base_name]
+    return cfg
 
 
 def run_mf_single_seed(exp_name, benchmark_base_name,

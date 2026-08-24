@@ -1,0 +1,192 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Thanks to Xu Minghao's work                        %
+% I modify it into uchicago version                  %
+% to not make new bug, I don't alter "Ritsumeikan"   %
+% keywords in file. Pls feel free to use             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A Beamer template for Ritsumeikan University       %
+% Author: Ming-Hao Xu (Xu Minghao)                   %
+% Date:   April 2022.                                %
+% LPPL Licensed.                                     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{beamer}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+
+% other packages
+\usepackage{latexsym,amsmath,xcolor,multicol,booktabs,calligra}
+\usepackage{graphicx,pstricks,listings,stackengine}
+
+\graphicspath{{pic/}}
+
+\author{Yuru} % TODO: fill in full name
+\title{MES-Switching Ablation (v2)}
+\subtitle{Results: 120-Run Cluster Validation of DRO Acquisition/Reward Choices}
+\institute{
+    Department of Statistics \\
+    University of Chicago \\
+    % TODO: confirm advisor name/lab
+    Advisor: Prof.\ Yuxin Chen
+}
+\date{\small \today}
+\usepackage{Ritsumeikan}
+
+% defs
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{RGB}{153,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+\definecolor{halfgray}{gray}{0.55}
+
+\begin{document}
+
+% ---------------------------------------------------------------
+% TITLE
+% ---------------------------------------------------------------
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+\tableofcontents[sectionstyle=show,
+subsectionstyle=show/shaded/hide,
+subsubsectionstyle=show/shaded/hide]
+\end{frame}
+
+% =================================================================
+\section{Recap}
+% =================================================================
+
+\begin{frame}{Follow-Up to Last Talk}
+    \begin{itemize}
+        \item Last time: DRO fixed on Hartmann\_6D, large-scale run \textbf{launched}
+        \item \textbf{Today:} that run is done --- 120/120 completed
+        \item \textbf{8 variants} = acquisition (rotate / MES) $\times$ reward (Impr / MES / jointMES) + 2 NaiveBO baselines
+        \item \textbf{3 benchmarks} (Ackley 2D / 5D / 10D) $\times$ \textbf{5 seeds} $\times$ \textbf{200 iterations}
+    \end{itemize}
+\end{frame}
+
+% =================================================================
+\section{Headline Result}
+% =================================================================
+
+\begin{frame}{DRO Crushes NaiveBO --- Gap Widens with Dimension}
+    \begin{itemize}
+        \item Ackley\_10D: NaiveBO never escapes $\approx$19 regret in 200 iters
+        \item Every DRO variant reaches $\approx$0.2--0.4
+        \item Same story, smaller gap, in 2D / 5D
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.72\textwidth]{Ackley_10D_regret_final.png}
+    \end{center}
+\end{frame}
+
+% =================================================================
+\section{The 6 DRO Variants}
+% =================================================================
+
+\begin{frame}{On Raw Regret: Statistically Tied}
+    \begin{itemize}
+        \item Zoom in (NaiveBO removed) --- variants overlap heavily
+        \item Seed-paired difference test ($n=5$): no significant winner
+        \item[$\Rightarrow$] acquisition/reward choice barely moves final regret
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.72\textwidth]{Ackley_10D_regret_final_dro_only.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{But Cost Differs A Lot}
+    \begin{itemize}
+        \item MES-as-acquisition (Gumbel rollout sampling) roughly \textbf{doubles} cost
+        \item DRO-MES-Impr/MES: $\approx$313s/iter vs.\ DRO-rotate: $\approx$180s/iter
+        \item That extra cost buys \textbf{no} regret improvement
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.68\textwidth]{cost_audit_breakdown.png}
+    \end{center}
+\end{frame}
+
+% =================================================================
+\section{jointMES: The Efficient Choice}
+% =================================================================
+
+\begin{frame}{Same Performance, Lower Cost}
+    \begin{itemize}
+        \item DRO-rotate-jointMES: cheapest DRO variant, $\approx$147s/iter
+        \item 18\% cheaper than rotate+Impr, 53\% cheaper than MES-reward variants
+        \item Lowest cost-to-reach-target box in \textbf{all three} benchmarks
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.72\textwidth]{Ackley_10D_cost_to_target.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Is rotate-Impr's Edge Real?}
+    \begin{itemize}
+        \item rotate-Impr has the \textit{lowest raw regret} in 5D / 10D
+        \item Seed-paired diff vs.\ rotate-jointMES: error bars straddle zero
+        \item[$\Rightarrow$] not statistically significant at $n=5$
+        \item ...and rotate-Impr costs 22\% \textbf{more} per iteration
+    \end{itemize}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{Ackley_10D_paired_diff_vs_ref.png}
+    \end{center}
+\end{frame}
+
+% =================================================================
+\section{Mechanism Check}
+% =================================================================
+
+\begin{frame}{Diagnostics: All Clean}
+    \begin{itemize}
+        \item \texttt{corner\_proximity} $\approx$0.5, stable across \textbf{every} variant/seed/benchmark
+        \item[$\Rightarrow$] no Hartmann-style GP-confidence collapse anywhere in 120 runs
+        \item Reward sparsity behaves as designed:
+        \begin{itemize}
+            \item Impr reward: $\approx$85\% zero-reward steps
+            \item MES reward: $\approx$0\%
+            \item jointMES: $\approx$6--12\% (in between, as expected)
+        \end{itemize}
+        \item MES-acquisition gives highest rollout diversity --- but it doesn't convert into better regret
+    \end{itemize}
+\end{frame}
+
+% =================================================================
+\section{Bottom Line}
+% =================================================================
+
+\begin{frame}{Takeaways}
+    \begin{itemize}
+        \item Switching to MES (acquisition and/or reward) does \textbf{not} reliably beat the original rotate+Impr design on regret
+        \item Its one reproducible benefit: \textbf{jointMES matches that performance for meaningfully less compute}
+        \item Recommended default going forward: \textbf{DRO-rotate-jointMES}
+        \item DRO vs.\ NaiveBO remains the paper's headline claim --- large, clean, scales with dimension
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Next Steps}
+    \begin{itemize}
+        \item Fold DRO-rotate-jointMES forward as the default configuration
+        \item Extend validation beyond Ackley (real-world/higher-fidelity benchmarks)
+        \item Finalize figures + tables for the AISTATS submission
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+        {\Huge\calligra Thank You}
+        \vspace{1cm}
+
+        {\large Questions?}
+    \end{center}
+\end{frame}
+
+\end{document}
