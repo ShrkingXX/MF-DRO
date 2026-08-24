@@ -140,10 +140,13 @@ and across* iterations.
 network with identical architecture and states: the encoder's contraction is
 *architectural* (random 0.4601× vs trained 0.3898×, ratio 1.18), while the
 head's is *learned* — a random head **amplifies** at 1.6039× where the trained
-head contracts at 0.3348×, a **4.8× swing** from fitting alone. Yet even with
-5.7× more coefficient variation the random net still moves the argmax 0/12 at
-cosine 0.99978, so the invariance is far from its threshold, not marginally
-short.
+head contracts at 0.3348×, a **4.8× swing** from fitting alone. **And no threshold exists within 100× (H22).** Scaling state deviations
+`s' = s̄ + λ(s−s̄)` up to λ=100 with the trained net fixed never moves the argmax
+on >1/12 pools, while the coefficient spread grows **76×** and `w` rotates
+**11.5°**. The map is invariant to state *direction* across two orders of
+magnitude of gain: the ranking is dominated by a state-independent component of
+`w` whose margin exceeds what an 11.5° rotation can overturn. (Large λ is OOD —
+this characterises the map, it is not a proposed fix.)
 
 And the head is near-constant partly because the within-iteration input is
 degenerate: real τ=0 states

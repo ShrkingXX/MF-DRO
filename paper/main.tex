@@ -189,10 +189,20 @@ Training therefore collapses the scoring head, while the encoder was never
 passing much through to begin with. The two stages need different remedies and
 should not be treated as one phenomenon.
 
-Neither, however, is close to the threshold that would matter. Even at random
-initialisation, with $5.7\times$ more coefficient variation, the argmax still
-moves $0/12$ and the coefficient vectors remain at cosine $0.99978$. The
-invariance is robust to a $5.7\times$ increase in the quantity driving it.
+Neither, however, is close to the threshold that would matter---and we can say
+how far. Holding the trained network fixed and scaling state deviations as
+$s'(\lambda) = \bar{s} + \lambda(s-\bar{s})$ for $\lambda$ up to $100$, the
+argmax never moves on more than one of twelve pools, and the single exception at
+$\lambda{=}60$ is non-monotonic. The manipulation is not a no-op: across the
+sweep the coefficient vector's relative spread grows $76\times$
+($0.001826 \to 0.138267$) and $w$ rotates to cosine $0.97988$, an $11.5^\circ$
+separation. \textbf{The learned map is invariant to state direction across two
+orders of magnitude of input gain.} The ranking is dominated by a
+state-independent component of $w$ whose margin over the runner-up exceeds
+anything an $11.5^\circ$ rotation can overturn---the state does not merely have
+little influence, it has influence in a direction that does not compete with
+what decides the ranking. (Large $\lambda$ is far out of distribution; this
+characterises the map's gain and is not proposed as an intervention.)
 (These figures are measured over ensemble-member states, whose spread is
 $0.013993$; Table~\ref{tab:atten} is measured over real-iteration states, about
 $15\times$ more varied. The two are consistent in magnitude but are different
@@ -385,12 +395,14 @@ is underpowered by roughly a factor of four, so we can state that MF-DRO does
 not clear the pre-registered bar but not that it is equivalent to MF-MI-Greedy.
 The attenuation measurement is taken at the end of training on trained weights;
 we did not track it through training. We show that an unbottlenecked scoring
-head does not restore conditioning, and a random-initialisation control shows
-the encoder's share of the contraction is architectural rather than learned. We
-did not, however, attempt an explicit encoder-side \emph{remedy} (wider hidden
-state, state standardisation, or an input-scaling correction), so ``the
-conditioning channel in this architecture is unusable'' remains better supported
-than ``no architecture in this family could condition''.
+head does not restore conditioning; a random-initialisation control shows the
+encoder's share of the contraction is architectural rather than learned; and a
+gain sweep shows no threshold within $100\times$. We did not attempt
+architectural remedies that change capacity rather than gain (a wider hidden
+state, or a scoring rule whose ranking is not dominated by a state-independent
+component), so ``the conditioning channel in this trained system is unusable''
+remains better supported than ``no architecture in this family could
+condition''.
 Finally, the pre-fix results are excluded rather than re-run, so we cannot say
 how much of the original method's reported behaviour was leakage.
 
