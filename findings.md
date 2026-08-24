@@ -168,6 +168,49 @@ beyond re-fitting, the frame is what is in question — which is why H6 (freeze
 the DT after k=5 and see whether anything changes) is the next experiment
 rather than another component patch.
 
+## Variance, not just mean: MF-DRO trades peak performance for reliability
+
+Partial h1 (8/10 MF-DRO seeds in; baselines complete):
+
+| method | mean | sd | SE | range |
+|---|---|---|---|---|
+| MF-DRO | 0.5011 | **0.0887** | 0.0313 | [0.407, 0.650] |
+| MF-MI-Greedy | 0.5091 | **0.4004** | 0.1266 | [0.188, 1.540] |
+| MF-GP-UCB | 1.7934 | 0.3868 | 0.1223 | [1.182, 2.375] |
+
+The **means are essentially tied** (0.501 vs 0.509), but MI-Greedy's standard
+deviation is **4.5x larger**. MI-Greedy sometimes reaches 0.188 — far better
+than MF-DRO ever does — and sometimes lands at 1.540, far worse. MF-DRO lands in
+[0.407, 0.650] every time.
+
+That is a substantive difference the mean alone hides: post-fix MF-DRO is not
+"as good as" MI-Greedy, it is **differently shaped** — worse peak, much better
+worst case, far more predictable.
+
+### An honest limitation of the pre-registered success test
+
+PROTOCOL.md's frozen criterion is `MF-DRO mean+SE < best-baseline mean-SE`.
+Because MI-Greedy's SE is ~4x MF-DRO's, `mean-SE` = 0.3825 is a *low bar set by
+the baseline's own instability*. A method with an identical mean and one-quarter
+the variance is structurally penalised by this test.
+
+The test is **frozen and will be reported exactly as specified** — this is an
+observation about what it measures, not grounds for changing it, and
+`PROTOCOL.md` explicitly anticipates "no within-frame fix closes the gap" as a
+valid outcome. But any write-up should report the variance alongside the test
+result, because "failed the criterion while being 4.5x more consistent" is a
+materially different claim from "failed the criterion".
+
+### The freeze itself is resolved
+
+**0/8 completed MF-DRO seeds are frozen** (`n_improved == 0`), against a pre-fix
+freeze rate of 9/12 (75%). Incumbent-improvement counts run 1-5 per seed. The
+original pathology this whole investigation was named after is gone.
+
+Note also that `n_improved` and final regret are only loosely coupled: seed51
+improved once and reached 0.407; seed46 improved five times and reached 0.441.
+"Freeze" and "regret" are separate axes and should be reported separately.
+
 ## Lessons and Constraints
 
 - **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
