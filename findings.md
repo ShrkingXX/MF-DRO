@@ -121,22 +121,76 @@ pooled "100% freeze" column mixed this with the DRO family's leakage freeze.
 
 ---
 
-## H6: an underpowered experiment, reported as such
+## What continued DT training does: changes ~18% of decisions, buys ~nothing
 
-The paired estimate **changed sign** as seeds accumulated: n=1 -0.208, n=5
--0.103, n=7 -0.010, n=9 +0.062, n=10 **+0.098**. Final n=10: 95% CI
-**[-0.097, +0.292]**, Wilcoxon p = 0.322.
+Two experiments, deliberately different instruments, now compose into one
+account.
 
-Post-hoc power: paired sd **0.311**, *larger than the effect being chased*.
-~80 seeds needed for +0.098; the design resolves only effects >= ~0.3 against
-arms near 0.5. **H6 cannot answer its own question.** A pre-registered extension
-to n=30 is running with anti-optional-stopping guards (n fixed in advance,
-primary *and* final, primary prediction is a null).
+**H6 — regret comparison, pre-registered n=30 (primary AND final).**
+Freeze the DT after iteration 5 vs retrain throughout:
 
-Variance tests disagreed (F 0.029, Bartlett 0.029, **Levene 0.209**); regret is
-right-skewed so the robust test governs — the variance claim does not hold either.
+    FROZEN 0.5898 (sd 0.230)   LIVE 0.5146 (sd 0.164)
+    paired diff +0.0752   95% CI [-0.0105, +0.1608]   Wilcoxon p = 0.0795
+    FROZEN better on 9/30
 
----
+Locked prediction 1 (CI contains zero) **MET** — registered as a *null* in
+advance so a null could not later be dressed up as a finding. Prediction 2
+(Levene p<0.05 on variance) **NOT MET** (p = 0.196); the variance story does not
+survive either.
+
+The estimate's trajectory is itself the cautionary result: n=1 -0.208, n=5
+-0.103, n=7 -0.010, n=10 +0.098, n=30 +0.075. Every intermediate reading sounded
+publishable and every one differed. Post-hoc power: paired sd 0.239, so ~80 seeds
+would be needed for the observed effect.
+
+**H7 — decision comparison, 377 paired decisions over 5 seeds.** Same question,
+better instrument: snapshot the DT at iteration 5 and replay every later
+iteration's *identical* state/RTG/BTG/candidate pool through it.
+
+| pooled | argmax agreement | mean L2 dist |
+|---|---|---|
+| 377 decisions | **0.817** | 0.121 |
+
+Prediction 1 (agreement > 0.70) **PASS**. Prediction 2 (no growth with t)
+**FAIL** — divergence grows, agreement 0.860 -> 0.798 between run halves. That
+failure is useful twice: it corrects the claim, and it proves the instrument is
+*sensitive* rather than blind.
+
+**Instrument verified before interpretation**: snapshot independent (0/93 params
+share storage), live model genuinely diverged (77/93 params changed, `coef_head`
+by ~4.6e-03). A 4-record smoke had shown `dist = 0.000000` and I nearly reported
+"bit-identical" proposals; at scale that is **wrong**.
+
+### The reconciliation
+
+> Continued training changes **~18% of decisions**, and those changes are worth
+> **~nothing in regret** (+0.075, CI containing zero).
+
+This is the opposite of what I was drifting toward at n=7 ("continued training
+contributes ~nothing"). Training *does* change what the policy does; the changes
+simply do not buy performance. Combined with H5 and H8:
+
+- the DT's **conditioning** pathway is inert (state, RTG, BTG never move the argmax)
+- its **weights** are not — retraining moves ~18% of decisions
+- and those weight-driven changes are close to regret-neutral
+
+"MF-DRO re-fits rather than conditions" survives, with the refinement that the
+re-fitting does real work on decisions — just not *useful* work here.
+
+## H9: the obvious fix for the RTG confound does not exist
+
+`alpha_rtg` was recorded as the top remaining lead for separating *the network
+ignores RTG* from *RTG carries too little variation*. **It is a no-op.**
+`max(batch_max, alpha_rtg*running_max)` with batch-max-normalised rtg means
+`running_max -> 1`, so the floor binds only when `batch_max < alpha_rtg`:
+measured over 790 iterations, 46.3% of the time at 0.5 and **0.0%** at 0.1.
+Both arms produced the identical band [0.5672, 1.0000].
+
+The experiment **voided itself** on its own pre-registered manipulation check.
+The real lever is the **batch-max normalisation**, which maps every batch's best
+trajectory to ~1 regardless of quality — and which my own RTG-cap fix
+introduced while correctly removing a different pathology. Fixing one RTG defect
+manufactured another.
 
 ## Methodological lessons (transferable)
 
