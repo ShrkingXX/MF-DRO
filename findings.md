@@ -85,7 +85,7 @@ training was causal — a second, silent mismatch).
 
 | probe | result |
 |---|---|
-| swap `h` for another state's hidden vector | argmax unchanged **12/12** |
+| swap `h` for another state's hidden vector | argmax unchanged **0/12 moved**, score-vector corr **1.000000** (re-measured — see below) |
 | coords-only features (ranking *must* use `h`) | argmax unchanged **12/12** |
 | batch-mean / shuffled `h` | argmax changed ~8% |
 | state perturbation at 1x batch sd | argmax unchanged, corr 0.9997 |
@@ -298,6 +298,25 @@ scales as `C_f/α_f`. And Corollary 2's exact-optimality requirement
 `f(s₁)=V*(s₁)` is hopeless for us — our target is a heuristic whose band is
 provably capped at `1/α`.
 
+### Provenance warning on the h-insensitivity result
+
+The original H5 probe drew its comparison state as `batch[(p+7) % len(batch)]`
+for `p=0..11`, i.e. indices 7..18 — and the batch is built
+`for ko in ensemble: for _ in range(rollouts_per_model=20)`, so **indices 0..19
+all share a bit-identical τ=0 state** (only 10 unique τ=0 states per
+200-trajectory batch). Verified: 12/12 of H5's comparisons were identical to
+`batch[0]`; 0/9 across model blocks are. **H5 swapped a state for itself.**
+
+Re-measured with genuinely distinct states: **argmax moved 0/12, score-vector
+correlation 1.000000**. The conclusion survives and is now properly evidenced —
+but it rested on an invalid probe until this audit, and anything built on it
+before then was right by luck. See `experiments/h5-score-head-bottleneck/AUDIT.md`.
+
+Also refuted in passing: **feature-scale domination**. `mu_H`'s across-candidate
+sd is 1.0× the median feature's and carries 31.8% of the ranking spread, and
+`argmax(score)=22` vs `argmax(mu_H)=152` — so the old "score tracks `mu_H` on
+67–75% of pools" does **not** reproduce post-fix.
+
 **But the theory is NOT the whole explanation — H19 checked.** With
 `fantasy_mode="mean"` the transition is deterministic (verified: repeat-difference
 `0.000e+00`) and diversity is intact (200/200 distinct trajectories). That is the
@@ -337,7 +356,12 @@ a function of `h`.
    compared — H13's decomposition rule hit 100% in both arms and said nothing.
 12. **Spec the codebase before building the fix.** H12/H13 reinvented, worse, a
    joint-information-gain reward that already existed.
-13. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
+13. **When a probe compares "two different X", assert inside the probe that
+   they are different.** H5 would have failed a one-line assertion for months.
+   Three instrument defects this phase (H13's dead-signal metric, H19's
+   diversity signature, H5's state swap) — all found by checking the instrument
+   against the data rather than trusting it.
+14. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
    `bes_delta`, soft-target temperature).
 
 ---
