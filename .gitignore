@@ -181,3 +181,12 @@ src/policy/multirun/
 /outputs_command_generator/
 # Model checkpoints (regenerable, ~19MB each)
 *.resume.pt
+
+# One-off diagnostic scripts written at the repo root during the autoresearch
+# loop (111 of them as of 2026-08-24). Their VALUE is the findings they
+# produced, which live in findings.md and experiments/*/analysis.md -- the
+# scripts themselves are scratch. They are NOT moved into a subdirectory
+# because each computes REPO from dirname(__file__) and would break.
+# Diagnostics worth keeping are committed explicitly (git add -f).
+/_*.py
+/_*.sh
