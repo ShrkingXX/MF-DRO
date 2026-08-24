@@ -462,6 +462,55 @@ the metric. Before promoting any diagnostic to an explanation, correlate it
 against the outcome it is supposed to explain. I did not do that when I first
 recorded the secondary-basin finding.
 
+## The RTG target is STRUCTURALLY confined to [0.5, 1.0] — which undercuts my own sweeps
+
+Measured `rtg_target` across all 10 post-fix seeds:
+
+| seed | mean | sd | min | max | CV |
+|---|---|---|---|---|---|
+| 42-51 | 0.52-0.72 | 0.08-0.20 | **0.500** | **1.000** | mean **0.232** |
+
+**Every seed spans exactly [0.500, 1.000]** — a 2x range, and never anything
+else. That is not a coincidence, it is structural:
+
+    rtg is normalised by a running batch max  ->  rtg[0] in [0, 1]
+    update_and_get_rtg_target returns max(batch_max, alpha_rtg * running_max)
+    with alpha_rtg = 0.5 and running_max ~ 1  ->  target in [0.5, 1.0]
+
+The floored-dynamic schema with `alpha_rtg=0.5`, combined with the batch-max
+normalisation introduced by the RTG-cap fix, **clamps the conditioning signal to
+a 2x band**. The DT is essentially always told "aim for roughly 0.5-1.0", with a
+coefficient of variation of 0.23.
+
+### This partially undercuts my own RTG-sweep methodology
+
+Every RTG sweep in this project multiplied the target by **0.1x to 10x** — a
+100x span, **50x wider than the range the model has ever seen**. At 0.1x the
+model is asked to condition on ~0.06 and at 10x on ~6.2, both far outside
+[0.5, 1.0]. "No response to out-of-distribution conditioning values" is a much
+weaker finding than "no response to RTG".
+
+The sweep multipliers 0.5x-2x do straddle the real band (~[0.31, 1.24] vs
+[0.5, 1.0]), and the argmax did not move across those either — so the finding is
+not empty. But I should have measured the realised conditioning range *before*
+choosing sweep bounds, and the headline claim must be narrowed to:
+
+> Within the ~2x band the RTG target actually occupies, changing it does not
+> change the decision.
+
+### The more interesting implication
+
+Even a perfectly RTG-sensitive policy has almost nothing to work with here: the
+target it receives varies by at most 2x and mostly sits near 0.5-0.7. So "the DT
+ignores RTG" and "RTG never varies enough to matter" are **confounded in every
+measurement taken so far**, and the schema — not the network — may be the
+binding constraint.
+
+That is a concrete, testable follow-up (widen `alpha_rtg`, or condition on an
+un-normalised quantity, and re-measure), and it is a better lead than any
+further architecture change. It also means H4's AdaLN refutation is weaker than
+stated: AdaLN cannot rescue a signal that is nearly constant by construction.
+
 ## Lessons and Constraints
 
 - **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
