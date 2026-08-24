@@ -42,6 +42,20 @@ coefficients by $2.04^\circ$ and changes the decision on zero of twelve
 candidate pools.
 \end{abstract}
 
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{figs/fig1_mechanism.pdf}
+\caption{\textbf{The conditioning channel is inert, and we can say where the
+signal is lost.} (a) Relative spread (mean pairwise distance over mean norm) of
+each representation across the twelve states of a real optimization run. The
+transformer encoder contracts state variation by $0.346\times$ and the scoring
+head by a further $0.294\times$, roughly $10\times$ end to end; neither stage
+alone is the culprit. (b) The consequence: a full run's worth of state change
+rotates the scoring coefficients by $2.04^\circ$, leaves the score vectors
+correlated at $1.000000$, and changes the proposed query on none of twelve
+independently resampled candidate pools.}
+\label{fig:mechanism}
+\end{figure}
+
 \section{Introduction}
 
 Return-conditioned supervised learning (RCSL), popularized by the Decision
@@ -94,6 +108,9 @@ the failure modes are generic to mechanistic evaluation
 \section{Setup and Frozen Protocol}
 \label{sec:setup}
 
+Section~\ref{sec:setup} fixes the method and the protocol;
+Section~\ref{sec:related} places the result against RCSL theory.
+
 \paragraph{Method.} An ensemble of $M{=}10$ Kennedy--O'Hagan GPs models a
 high-fidelity (HF) objective $f_H$ and a cheap low-fidelity (LF) proxy $f_L$
 with $c_H{=}8$, $c_L{=}1$. Each iteration, $200$ rollouts of length $8$ are
@@ -135,7 +152,7 @@ optimization run, whose mean pairwise $L_2$ distance is $1.4968$.
 
 \paragraph{Where the signal is lost.} Table~\ref{tab:atten} tracks the relative
 spread (mean pairwise distance divided by mean norm) of each representation
-across the twelve real-iteration states.
+across the twelve real-iteration states; Figure~\ref{fig:mechanism} plots it.
 
 \begin{table}[t]\centering
 \caption{Attenuation of state variation through the network. The loss is
@@ -167,6 +184,15 @@ this directly.
 \section{Eleven Interventions}
 \label{sec:interventions}
 
+\begin{figure}[t]\centering
+\includegraphics[width=.78\linewidth]{figs/fig2_interventions.pdf}
+\caption{Eleven pre-registered interventions on the conditioning pathway. Bars
+show the fraction of probes on which the proposed argmax changed; every arm is
+at zero against a pre-registered success bar of $30\%$. Three arms are marked
+void: they failed their own manipulation checks and are not interpreted.}
+\label{fig:interventions}
+\end{figure}
+
 \begin{table}[t]\centering
 \caption{Pre-registered interventions on the conditioning pathway. ``Void''
 means the intervention failed its own manipulation check and was not
@@ -191,7 +217,8 @@ H20 & MLP score head over $[h;\mathit{cf}]$ & $0/12$ \\
 \end{tabular}
 \end{table}
 
-Three results deserve emphasis.
+Table~\ref{tab:interventions} and Figure~\ref{fig:interventions} summarize all
+eleven. Three results deserve emphasis.
 
 \paragraph{The RTG band was capped by algebra.} The target
 $\max(\text{batch\_max}, \alpha\cdot\text{running\_max})$ with
@@ -218,6 +245,15 @@ within this family, exactly as the encoder-side attenuation predicts.
 \section{Frozen Evaluation}
 \label{sec:frozen}
 
+\begin{figure}[t]\centering
+\includegraphics[width=.72\linewidth]{figs/fig3_frozen.pdf}
+\caption{Frozen evaluation, ten seeds. Points are individual seeds; bars are
+mean $\pm$ SE. Both MF-DRO arms sit above the pre-registered success bar (best
+baseline mean${-}$SE). The joint-MES arm has the lowest mean of any method and
+the difference is not significant (Wilcoxon $p{=}0.432$ against MF-MI-Greedy).}
+\label{fig:frozen}
+\end{figure}
+
 \begin{table}[t]\centering
 \caption{Final simple regret at matched cost ($\approx 200$), $10$ seeds.
 Lower is better. Both MF-DRO arms fail the pre-registered success test
@@ -235,7 +271,8 @@ MF-GP-UCB              & $1.7934 \pm 0.1223$ & 0.387 \\
 \end{tabular}
 \end{table}
 
-The joint-MES reward gives the lowest mean of any arm, below both baselines,
+Table~\ref{tab:frozen} and Figure~\ref{fig:frozen} report the outcome. The
+joint-MES reward gives the lowest mean of any arm, below both baselines,
 with $2.7\times$ smaller dispersion than MF-MI-Greedy. \textbf{None of this is
 statistically significant.} Paired against MF-MI-Greedy the difference is
 $-0.1085$ on $6/10$ seeds (Wilcoxon $p{=}0.432$); against the improvement reward
