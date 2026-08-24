@@ -1,0 +1,25 @@
+{
+  "improvement": {
+    "n_traj": 200,
+    "dead_frac": 0.63,
+    "lf_steps": 683,
+    "lf_nonzero_frac": 0.0,
+    "rtg0_mean": 0.10215671120479441,
+    "rtg0_cv": 1.963976693116367,
+    "batch_seconds": 31.9
+  },
+  "kg_incumbent": {
+    "n_traj": 200,
+    "dead_frac": 0.045,
+    "lf_steps": 683,
+    "lf_nonzero_frac": 0.27232796486090777,
+    "rtg0_mean": 0.13960535882670821,
+    "rtg0_cv": 1.3743370988872312,
+    "batch_seconds": 32.9
+  },
+  "gate": {
+    "G1": true,
+    "G2": false,
+    "pass": false
+  }
+}
