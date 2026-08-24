@@ -1,0 +1,155 @@
+<title>Target Leakage</title>
+<style>
+  :root{--bg:#fbfaf9;--fg:#1a1a19;--mut:#6b6a67;--line:#e2e0dc;--card:#fff;
+        --red:#b3392c;--grn:#2f7a4f;--amb:#9a6a12;--code:#f3f1ee}
+  @media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+    --bg:#1a1a19;--fg:#eceae7;--mut:#a3a19d;--line:#33322f;--card:#232220;
+    --red:#e07a6c;--grn:#6fbf90;--amb:#d6a441;--code:#2a2926}}
+  :root[data-theme=dark]{--bg:#1a1a19;--fg:#eceae7;--mut:#a3a19d;--line:#33322f;
+    --card:#232220;--red:#e07a6c;--grn:#6fbf90;--amb:#d6a441;--code:#2a2926}
+  body{background:var(--bg);color:var(--fg);margin:0;padding:2.5rem 1.25rem 4rem;
+       font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  .w{max-width:52rem;margin:0 auto}
+  h1{font-size:1.9rem;line-height:1.2;margin:0 0 .3rem;letter-spacing:-.02em}
+  .sub{color:var(--mut);margin:0 0 2rem}
+  h2{font-size:1.15rem;margin:2.4rem 0 .7rem;letter-spacing:-.01em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+        padding:1.1rem 1.25rem;margin:1rem 0}
+  .flag{border-left:3px solid var(--red)}
+  .ok{border-left:3px solid var(--grn)}
+  .warn{border-left:3px solid var(--amb)}
+  code,pre{background:var(--code);border-radius:5px;font-size:.87em;
+           font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  code{padding:.1em .35em}
+  pre{padding:.85rem 1rem;overflow-x:auto;margin:.6rem 0}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;margin:.6rem 0}
+  th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line)}
+  th{font-weight:600;color:var(--mut);font-size:.8rem;text-transform:uppercase;
+     letter-spacing:.04em}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .big{font-size:1.05rem;font-weight:600}
+  .r{color:var(--red)} .g{color:var(--grn)} .a{color:var(--amb)}
+  .mut{color:var(--mut)}
+  ul{padding-left:1.15rem} li{margin:.3rem 0}
+  .tag{display:inline-block;font-size:.7rem;text-transform:uppercase;
+       letter-spacing:.05em;padding:.15em .5em;border-radius:4px;
+       background:var(--code);color:var(--mut);margin-left:.4rem}
+</style>
+<div class="w">
+
+<h1>The freeze had a mechanism, and it was a bug</h1>
+<p class="sub">MF-DRO · Hartmann 6D · autoresearch progress · 24 Aug 2026</p>
+
+<div class="card flag">
+<p class="big r" style="margin:0 0 .5rem">Every prior DRO number in this project is now suspect.</p>
+<p style="margin:0">A target-leakage bug was found in the Decision Transformer
+readout — <em>after</em> the 1280-run inventory and all existing findings were
+generated. It affects both the multi-fidelity and single-fidelity paths. Nothing
+measured before commit <code>7bcc3b8</code> can be compared against a post-fix
+result without being re-run.</p>
+</div>
+
+<h2>What the bug was</h2>
+
+<p>The DT sequence is four tokens per step — <code>[rtg, btg, state,
+action]</code> — with the action token at index <code>4t+3</code>. The causal
+mask is <code>triu(diagonal=1)</code>, which lets a position attend to
+<strong>itself</strong>. The readout took <code>h[:, 3::4]</code>: the
+<em>action</em> token, whose embedding encodes the true
+<code>actions_x</code>/<code>actions_ell</code>.</p>
+
+<p>So the location head, the fidelity head and the score head were each
+<strong>predicting from their own target</strong>. Then at inference,
+<code>propose_mf</code> has no action to embed — the action is precisely what
+it is computing — so it zeroes that slot. The model's single most predictive
+input is present during training and absent at inference.</p>
+
+<div class="card">
+<table>
+<tr><th>Ablation: zero <code>a_emb</code> after training</th><th class="n">Pre-fix</th><th class="n">Post-fix</th></tr>
+<tr><td>Fidelity-head loss increase</td><td class="n r">+15.6%</td><td class="n g">+0.7%</td></tr>
+<tr><td>Location loss (<code>L_loc</code>) increase</td><td class="n r">measurable</td><td class="n g">≈0</td></tr>
+</table>
+<p class="mut" style="margin:.4rem 0 0;font-size:.87rem">Verified by ablation,
+not asserted. The head genuinely was reading its own label.</p>
+</div>
+
+<h2>Why this resolves the standing question</h2>
+
+<p>The open question was whether the freeze had <em>one</em> mechanism or
+<em>two</em> — a fidelity-head threshold bug could explain MF-DRO, but never
+SF-DRO, which freezes 12/12 and <strong>has no fidelity head</strong>.</p>
+
+<p>The SF path (<code>get_action_hidden_states</code>) carried the
+<strong>identical</strong> bug: <code>[:, 2::3]</code>, also the action token,
+in its 3-token layout. One mechanism covers both — and it matches the observed
+ordering, where SF-DRO froze <em>more</em> than MF-DRO.</p>
+
+<div class="card ok">
+<p style="margin:0"><strong>A second, unrelated mechanism also got separated
+out.</strong> MF-GP-UCB's 100% freeze is <em>not</em> the DRO pathology — it has
+no DT. It is cost-ratio degeneration to all-LF selection, already documented at
+<code>mf_baselines.py:206</code> and confirmed by a smoke run
+(<code>n_hf_queries = 0</code>). The old "100% freeze" column was pooling two
+unrelated causes.</p>
+</div>
+
+<h2>Other defects fixed in the same pass</h2>
+
+<table>
+<tr><th>Defect</th><th>Evidence it was real</th></tr>
+<tr><td>τ=0 state collapse</td><td>All ~70 rollouts shared a bit-identical state with different targets — MSE's minimizer is then the conditional mean</td></tr>
+<tr><td>BTG pinned at the cost floor</td><td>Exactly <code>2·c_H + 6·c_L = 22.0</code> every iteration → "always be cheapest"</td></tr>
+<tr><td>RTG normalization cap</td><td><strong>2 distinct values across 200 trajectories</strong> (0.0 or 1.0)</td></tr>
+<tr><td>Soft teacher target uninformative</td><td>Entropy at <strong>100.0% of log K</strong> — exactly uniform</td></tr>
+<tr><td>MES columns leaked the label</td><td>Reconstructed the teacher at corr ≈ 0.80</td></tr>
+</table>
+
+<p>The rollout reward was also switched from <code>mes_entropy</code> to
+regret-based <code>improvement</code>, after a gate measurement moved from
+<span class="r">p ≈ 0.32, 5/10 groups negative</span> to
+<span class="g">z = 2.63, p = 0.0085, 9/10 positive</span>.</p>
+
+<h2>Running now <span class="tag">in flight</span></h2>
+
+<div class="card warn">
+<p style="margin:0 0 .6rem">The binding question is unanswered: <strong>does
+fixing the leak actually change end-to-end regret?</strong> No post-fix
+multi-seed run under the frozen protocol existed. One is running.</p>
+<table>
+<tr><td>Grid</td><td>3 methods × 10 seeds (42–51), Hartmann 6D</td></tr>
+<tr><td>Budget</td><td>matched real cost, <code>cost_budget = 200</code>, identical initial design</td></tr>
+<tr><td>Locked prediction</td><td>MF-DRO post-fix mean regret &lt; 1.0 <span class="mut">(pre-fix reference ≈1.31, not comparable)</span></td></tr>
+<tr><td>Compute</td><td>15 workers × 1 thread = 15 cores · 41 s/iter measured · ~2.3 h worst case</td></tr>
+</table>
+</div>
+
+<p>Protocol was locked in commit <code>d1f557f</code> <em>before</em> launch, so
+the prediction is on record ahead of the result. The frozen success test —
+MF-DRO mean+SE below best-baseline mean−SE — will be reported whether it passes
+or fails; <code>PROTOCOL.md</code> explicitly permits "no within-frame fix
+closes the gap" as an outcome.</p>
+
+<h2>Still open</h2>
+<ul>
+<li><strong>RTG still does not move the decision.</strong> Sweeping the RTG
+target 0.1×–10× leaves the argmax bit-stable. Score vectors <em>do</em> shift
+(corr 0.986–0.9999), so the pathway is connected but far too weak. A degenerate
+reward embedding has been ruled out.</li>
+<li><strong>The score head is close to a fixed acquisition function.</strong>
+argmax(score) matched argmax(mu_H) on 7/10 candidate pools — down from 100%, so
+partial independence exists, but corr is still 0.944.</li>
+<li><strong>The fidelity head drifts toward LF during training</strong>, and
+median <code>p_pred</code> sits below 0.5 even under Bernoulli sampling.</li>
+<li>Early signal worth noting: MF-MI-Greedy's regret at matched cost=200 is
+spreading 0.19–1.54 across seeds, versus the inherited "0.279" figure — more
+evidence the old cross-method numbers were never cost-matched.</li>
+</ul>
+
+<h2>Confound to respect</h2>
+<p class="mut">All of the fixes above landed together before the RTG and
+score-head measurements were taken. The residual RTG-insensitivity therefore
+cannot yet be attributed to any single change. The ablation flags exist for
+exactly this and the next experiments should use them one at a time.</p>
+
+</div>
