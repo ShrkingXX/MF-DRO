@@ -47,6 +47,7 @@ MF_RESULT_KEYS = [
     "grad_coherency_per_iter",
     "query_dist_to_xstar_per_iter",
     "query_dist_to_x2_per_iter",
+    "p_pred_inference_per_iter",
     "diag_frac_rollout_near_xstar_per_iter",
     "gp_refinement_log",
 ]

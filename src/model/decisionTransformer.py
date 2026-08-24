@@ -502,7 +502,8 @@ class DecisionTransformer(nn.Module):
         return loss, L_loc, L_fid, x_pred_out, p_pred
 
     def propose_mf(self, state, rtg_target, btg_target, timestep=0,
-                    use_candidate_scoring=False, candidate_features=None):
+                    use_candidate_scoring=False, candidate_features=None,
+                    fidelity_sampling=True):
         """
         Single-step MF inference.
         state:      [state_dim] tensor
@@ -627,7 +628,22 @@ class DecisionTransformer(nn.Module):
             # and computed once, not once per use, to avoid two independent
             # forward passes silently having to agree).
             p_val = self.fidelity_head(h).item()
-            ell_t = 1 if p_val > 0.5 else 0
+            # THRESHOLD-BUG FIX (config flag, default True): p_val>0.5
+            # requires the head to believe HF is MORE LIKELY THAN NOT before
+            # ever selecting it -- but the measured tau=0 HF label rate is
+            # 0.371, so a PERFECTLY CALIBRATED head outputs p_val~0.371 at
+            # exactly the position real inference always uses, and the
+            # threshold then selects LF on every single iteration by
+            # construction, independent of anything the head actually
+            # learned. fidelity_sampling=True draws ell_t ~ Bernoulli(p_val)
+            # instead, matching what the head was trained to predict (a
+            # probability) rather than imposing an unrelated >50% bar.
+            # fidelity_sampling=False keeps the original threshold, for
+            # direct ablation.
+            if fidelity_sampling:
+                ell_t = 1 if torch.rand(1).item() < p_val else 0
+            else:
+                ell_t = 1 if p_val > 0.5 else 0
         self.train(_was_training)
         self.last_p_pred = p_val  # exposed for diagnostics/verification
         return x_t, ell_t

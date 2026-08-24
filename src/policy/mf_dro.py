@@ -1747,6 +1747,12 @@ class DirectMFRegretOptimization:
         # over the domain, matching simulate_mf_trajectory's roi_candidates
         # distribution (also uniform over bounds).
         self.n_infer_candidates = getattr(config, 'n_infer_candidates', 200)
+        # THRESHOLD-BUG FIX flag (item 2): default True (sample ell_t ~
+        # Bernoulli(p_val) at real inference instead of thresholding at
+        # p_val>0.5). See propose_mf's own docstring for why the threshold
+        # is structurally wrong when the true tau=0 HF label rate (0.371) is
+        # below 0.5.
+        self.fidelity_sampling = getattr(config, 'fidelity_sampling', True)
         self.rollout_policy = getattr(config, 'rollout_policy', 'mes')
         # ITEM 1: default switched to regret-based RTG ("improvement");
         # mes_entropy still available via explicit config.rollout_reward.
@@ -1875,6 +1881,7 @@ class DirectMFRegretOptimization:
         # on the wrong basin. A flat query_dist_to_xstar alone cannot
         # distinguish that from "not converging at all".
         self.query_dist_to_x2_per_iter = []
+        self.p_pred_inference_per_iter = []
         # Gated behind self._diag_xstar exactly like the [ROLLOUT-DIAG] print
         # block itself (see _generate_rollout_batch) -- stays empty unless a
         # diagnostic script sets _diag_xstar before calling .run(). Records
@@ -2570,6 +2577,7 @@ class DirectMFRegretOptimization:
                 timestep=0,
                 use_candidate_scoring=self.use_candidate_scoring,
                 candidate_features=(cand_feats.float() if cand_feats is not None else None),
+                fidelity_sampling=self.fidelity_sampling,
             )
         # propose_mf's location head is normalized to [0,1]^d (see its own
         # x_pred.clamp(0.0, 1.0)) -- rescale to the benchmark's actual
@@ -2746,6 +2754,10 @@ class DirectMFRegretOptimization:
             L_loc, L_fid, fid_mean, fid_std = self._train_dt(batch)
             x_t, ell_t = self._propose_next_query()
             self._last_p_pred = self.dt.last_p_pred
+            # Fidelity-bottleneck measurement: p_pred_inference was only
+            # ever printed to console before -- accumulate it so it can be
+            # analyzed from the saved result without scraping logs.
+            self.p_pred_inference_per_iter.append(self._last_p_pred)
 
             # Real-query distance to the benchmark's known optimum location
             # (only when config.known_optimal_x is set -- Hartmann_6D has a
@@ -2895,6 +2907,7 @@ class DirectMFRegretOptimization:
             # non-empty when config.known_optimal_x is set.
             'query_dist_to_xstar_per_iter': self.query_dist_to_xstar_per_iter,
             'query_dist_to_x2_per_iter': self.query_dist_to_x2_per_iter,
+            'p_pred_inference_per_iter': self.p_pred_inference_per_iter,
             # Rollout-exploration diagnostic, only non-empty when a
             # diagnostic script set self._diag_xstar before .run() (see
             # __init__ and the [ROLLOUT-DIAG] block in _generate_rollout_batch).
