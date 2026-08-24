@@ -123,6 +123,12 @@ pre-judge it.
 
 ## Lessons and Constraints
 
+- **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
+  A run that spends its budget on HF finishes in few iterations (seed50: 25 HF
+  x c_H=8 = 200 cost in 28 iterations, 27 min); an LF-heavy run needs ~200
+  iterations for the same cost and takes hours. So the *first* results to land
+  systematically over-represent HF-heavy behaviour. Never generalize from a
+  partial cost-budgeted grid — wait for all seeds.
 - **Pre-`7bcc3b8` DRO numbers are not comparable to post-fix numbers.** This
   includes the 1.31 MF-DRO regret and every freeze rate above.
 - Iteration counts differ wildly across prior runs (MI-Greedy median 53,
