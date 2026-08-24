@@ -245,3 +245,67 @@ are byte-identical with seeds 53-55 present. Wrote
 mode is not misconduct — it is a future reader seeing 30 seed files and
 "tidying up" by widening SEEDS, which would silently convert the frozen n=10
 evaluation into a post-hoc n=30 one.
+
+---
+
+## 2026-08-24 — The reward phase: a confound resolved, a finding retracted, a theory found
+
+**Where it started.** Three experiments (H9 floor, H10 normalisation, H11 arm C
+DT-style RTG decrement) had each voided on their own manipulation check. Two
+structural facts, both provable without compute, explained why:
+
+1. `target = max(batch_max, alpha*running_max)` with `batch_max <= running_max`
+   caps the RTG band at `1/alpha` — 2x at `alpha=0.5`, **always**. H10 measured
+   1.76x and 2.59x: at the ceiling. Two lines of algebra would have prevented
+   both experiments.
+2. Under `rollout_reward="improvement"` an LF step earns **exactly 0.0**, so
+   **63.0%** of trajectories carried `rtg[0]=0`. A signal that is identically
+   zero cannot be made to vary by rescaling it.
+
+The long-open "inert vs starved" confound resolved to **starved**.
+
+**A wrong turn, and the lesson.** I built two new rewards (H12 `kg_incumbent`,
+H13 `kg_signed`/`kg_topk`) before specing the codebase. `mes_entropy` already
+computed `log(b_0) - log(b_T)` = `H[y*|D_0] - H[y*|D_T]` = the **joint
+set-level information gain** — better-motivated than anything I built, and it
+dominated all my variants on signal health (0.0% vs 63.0% dead; CV 0.66 vs
+1.96). **Spec before building.**
+
+**A retraction.** `mes_entropy` had been abandoned on a gate reading
++0.191 (z=2.63, p=0.0085) for `improvement` vs +0.129 (p~0.32). H15 showed the
+gate is **within-group Spearman(rtg[0], f_hf(x_0))** — *step-0 greediness*, which
+`improvement` satisfies by construction — and that it **does not reproduce and
+reverses** on current code. Cause: it was measured in the same commit as the
+RTG-cap fix, a code state that no longer exists. H16 confirmed at 10 seeds:
+`mes_entropy` leads on all three axes, PRIMARY +0.0962 paired, Wilcoxon
+p=0.0195, 8/10 seeds. `improvement`'s return is *negatively* correlated
+(-0.0246) with the best point its own trajectory visited.
+
+**The theory.** Brandfonbrener et al. (NeurIPS 2022, arXiv:2206.01079) give
+RCSL's necessary conditions. MF-DRO violates them by construction: the rollout
+transition is a **draw from the GP posterior**, so their Corollary 1
+near-determinism condition fails maximally, and their Figure 1c shows the bias
+then survives **regardless of the conditioning function**. That is precisely
+what seven independent pre-registered interventions found (H4, H5, H8, H9, H10,
+H11, H12-H16). Their return-coverage condition `P_beta(g=f(s)|s) >= alpha_f` is
+our 63%-dead-signal result in the theory's own language.
+
+**A conflict inside the theory's own conditions.** H18 tested the one
+intervention the theory predicts should work — deterministic transitions
+(`fantasy_mode="mean"`). Determinism verified (G1, repeat-diff 0.000e+00) but
+the diversity gate failed: distinct trajectories collapsed 131 -> 62. My
+protocol's reasoning was wrong — I claimed diversity would survive because the
+behaviour policy stays stochastic, but the teacher is deterministic given the KO
+model, so the fantasy draw was the *dominant* source of trajectory diversity.
+The finding: in GP-fantasy-rollout RCSL the fantasy draw is **both** `eps` and
+the generator of `alpha_f`. The bound `eps*(1/alpha_f+3)*H^2` treats them as
+independent; here they are not. H19 decouples them by moving the noise into
+`beta`.
+
+**Running:** H17 (frozen evaluation on the joint-MES reward, 10 jobs) and H19.
+
+**Process lessons added:** derive a formula's reachable range before
+experimenting on it; put the manipulation check first as a standalone gate and
+commit to stopping; condition null-guards on the manipulation passing; never
+choose a discriminating metric that can saturate; spec the codebase before
+building the fix.
