@@ -1,0 +1,48 @@
+# Paper draft
+
+`main.tex` is written **venue-neutrally** against `article`. No AISTATS style
+file was present in the local template library, and fabricating one would
+silently break formatting compliance.
+
+**To submit to AISTATS:**
+1. Download the official `aistats20XX.sty` / `.bst` from the conference site.
+2. Replace the `\documentclass` + `geometry`/`fontenc` lines with the AISTATS
+   preamble. The body needs no changes.
+3. AISTATS allows 8 pages excluding references and appendix.
+
+## Citations — all verified programmatically
+
+Every entry in `refs.bib` was fetched from the arXiv API or CrossRef, never
+written from memory. Verification log:
+
+| key | source | status |
+|---|---|---|
+| `chen2021dt` | arXiv:2106.01345 | verified |
+| `brandfonbrener2022rcsl` | arXiv:2206.01079 | verified; Thm 2 / Cor 1 read from the PDF |
+| `yang2022doc` | arXiv:2210.13435 | verified |
+| `tanaka2024radt` | arXiv:2402.03923 | verified; abstract confirms the scarce-attention claim |
+| `wang2026ddt` | arXiv:2601.15953 | verified; adaLN confirmed in full text (28 mentions) |
+| `peebles2023dit` | arXiv:2212.09748 | verified |
+| `takeno2020mfmes` | arXiv:1901.08275 | verified |
+| `Kennedy_2000` | CrossRef 10.1093/biomet/87.1.1 | verified |
+
+**One caveat to check before submission:** CrossRef returns the Kennedy &
+O'Hagan (2000) author list as `Kennedy, M.` alone. The paper has two authors;
+CrossRef's metadata is incomplete. Add O'Hagan manually — this is the only
+entry not fully trustworthy as fetched.
+
+**Claims checked against sources, not just existence:**
+- RADT's abstract states DT "allocates scarce attention scores to the return
+  tokens" — supports how we cite it.
+- DDT's abstract confirms it drops the RTG sequence and conditions on the latest
+  RTG; adaLN (citing Peebles & Xie) confirmed in the full text.
+- We deliberately do **not** quote DDT's D4RL numbers: both `99.4` and `68.3`
+  appear in the PDF, but row/column attribution could not be recovered reliably
+  from the flattened text.
+
+## Figures
+
+Not yet embedded. `../to_human/figs/` has publication-candidate PNGs
+(`final_frozen_result.png`, `intervention_ladder.png`, `reward_starvation.png`,
+`rtg_band_cap.png`). Regenerate as **PDF** via `src/plots/*.py` before
+submission — the venue expects vector graphics.
