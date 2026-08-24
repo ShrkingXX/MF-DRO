@@ -1,0 +1,12 @@
+{
+  "L linear (default)": {
+    "state_moved": 0,
+    "rtg_moved": 0,
+    "affine_residual": 9.692119442593361e-08
+  },
+  "M MLP [h;cf]": {
+    "state_moved": 0,
+    "rtg_moved": 1,
+    "affine_residual": 0.08634659285458594
+  }
+}
