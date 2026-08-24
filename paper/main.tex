@@ -24,9 +24,11 @@ in Multi-Fidelity Bayesian Optimization}
 
 \begin{abstract}
 We show that a Decision Transformer trained to act as a multi-fidelity Bayesian
-optimization policy does not condition on its inputs at all: its proposed query
-is invariant to the state, the return-to-go, the budget-to-go, and its own
-interaction history. Establishing this is difficult because such a policy still
+optimization policy does not, in practice, condition on its inputs: across the
+realised support of every input channel---the state, the return-to-go, the
+budget-to-go, and its own interaction history---the proposed query never
+changes. Stretching return-to-go over nine orders of magnitude, far outside
+anything the system can present, moves it on $1$ of $12$ probes. Establishing this is difficult because such a policy still
 \emph{appears} adaptive---its queries move between iterations---so behavioural
 evidence is misleading. We separate the two mechanisms by holding the network's
 weights fixed and varying only its inputs, which isolates conditioning from
@@ -143,6 +145,14 @@ are not comparable and are excluded.
 We hold the trained weights fixed and vary only the inputs. Unless stated, a
 probe reports the fraction of $12$ independently resampled candidate pools on
 which the proposed argmax changes.
+
+Budget-to-go is inert across its realised support $[22,52]$ ($0/12$, correlation
+$1.000000$) and remains so at $\{5,100,500\}$. Return-to-go is inert in-band
+($0/12$) and moves the argmax on $1/12$ only when swept from $10^{-3}$ to
+$10^{6}$. We state this precisely rather than claiming absolute invariance: no
+in-distribution value of either channel changes the decision, and a $10^{9}$-fold
+stretch of RTG changes it on $8.3\%$ of probes, well below the $30\%$ bar used
+throughout.
 
 \paragraph{The state does not move the decision.} Comparing hidden states from
 genuinely distinct inputs, the argmax changes on $0/12$ pools and the score
