@@ -173,8 +173,14 @@ the decision.
 Signed `w̄`: `mu_H` **+1.0824**, `mu_L` **+0.8254**, **`sigma_H` −0.5487**,
 `dist_inc` −0.2976.
 
-**The weight on HF posterior uncertainty is negative** — the rule penalises
-exactly what UCB/EI/MES reward. **H25 confirms the sign across seeds: `w[σ_H]<0`
+**The weight on HF posterior uncertainty is negative** — but H30 shows this is a
+**partial** coefficient, not an aversion. `corr(mu_H, sigma_H) = −0.4696` across
+candidates, and under that collinearity the *teacher's own* score has a negative
+partial `sigma_H` coefficient (−0.0419, negative on 91.4% of sets) despite a
+*positive* marginal correlation (+0.1585) — textbook suppression. The student
+reproduces its teacher's partial coefficient; it does nothing MES does not.
+**The robust claim is behavioural, not coefficient-based**: selections land in
+the bottom 3% of posterior uncertainty. **H25 confirms the sign across seeds: `w[σ_H]<0`
 on 9/10 independently trained models, `w[μ_H]>0` on 10/10.** The *magnitude* is
 not robust (span −0.687 to +0.130, mean −0.2544, sd 0.2578), so the distribution
 is quoted rather than any one model's coefficient. Confirmed independently: agreement with

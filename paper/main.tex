@@ -242,11 +242,20 @@ seeds; mean $\mathbf{-0.2544}$ (sd $0.2578$)
 \end{center}
 
 \noindent
-\textbf{The weight on high-fidelity posterior uncertainty is negative.} The
-learned rule \emph{penalises} exactly the quantity that UCB, EI and MES reward,
-converging to a purely exploitative, actively
-uncertainty-avoiding acquisition. All ten seeds reward $\mu_H$; nine of ten
-penalise $\sigma_H$. The \emph{sign} is robust; the \emph{magnitude} is not,
+\textbf{The weight on high-fidelity posterior uncertainty is negative}---but this
+is a \emph{partial} coefficient, and reading it as an aversion would be wrong.
+Across candidates $\mathrm{corr}(\mu_H,\sigma_H) = -0.4696$: in a GP the
+high-$\mu$ region is where data already sits. Under that collinearity the
+\emph{teacher's own} score function has a negative partial coefficient on
+$\sigma_H$ ($-0.0419$, negative on $91.4\%$ of candidate sets) despite a
+\emph{positive} marginal correlation ($+0.1585$)---textbook suppression. The
+student reproduces its teacher's partial coefficient; it is not doing anything
+MES does not.
+
+What is robust is the \emph{behaviour} rather than the coefficient: selections
+land in the bottom $3\%$ of posterior uncertainty. The rule is empirically
+exploitative. All ten seeds reward $\mu_H$; nine of ten carry a negative
+$\sigma_H$ coefficient. The \emph{sign} is robust; the \emph{magnitude} is not,
 spanning $-0.6871$ to $+0.1297$ with a mean about one standard deviation from
 zero, so we report the distribution rather than any one model's coefficient.
 
