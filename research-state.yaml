@@ -141,6 +141,28 @@ hypotheses:
       scalar. Replay forces fidelity_sampling=False so the comparison isolates
       the policy, not the Bernoulli draw. Snapshot output is never executed.
     prediction_locked: mean argmax agreement over t>5 is > 0.70
+  H19:
+    statement: >
+      Is RCSL's near-determinism condition the binding constraint? Test the ONE
+      intervention Brandfonbrener et al. (2022) Cor. 1 predicts should work.
+    status: NULL -- and the null is the strongest result of the project
+    evidence: >
+      fantasy_mode="mean" gives deterministic dynamics (G1 verified,
+      repeat-difference 0.000e+00 vs 1.6e+00) and diversity is intact
+      (200/200 distinct trajectories, G2 PASS at the unchanged >150 bar). In
+      that regime -- exactly where RCSL theory says it should work -- the argmax
+      still moves 0/12. Near-determinism is therefore NOT what binds. The
+      proximate cause is the score-head bottleneck H5 isolated: swapping h
+      changes the argmax 0/12, so nothing reaching h can move the decision.
+    retraction: >
+      H18's claim that eps and alpha_f are coupled is WITHDRAWN. It rested on a
+      diversity signature of (rtg, ell) that omitted query locations, so
+      rollouts with a dead reward (63%) and matching fidelity pattern counted as
+      identical. With locations included there is no collapse. H18's G1 stands.
+    framing_correction: >
+      RCSL theory explains why the CONDITIONING-SIDE remedies failed, not why
+      the architecture does. My earlier "predicts everything" framing was too
+      strong; H19 is the check that caught it.
   H8:
     statement: >
       Does RTG move the decision WITHIN its realised band, once the
@@ -168,7 +190,14 @@ hypotheses:
       believe. NOTHING established at n=10.
 
 running:
-  - id: h13-kg-dense-reward
+  - id: h17-joint-mes-frozen-eval
+    protocol: experiments/h17-joint-mes-frozen-eval/protocol.md
+    design: >
+      frozen evaluation with rollout_reward=mes_entropy, 10 seeds, baselines
+      reused from h1 (stated in protocol before launch). The only question that
+      matters for the paper -- does the better conditioning signal move regret?
+    compute: 10 workers x 1 thread
+  - id: h13-kg-dense-reward-COMPLETE
     protocol: experiments/h13-kg-dense-reward/protocol.md
     design: >
       2x2 over the two clips that starved H12's LF credit -- kg_signed (keep the
