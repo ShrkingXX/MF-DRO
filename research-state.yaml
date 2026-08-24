@@ -6,7 +6,7 @@ question: >
 protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
 branch: mfdro-hartmann-autoresearch
 phase: inner-loop
-status: hypothesis-revision-pending-user
+status: running-h1-leak-fix-validation
 
 evaluation:
   benchmark: Hartmann_6D
@@ -15,23 +15,67 @@ evaluation:
   metric: final simple regret at matched real cost
   success_test: MF-DRO mean+SE < best-baseline mean-SE
 
+critical_caveat: >
+  A target-leakage bug in the Decision Transformer readout was found and fixed
+  in commit 7bcc3b8, AFTER the 1280-run inventory and every prior finding was
+  generated. All pre-fix DRO-family numbers (freeze rates, regret values) are
+  suspect and must be re-measured before use.
+
 hypotheses:
   H0:
     statement: Narrow-basin coverage failure at initialization
     status: REFUTED by inventory
     evidence: MF-MI-Greedy freezes 0/10 on the same benchmark and init family
-    note: pre-registered as leading; requires user amendment to PROTOCOL.md
+    note: >
+      Unaffected by the leak finding (MI-Greedy has no DT). Still requires a
+      user amendment to PROTOCOL.md's "leading hypothesis" section.
   H1:
     statement: Freeze originates in the DRO/DT component, not multi-fidelity
-    status: SUPPORTED (untested directly)
-    evidence: SF-DRO freezes 12/12 (100%), more than MF-DRO's 9/12
-    next: isolate mechanism via existing _diag_dt_action_collapse / _diag_sf_* harnesses
+    status: SUPPORTED, now with a concrete mechanism
+    evidence: >
+      Target leakage: readout was h[:, 3::4], the ACTION token, which under
+      triu(diagonal=1) self-attention embeds the true action. All three heads
+      predicted from their own target; propose_mf zeroes that slot at
+      inference. Ablation: zeroing a_emb cost the fidelity head 15.6% of its
+      loss pre-fix vs 0.7% post-fix. The SF path carried the identical bug
+      ([:, 2::3]), so ONE mechanism covers SF-DRO (12/12) and MF-DRO -- the
+      fidelity-threshold bug could not, since SF-DRO has no fidelity head.
+    open: does fixing it change end-to-end regret? -> h1-leak-fix-validation
   H2:
     statement: Freeze is a DRO x narrow-basin interaction
-    status: SUPPORTED (untested directly)
+    status: SUPPORTED (untested directly, and pre-fix)
     evidence: MF-DRO does not freeze on Ackley 10D (incumbent-improved 7/9/8)
+    note: >
+      Partly reframed: on Hartmann the policy was converging on the SECOND
+      optimum x2 (f=3.2031, ||x2-x*||=1.103), not failing to converge.
+  H3:
+    statement: >
+      MF-GP-UCB's 100% freeze is a separate, already-documented mechanism
+      (cost-ratio degeneration to all-LF), not the DRO pathology
+    status: SUPPORTED by code + smoke run
+    evidence: >
+      src/baselines/mf_baselines.py:206-213 documents it; smoke run at
+      cost_budget=25 gave n_hf_queries=0. Resolves a standing open question.
+
+running:
+  - id: h1-leak-fix-validation
+    protocol: experiments/h1-leak-fix-validation/protocol.md
+    locked_commit: d1f557f
+    grid: 3 methods x 10 seeds (42-51), cost_budget=200, identical init
+    compute: num_workers=15 x threads_per_worker=1 = 15
+    measured: MF-DRO 41 s/iter (rollouts_per_model 7->20 tripled it)
+    projection: worst case ~200 iters -> ~2.3 h per MF-DRO run
+    prediction_locked: MF-DRO post-fix mean final simple regret < 1.0
 
 completed:
   - inventory of 1280 runs -> data/results_inventory.csv
-  - freeze-rate table by method
+  - freeze-rate table by method (PRE-FIX -- reference only)
   - verification that REVISION_LOG Hartmann claim is wrong
+  - target-leakage bug found, fixed, ablation-verified (7bcc3b8)
+  - reward switched to regret-based; gate z=2.63, p=0.0085 (was p~0.32)
+  - fidelity threshold vs Bernoulli sampling measured (3 seeds x 40 iters)
+
+next:
+  - analyze h1-leak-fix-validation; report seed traces + realized cost matching
+  - if regret improves but gap remains: ablate the flags one at a time
+  - unresolved: RTG still does not move the argmax under a 0.1x-10x sweep
