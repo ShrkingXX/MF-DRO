@@ -71,3 +71,61 @@ the probe**. H5 would have failed a one-line assertion. This is the third
 instrument defect this phase (H13's dead-signal metric, H19's diversity
 signature, now H5's state swap) — all three found by checking the instrument
 against the data rather than trusting it.
+
+---
+
+# WHY: `coef_head` is a constant function on the states inference actually visits
+
+The corrected probe's score-vector correlation of **exactly 1.000000** was too
+clean to be indifference. Measuring `w = coef_head(h)` across the 10 genuinely
+distinct τ=0 states:
+
+| quantity | value |
+|---|---|
+| pairwise cosine(w_i, w_j) | min **0.99999224**, mean 0.99999793 |
+| ‖w‖ across states (min / max) | 1.5974 / 1.5983 — ratio **1.001×** |
+| singular values of W | [**5.05324**, 0.00628, 0.00231, 0.0015] |
+| sv₁ / Σsv | **0.997691** |
+| bias across states | −0.5485 / −0.5468 |
+
+`W` is 10 rows of norm ≈1.597; ten *identical* such rows would give
+sv₁ = √10 · 1.597 = 5.05. That is what we observe.
+
+**`coef_head` emits the same coefficient vector for every state the policy
+actually encounters.** Not a fixed direction with a state-dependent gain — a
+constant. The ranking is therefore state-invariant *by construction of the
+learned head*, which is why no conditioning-side intervention could ever have
+moved it.
+
+## And why the head is constant there
+
+The states are barely distinguishable in the first place. From `STATE-DIAG` on
+the same batch:
+
+    ref_block_std ACROSS trajectories at tau=0 : 0.007612
+    ref_block_std ACROSS tau WITHIN a trajectory: 0.016865
+
+Real inference states vary **2.2× less** than the fantasy states *within* a
+single rollout, and there are only **10 unique τ=0 states per 200-trajectory
+batch** — one per ensemble member, all views of the *same real dataset*.
+
+So at any real iteration the policy is handed essentially one state. There is
+nothing to condition *on*. This is not an architecture that refuses to
+condition; it is an architecture given a degenerate conditioning input.
+
+## This is the mechanistic form of the project's central claim
+
+`findings.md` already said **"MF-DRO re-fits rather than conditions."** That was
+a behavioural description. The mechanism is now explicit:
+
+> At each real iteration there is exactly one state, drawn from a distribution
+> with almost no spread, so `coef_head` is constant on it and the emitted
+> ranking cannot depend on the state, the RTG, the BTG, or the history. All
+> observed adaptation therefore comes from **re-fitting the weights between
+> iterations** — which H6/H7 measured as changing ~18% of decisions and buying
+> ~0 regret.
+
+Note the earlier `[W-DIAG] across-batch VAR(w)` numbers (0.004–0.018) are not in
+conflict: that variance is dominated by the τ>0 **fantasy** states, which do
+differ substantially. Variation exists in the head — just not over the inputs
+inference ever presents.

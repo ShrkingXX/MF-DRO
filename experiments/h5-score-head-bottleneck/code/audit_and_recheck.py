@@ -135,3 +135,43 @@ if moved/tot > 0.30:
 else:
     print("  >>> Insensitivity SURVIVES the correction: the score head really")
     print("  >>> does barely read h, and H5's conclusion stands on better evidence.")
+
+# ---------------------------------------------------------------------------
+# WHY is the score vector correlation exactly 1.000000?
+# If w(h) varies with h (W-DIAG says VAR(w)>0) yet the argmax NEVER moves and
+# the correlation is exactly 1, then w must vary only in MAGNITUDE, not
+# DIRECTION: w(h1) ~ c * w(h2) for scalar c>0. A positive rescaling preserves
+# the argmax exactly and gives correlation 1. Test: cosine similarity of w
+# across genuinely different states.
+# ---------------------------------------------------------------------------
+print("\n" + "="*70)
+print("Is coef_head rank-1 -- fixed direction, state-dependent gain?")
+with torch.no_grad():
+    ws, bs = [], []
+    for k in range(0, len(batch)//rpm):
+        hk = hid(batch[k*rpm]["states"][0].double())
+        ws.append(mf.dt.coef_head(hk).double().numpy())
+        bs.append(float(mf.dt.bias_head(hk)))
+    W = np.stack(ws)                                  # [10 states, F]
+    norms = np.linalg.norm(W, axis=1)
+    Wn = W / norms[:, None]
+    cos = Wn @ Wn.T
+    off = cos[~np.eye(len(W), dtype=bool)]
+    print(f"  distinct states compared      : {len(W)}")
+    print(f"  ||w|| across states  min/max  : {norms.min():.4f} / {norms.max():.4f}"
+          f"   (ratio {norms.max()/norms.min():.3f}x)")
+    print(f"  pairwise cosine(w_i, w_j)      : min {off.min():.8f}  "
+          f"mean {off.mean():.8f}")
+    # singular values: rank-1 => first dominates
+    sv = np.linalg.svd(W - 0*W.mean(0), compute_uv=False)
+    print(f"  singular values of W           : {np.round(sv[:4], 5).tolist()}")
+    print(f"  sv1 / sum(sv)                  : {sv[0]/sv.sum():.6f}")
+    print(f"  bias across states  min/max    : {min(bs):.4f} / {max(bs):.4f}")
+    if off.min() > 0.9999:
+        print("\n  >>> CONFIRMED: coef_head emits a FIXED DIRECTION with a")
+        print("  >>> state-dependent GAIN. A positive scalar rescaling cannot")
+        print("  >>> change an argmax, so the policy's ranking is state-invariant")
+        print("  >>> BY CONSTRUCTION of the learned head -- not by indifference.")
+    else:
+        print("\n  >>> Not rank-1: direction does vary, so the argmax invariance")
+        print("  >>> needs a different explanation.")
