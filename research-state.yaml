@@ -247,6 +247,18 @@ lessons:
   - Report intermediate n as DIRECTION, never as result -- H6's estimate changed
     sign four times before settling.
 
+late_findings: >
+  H24/H25: the fixed rule is uncertainty-AVERSE -- w[sigma_H]<0 on 9/10
+  independently trained seeds (w[mu_H]>0 on 10/10), mean -0.2544 sd 0.2578.
+  Sign robust, magnitude not. This is the causal link to the performance
+  result: penalising HF uncertainty concentrates queries where the model is
+  already confident. H26: BTG inert in-band (0/12) and OOD (0/12); RTG inert
+  in-band (0/12) and 1/12 across 1e-3..1e6, so absolute invariance is not
+  literally true but no in-distribution value moves the decision.
+  Two channels must not be conflated: the training-signal channel is LIVE
+  (H17 moved regret 0.5047->0.4007) while the inference-conditioning channel
+  is INERT.
+
 conclusion: >
   The research question is ANSWERED: no within-frame fix beats MF-MI-Greedy and
   MF-GP-UCB at matched real cost. Two rewards were run under the frozen

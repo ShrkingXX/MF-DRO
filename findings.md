@@ -136,13 +136,48 @@ a negligible state-dependent perturbation on top. This was asserted from
 inference in H22 and then measured directly, because three earlier inferences in
 this project failed re-measurement.
 
-### And the fixed rule is uncertainty-AVERSE (H24)
+### Two channels, and only one is dead
+
+A recurring source of confusion, worth stating explicitly:
+
+| channel | status | evidence |
+|---|---|---|
+| **Training signal** — the reward/RTG *definition* sets training targets and so changes the learned `w̄` | **LIVE** | H17: joint-MES reward moved regret **0.5047 → 0.4007** |
+| **Inference conditioning** — the RTG/BTG *value fed at decision time* | **INERT** | H8/H22/H23/H26 |
+
+Both are true simultaneously. An RTG-*schema* ablation varies the first; every
+0/12 probe here tests the second. "The RTG value you hand the network at
+inference does nothing; the RTG definition you train against does something."
+
+**On the archived `results/rtg_schema` ablation** (raised as a counterexample):
+it does not show a genuine improvement. No Mann-Whitney comparison reaches
+significance (all p ≥ 0.4633); quantile RTG wins on 1 of 4 benchmarks and is the
+*worst* arm on Ackley 5D; and on Hartmann 6D all four quantile levels return
+**bit-identical** results (2.6298 ± 0.1545), i.e. the quantile parameter had no
+effect there at all. It is also single-fidelity, N=5, and pre-`7bcc3b8`
+(regret 2.4476 vs post-fix MF-DRO's 0.4007). It is evidence *for* inertness.
+
+### Measured scope of the inertness (H26)
+
+| channel | in-band | far out of band |
+|---|---|---|
+| BTG | 0/12 (corr 1.000000) over [22,52] | 0/12 at {5,100,500} |
+| RTG | 0/12 (corr 0.999933) over [0.5,1.0] | **1/12 = 8.3%** over 1e-3→1e6 |
+
+Absolute invariance is **not** literally true — a single pool flips under a
+10⁹-fold stretch. What is true: no in-distribution value of either channel moves
+the decision.
+
+### And the fixed rule is uncertainty-AVERSE (H24, robustness H25)
 
 Signed `w̄`: `mu_H` **+1.0824**, `mu_L` **+0.8254**, **`sigma_H` −0.5487**,
 `dist_inc` −0.2976.
 
 **The weight on HF posterior uncertainty is negative** — the rule penalises
-exactly what UCB/EI/MES reward. Confirmed independently: agreement with
+exactly what UCB/EI/MES reward. **H25 confirms the sign across seeds: `w[σ_H]<0`
+on 9/10 independently trained models, `w[μ_H]>0` on 10/10.** The *magnitude* is
+not robust (span −0.687 to +0.130, mean −0.2544, sd 0.2578), so the distribution
+is quoted rather than any one model's coefficient. Confirmed independently: agreement with
 `mu_H + β·sigma_H` falls monotonically as β grows (66.7% → 50.0% → 41.7% →
 25.0% for β = 1, 2, 3, 5). We do *not* name the rule — the best match is 75.0%
 with a two-way tie on 12 pools, too weak for an identity claim.
