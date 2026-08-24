@@ -211,7 +211,59 @@ Note also that `n_improved` and final regret are only loosely coupled: seed51
 improved once and reached 0.407; seed46 improved five times and reached 0.441.
 "Freeze" and "regret" are separate axes and should be reported separately.
 
-## H6 first result (n=1, DIRECTION ONLY): continued DT training may be *harmful*
+## H6 (n=7/10): freezing the DT costs NOTHING — and the estimate was volatile
+
+| n | mean paired diff (FROZEN - LIVE) | verdict vs the locked 1-SE band (0.0395) |
+|---|---|---|
+| 1 | -0.2084 | looked like freezing *helps* a lot |
+| 5 | -0.1033 | OUTSIDE — locked prediction looked refuted |
+| **7** | **-0.0102** | **WITHIN — locked prediction SUPPORTED** |
+
+At n=7: FROZEN 0.4909 vs LIVE 0.5011, **Wilcoxon p = 0.9375** — about as
+non-significant as a result can be. FROZEN better on 3/7, worse on 4/7.
+
+**This is a cautionary datum in its own right.** The same experiment "showed"
+freezing helps by 40% (n=1), then helped moderately (n=5), then nothing at all
+(n=7). Every intermediate reading would have been publishable-sounding and
+wrong. I flagged n=1 and n=5 as directions rather than results, and that
+restraint is the only reason the record is not now carrying a retracted claim.
+
+### What this supports
+
+The locked H6 prediction was that FROZEN lands within 1 SE of LIVE, meaning
+**continued DT training contributes ~nothing measurable**. At n=7 that is what
+the data show — and FROZEN gets there **1.6x faster** (47 min vs 76 min per run).
+
+Combined with H4 and H5, the picture is coherent and now has three independent
+lines of support:
+
+1. H4: changing *how* the return signal enters (AdaLN) does not help.
+2. H5: denying the score head its shortcut does not make it use the state.
+3. H6: freezing the policy entirely, after 5 of ~60 iterations, costs nothing.
+
+**MF-DRO's Decision Transformer contributes essentially nothing beyond its first
+few iterations of training.** The method's behaviour is carried by the GP
+ensemble and the MES teacher it distills, not by the learned return-conditioned
+policy.
+
+### A distinction this forces, which I had been eliding
+
+FROZEN issues **more** HF queries (21.0 vs 17.6, more in 5/7 seeds) and yet
+regret is unchanged. That is not compatible with the loose reading "more HF
+queries -> better regret" that I drifted toward earlier.
+
+The correct, narrower statement is: *within* a run, regret only ever moves on an
+HF query (an LF query cannot update the HF incumbent). That does **not** imply
+that *across* runs, more HF queries produce better final regret — extra HF
+queries at poor locations buy nothing. Both facts are true and I had been
+sliding between them.
+
+### Still provisional
+
+3 seeds outstanding. Given this estimate moved from -0.208 to -0.103 to -0.010,
+the n=10 value could move again. No final claim until the arm completes.
+
+## (superseded) H6 first result (n=1): continued DT training may be *harmful*
 
 seed43, FROZEN (DT weights frozen after iteration 5) vs LIVE (retrained every
 iteration, the current default):
