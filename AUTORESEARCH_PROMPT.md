@@ -60,6 +60,46 @@ runs used very different iteration counts (MI-Greedy median 53, MF-DRO 100,
 MF-GP-UCB 800), so existing cross-method numbers may not be cost-matched —
 re-verify rather than inherit them.
 
+**Compute — run every experiment at maximum core efficiency.** This machine is
+an Apple M5 Pro: **15 logical cores (5 performance + 10 efficiency), 24 GB RAM**,
+MPS available.
+
+- **Hard rule: `num_workers × threads_per_worker ≤ 15`.** Never oversubscribe.
+  Before launching any sweep, state the product and check it against 15.
+- **Prefer process parallelism over thread parallelism.** These are many short,
+  independent runs (seeds × methods) on small GP matrices, so throughput is
+  maximized by `num_workers=15, threads_per_worker=1`, not by few fat workers.
+  Only raise `threads_per_worker` when the job count is smaller than the core
+  count and each job is long.
+- **Reuse `run_experiment_parallel.py`.** It already implements this correctly:
+  a spawned worker sets `OMP_NUM_THREADS` / `MKL_NUM_THREADS` /
+  `VECLIB_MAXIMUM_THREADS` / `NUMEXPR_NUM_THREADS` *before* importing
+  numpy/torch, then calls `torch.set_num_threads()`. Do not hand-roll a new
+  pool without that ordering.
+- **Thread caps must be set before torch is imported.** `torch.set_num_threads()`
+  warns and no-ops once any torch op has run — this is documented in the repo at
+  `_diagnostic_v2_worker.py:46`. Export the env vars at launch, or set them
+  inside a freshly spawned worker before the import.
+- **Known bug to avoid repeating:** `_stage2_v3_orchestrate.sh` uses
+  `xargs -P 15` with no thread cap, so 15 processes each default to 15 torch
+  threads — 225 threads on 15 cores, which thrashes. Existing `-P` values across
+  the orchestrators are inconsistent (2, 4, 6, 8, 10, 15); do not copy them
+  blindly. Either export `OMP_NUM_THREADS=1` alongside `-P 15`, or use the
+  Python runner.
+- **Memory ceiling:** 24 GB total. At 15 workers that is ~1.6 GB each. If a
+  configuration trains a DT ensemble per worker, measure one run's peak RSS
+  before scaling the pool, and reduce `num_workers` if it would exceed RAM —
+  swapping costs far more than the lost parallelism.
+- **Core asymmetry:** only 5 cores are performance cores. With equal-length jobs
+  the E-core workers straggle and set the makespan. Prefer many small jobs over
+  a few large ones so the pool stays fed, and interleave slow and fast methods
+  in the job list rather than grouping them.
+- **Do not use MPS for parallel sweeps.** With many concurrent processes, GPU
+  contention loses to CPU for these matrix sizes. Reserve MPS for a single
+  large job, if at all.
+- **Always report wall-time per run** and the observed core utilization so
+  scheduling decisions are checkable rather than assumed.
+
 **Practical.** Use `.venv/bin/python`. Work on a dedicated branch. Lock each
 experiment protocol in a git commit *before* running it; never combine protocol
 and results in one commit. Record negative results with what they rule out.
