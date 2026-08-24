@@ -210,3 +210,38 @@ Self-inflicted error worth logging: I wrote invalid YAML into research-state.yam
 because I ran the validator on a separate line instead of chaining it with &&.
 Caught on the next validation, fixed, commit amended. Chain validators to the
 commit.
+
+## Tick — ETA correction, and a decision not to abandon a pre-registration
+
+**Corrected ETA.** I previously projected ~100 min for the H6 extension. Measured
+throughput after 99 min: LIVE 5/20 (7 workers), FROZEN 8/20 (8 workers). That
+projects **~4.9 h remaining on the LIVE arm**, ~2.5 h on FROZEN. My earlier
+estimate was wrong by ~3x because I costed a run at ~50 min when the h1 MF-DRO
+arm had actually averaged 76 min, and did not account for wave structure
+(20 jobs / 7 workers = 3 waves, not 2).
+
+**The decision this forces.** H7 is implemented and is a strictly better
+instrument for H6's question (~50-200 paired decisions per run vs 1 noisy regret
+scalar). It is tempting to kill the H6 extension and run H7 now.
+
+I am NOT doing that. The extension was pre-registered (b00dacd) with n=30 as
+"primary AND final" precisely to stop me making sample-size decisions on the fly.
+Abandoning it at n~15 because a nicer experiment appeared would be a protocol
+deviation, and — worse — it would be indistinguishable from abandoning it because
+the interim numbers were not going my way. The interim (paired n=13, +0.0707, CI
+[-0.080, +0.221]) is consistent with the pre-registered null, so there is no
+result-driven motive here; but the whole value of a pre-registration is that it
+binds regardless of motive.
+
+The cost of honouring it is ~5 h of unattended wall-clock, which for an
+autonomous overnight loop is cheap. H7 launches when the FROZEN arm frees its
+8 workers in ~2.5 h.
+
+**Integrity guard added this tick.** The extension writes LIVE seeds 52-71 into
+the SAME results directory as the frozen 10-seed evaluation. Verified
+`analyze.py` still restricts to seeds 42-51 and that the frozen-protocol numbers
+are byte-identical with seeds 53-55 present. Wrote
+`results/README-SEEDS.md` documenting the split, because the realistic failure
+mode is not misconduct — it is a future reader seeing 30 seed files and
+"tidying up" by widening SEEDS, which would silently convert the frozen n=10
+evaluation into a post-hoc n=30 one.
