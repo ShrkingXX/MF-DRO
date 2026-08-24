@@ -2069,7 +2069,14 @@ class DirectMFRegretOptimization:
         # Done here, before anything else reads t['rtg'] (the trajectory-
         # level-luck diagnostics below, update_and_get_rtg_target, and
         # _train_dt all see the corrected values).
-        if self.rollout_reward == "improvement":
+        # H10 (rtg_target_mode): "normalized" (default, unchanged) divides by a
+        # running max, which makes batch_max = this-batch-best / best-ever --
+        # pinned near 1 by construction, giving the measured [0.57, 1.0] band.
+        # "raw" skips normalisation entirely so the target is the raw
+        # improvement, which spans orders of magnitude over a run by
+        # construction. Tests whether RTG is ignored or merely starved.
+        if self.rollout_reward == "improvement" and \
+                getattr(self.config, 'rtg_target_mode', 'normalized') != 'raw':
             _batch_max = max((t['rtg'][0].item() for t in batch if t['rtg'].numel() > 0),
                               default=0.0)
             self._running_max_rtg_raw = max(
