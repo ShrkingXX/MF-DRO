@@ -1,0 +1,181 @@
+<title>Reward Starvation</title>
+<style>
+:root{--bg:#fbfbfa;--fg:#1d1c1a;--mut:#6b6862;--line:#e3e0da;--card:#fff;
+      --bad:#b23223;--warn:#c9862c;--good:#1f7a5a;--accent:#2b5fa8;}
+:root:not([data-theme="light"]){@media (prefers-color-scheme:dark){
+  --bg:#16171a;--fg:#e8e6e1;--mut:#9b9791;--line:#2e3034;--card:#1e2024;
+  --bad:#e06c5b;--warn:#e0a95c;--good:#4fbf95;--accent:#6ba3e8;}}
+:root[data-theme="dark"]{--bg:#16171a;--fg:#e8e6e1;--mut:#9b9791;--line:#2e3034;
+  --card:#1e2024;--bad:#e06c5b;--warn:#e0a95c;--good:#4fbf95;--accent:#6ba3e8;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:2.5rem 1.25rem 5rem;
+ font:16px/1.65 ui-serif,Georgia,"Times New Roman",serif;}
+.wrap{max-width:60rem;margin:0 auto}
+h1{font-size:1.95rem;line-height:1.2;margin:0 0 .3rem}
+h2{font-size:1.25rem;margin:2.6rem 0 .7rem;padding-bottom:.3rem;border-bottom:1px solid var(--line)}
+h3{font-size:1.02rem;margin:1.6rem 0 .4rem}
+.sub{color:var(--mut);margin:0 0 2rem;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+ padding:1rem 1.2rem;margin:1.1rem 0}
+.kicker{font:600 .72rem/1 ui-sans-serif,system-ui;letter-spacing:.09em;
+ text-transform:uppercase;color:var(--mut);margin-bottom:.45rem}
+table{border-collapse:collapse;width:100%;font:14px/1.5 ui-sans-serif,system-ui}
+.scroll{overflow-x:auto}
+th,td{text-align:left;padding:.42rem .6rem;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--mut);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.hi td{background:color-mix(in srgb,var(--good) 12%,transparent);font-weight:600}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;
+ background:color-mix(in srgb,var(--fg) 7%,transparent);padding:.1em .35em;border-radius:4px}
+img{max-width:100%;height:auto;display:block;margin:1rem auto;border-radius:8px;
+ border:1px solid var(--line)}
+.bad{color:var(--bad);font-weight:600}.good{color:var(--good);font-weight:600}
+.warn{color:var(--warn);font-weight:600}
+blockquote{margin:1rem 0;padding:.6rem 0 .6rem 1rem;border-left:3px solid var(--accent);
+ color:var(--mut);font-style:italic}
+ul{padding-left:1.2rem}li{margin:.3rem 0}
+.eq{text-align:center;font:15px ui-monospace,Menlo,monospace;margin:.9rem 0;
+ color:var(--accent)}
+</style>
+
+<div class="wrap">
+<h1>The RTG confound was a starved reward</h1>
+<p class="sub">MF-DRO · Hartmann 6D · autoresearch progress report · 2026-08-24</p>
+
+<div class="card">
+<div class="kicker">One-paragraph summary</div>
+<p>Three separate experiments tried to make the Decision Transformer's
+return-to-go signal vary, and all three <strong>voided on their own manipulation
+checks</strong>. They share a single cause: under the current reward, a
+low-fidelity query earns <strong>exactly zero</strong>, so 63% of training
+trajectories carry a return of zero. A signal that is identically zero cannot be
+made to vary by rescaling it. The long-open question <em>&ldquo;does the network
+ignore RTG, or is RTG starved?&rdquo;</em> resolves to <span
+class="good">starved</span> — with a fixable cause that was already implemented
+in the codebase.</p>
+</div>
+
+
+<h2>The strongest result: it isn't the conditioning signal at all</h2>
+<img src="figs/intervention_ladder.png" alt="Ten pre-registered interventions, all null or void, beside the H5 measurement that explains them">
+<div class="card">
+<div class="kicker">H19 — the one fix the theory predicted</div>
+<p>RCSL theory (Brandfonbrener et al., NeurIPS 2022) bounds suboptimality by
+<code>&epsilon;(1/&alpha;<sub>f</sub>+3)H&sup2;</code>, where <code>&epsilon;</code> is departure from
+<strong>deterministic dynamics</strong>. Our rollout transition is a draw from the
+GP posterior, so <code>&epsilon;</code> is maximal. Their Figure 1c shows the bias then
+survives <em>regardless of the conditioning function</em> — which is what ten
+interventions found.</p>
+<p>So we removed the stochasticity. <code>fantasy_mode="mean"</code> makes the
+transition deterministic (verified: repeat-difference <code>0.000e+00</code> vs
+<code>1.6e+00</code>) with diversity intact (<strong>200/200</strong> distinct
+trajectories).</p>
+<p><span class="bad">The argmax still moved 0/12.</span> In the exact regime the
+theory says should work.</p>
+<p><strong>So near-determinism is not the binding constraint.</strong> The cause
+is architectural, and H5 already measured it: swapping <code>h</code> for another
+state's hidden vector leaves the argmax unchanged 12/12. <em>Nothing that reaches
+<code>h</code> can move a decision that is not a function of <code>h</code>.</em></p>
+</div>
+
+<h3>Two claims of mine, retracted the same day</h3>
+<ul>
+<li><strong>H18's &ldquo;&epsilon; and &alpha;<sub>f</sub> are coupled&rdquo;</strong> — withdrawn. It rested on
+diversity collapsing 131&rarr;62, but my signature was <code>(rtg, ell)</code> and
+omitted the query locations, so rollouts with a dead reward (63% of them) and a
+matching fidelity pattern counted as identical. With locations included every arm
+is 200/200. No collapse.</li>
+<li><strong>&ldquo;RCSL theory predicts everything&rdquo;</strong> — too strong. It explains why
+the <em>conditioning-side</em> remedies failed; it does not explain the
+architecture. H19 is the check that caught the overreach.</li>
+</ul>
+<p class="sub">The pre-registered threshold (&gt;150 distinct) was never moved.
+Only the measurement was corrected.</p>
+
+<h2>What was measured</h2>
+<div class="scroll">
+<table>
+<tr><th>Reward</th><th class="n">Dead signal<br><code>rtg[0]==0</code></th>
+<th class="n">LF steps earning credit</th><th class="n">mean / CV</th>
+<th class="n">negative</th></tr>
+<tr><td><code>improvement</code> <em>(current default)</em></td>
+<td class="n bad">63.0%</td><td class="n bad">0.0%</td><td class="n">0.102 / 1.96</td><td class="n">0.0%</td></tr>
+<tr><td><code>kg_incumbent</code> topk=1 clipped</td>
+<td class="n">4.5%</td><td class="n warn">27.2%</td><td class="n">0.140 / 1.37</td><td class="n">0.0%</td></tr>
+<tr><td><code>kg</code> topk=1 signed</td>
+<td class="n">0.0%</td><td class="n">100%</td><td class="n bad">&minus;0.020 / &minus;12.9</td><td class="n bad">67.0%</td></tr>
+<tr><td><code>kg</code> topk=5 signed</td>
+<td class="n">0.0%</td><td class="n">100%</td><td class="n">0.068 / 3.68</td><td class="n">38.5%</td></tr>
+<tr class="hi"><td><code>mes_entropy</code> — joint MES</td>
+<td class="n">0.0%</td><td class="n">100%</td><td class="n">0.290 / 0.66</td><td class="n">5.5%</td></tr>
+</table>
+</div>
+<img src="figs/reward_starvation.png" alt="Dead-signal and LF-credit fractions by reward variant">
+
+<h2>Two facts that needed no compute</h2>
+
+<h3>1. The RTG band was capped by algebra, not by the network</h3>
+<div class="eq">target = max(batch_max, &alpha;&middot;running_max), &nbsp; batch_max &le; running_max &nbsp;&rArr;&nbsp; band &le; 1/&alpha;</div>
+<p>At <code>&alpha;=0.5</code> the band <strong>cannot exceed 2&times;</strong>,
+whatever the reward or normalisation. Two experiments (H9, H10) burned ~30
+minutes of compute against a ceiling provable in two lines; H10 measured 1.76&times;
+and 2.59&times;, both at it.</p>
+<img src="figs/rtg_band_cap.png" alt="The provable 1/alpha band ceiling with H10's measured points">
+
+<h3>2. Joint MES was already implemented</h3>
+<p>The <code>mes_entropy</code> mode's return is <code>log(b_&tau;) &minus;
+log(b_T)</code>, where <code>b_T</code> is drawn from the <em>fully-conditioned
+end-of-rollout</em> model. Since <code>H(Gumbel) = ln b + &gamma; + 1</code>:</p>
+<div class="eq">log(b<sub>0</sub>) &minus; log(b<sub>T</sub>) = H[y*|D<sub>0</sub>] &minus; H[y*|D<sub>T</sub>] = I(y*; y<sub>1..T</sub>)</div>
+<p>That is the <strong>joint, set-level information gain</strong> of the final
+dataset — not a per-step cumulative sum. LF credit is automatic: an LF
+observation shrinks the y* distribution through <code>&rho;</code>, so its
+discount is derived from the fitted KO model rather than hand-specified.</p>
+
+<h2>Why it had been abandoned</h2>
+<blockquote>The gate that dropped <code>mes_entropy</code> was
+within-group Spearman(<code>rtg[0]</code>, true <code>f_hf(x&#8320;)</code>) —
+where x&#8320; is the trajectory's <em>first</em> query.</blockquote>
+<p>That measures <strong>step-0 greediness</strong>. <code>improvement</code> is
+built from HF improvements, so it scores well by construction; an
+information-gain reward is <em>designed</em> to rate an exploratory first query
+highly when it shrinks <code>H[y*]</code>. The gate penalised exactly what the
+reward exists to do. <strong>H15</strong> re-runs it against terminal trajectory
+quality, with a reproduction check on the original axis first.</p>
+
+<h2>Standing result (unchanged, and still the honest headline)</h2>
+<div class="card">
+<p>Frozen success test: <span class="bad">FAIL</span>. MF-DRO
+<strong>0.5047 &plusmn; 0.0395</strong> vs MF-MI-Greedy 0.5091 &plusmn; 0.1266
+and MF-GP-UCB 1.7934 &plusmn; 0.1223 at matched cost ~200. The freeze
+<em>pathology</em> is resolved (0/10 frozen vs 9/12 pre-fix, after the
+target-leakage fix), but the performance gap does not close. Paired: better on
+4/10, median <strong>+0.0915</strong>, Wilcoxon p = 0.275 — underpowered, never
+&ldquo;equivalent&rdquo;.</p>
+</div>
+
+<h2>What this phase cost, honestly</h2>
+<ul>
+<li>Three voided experiments against a cap provable in two lines of algebra.</li>
+<li>Two experiments (H12, H13) reinventing — worse — a reward the codebase
+already had. <strong>Spec before building.</strong></li>
+<li>One measurement bug in my own gate (tested <code>rtg[0] &le; 0</code> against
+a criterion written <code>rtg[0] == 0</code>; those differ once the reward can go
+negative). Caught, fixed, re-run rather than reinterpreted.</li>
+<li>One decomposition rule that saturated at 100% in both compared arms and so
+said nothing.</li>
+</ul>
+<p>The pre-registered manipulation checks did their job every time — nothing
+uninterpretable was reported as a result. But a gate is a safety net, and algebra
+would have been cheaper.</p>
+
+<h2>Next</h2>
+<ul>
+<li><strong>H15</strong> (locked): re-run the reward gate on terminal trajectory
+quality; reproduction check first, and if the original number does not reproduce,
+both conclusions are suspect and it stops.</li>
+<li>Only if the reward switch survives: re-ask the RTG-sensitivity question on a
+signal that is actually alive — the first time it will have been asked fairly.</li>
+<li>Then, and only then, a regret comparison under the frozen evaluation.</li>
+</ul>
+</div>
