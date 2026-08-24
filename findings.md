@@ -104,7 +104,17 @@ encounters**: pairwise cosine across the 10 genuinely distinct τ=0 states is
 (singular values [5.053, 0.0063, 0.0023, 0.0015] — ten near-identical rows).
 The ranking is state-invariant *by construction of the learned head*.
 
-And the head is constant there because the input is degenerate: real τ=0 states
+**And it fails across real iterations too, where the state genuinely does
+change.** Capturing all 12 real-iteration states from an actual run (mean
+pairwise state L2 = **1.4968**, versus ~0 across ensemble members): the head does
+respond more — cosine 0.99937, a **2.04° rotation**, ‖w‖ ratio 1.023× — but the
+**argmax moves 0/12**, with 1.00 distinct argmaxes per pool. A full run's worth
+of state change is far too small a stimulus to move a decision over 200
+candidates. The state channel is non-functional at decision level *both within
+and across* iterations.
+
+And the head is near-constant partly because the within-iteration input is
+degenerate: real τ=0 states
 vary **2.2× less** than fantasy states within a single rollout
 (`ref_block_std` 0.0076 vs 0.0169), with only **10 unique τ=0 states per
 200-trajectory batch** — one per ensemble member, all views of the same real
@@ -385,12 +395,19 @@ a function of `h`.
    run beside them. Compounding it: `mes_entropy` is LF-heavier, so more
    iterations are needed to burn a fixed cost budget, pushing the true figure to
    ~145 min. **Second ETA miss on this class of estimate; this is the fix.**
-14. **When a probe compares "two different X", assert inside the probe that
+14. **A script's auto-verdict must key on the DECISIVE measurement, not a
+   proxy that correlates with it.** Four wrong auto-verdicts this phase — H11
+   (fired without requiring the manipulation check to pass), H13 (a metric that
+   saturated at 100% in both compared arms), H19 (a signature omitting the
+   variable of interest), and the `coef_head` probe (cosine threshold instead of
+   argmax movement). Each proxy looked reasonable when written and printed a
+   confident, wrong sentence when run.
+15. **When a probe compares "two different X", assert inside the probe that
    they are different.** H5 would have failed a one-line assertion for months.
    Three instrument defects this phase (H13's dead-signal metric, H19's
    diversity signature, H5's state swap) — all found by checking the instrument
    against the data rather than trusting it.
-15. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
+16. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
    `bes_delta`, soft-target temperature).
 
 ---
