@@ -6,7 +6,28 @@ question: >
 protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
 branch: mfdro-hartmann-autoresearch
 phase: inner-loop
-status: running-h1-leak-fix-validation; H4 protocol locked (350c0a3)
+status: >
+  Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted. H6 inconclusive
+  at n=10; extension to a pre-specified n=30 running (seeds 52-71, both arms).
+
+headline_result:
+  experiment: h1-leak-fix-validation (30/30 runs, 6979 s wall)
+  frozen_success_test: FAIL
+  detail: >
+    MF-DRO 0.5047 +/- 0.0395 vs MF-MI-Greedy 0.5091 +/- 0.1266 and MF-GP-UCB
+    1.7934 +/- 0.1223, at matched cost (201.5 / 207.2 / 200.0). MF-DRO mean+SE
+    = 0.5442 >= MI-Greedy mean-SE = 0.3825. Reported exactly as pre-registered;
+    PROTOCOL.md permits this outcome.
+  paired_analysis: >
+    MF-DRO better on 4/10, worse on 6/10; mean paired diff -0.0045 but MEDIAN
+    +0.0915; Wilcoxon p = 0.2754. The near-zero mean is driven almost entirely
+    by seed45, where MI-Greedy failed badly (1.5396). On the median seed MF-DRO
+    is slightly WORSE. Reporting means alone would mislead.
+  freeze_resolved: >
+    0/10 runs frozen vs a pre-fix 9/12 (75%). Improvements [5,1,2,4,5,1,3,3,5,1].
+  power_caveat: >
+    0.0045 mean difference against MI-Greedy sd 0.400 -- UNDERPOWERED to
+    distinguish. Never state as demonstrated equivalence.
 
 evaluation:
   benchmark: Hartmann_6D
@@ -100,15 +121,27 @@ hypotheses:
       barely reaches the score. This explains why every conditioning-side
       intervention has failed and predicts further ones will too.
 
+  H6:
+    statement: The DT's learned conditioning contributes ~nothing
+    status: INCONCLUSIVE at n=10; extension to a pre-specified n=30 running
+    evidence: >
+      Paired estimate never converged and changed SIGN: n=1 -0.208, n=5 -0.103,
+      n=7 -0.010, n=9 +0.062, n=10 +0.098. At n=10 the 95% CI [-0.097, +0.292]
+      straddles zero (Wilcoxon p=0.322). Variance ratio 4.79x but Levene
+      (robust) p=0.209, and regret is right-skewed so Levene is the test to
+      believe. NOTHING established at n=10.
+
 running:
-  - id: h1-leak-fix-validation
-    protocol: experiments/h1-leak-fix-validation/protocol.md
-    locked_commit: d1f557f
-    grid: 3 methods x 10 seeds (42-51), cost_budget=200, identical init
-    compute: num_workers=15 x threads_per_worker=1 = 15
-    measured: MF-DRO 41 s/iter (rollouts_per_model 7->20 tripled it)
-    projection: worst case ~200 iters -> ~2.3 h per MF-DRO run
-    prediction_locked: MF-DRO post-fix mean final simple regret < 1.0
+  - id: h6-extension
+    protocol: experiments/h6-frozen-dt/protocol-extension.md
+    locked_commit: b00dacd
+    design: seeds 52-71 for BOTH arms -> final n=30, fixed in advance
+    guards: >
+      n=30 is primary AND final; no further extension regardless of outcome;
+      primary prediction is a NULL (CI still contains zero) so a null cannot be
+      spun as a finding. Stated up front that n=30 cannot resolve the +0.098
+      mean (that needs ~80 seeds).
+    compute: 7 + 8 = 15 workers x 1 thread
 
 completed:
   - inventory of 1280 runs -> data/results_inventory.csv
@@ -118,7 +151,17 @@ completed:
   - reward switched to regret-based; gate z=2.63, p=0.0085 (was p~0.32)
   - fidelity threshold vs Bernoulli sampling measured (3 seeds x 40 iters)
 
+lessons:
+  - Completion order in a cost-budgeted grid is biased toward HF-heavy runs.
+  - >
+    'Regret moves only on HF queries WITHIN a run' does NOT imply 'more HF
+    ACROSS runs => better regret'. FROZEN had more HF at unchanged regret.
+  - Prefer robust tests (Levene) over parametric (F, Bartlett) on skewed regret
+    data; they disagreed here and it changed the conclusion.
+  - Report intermediate n as DIRECTION, never as result -- H6's estimate changed
+    sign four times before settling.
+
 next:
-  - analyze h1-leak-fix-validation; report seed traces + realized cost matching
-  - if regret improves but gap remains: ablate the flags one at a time
+  - analyze h6 at the pre-specified n=30; report as primary AND final
+  - if inconclusive: report "inconclusive at n=30", do NOT extend again
   - unresolved: RTG still does not move the argmax under a 0.1x-10x sweep
