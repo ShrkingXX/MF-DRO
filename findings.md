@@ -96,6 +96,26 @@ retrained every iteration** — it changes because its *weights* are re-fit, not
 because it conditions. **MF-DRO appears to re-fit rather than condition**,
 behaving as a per-iteration acquisition function parameterised by a transformer.
 
+### The mechanism, measured
+
+`coef_head` emits the **same coefficient vector for every state inference
+encounters**: pairwise cosine across the 10 genuinely distinct τ=0 states is
+≥ **0.99999224**, `‖w‖` varies by 1.001×, and `sv₁/Σsv = 0.997691`
+(singular values [5.053, 0.0063, 0.0023, 0.0015] — ten near-identical rows).
+The ranking is state-invariant *by construction of the learned head*.
+
+And the head is constant there because the input is degenerate: real τ=0 states
+vary **2.2× less** than fantasy states within a single rollout
+(`ref_block_std` 0.0076 vs 0.0169), with only **10 unique τ=0 states per
+200-trajectory batch** — one per ensemble member, all views of the same real
+data. At any real iteration the policy is handed essentially one state; there is
+nothing to condition *on*.
+
+This is not an architecture refusing to condition. It is an architecture given a
+degenerate conditioning input — which is why all ten conditioning-side
+interventions were null, and why the only working adaptation channel is
+re-fitting (H6/H7: ~18% of decisions changed, ~0 regret bought).
+
 This explains every failed conditioning-side intervention:
 
 - **H4** (AdaLN-Zero, DDT mechanism, arXiv:2601.15953): **REFUTED** — 0% of
