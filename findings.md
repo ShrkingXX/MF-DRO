@@ -136,6 +136,23 @@ a negligible state-dependent perturbation on top. This was asserted from
 inference in H22 and then measured directly, because three earlier inferences in
 this project failed re-measurement.
 
+### And the fixed rule is uncertainty-AVERSE (H24)
+
+Signed `w̄`: `mu_H` **+1.0824**, `mu_L` **+0.8254**, **`sigma_H` −0.5487**,
+`dist_inc` −0.2976.
+
+**The weight on HF posterior uncertainty is negative** — the rule penalises
+exactly what UCB/EI/MES reward. Confirmed independently: agreement with
+`mu_H + β·sigma_H` falls monotonically as β grows (66.7% → 50.0% → 41.7% →
+25.0% for β = 1, 2, 3, 5). We do *not* name the rule — the best match is 75.0%
+with a two-way tie on 12 pools, too weak for an identity claim.
+
+This is the causal link to the performance result: penalising HF uncertainty
+concentrates queries where the model is already confident → little information →
+slow incumbent improvement, the pathology this investigation began from.
+**Trained on an information-seeking MF-MES teacher, the student inverted the sign
+of its teacher's defining term.**
+
 ### The mechanism, measured
 
 `coef_head` emits the **same coefficient vector for every state inference

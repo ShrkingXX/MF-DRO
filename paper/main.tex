@@ -219,6 +219,42 @@ $15\times$ more varied. The two are consistent in magnitude but are different
 state sets.) Section~\ref{sec:interventions} tests an unbottlenecked head
 directly.
 
+\subsection{The rule it converges to is uncertainty-averse}
+\label{sec:rule}
+
+If the policy is a fixed linear rule, it is fair to ask which one. Its signed
+coefficients are dominated by the two posterior means---$\mu_H$ at $+1.0824$ and
+$\mu_L$ at $+0.8254$---followed by a term that should not be there:
+
+\begin{center}
+$\bar{w}_{\sigma_H} = \mathbf{-0.5487}$
+\end{center}
+
+\noindent
+\textbf{The weight on high-fidelity posterior uncertainty is negative.} The
+learned rule \emph{penalises} exactly the quantity that UCB, EI and MES reward,
+converging to approximately
+$1.08\,\mu_H + 0.83\,\mu_L - 0.55\,\sigma_H - 0.30\,d_{\mathrm{inc}}$: a purely
+exploitative, actively uncertainty-avoiding acquisition.
+
+An independent check confirms the sign without relying on any single rule
+matching. Sweeping a UCB family $\mu_H + \beta\sigma_H$, agreement with the
+learned argmax falls monotonically as the exploration bonus grows:
+$66.7\%$ at $\beta{=}1$, $50.0\%$ at $\beta{=}2$, $41.7\%$ at $\beta{=}3$,
+$25.0\%$ at $\beta{=}5$.
+
+We deliberately do \emph{not} name the rule. The best single match reaches
+$75.0\%$ on twelve pools and two candidate rules tie there, which is far too
+weak to support an identity claim. The coefficient table and the monotone sweep
+are the robust results.
+
+This supplies the causal link to Section~\ref{sec:frozen}. A rule that penalises
+HF uncertainty concentrates queries where the model is already confident,
+gathering little new information and improving the incumbent slowly---the
+pathology this investigation began from. MF-DRO does not merely fail to
+condition: trained on rollouts from an information-seeking MF-MES teacher, it
+converges to a fixed rule that inverts the sign of its teacher's defining term.
+
 \section{Eleven Interventions}
 \label{sec:interventions}
 
