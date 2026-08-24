@@ -823,6 +823,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             y_star_pool=None,
                             kg_signed=False,
                             kg_topk=1,
+                            fantasy_mode='sample',
                             y_star_seed=0):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
@@ -1301,7 +1302,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             f_real = f_hf_real if ell_tau == 1 else f_lf_real
             y_tau = f_real(x_tau.unsqueeze(0)).reshape(-1)[0].item()
         else:
-            y_tau = current_ko.sample_fantasy(x_tau, 'LH'[ell_tau])
+            y_tau = current_ko.sample_fantasy(x_tau, 'LH'[ell_tau],
+                                               mode=fantasy_mode)
 
         # 4a. rollout_reward=="improvement" only: per-step improvement
         # reward, using the incumbent BEFORE this step's own observation.
@@ -2097,6 +2099,7 @@ class DirectMFRegretOptimization:
                     rollout_reward=self.rollout_reward,
                     kg_signed=getattr(self.config, 'kg_signed', False),
                     kg_topk=getattr(self.config, 'kg_topk', 1),
+                    fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
                     use_real_rollout_queries=self.use_real_rollout_queries,
                     f_hf_real=(self.f_hf if self.use_real_rollout_queries else None),
                     f_lf_real=(self.f_lf if self.use_real_rollout_queries else None),

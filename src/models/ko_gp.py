@@ -552,28 +552,45 @@ class KennedyOHaganGP:
             var = post_lf.variance.clamp_min(1e-12).reshape(-1)
         return mean, var
 
-    def sample_fantasy(self, x, fidelity):
+    def sample_fantasy(self, x, fidelity, mode='sample'):
         """
         Draw one fantasy observation at x.
         x: [d] or [1, d]
         fidelity: 'L' or 'H' -- 'H' samples f_L and delta independently (per
         the model's independence assumption) and combines them as
         rho*y_L_sample + y_delta_sample.
+        mode='sample' (default, unchanged): draw from the posterior.
+        mode='mean':   return the posterior MEAN instead -- a
+            certainty-equivalent transition. This makes the rollout's
+            dynamics DETERMINISTIC given the action sequence, which is the
+            condition Brandfonbrener et al. (2022, arXiv:2206.01079)
+            Corollary 1 requires for return-conditioned supervised learning
+            to be near-optimal (their bound scales with epsilon, the degree
+            of departure from deterministic dynamics). It does NOT make the
+            behaviour policy deterministic -- their epsilon concerns the
+            MDP's transition/reward, not beta -- so rollout DIVERSITY is
+            preserved. See literature/rcsl-necessary-conditions.md.
+
         Returns: scalar float y (raw scale)
         """
+        if mode not in ('sample', 'mean'):
+            raise ValueError(f"mode must be 'sample' or 'mean', got {mode!r}")
         x = x.to(device=self.device, dtype=self.dtype)
         if x.ndim == 1:
             x = x.unsqueeze(0)
         with torch.no_grad(), gpytorch.settings.fast_pred_var():
             if fidelity == 'L':
                 posterior = self.gp_lf.posterior(x, observation_noise=True)
-                y = posterior.sample().reshape(-1)
+                y = (posterior.mean if mode == 'mean'
+                     else posterior.sample()).reshape(-1)
                 return y.item()
             elif fidelity == 'H':
                 post_lf = self.gp_lf.posterior(x, observation_noise=True)
                 post_delta = self.gp_delta.posterior(x, observation_noise=True)
-                sample_lf = post_lf.sample().reshape(-1)
-                sample_delta = post_delta.sample().reshape(-1)
+                sample_lf = (post_lf.mean if mode == 'mean'
+                             else post_lf.sample()).reshape(-1)
+                sample_delta = (post_delta.mean if mode == 'mean'
+                                else post_delta.sample()).reshape(-1)
                 y = self.rho.detach() * sample_lf + sample_delta
                 return y.item()
             else:
