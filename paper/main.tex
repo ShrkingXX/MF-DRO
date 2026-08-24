@@ -227,15 +227,18 @@ coefficients are dominated by the two posterior means---$\mu_H$ at $+1.0824$ and
 $\mu_L$ at $+0.8254$---followed by a term that should not be there:
 
 \begin{center}
-$\bar{w}_{\sigma_H} = \mathbf{-0.5487}$
+$\bar{w}_{\sigma_H} < 0$ on $\mathbf{9}$ of $\mathbf{10}$ independently trained
+seeds; mean $\mathbf{-0.2544}$ (sd $0.2578$)
 \end{center}
 
 \noindent
 \textbf{The weight on high-fidelity posterior uncertainty is negative.} The
 learned rule \emph{penalises} exactly the quantity that UCB, EI and MES reward,
-converging to approximately
-$1.08\,\mu_H + 0.83\,\mu_L - 0.55\,\sigma_H - 0.30\,d_{\mathrm{inc}}$: a purely
-exploitative, actively uncertainty-avoiding acquisition.
+converging to a purely exploitative, actively
+uncertainty-avoiding acquisition. All ten seeds reward $\mu_H$; nine of ten
+penalise $\sigma_H$. The \emph{sign} is robust; the \emph{magnitude} is not,
+spanning $-0.6871$ to $+0.1297$ with a mean about one standard deviation from
+zero, so we report the distribution rather than any one model's coefficient.
 
 An independent check confirms the sign without relying on any single rule
 matching. Sweeping a UCB family $\mu_H + \beta\sigma_H$, agreement with the
