@@ -1886,6 +1886,9 @@ class DirectMFRegretOptimization:
         # distinguish that from "not converging at all".
         self.query_dist_to_x2_per_iter = []
         self.p_pred_inference_per_iter = []
+        # Last (L_loc, L_fid, fid_mean, fid_std); reused for logging when the
+        # DT is frozen (see run()'s freeze_dt_after branch).
+        self._last_train_stats = (0.0, 0.0, 0.0, 0.0)
         # Gated behind self._diag_xstar exactly like the [ROLLOUT-DIAG] print
         # block itself (see _generate_rollout_batch) -- stays empty unless a
         # diagnostic script sets _diag_xstar before calling .run(). Records
@@ -2755,7 +2758,20 @@ class DirectMFRegretOptimization:
             # treatment _last_rtg_target already gets above.
             self.btg_target_base = btg_target
 
-            L_loc, L_fid, fid_mean, fid_std = self._train_dt(batch)
+            # H6 (freeze_dt_after): train normally through iteration k, then
+            # stop updating the DT entirely for the rest of the run. Rollouts
+            # are STILL generated above (they supply the RTG/BTG targets) and
+            # the KO ensemble still refits -- only the policy weights freeze.
+            # Tests whether the DT's continued learning contributes anything,
+            # given that H4/H5 showed the proposal is near-independent of the
+            # conditioning within a single trained model. None (default) =
+            # unchanged behaviour.
+            _freeze_after = getattr(self.config, 'freeze_dt_after', None)
+            if _freeze_after is not None and t >= _freeze_after:
+                L_loc, L_fid, fid_mean, fid_std = self._last_train_stats
+            else:
+                L_loc, L_fid, fid_mean, fid_std = self._train_dt(batch)
+                self._last_train_stats = (L_loc, L_fid, fid_mean, fid_std)
             x_t, ell_t = self._propose_next_query()
             self._last_p_pred = self.dt.last_p_pred
             # Fidelity-bottleneck measurement: p_pred_inference was only

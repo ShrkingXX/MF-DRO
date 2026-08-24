@@ -121,6 +121,53 @@ is a direct, mechanical consequence of the leak + BTG-cost-floor + fidelity
 fixes rather than a tuning artifact. Final regret is not yet in; do not
 pre-judge it.
 
+## The central conceptual finding: MF-DRO re-fits, it does not condition
+
+Two literature-grounded interventions on the conditioning pathway were locked,
+run, and **both refuted**:
+
+- **H4** (AdaLN-Zero conditioning, the DDT mechanism): argmax moved on 0% of RTG
+  sweeps vs 25% for token conditioning. Made it *worse*.
+- **H5** (deny the score head its GP features so any ranking must flow through
+  `h`): the manipulation worked perfectly — `argmax(mu_H)` agreement went
+  66.7% -> 0.0% — and the head **still** ignored `h` entirely (0/12), while RTG
+  movement *fell* (16.7% -> 8.3%).
+
+Five independent measurements now agree that, **within a single trained model,
+the proposal is very nearly independent of the conditioning**:
+
+| probe | result |
+|---|---|
+| swap `h` for a different state's hidden vector | argmax unchanged **12/12** |
+| coords-only features (ranking *must* use `h`) | argmax unchanged **12/12** |
+| batch-mean / shuffled `h` | argmax changed only ~8% |
+| state perturbation at 1x batch std | argmax unchanged, score corr 0.9997 |
+| RTG sweep 0.1x-10x | argmax essentially pinned in every config |
+
+**But queries do move** (`x_t_trace` std 0.166-0.213), so the honest
+reconciliation is:
+
+> The DT is **retrained every BO iteration**. Within an iteration it is close to
+> a fixed function of the candidate set; across iterations it changes because
+> its *weights* were re-fit on fresh rollouts.
+
+So MF-DRO's apparent adaptivity comes from **re-fitting, not conditioning**. It
+behaves as a per-iteration acquisition function that happens to be parameterised
+by a transformer, rather than as a return-conditioned policy. This single claim
+explains the entire failed sequence of conditioning-side interventions: they
+were all strengthening a pathway that is not being used.
+
+**Caveat kept attached:** these probes train 10 epochs on one rollout batch.
+That is the *production* setting (`num_epochs=10`), so it is the operationally
+relevant regime — but it is not a claim about this architecture at large
+training scale.
+
+**This escalates the question to the frame itself.** PROTOCOL.md asks whether a
+fix exists *within the DRO frame*. If the learned policy contributes nothing
+beyond re-fitting, the frame is what is in question — which is why H6 (freeze
+the DT after k=5 and see whether anything changes) is the next experiment
+rather than another component patch.
+
 ## Lessons and Constraints
 
 - **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
