@@ -259,6 +259,50 @@ is declared — but `improvement`'s selection justification is gone, and it is t
 **current default** (`dro_runner.py:439`) under which the frozen headline was
 produced. The headline number stands; the reason for that configuration does not.
 
+
+## The theory that predicts all of it: RCSL's necessary conditions fail here
+
+MF-DRO **is** return-conditioned supervised learning (RCSL). Brandfonbrener et
+al. (NeurIPS 2022, arXiv:2206.01079) give RCSL's necessary conditions for
+optimality, and our setting violates them by construction. See
+`literature/rcsl-necessary-conditions.md`.
+
+**Their Corollary 1** requires dynamics **ε-close to deterministic**:
+`J(π*) − J(π_f^RCSL) ≤ ε(1/α_f + 3)H²`. Our rollout transition is
+`y_τ = sample_fantasy(x_τ, ·)` — a **draw from the GP posterior**
+(`mf_dro.py:1264`). It is Gaussian. The stochasticity *is* the method.
+
+**Their Figure 1c** is the decisive one. They construct a case where
+
+> "the bias of RCSL in stochastic environments can remain **regardless of the
+> conditioning function**" — "merely changing the conditioning function is not
+> enough to overcome the bias."
+
+Every conditioning-side intervention we ran is an attempt to change the
+conditioning function, and every one was null or void:
+
+| ours | changed | outcome |
+|---|---|---|
+| H4 | AdaLN-Zero (DDT) | REFUTED |
+| H5 | deny score head its GP features | REFUTED |
+| H8 | sweep RTG in its realised band | 0/12 |
+| H9 | `alpha_rtg` floor | VOID |
+| H10 | un-normalised RTG | VOID |
+| H11 | real history + DT-style decrement | A/B null, C VOID |
+| H12–H16 | the reward quantity itself | signal fixed; decision not yet moved |
+
+**Their return-coverage condition `P_β(g=f(s)|s) ≥ α_f` is our starvation
+finding in the theory's own language.** 63.0% of trajectories carried
+`rtg[0]=0` against targets in [0.57, 1.0], so `α_f` is small and the bound
+scales as `C_f/α_f`. And Corollary 2's exact-optimality requirement
+`f(s₁)=V*(s₁)` is hopeless for us — our target is a heuristic whose band is
+provably capped at `1/α`.
+
+**Consequence for the write-up.** This reframes a messy sequence of failures as
+one theory-predicted claim, and it retroactively explains why H4's refutation of
+the RADT/DDT attention mechanism was not an implementation failure: *no*
+architectural conditioning fix could have worked here.
+
 ## Methodological lessons (transferable)
 
 1. **Measure the mechanism, not the downstream metric.** Every near-deterministic
