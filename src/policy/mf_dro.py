@@ -1812,6 +1812,10 @@ class DirectMFRegretOptimization:
             cand_feature_dim=(self.d + N_CAND_EXTRA_FEATURES
                               if self.use_candidate_features else self.d),
             score_temp=getattr(config, 'score_temp', 1.0),
+            # H4: "token" (default, unchanged) or "adaln" -- see
+            # DecisionTransformer.__init__ and
+            # experiments/h4-adaln-rtg-conditioning/protocol.md
+            rtg_conditioning=getattr(config, 'rtg_conditioning', 'token'),
         )
         # DT weight-init seed override (weight-init-seed-sweep ablation --
         # tests whether the DT's random weight initialization, independent

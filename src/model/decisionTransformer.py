@@ -129,6 +129,33 @@ class DecisionTransformer(nn.Module):
             # FIX 2 (post-hoc causal-mask investigation): LayerNorm after
             # each MF embedding, matching standard GPT-style transformer
             # input normalization (DT paper Algorithm 1 / Appendix A).
+            # H4 (RTG attention under-allocation). rtg_conditioning:
+            #   "token" -- current: 4 tokens [rtg, btg, state, action].
+            #   "adaln" -- 2 tokens [state, action]; rtg/btg instead produce
+            #              per-feature scale/shift on the state hidden state.
+            # Motivation is literature-grounded, not a guess: RADT
+            # (arXiv:2402.03923) diagnoses DT's failure to align actual with
+            # target return as UNDER-ALLOCATION OF ATTENTION to the RTG
+            # tokens, and argues the fix must be structural rather than
+            # parametric (i.e. temperature/loss-weight tuning cannot fix it).
+            # DDT (arXiv:2601.15953) supplies the mechanism used here:
+            # drop RTG from the input and condition via AdaLN-Zero.
+            # Our layout is the worse case -- TWO of four tokens are scalar
+            # conditioning signals competing for attention, vs one of three
+            # in standard DT.
+            self.rtg_conditioning = getattr(config, 'rtg_conditioning', 'token')
+            # Linear(2 -> 2H), no activation, matching DDT's "single linear
+            # layer ... without activation functions". AdaLN-ZERO init: zero
+            # weights, bias = [1]*H ++ [0]*H, so gamma=1 / beta=0 at step 0 and
+            # the run STARTS equivalent to plain LayerNorm -- the conditioning
+            # effect is learned, never imposed by initialization.
+            self.adaln_mod = nn.Linear(2, 2 * config.hidden_size)
+            nn.init.zeros_(self.adaln_mod.weight)
+            with torch.no_grad():
+                self.adaln_mod.bias[:config.hidden_size].fill_(1.0)
+                self.adaln_mod.bias[config.hidden_size:].fill_(0.0)
+            self.adaln_ln = nn.LayerNorm(config.hidden_size, elementwise_affine=False)
+
             self.state_ln = nn.LayerNorm(config.hidden_size)
             self.action_ln = nn.LayerNorm(config.hidden_size)
             self.reward_ln = nn.LayerNorm(config.hidden_size)
@@ -319,14 +346,21 @@ class DecisionTransformer(nn.Module):
         ], dim=-1)                                            # [B,T,d+1]
         a_emb = self.action_ln(self.action_embed_mf(act_inp))  # [B,T,H] (FIX 2)
 
-        # Position embeddings -- 4 tokens per step (NOT 3, unlike SF)
+        # H4: tokens-per-step depends on rtg_conditioning (4 vs 2).
+        _adaln = (self.rtg_conditioning == 'adaln')
+        _tps = 2 if _adaln else 4
         pos_emb = self.position_embedding(timesteps) \
-            .repeat_interleave(4, dim=1)                      # [B,4T,H]
+            .repeat_interleave(_tps, dim=1)                   # [B,_tps*T,H]
 
-        # Interleave: [rtg, btg, state, action] per step -> [B,4T,H]
-        seq = torch.stack(
-            [rtg_emb, btg_emb, s_emb, a_emb], dim=2
-        ).reshape(B, 4 * T, H)                                # [B,4T,H]
+        if _adaln:
+            # [state, action] only -- rtg/btg are removed from the sequence
+            # entirely and re-enter via AdaLN on the readout below.
+            seq = torch.stack([s_emb, a_emb], dim=2).reshape(B, 2 * T, H)
+        else:
+            # Interleave: [rtg, btg, state, action] per step -> [B,4T,H]
+            seq = torch.stack(
+                [rtg_emb, btg_emb, s_emb, a_emb], dim=2
+            ).reshape(B, 4 * T, H)                            # [B,4T,H]
         seq = seq + pos_emb
 
         # FIX 1: causal mask over the full 4T training sequence. RTG is
@@ -341,7 +375,7 @@ class DecisionTransformer(nn.Module):
         # docstring) -- it only changes what TRAINING (this multi-timestep
         # pass) can attend to, preventing a_t from also seeing rtg_{t+1..T}
         # (future timesteps' targets) during training.
-        seq_len = 4 * T
+        seq_len = _tps * T
         causal_mask = torch.triu(
             torch.ones(seq_len, seq_len, dtype=torch.bool, device=seq.device),
             diagonal=1,
@@ -366,7 +400,16 @@ class DecisionTransformer(nn.Module):
         # placeholder propose_mf uses at inference is inert, and train/
         # inference no longer differ in their most predictive input.
         # Matches the DT paper (predict a_t from the state token).
-        h_act = h[:, 2::4, :]                                  # [B,T,H]
+        # State token is index 2 of 4 under token conditioning, index 0 of 2
+        # under adaln (where only [state, action] remain).
+        h_act = h[:, (0 if _adaln else 2)::_tps, :]            # [B,T,H]
+        if _adaln:
+            # AdaLN-Zero: gamma,beta = Linear([rtg, btg]); applied to the
+            # (affine-free) LayerNorm of the state hidden state.
+            _cond = torch.stack([rtg, btg], dim=-1)            # [B,T,2]
+            _gb = self.adaln_mod(_cond)                        # [B,T,2H]
+            _gamma, _beta = _gb[..., :H], _gb[..., H:]
+            h_act = _gamma * self.adaln_ln(h_act) + _beta
 
         # Fidelity head -- IDENTICAL in both modes (fidelity_head's own last
         # layer is already nn.Sigmoid(), so no extra torch.sigmoid() here).
@@ -580,17 +623,30 @@ class DecisionTransformer(nn.Module):
             s_emb = self.state_ln(self.state_embedding(s))                          # [1,1,H]
             act_inp = torch.cat([ax, ae.float().unsqueeze(-1)], dim=-1)  # [1,1,d+1]
             a_emb = self.action_ln(self.action_embed_mf(act_inp))                   # [1,1,H]
-            pos_emb = self.position_embedding(ts).repeat_interleave(4, dim=1)  # [1,4,H]
-            seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, 4, H)
+            # H4: must mirror forward_mf EXACTLY -- same token count, same
+            # readout index, same AdaLN -- or the train/inference mismatch
+            # this method was just fixed for comes straight back.
+            _adaln = (self.rtg_conditioning == 'adaln')
+            _tps = 2 if _adaln else 4
+            pos_emb = self.position_embedding(ts).repeat_interleave(_tps, dim=1)
+            if _adaln:
+                seq = torch.stack([s_emb, a_emb], dim=2).reshape(1, 2, H)
+            else:
+                seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, 4, H)
             seq = seq + pos_emb
             # FIX 4: apply the SAME causal mask training uses. Without it
             # inference was BIDIRECTIONAL while training was causal -- a
             # train/inference mismatch in the attention pattern itself.
-            _cm = torch.triu(torch.ones(4, 4, dtype=torch.bool, device=seq.device),
+            _cm = torch.triu(torch.ones(_tps, _tps, dtype=torch.bool, device=seq.device),
                               diagonal=1)
-            h_full = self.transformer(seq, mask=_cm)  # [1,4,H]
-            # FIX 3: STATE token (index 2), matching forward_mf's h_act.
-            h = h_full[0, 2::4, :][0]                # [H] -- state hidden state
+            h_full = self.transformer(seq, mask=_cm)  # [1,_tps,H]
+            # FIX 3: STATE token, matching forward_mf's h_act.
+            h = h_full[0, (0 if _adaln else 2)::_tps, :][0]   # [H]
+            if _adaln:
+                _cond = torch.tensor([[rtg_target, btg_target]],
+                                      dtype=h.dtype, device=h.device)
+                _gb = self.adaln_mod(_cond)[0]
+                h = _gb[:H] * self.adaln_ln(h.unsqueeze(0))[0] + _gb[H:]
 
             if not use_candidate_scoring:
                 # ── ORIGINAL: regression head (unchanged) ──
