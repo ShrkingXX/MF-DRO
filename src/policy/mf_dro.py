@@ -35,6 +35,9 @@ EULER_GAMMA = 0.5772156649015329
 # DirectMFRegretOptimization.__init__'s actual grid construction can never
 # drift out of sync with each other.
 STATE_REF_GRID_R = 10
+# Reference-set size for rollout_reward='kg_incumbent' (Sobol prefix of
+# y_star_pool). Fixed across steps/trajectories so V differences are comparable.
+KG_REF_M = 64
 
 #: Size of the fixed pool y* is Thompson-drawn from (CRITICAL-1 fix, see
 #: _y_star_for_model). Matches compute_joint_mf_mes's own 200-candidate
@@ -1079,6 +1082,26 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     # relationship to any particular benchmark's function-value units).
     bes_signal_0 = None
 
+    # rollout_reward=="kg_incumbent": knowledge-gradient-style reward. The
+    # ONLY reward mode that credits an LF query. V = max over a FIXED
+    # reference set of the HF posterior mean -- i.e. the model's belief about
+    # the best attainable HF value, which is exactly the quantity our frozen
+    # evaluation (final simple regret on the HF incumbent) is defined on. An
+    # LF observation moves mu_H only THROUGH rho in the KO model, so its
+    # credit is automatically discounted by how much LF actually informs HF:
+    # the "low certainty discount" is derived from the fitted model rather
+    # than hand-tuned. Reference set is a fixed Sobol prefix of y_star_pool,
+    # so V differences are comparable across steps and trajectories.
+    _kg_ref = None
+    _V_prev = None
+    if rollout_reward == "kg_incumbent":
+        if y_star_pool is None:
+            raise ValueError("rollout_reward='kg_incumbent' requires y_star_pool "
+                              "(the fixed reference set V is maximised over).")
+        _kg_ref = y_star_pool[:KG_REF_M]
+        with torch.no_grad():
+            _V_prev = float(current_ko.hf_posterior(_kg_ref)[0].max())
+
     for tau in range(rollout_length):
 
         # 1. State BEFORE conditioning. recent_hf_frac uses this rollout's
@@ -1264,7 +1287,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
 
         # 4a. rollout_reward=="improvement" only: per-step improvement
         # reward, using the incumbent BEFORE this step's own observation.
-        if rollout_reward == "improvement":
+        if rollout_reward == "improvement":   # kg_incumbent scores at 5b
             if ell_tau == 1:
                 y_tau_f = float(y_tau)
                 r_tau = max(0.0, y_tau_f - best_sim_hf)
@@ -1301,6 +1324,17 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                 torch.tensor([y_tau], device=device, dtype=dtype),
                 'LH'[ell_tau]
             )
+
+        # 5b. kg_incumbent reward -- must be computed AFTER conditioning,
+        # since it is the CHANGE in the believed best HF value caused by this
+        # step's observation. Unlike "improvement" (which hard-codes 0.0 for
+        # every LF step), both fidelities are scored by the same quantity and
+        # LF's smaller effect on mu_H is the discount, not a special case.
+        if rollout_reward == "kg_incumbent":
+            with torch.no_grad():
+                _V_new = float(current_ko.hf_posterior(_kg_ref)[0].max())
+            r_values.append(max(0.0, _V_new - _V_prev))
+            _V_prev = _V_new
 
         # 6. Record
         states.append(s_tau)
@@ -1466,7 +1500,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     # own tau=0 value -- see rollout_reward's docstring above. Replaces the
     # Gumbel-entropy RTG below entirely; b_T/b_values aren't needed.
     zero_reward_frac = None
-    if rollout_reward == "improvement":
+    if rollout_reward in ("improvement", "kg_incumbent"):
         if r_values:
             r_t = torch.tensor(r_values, dtype=dtype)
             # RTG-CAP FIX: previously divided by this trajectory's OWN
@@ -2040,6 +2074,10 @@ class DirectMFRegretOptimization:
                     use_candidate_scoring=self.use_candidate_scoring,
                     rollout_policy=_policy,
                     rollout_reward=self.rollout_reward,
+                    # Required by rollout_reward='kg_incumbent' (the fixed
+                    # reference set its incumbent-belief V is maximised over);
+                    # ignored by every other reward mode.
+                    y_star_pool=self.y_star_pool,
                     use_real_rollout_queries=self.use_real_rollout_queries,
                     f_hf_real=(self.f_hf if self.use_real_rollout_queries else None),
                     f_lf_real=(self.f_lf if self.use_real_rollout_queries else None),
@@ -2075,7 +2113,7 @@ class DirectMFRegretOptimization:
         # "raw" skips normalisation entirely so the target is the raw
         # improvement, which spans orders of magnitude over a run by
         # construction. Tests whether RTG is ignored or merely starved.
-        if self.rollout_reward == "improvement" and \
+        if self.rollout_reward in ("improvement", "kg_incumbent") and \
                 getattr(self.config, 'rtg_target_mode', 'normalized') != 'raw':
             _batch_max = max((t['rtg'][0].item() for t in batch if t['rtg'].numel() > 0),
                               default=0.0)
