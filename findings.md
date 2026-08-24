@@ -95,6 +95,32 @@ So the "100% freeze" column pooled **two unrelated causes**: target leakage
    `query_dist_to_xstar` cannot distinguish "not converging" from "converging
    elsewhere"; `query_dist_to_x2_per_iter` now separates them.
 
+## Interim results — h1-leak-fix-validation (grid still running)
+
+**Baselines complete (10/10 each), at genuinely matched cost = 200:**
+
+| method | mean regret | range | realized cost |
+|---|---|---|---|
+| MF-MI-Greedy | **0.509** | 0.188 – 1.540 | 207.2 |
+| MF-GP-UCB | 1.933 | 1.471 – 2.375 | 200.0 |
+
+The inherited MI-Greedy number this project calibrated against was **0.279**.
+At matched cost it is **0.509**, with large seed spread — confirming the
+standing suspicion that prior cross-method numbers were never cost-matched
+(MI-Greedy median 53 iters vs MF-DRO 100 vs MF-GP-UCB 800). This roughly
+**halves the gap** MF-DRO has to close. Minor asymmetry to flag: MI-Greedy
+overshoots the budget ~3.6% because it checks at round start and a round costs
+up to 2·c_H.
+
+**The fidelity collapse is gone.** In the running MF-DRO jobs the realized
+fidelity mix is **39.4% HF** (61 HF vs 94 LF observed in flight), against a
+pre-fix `lf_fraction` of ~0.98, i.e. **~2% HF**. Since regret was established to
+move *only* on HF queries and never on accumulated LF cost, this is the single
+most plausible route by which the fixes could change end-to-end regret — and it
+is a direct, mechanical consequence of the leak + BTG-cost-floor + fidelity
+fixes rather than a tuning artifact. Final regret is not yet in; do not
+pre-judge it.
+
 ## Lessons and Constraints
 
 - **Pre-`7bcc3b8` DRO numbers are not comparable to post-fix numbers.** This
