@@ -52,10 +52,14 @@ hypotheses:
     statement: >
       MF-GP-UCB's 100% freeze is a separate, already-documented mechanism
       (cost-ratio degeneration to all-LF), not the DRO pathology
-    status: SUPPORTED by code + smoke run
+    status: CONFIRMED empirically, all 10 seeds
     evidence: >
-      src/baselines/mf_baselines.py:206-213 documents it; smoke run at
-      cost_budget=25 gave n_hf_queries=0. Resolves a standing open question.
+      src/baselines/mf_baselines.py:206-213 documents it. Now measured under
+      the frozen protocol at matched cost=200: MF-GP-UCB mean_n_HF = 0.0 and
+      mean_n_improved = 0.00 across ALL 10 seeds -- it never queries HF even
+      once, so the HF incumbent mathematically cannot move. Its "freeze" is
+      therefore a definitional consequence of the acquisition, not a shared
+      pathology with the DRO family. Resolves a standing open question.
 
   H4:
     statement: >
