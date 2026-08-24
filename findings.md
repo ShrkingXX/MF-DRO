@@ -376,12 +376,21 @@ a function of `h`.
    compared — H13's decomposition rule hit 100% in both arms and said nothing.
 12. **Spec the codebase before building the fix.** H12/H13 reinvented, worse, a
    joint-information-gain reward that already existed.
-13. **When a probe compares "two different X", assert inside the probe that
+13. **The makespan of a mixed grid is the duration of its slowest job CLASS,
+   not the total wall-time divided by the job count.** h1 ran 30 jobs in 6979 s
+   (116 min) with 15 workers — but 20 of those were fast baselines, so the
+   makespan *was* the MF-DRO job duration (~116 min). I estimated H17's 10
+   MF-DRO jobs at 50–90 min by implicitly amortising h1's makespan over all 30
+   jobs. The same 10 MF-DRO jobs take the same ~116 min however many cheap jobs
+   run beside them. Compounding it: `mes_entropy` is LF-heavier, so more
+   iterations are needed to burn a fixed cost budget, pushing the true figure to
+   ~145 min. **Second ETA miss on this class of estimate; this is the fix.**
+14. **When a probe compares "two different X", assert inside the probe that
    they are different.** H5 would have failed a one-line assertion for months.
    Three instrument defects this phase (H13's dead-signal metric, H19's
    diversity signature, H5's state swap) — all found by checking the instrument
    against the data rather than trusting it.
-14. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
+15. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
    `bes_delta`, soft-target temperature).
 
 ---
