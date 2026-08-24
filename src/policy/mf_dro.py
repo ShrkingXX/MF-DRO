@@ -39,6 +39,23 @@ STATE_REF_GRID_R = 10
 # y_star_pool). Fixed across steps/trajectories so V differences are comparable.
 KG_REF_M = 64
 
+
+def _kg_V(ko, ref, topk):
+    """Incumbent-belief statistic for rollout_reward='kg_incumbent'.
+
+    topk=1 is the hard max used by H12, whose gate showed it is insensitive to
+    every observation that does not land near the current argmax (only 27.2% of
+    LF steps moved it). topk>1 averages the top-k HF posterior means instead, so
+    an observation that reshapes the believed-good REGION registers even when it
+    does not displace the single best point.
+    """
+    with torch.no_grad():
+        mu = ko.hf_posterior(ref)[0].flatten()
+    if topk <= 1:
+        return float(mu.max())
+    k = min(int(topk), mu.numel())
+    return float(mu.topk(k).values.mean())
+
 #: Size of the fixed pool y* is Thompson-drawn from (CRITICAL-1 fix, see
 #: _y_star_for_model). Matches compute_joint_mf_mes's own 200-candidate
 #: convention; kept separate from STATE_REF_GRID_R because the state block
@@ -804,6 +821,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             use_candidate_features=True,
                             use_state_standardization=True,
                             y_star_pool=None,
+                            kg_signed=False,
+                            kg_topk=1,
                             y_star_seed=0):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
@@ -1099,8 +1118,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             raise ValueError("rollout_reward='kg_incumbent' requires y_star_pool "
                               "(the fixed reference set V is maximised over).")
         _kg_ref = y_star_pool[:KG_REF_M]
-        with torch.no_grad():
-            _V_prev = float(current_ko.hf_posterior(_kg_ref)[0].max())
+        _V_prev = _kg_V(current_ko, _kg_ref, kg_topk)
 
     for tau in range(rollout_length):
 
@@ -1331,9 +1349,12 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         # every LF step), both fidelities are scored by the same quantity and
         # LF's smaller effect on mu_H is the discount, not a special case.
         if rollout_reward == "kg_incumbent":
-            with torch.no_grad():
-                _V_new = float(current_ko.hf_posterior(_kg_ref)[0].max())
-            r_values.append(max(0.0, _V_new - _V_prev))
+            _V_new = _kg_V(current_ko, _kg_ref, kg_topk)
+            _dV = _V_new - _V_prev
+            # kg_signed=True keeps DOWNWARD revisions. Learning that a region is
+            # worse than believed is real progress toward the optimum; clipping
+            # it to zero (H12) threw that signal away.
+            r_values.append(_dV if kg_signed else max(0.0, _dV))
             _V_prev = _V_new
 
         # 6. Record
@@ -2074,10 +2095,8 @@ class DirectMFRegretOptimization:
                     use_candidate_scoring=self.use_candidate_scoring,
                     rollout_policy=_policy,
                     rollout_reward=self.rollout_reward,
-                    # Required by rollout_reward='kg_incumbent' (the fixed
-                    # reference set its incumbent-belief V is maximised over);
-                    # ignored by every other reward mode.
-                    y_star_pool=self.y_star_pool,
+                    kg_signed=getattr(self.config, 'kg_signed', False),
+                    kg_topk=getattr(self.config, 'kg_topk', 1),
                     use_real_rollout_queries=self.use_real_rollout_queries,
                     f_hf_real=(self.f_hf if self.use_real_rollout_queries else None),
                     f_lf_real=(self.f_lf if self.use_real_rollout_queries else None),
