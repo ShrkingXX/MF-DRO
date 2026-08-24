@@ -150,6 +150,11 @@ vectors correlate at $1.000000$. This holds both across ensemble members at a
 fixed iteration and---more importantly---across the twelve states of a real
 optimization run, whose mean pairwise $L_2$ distance is $1.4968$.
 
+One of the two state-dependent quantities the architecture exposes at the
+decision is moreover irrelevant \emph{by construction}: $b(h)$ adds the same
+constant to every candidate and therefore cannot change an argmax, which we
+confirm empirically ($0/12$).
+
 \paragraph{Where the signal is lost.} Table~\ref{tab:atten} tracks the relative
 spread (mean pairwise distance divided by mean norm) of each representation
 across the twelve real-iteration states; Figure~\ref{fig:mechanism} plots it.
@@ -197,11 +202,16 @@ $\lambda{=}60$ is non-monotonic. The manipulation is not a no-op: across the
 sweep the coefficient vector's relative spread grows $76\times$
 ($0.001826 \to 0.138267$) and $w$ rotates to cosine $0.97988$, an $11.5^\circ$
 separation. \textbf{The learned map is invariant to state direction across two
-orders of magnitude of input gain.} The ranking is dominated by a
-state-independent component of $w$ whose margin over the runner-up exceeds
-anything an $11.5^\circ$ rotation can overturn---the state does not merely have
-little influence, it has influence in a direction that does not compete with
-what decides the ranking. (Large $\lambda$ is far out of distribution; this
+orders of magnitude of input gain.} We verified the reason directly rather than
+inferring it. Decomposing $w(s) = \bar{w} + \delta(s)$ over the ten states,
+scoring with $\bar{w}$ \emph{alone} reproduces the full model's argmax on
+$12/12$ pools; the top-1/top-2 margin exceeds anything $\delta(s)$ can
+contribute by a median factor of $77$; and
+$\|\delta\|/\|\bar{w}\| = 0.00129$. \textbf{The state moves the coefficient
+vector by $0.13\%$ of its length.} MF-DRO's learned policy is, to within a tenth
+of a percent, a \emph{fixed linear acquisition function}---not a policy that
+conditions weakly, but a constant rule with a negligible state-dependent
+perturbation superimposed. (Large $\lambda$ is far out of distribution; this
 characterises the map's gain and is not proposed as an intervention.)
 (These figures are measured over ensemble-member states, whose spread is
 $0.013993$; Table~\ref{tab:atten} is measured over real-iteration states, about

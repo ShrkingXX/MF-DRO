@@ -119,6 +119,23 @@ retrained every iteration** — it changes because its *weights* are re-fit, not
 because it conditions. **MF-DRO appears to re-fit rather than condition**,
 behaving as a per-iteration acquisition function parameterised by a transformer.
 
+### The policy is a fixed acquisition rule to within 0.13% (H23)
+
+Decomposing `w(s) = w̄ + δ(s)` over the 10 distinct τ=0 states:
+
+| | |
+|---|---|
+| `w̄` alone reproduces the full argmax | **12/12 pools** |
+| median (top-1/top-2 margin) / (max δ contribution) | **77.16** |
+| `‖δ‖ / ‖w̄‖` | **0.00129 — 0.13%** |
+| `bias_head` changes the argmax | 0/12 (it adds a per-candidate constant, so it *cannot*) |
+
+**MF-DRO's learned policy is, to within a tenth of a percent, a fixed linear
+acquisition function.** Not a weakly-conditioning policy — a constant rule with
+a negligible state-dependent perturbation on top. This was asserted from
+inference in H22 and then measured directly, because three earlier inferences in
+this project failed re-measurement.
+
 ### The mechanism, measured
 
 `coef_head` emits the **same coefficient vector for every state inference
