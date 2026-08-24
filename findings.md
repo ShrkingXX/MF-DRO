@@ -386,6 +386,40 @@ refute that prediction in the informative direction. Report the full 10 before
 claiming anything, and note that seed43 was LIVE's *worst* HF-rate seed, so
 regression to the mean could account for part of the gap.
 
+## Methodological turn: measure the mechanism, not the downstream metric
+
+Reviewing which findings held up and which did not reveals a clean pattern:
+
+| finding | instrument | outcome |
+|---|---|---|
+| target leakage | `a_emb` ablation (15.6% -> 0.7%) | decisive |
+| MF-GP-UCB freeze definitional | `n_HF = 0` on 10/10 seeds | decisive |
+| score head ignores `h` | argmax unchanged 12/12, both arms | decisive |
+| RTG never moves the argmax | pinned in every configuration | decisive |
+| freeze resolved | 0/10 vs 9/12 | decisive (large effect) |
+| **H6: does training help regret?** | paired regret, n=10 | **useless** (CI [-0.097,+0.292]) |
+
+Every **near-deterministic** measurement in this project settled its question
+immediately. The single **variance-dominated average** (H6's regret comparison)
+consumed ~2 hours of compute, changed sign four times, and settled nothing.
+
+This is not bad luck — it is a design lesson. H6 asked a *mechanistic* question
+("does continued training change the policy?") and answered it with the noisiest
+available proxy (final regret, which depends on the GP, the teacher, the fidelity
+mix and the seed's initial design as well as on the policy).
+
+**H7 (locked, 93429a0) applies the lesson**: run one trajectory, snapshot the DT
+at iteration 5, and at every later iteration ask the live and snapshot policies
+to act on the *identical* state/RTG/BTG/candidate pool. Record whether they pick
+the same candidate. That yields **~50-200 paired decisions per run** instead of
+one regret scalar, and agreement is near-deterministic.
+
+If agreement is high, H6's claim ("continued training is near-inert") becomes
+defensible on mechanism even though its own regret comparison is underpowered.
+If agreement is *low* while regret is unchanged, that is an equally strong and
+more surprising result: the policy changes substantially and it does not matter,
+meaning the decision space is flat and the GP/MES teacher is doing the real work.
+
 ## Lessons and Constraints
 
 - **Completion order in a cost-budgeted grid is biased toward HF-heavy runs.**
