@@ -1,0 +1,47 @@
+{
+  "baseline improvement": {
+    "n_traj": 200,
+    "dead_frac": 0.63,
+    "lf_steps": 683,
+    "lf_nonzero_frac": 0.0,
+    "rtg0_mean": 0.10215671120479441,
+    "neg_rtg0_frac": 0.0,
+    "rtg0_cv": 1.963976693116367,
+    "batch_seconds": 32.4
+  },
+  "A  topk=1 clipped (=H12)": {
+    "n_traj": 200,
+    "dead_frac": 0.045,
+    "lf_steps": 683,
+    "lf_nonzero_frac": 0.27232796486090777,
+    "rtg0_mean": 0.13960535882670821,
+    "neg_rtg0_frac": 0.0,
+    "rtg0_cv": 1.3743370988872312,
+    "batch_seconds": 33.7
+  },
+  "B  topk=1 SIGNED": {
+    "n_traj": 200,
+    "dead_frac": 0.0,
+    "lf_steps": 683,
+    "lf_nonzero_frac": 1.0,
+    "rtg0_mean": -0.02043132191888163,
+    "neg_rtg0_frac": 0.67,
+    "rtg0_cv": -12.933928282798655,
+    "batch_seconds": 33.7
+  },
+  "C  topk=5 SIGNED": {
+    "n_traj": 200,
+    "dead_frac": 0.0,
+    "lf_steps": 683,
+    "lf_nonzero_frac": 1.0,
+    "rtg0_mean": 0.06757240158187793,
+    "neg_rtg0_frac": 0.385,
+    "rtg0_cv": 3.676755870875978,
+    "batch_seconds": 33.8
+  },
+  "gate": {
+    "G1": true,
+    "G2": true,
+    "pass": true
+  }
+}
