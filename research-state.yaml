@@ -7,8 +7,10 @@ protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
 branch: mfdro-hartmann-autoresearch
 phase: inner-loop
 status: >
-  Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted. H6 inconclusive
-  at n=10; extension to a pre-specified n=30 running (seeds 52-71, both arms).
+  Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted and now SAFE
+  (H8 removed the OOD confound). H6 inconclusive at n=10; n=30 extension nearly
+  done (FROZEN 19/20, LIVE 14/20). H7 (decision divergence) launched.
+  findings.md consolidated to a paper backbone; chronology archived.
 
 headline_result:
   experiment: h1-leak-fix-validation (30/30 runs, 6979 s wall)
@@ -121,6 +123,34 @@ hypotheses:
       barely reaches the score. This explains why every conditioning-side
       intervention has failed and predicts further ones will too.
 
+  H7:
+    statement: >
+      Same claim as H6, better instrument -- after ~5 iterations, continued
+      training barely changes WHAT the policy proposes
+    status: RUNNING (protocol 93429a0)
+    design: >
+      snapshot the DT at iteration 5, then replay every later iteration's
+      IDENTICAL state/RTG/BTG/candidate pool through the snapshot; record
+      argmax agreement. ~50-200 paired decisions per run vs H6's 1 regret
+      scalar. Replay forces fidelity_sampling=False so the comparison isolates
+      the policy, not the Bernoulli draw. Snapshot output is never executed.
+    prediction_locked: mean argmax agreement over t>5 is > 0.70
+  H8:
+    statement: >
+      Does RTG move the decision WITHIN its realised band, once the
+      out-of-distribution confound is removed?
+    status: CONFIRMED -- the earlier RTG finding SURVIVES
+    evidence: >
+      rtg_target is structurally clamped to [0.500, 1.000] (CV 0.232) by
+      max(batch_max, 0.5*running_max) on a batch-max-normalised rtg. My earlier
+      sweeps used 0.1x-10x = 100x span, ~50x WIDER than that band. Re-tested
+      in-band: argmax moved 0/12 (corr 0.99993) vs 8.3% for the OOD design --
+      i.e. the OOD confound had made RTG look MORE influential, not less.
+      H4/H5 refutations move from provisional to safe.
+    residual_confound: >
+      'network ignores RTG' vs 'RTG carries too little variation' remain
+      confounded. Separating them needs a schema change (alpha_rtg, or an
+      un-normalised conditioning quantity) plus a retrain. TOP REMAINING LEAD.
   H6:
     statement: The DT's learned conditioning contributes ~nothing
     status: INCONCLUSIVE at n=10; extension to a pre-specified n=30 running
