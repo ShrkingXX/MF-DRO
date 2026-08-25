@@ -1537,3 +1537,49 @@ alternative.
 
 **Next**: EI as an mf_dro rollout teacher (code change), or the surrogate swap.
 Both are code-level, not flags.
+
+### H61 liveness check at 12/~100 queries — intervention confirmed active, direction NOT read
+
+**Operational check only, not a result.** Ran to decide whether REFINE is doing
+anything before letting it consume another ~5 hours.
+
+| arm | n post-init | query spread |
+|---|---|---|
+| REFINE | 12 | **0.2907** |
+| BASE (same depth) | 12 | 0.2534 |
+
+The arms diverge, so the config knob is live and the run is worth completing.
+
+**A prediction inside the mechanism already failed.** I expected a local
+refinement pass to *concentrate* the teacher's demonstrations — smaller query
+spread than BASE. The spread is **larger** (0.2907 vs 0.2534). Whatever
+refinement is doing here, it is not tightening the search. That matters because
+H61's locked HARMFUL branch was justified by exactly that concentration
+("a sharper teacher concentrates its demonstrations, reducing the diversity the
+DT trains on"). The premise of that branch is not holding, so if HARMFUL fires
+it will need a different explanation.
+
+**Regret at this depth is deliberately not reported.** 12 of ~100 queries, n=3.
+That is precisely the subset-with-the-rest-coming situation lesson 19 covers,
+and this project has produced five instances of that failure — one of which
+changed a shipped default. The number exists in the checkpoints; it will be read
+when all six cells finish.
+
+### ETA correction: REFINE is the slow arm, not POOL600
+
+Measured at 37 min: POOL600 has completed 25 queries, REFINE 12.
+
+| arm | min/query | vs BASE (0.92) | projected total |
+|---|---|---|---|
+| POOL600 | 1.48 | 1.6x | ~148 min |
+| REFINE | 3.08 | 3.3x | ~308 min |
+
+The amendment predicted REFINE ~1.5x and POOL600 ~3x — **inverted**. Cause:
+`compute_joint_mf_mes` has per-*call* overhead (Thompson sampling, posterior
+evaluation, quadrature setup), not just per-candidate cost. REFINE makes **two**
+calls per rollout step (200 broad, then 300 union) where POOL600 makes one with
+600. Two calls cost more than 600 candidates in one.
+
+Recorded because this project has a documented ETA-miss record and the cause here
+is structural — cost scales with the number of acquisition *calls*, not only the
+candidate count.
