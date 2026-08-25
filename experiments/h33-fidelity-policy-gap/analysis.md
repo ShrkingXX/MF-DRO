@@ -25,18 +25,23 @@ the teacher-comparison axis rather than in isolation.
 pools — an order of magnitude apart in the *opposite* direction from what the
 cost ratio implies (HF costs 8×).
 
-## Caveat that materially limits the second claim
+## A caveat I wrote and then had to withdraw
 
-The 4.2% figure is the teacher's **unconstrained** preference on fresh uniform
-pools at an early training state. The full system applies
-`minimum_hf_fraction = 0.25`, and the H31 run's realised mix is ~24% HF — so the
-*system* does not actually query HF at 4.2%. The honest statement is therefore:
+I initially attributed the gap between this probe's 4.2% and H31's realised ~24%
+HF to `minimum_hf_fraction = 0.25` acting as a floor. **That was wrong.** The
+flag is applied only inside `simulate_mf_trajectory` (`mf_dro.py:1247`), i.e. to
+the *rollouts*; the real proposal path applies no HF floor at all. Checked by
+grep after writing the claim, and corrected here.
 
-- **the student's fidelity head does not track the teacher's preference** (solid,
-  `corr = 0.155`, and the near-zero sd is decisive on its own);
-- **`p = 0.557` sits far from the teacher's raw preference of 4.2%** (measured),
-  but a floor constraint sits between raw preference and realised behaviour, so
-  this is not a 13x discrepancy in what the two *do*.
+The comparison in this probe is therefore **like-for-like**: `p = 0.557` and the
+teacher's `4.2%` are measured on the *same states and the same candidate pools*,
+with no constraint mediating either. The ~13x gap at that operating point is
+real.
+
+What does not generalise is the *level*: the teacher's HF rate is state
+dependent, rising from 4.2% at this early state to ~24% realised across a full
+H31 run as the GP evolves. So the correct claim is a 13x gap **at the measured
+state**, not a constant property of the two policies.
 
 Also note `p` here (~0.557) differs from H21's measurement (~0.125) taken at a
 later training state with different weights. `p` is near-constant *across states
