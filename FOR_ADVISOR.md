@@ -199,9 +199,17 @@ this is not a criticism. It only bites on cheap synthetic benchmarks like ours.
   shrinking, y* drift) were each tested and each **failed**. Recorded as measured
   but unexplained. *(h34, h35, h36)*
 - **Whether any of this generalises beyond Hartmann 6D.** One benchmark.
-- **Whether the regression head would re-freeze.** A first test (n=1, Currin, 14
-  iterations) says **no** — 14/14 distinct proposals, 2 incumbent improvements,
-  regret 0.0073. This contradicted our prediction and needs replication.
+- **Whether the regression head would re-freeze — tested, answer is NO.**
+  Both heads on Currin (n=1, 14 iterations): regression **14/14 distinct
+  proposals, 2 incumbent improvements**, regret 0.0073; candidate scoring
+  **14/14, 1 improvement**, regret 0.0013. Query spread nearly identical
+  (0.050 vs 0.048). *(h39)*
+
+  This matters for a confound: `use_candidate_scoring=True` was the default when
+  the freeze was declared resolved (h1, 0/10 frozen), and candidate scoring
+  landed **before** the leak fix — so h1 could not tell which change fixed the
+  freeze. h39 separates them: **the leak fix did it**, not the scoring rewrite.
+  Still n=1 and one benchmark; needs replication.
 - **How MF-DRO compares to random search at matched budget.** Random search at
   budget 300 on Currin gives 0.5579 ± 0.1686; MF-DRO reached 0.0053 at budget 18,
   but those budgets are *not* matched, so this is a floor, not a comparison.
