@@ -75,15 +75,71 @@ improved seed 46 by 22%. Both stand. But "the fidelity head chases a misleading
 LF optimum" is withdrawn, and with it the framing that LF-heaviness is the
 Hartmann failure mode.
 
-### Borehole 8D — no fidelity problem at all; the search plateaus short
+### Borehole 8D — not a fidelity problem, and not a late plateau either
 
-**1. It is already effectively single-fidelity.** 98–100% HF, spread 4 points
-across seeds; only **1–3 LF queries per run**. There is nothing to misallocate.
+**1. It is already effectively single-fidelity.** 98-100% HF, spread 4 points
+across seeds; only **1-3 LF queries per run**. There is nothing to misallocate,
+so no fidelity-based explanation can apply here.
 
-**2. It plateaus ~25% short of the optimum:**
+**2. It finishes 22-25% short of the optimum:**
 
-| seed | best HF found | f(x*) | shortfall |
+| seed | best HF found | f(x\*) | shortfall |
 |---|---|---|---|
+| 44 | 233.94 | 309.58 | 24.4% |
+| 46 | 232.99 | 309.58 | 24.7% |
+| 48 | 241.61 | 309.58 | 22.0% |
+
+**3. The gap opens EARLY and never closes.** Indexed by HF query number (not
+cost), MF-DRO and MI-Greedy share the identical 10-point HF init and both start
+at 72.07:
+
+| HF query # | MF-DRO | MI-Greedy |
+|---|---|---|
+| 0 (shared init) | 72.07 | 72.07 |
+| 10 | 173.07 | 219.71 |
+| **20** | 190.38 | **264.41** |
+| 109 | 236.18 | 283.97 |
+
+**MI-Greedy reaches 264.41 within 20 HF queries; MF-DRO does not reach it in
+109.** So this is *not* a method that converges and stalls — it is one whose
+first ~20 high-fidelity evaluations are worth about a third less than a greedy
+baseline's, from an identical starting point.
+
+**4. Calibrated against random search**, which puts the size of the deficit in
+context:
+
+| strategy | best HF found |
+|---|---|
+| random search, 100 evals | 200.94 |
+| **MF-DRO, 99 HF queries** | **236.18** |
+| random search, 1000 evals | 240.32 |
+| random search, 20000 evals | 266.08 |
+| **MI-Greedy, 100 HF queries** | **283.97** |
+
+MF-DRO's 99 queries buy roughly what 1000 random draws buy — it *is* optimising,
+about 10x better than random. MI-Greedy's 100 beat what **20,000** random draws
+buy. Same budget, same start.
+
+**5. The search is not in the wrong place.** Stalled queries sit at the
+**99.7-99.9th percentile** of the domain's value distribution (20k Sobol
+reference), against incumbents at 99.8-99.9th.
+
+> **Borehole in one line:** fidelity is inert, the queries are in the top 0.3% of
+> the domain by value, and the deficit is concentrated in the first ~20
+> high-fidelity evaluations rather than in a late plateau.
+
+**Mechanism: unresolved. Say so.** Three geometric explanations were proposed
+and each was refuted by measurement — (a) an uninformative LF corrupting the
+surrogate (corr(f_LF,f_HF) = **1.000** on Borehole), (b) failure to refine
+locally (MF-DRO is the *only* method that contracts, 0.68x, and it loses), and
+(c) boundary aversion preventing it reaching a corner optimum (its queries are
+the **closest** to x*, 0.900 vs 1.030 and 1.175, and it is the worst). A
+follow-up ablation (H60) then excluded the reward schema and the LF initial
+design, and showed the rollout teacher is load-bearing — swapping it moved regret
+23.7% -> 43.8%. Two candidates remain untested: teacher optimisation quality and
+the surrogate class.
+
+---|---|---|---|
 | 44 | 233.94 | 309.58 | 24.4% |
 | 46 | 232.99 | 309.58 | 24.7% |
 | 48 | 241.61 | 309.58 | 22.0% |
