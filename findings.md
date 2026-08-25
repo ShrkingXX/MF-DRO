@@ -863,3 +863,29 @@ Two things that survive the correction:
    the LF/HF prior variance ratio on Borehole is under 2, or the mechanism is
    not what drives it. Genuinely undiagnosed, unlike the first two benchmarks,
    and cheap to settle by reading the two GPs' prior variances directly.
+
+### Borehole resolved: MF-GP-UCB cannot query HF on ANY of these three benchmarks
+
+Measured on 4096 Sobol points per benchmark, the docstring's own rule (all-LF
+when the cost ratio exceeds the two fidelities' prior variance ratio):
+
+| benchmark | c_H/c_L | sd(f_L) | sd(f_H) | var ratio | cost > var? |
+|---|---|---|---|---|---|
+| Currin 2D | 3.0 | 2.616 | 2.650 | 0.974 | YES |
+| Hartmann 6D | 8.0 | 0.363 | 0.386 | 0.886 | YES |
+| Borehole 8D | **2.0** | 36.309 | 45.628 | **0.633** | **YES** |
+
+My suspicion that "the mechanism is not what drives it" on Borehole was wrong.
+It does drive it: Borehole's variance ratio is only 0.633, so even the lowest
+cost ratio of the three clears it comfortably.
+
+The general statement is stronger than the docstring's benchmark-specific note.
+**The variance ratio is below 1 on all three benchmarks** — the LF surrogate has
+similar or lower spread than HF in each case — so any cost ratio above 1
+triggers the degeneracy. MF-GP-UCB is structurally incapable of buying an HF
+query on any benchmark in this suite, at any cost setting where HF is more
+expensive than LF at all.
+
+That makes it a *constant* in the h57 table rather than a comparison: it measures
+what the shared initial design achieves plus pure LF refinement. Useful as a
+floor, worthless as a competitor, and it should be presented that way or dropped.
