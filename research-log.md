@@ -360,3 +360,64 @@ proxy rather than the decisive measurement.
 interventions, one measured mechanism, one answered research question, and the
 one lever that remains (more seeds) is forbidden by the frozen protocol.
 Proceeding to write-up.
+
+---
+
+## 2026-08-24 (late) — the programme reopened, and the causal story changed three times
+
+The previous entry declared the empirical programme complete. That was premature
+in a productive way: six more experiments materially changed what the paper
+claims, and three of them were corrections to my own conclusions.
+
+**H27 — the user asked for sliding-window inference.** Implemented
+(`inference_context_k`): the DT receives the last K−1 real `(state, rtg, btg)`
+triples plus the current one. Gate: context genuinely grows (1→6 across
+iterations, verified per-iteration), and the proposals are **bit-identical**
+(max |Δx| = 0.000e+00), fidelity choices identical, same final regret. Stopped
+per protocol before spending the 2-hour frozen run. One loose end recorded and
+**not** resolved: a *synthetic* history (mixed ensemble blocks, fabricated
+rtg/btg) moves `h` to cosine 0.803 and `w` by 19.9%, so the tokens are
+demonstrably processed — yet the real history changes nothing. Flagged rather
+than folded into the conclusion.
+
+**H28 — retraction.** I had written into the paper that the student "inverts the
+sign of its teacher's defining term". The MF-MES teacher's own choices sit at the
+**2.9th percentile** of `sigma_H` (control: 94.2nd percentile of `mu_H`, 1600
+decisions). The student inverts nothing; it imitates. Its *score* mildly rewards
+uncertainty (+0.1585) but its *argmax* is dominated by the posterior mean
+(+0.8517), and in a GP the high-mean region is where data already sits.
+
+**H29 — intrinsic, not tuning.** Cost ratio {2,4,8,16} × y* samples {5,10,50}:
+the chosen-`sigma_H` percentile never exceeds **5.5%** in any of 12 cells. Ten
+times more Monte Carlo changes nothing; an 8× cost swing moves it ~1%→~5%.
+
+**H30 — correction.** H29's framing ("a student imitating *choices*") was wrong
+about the mechanism: the loss is soft-KL to the teacher's *scores* over the full
+K=20 set. So why does a student fitting positive-`sigma` scores learn a negative
+weight? Collinearity: `corr(mu_H, sigma_H) = −0.4696`, and under it the
+**teacher's own** score has a negative partial `sigma` coefficient (−0.0419, on
+91.4% of sets). Textbook suppression. The paper's claim that the rule "penalises
+exactly what UCB/EI/MES reward" was withdrawn — MES's own partial coef is
+negative too.
+
+**H32 — my locked prediction failed.** I predicted a lossy distillation (median
+teacher-rank of the student's pick worse than 10 of 200). Measured: **median 2**,
+range [1,12], with the student choosing the teacher's top candidate on 5 of 12
+pools. The distillation is *faithful*. My "lossy" read traced to H24's argmax
+agreement — a poor metric when the top candidates are near-ties.
+
+**H33 — the one genuine divergence.** The fidelity head outputs `p` spanning
+**0.5570–0.5577** (sd 2.4e-4) while the teacher's `ell` varies;
+`corr(p, teacher ell) = +0.155`. Uninformative, and 0.557 against the teacher's
+4.2% on identical pools. I wrote a caveat blaming `minimum_hf_fraction` and
+withdrew it minutes later — that flag never touches the real proposal path.
+
+**Where it leaves the argument.** MF-DRO reproduces its teacher's *location*
+choices closely, fails to reproduce its *fidelity* choices, adds no conditioning,
+and inherits an exploitative demonstrator. Redundant on location, uninformative
+on fidelity. H31 (teacher-only under the frozen evaluation) is running to test
+the expectation recorded in H32 before it lands: near-parity.
+
+**Process note.** Four errors this arc were caught by the same move: checking
+what a component *does* rather than what it is *specified* to do. Two more came
+from using a proxy metric instead of the decisive one.
