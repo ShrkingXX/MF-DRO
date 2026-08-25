@@ -54,13 +54,13 @@ def run(bench, arm, seed):
         b=MultiFidelityBenchmark(bench)
         opt=SFMESOptimizer(b, n_initial_hf=NHF[bench], n_initial_lf=0,
                            seed=seed, cost_budget=BUDGET)
-        qx,qy=[],[]
-        _orig=opt._add_obs
-        def _add(x,y,fid):
-            qx.append(list(map(float,np.asarray(x if not torch.is_tensor(x) else x.cpu().numpy()).reshape(-1))))
-            qy.append(float(y)); return _orig(x,y,fid)
-        opt._add_obs=_add
+        # GreedyMFBase appends straight to data_hf_x/data_hf_y -- there is no
+        # _add_obs hook (that is the mf_baselines convention). Read the arrays
+        # after the run instead of wrapping.
         r=opt.run(bo_iterations=4000)
+        qx=[list(map(float,np.asarray(x if not torch.is_tensor(x) else x.cpu().numpy()).reshape(-1)))
+            for x in opt.data_hf_x]
+        qy=[float(v) for v in opt.data_hf_y]
         curve=[float(v) for v in (r.get("hf_regret_curve") or r.get("regret_curve") or [])]
     return dict(bench=bench,arm=arm,seed=seed,n_iter_cap=n_iter,c_H=c_H,budget=BUDGET,
                 regret_curve=curve, final_regret=(curve[-1] if curve else float("nan")),
