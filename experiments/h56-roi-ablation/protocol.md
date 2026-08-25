@@ -125,3 +125,34 @@ always, cannot go vacuous, and needs no beta.
 5. **MESROI vs ROI**: if MESROI beats ROI, the gain is attributable to a stable
    acceptance rate rather than to the shape of the plausibility set, since the
    two were measured to concentrate equally at matched acceptance.
+
+---
+
+## Addendum 2: the initial design was changed before any arm was scored
+
+The first configuration (`initial_hf=6, initial_lf=45`, init cost 93 against a
+post-init budget of 100) had **zero resolving power**. Both arms on seed 44
+returned a regret curve that was flat at 0.7531 for all 16 iterations, and the
+inference-regret curve was flat at the same value: at `c_H=8` a budget of 100
+buys ~12 HF queries, and none of them beat the best of the initial 6. Two
+different arms therefore produce a bit-identical number by construction.
+
+Those runs are void and are kept, unanalysed, under
+`results/void-budget100-init93/`. No arm comparison was computed from them.
+
+Two candidate inits were validated on seed 44, GLOBAL arm only, before any arm
+was scored:
+
+| init hf/lf | init cost | init share of total | iters | regret | improvements |
+|---|---|---|---|---|---|
+| 6/45 | 93 | 65% | 16 | 0.7531 | **0 (flat)** |
+| **3/20** | **44** | **31%** | 15 | 1.050 -> 0.3336 | **3** |
+| 4/30 | 62 | 38% | 15 | 0.822 -> 0.2502 | 2 |
+
+**The experiment runs at `initial_hf=3, initial_lf=20`**, chosen for the larger
+number of improvement events and the smallest init share. The cost budget stays
+at 100 as specified.
+
+Caveat carried forward: 3 HF points is a thin basis for the KO model's rho, and
+15 iterations is short. This ablation can detect a large ROI effect and nothing
+subtle.
