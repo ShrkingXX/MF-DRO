@@ -108,11 +108,23 @@ def run(bench, method, seed, ckpt_path):
             else:
                 from src.baselines.mf_mes_takeno import run_mf_mes
                 mf._sample_initial_points(); state["phase"]="running"
+                # The initial design is drawn through mf_dro's internal path, NOT
+                # through the wrapped objectives, so the wrapper only ever sees
+                # OPTIMIZATION queries. rec()'s positional len(trace)<n_init rule
+                # is therefore wrong here -- it mislabelled the first n_init
+                # optimization queries as init and lost the real init entirely.
+                # Prepend the real init, then pin is_init=False on everything the
+                # wrapper records.
+                for x,y in zip(list(mf.data_hf_x)[:sp["n_hf"]],list(mf.data_hf_y)[:sp["n_hf"]]):
+                    rec(x.cpu().numpy(),y,1,is_init=True)
+                for x,y in zip(list(mf.data_lf_x)[:sp["n_lf"]],list(mf.data_lf_y)[:sp["n_lf"]]):
+                    rec(x.cpu().numpy(),y,0,is_init=True)
                 def wrap(fn,fid):
                     def g(X):
                         out=fn(X)
                         rec(np.asarray(X,dtype=float).reshape(-1),
-                            float(np.asarray(out,dtype=float).reshape(-1)[0]),fid)
+                            float(np.asarray(out,dtype=float).reshape(-1)[0]),fid,
+                            is_init=False)
                         return out
                     return g
                 res=run_mf_mes(f_hf=wrap(mf.f_hf,1),f_lf=wrap(mf.f_lf,0),bounds=bounds,
