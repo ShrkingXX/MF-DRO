@@ -92,3 +92,70 @@ within a seed are not independent, so per-iteration counts must not be treated
 as sample size. I will report per-seed medians and the full per-iteration
 distributions, and describe the comparison as descriptive. Any claim beyond
 "these 4 runs look like X" would need more seeds.
+
+---
+## PRE-RESULT ADDENDUM (written with 0 result files on disk, 4 workers ~3 min in)
+
+Prompted by push-back from the peer session. Recorded before any data exists,
+which is the only point at which it is legitimate.
+
+### What I was about to do wrong
+
+Having realised criterion #2 (`d_teacher_mean` lower on FAIL) is close to
+tautological — MSE onto repeated tau=0 states fits the conditional mean **by
+construction**, so the DT should sit near the teacher mean in BOTH groups — I
+said that if #1 and #3 separated while #2 did not, I would "report that as the
+mode-geometry result rather than as a failed criterion."
+
+That is criterion drift. Stating it in advance makes it honest, not correct:
+the registered test would still have been quietly replaced by the one the data
+supported. **This project has already retracted a headline for exactly this
+shape** — p=0.0371 reported as significant, which did not survive Bonferroni
+over the metrics actually examined. The error there was not fabrication; it was
+letting the reported criterion drift toward what the data would bear. Credit to
+the peer session for catching the same move here.
+
+### The registered test is UNCHANGED: 3 of 3
+
+1. `n_modes` higher on FAIL, **and**
+2. `d_teacher_mean` **lower** on FAIL, **and**
+3. `between_ratio` higher on FAIL (and > ~0.5)
+
+**If #2 does not discriminate, the pre-registered test FAILED.** It will be
+reported in those words. Any mode-geometry finding will be reported
+**separately and labelled EXPLORATORY**.
+
+### I considered demoting #2 to a diagnostic, and decided NOT to
+
+The peer suggested that a criterion which cannot fail informatively is not
+doing pre-registration work, and could legitimately be demoted now. That is a
+fair argument and demoting it before results would be defensible. I am
+declining it for a specific reason:
+
+**#2 failing is itself a real finding.** Mean-collapse as originally posed is
+the claim that the DT sits at the conditional mean *on the failing seeds* —
+i.e. that this is what distinguishes them. If `d_teacher_mean` is equally low
+on PASS, that claim is **refuted as an explanation of h45's bimodality**, even
+though the collapse itself is confirmed. Demoting #2 to a diagnostic would
+erase that negative result and leave only the flattering half. So #2 stays a
+criterion precisely because I expect it to fail.
+
+### Timestamped prediction, before data
+
+I predict **#2 will not discriminate** — `d_teacher_mean` will be comparably
+low in both groups — because the loss makes it so regardless of seed. I expect
+the groups to separate, if at all, on **mode geometry** (`n_modes`, `mode_sep`,
+mode weights, and the stability of mode locations across iterations). Recording
+this now so that if it holds, the exploratory finding carries a real prior
+rather than a retrofitted one — and so that if it fails, that is visible too.
+
+### Consequence for the write-up
+
+The headline cannot be "mean-collapse confirmed via mode geometry". If it comes
+out as predicted, the accurate sentence is: **"the pre-registered mean-collapse
+test failed; what separates the groups is mode geometry, measured
+exploratorily."** The reframing that the interesting question is not *whether*
+the DT collapses to the mean but *whether the teacher's mode structure makes
+collapsing fatal here and benign there* is the peer session's, and is credited.
+
+n = 2 vs 2 seeds throughout. No significance test, confirmatory or exploratory.
