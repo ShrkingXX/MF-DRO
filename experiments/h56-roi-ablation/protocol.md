@@ -156,3 +156,39 @@ at 100 as specified.
 Caveat carried forward: 3 HF points is a thin basis for the KO model's rho, and
 15 iterations is short. This ablation can detect a large ROI effect and nothing
 subtle.
+
+---
+
+## HALTED at 5/9 cells, by user instruction, to free cores for h57
+
+Completed: GLOBAL s44; ROI s44, s46; MESROI s44, s46.
+Not run: GLOBAL s46, s48; ROI s48; MESROI s48.
+
+**This experiment has no complete arm and exactly one paired seed (44). Its
+regret numbers must not be quoted as an arm comparison.** Locked predictions 1-5
+are all unresolved and remain so.
+
+What IS usable, because it is a property of the rules rather than a sample of
+seeds -- the ROI acceptance measurements:
+
+| arm | seed | accept mean | accept range |
+|---|---|---|---|
+| ROI (UCB/LCB, sqrt(beta)=0.5) | 44 | 4.74% | **[0.05%, 100.00%]** |
+| ROI | 46 | 0.54% | [0.05%, 5.80%] |
+| MESROI (top-10%) | 44 | 10.00% | [10.00%, 10.00%] |
+| MESROI | 46 | 10.00% | [10.00%, 10.00%] |
+
+The paper's criterion swings from 1 surviving candidate out of 2000 to all 2000
+inside a single run; the MES-native criterion holds exactly q by construction.
+That was the design prediction and it is confirmed.
+
+Also recorded, and it cuts against the MESROI design argument: mean min-distance
+to x* is ~0.20 for EVERY arm (ROI 0.2092/0.2137, MESROI 0.1998) despite
+acceptance rates spanning 0.54% to 100%. Filtering 2000 candidates to 11 gets no
+closer to the optimum than keeping all of them, so on this evidence no ROI
+variant is concentrating usefully. And on the two seeds where it ran, MESROI was
+the WORST arm (0.7202, 0.5035) -- stability of the acceptance rate did not buy
+performance, which is the opposite of what the argument for it implied.
+
+Resuming requires re-running the 4 missing cells at commit 57b65ad or later with
+the same config; the 5 completed results remain valid and are kept.
