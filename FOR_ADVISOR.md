@@ -218,11 +218,11 @@ this is not a criticism. It only bites on cheap synthetic benchmarks like ours.
   shrinking, y* drift) were each tested and each **failed**. Recorded as measured
   but unexplained. *(h34, h35, h36)*
 - **Whether any of this generalises beyond Hartmann 6D.** One benchmark.
-- **Whether the regression head would re-freeze — tested, answer is NO.**
-  Both heads on Currin (n=1, 14 iterations): regression **14/14 distinct
-  proposals, 2 incumbent improvements**, regret 0.0073; candidate scoring
-  **14/14, 1 improvement**, regret 0.0013. Query spread nearly identical
-  (0.050 vs 0.048). *(h39)*
+- **Whether the regression head would re-freeze — tested on BOTH benchmarks,
+  answer is NO.** Currin (n=1, 14 iters): 14/14 distinct proposals, 2
+  improvements *(h39)*. **Hartmann 6D (n=3, 50 iters): 0/3 frozen**, improvements
+  **3, 6, 3**, and **50/50 distinct proposals in every run** *(h42)* — against a
+  historical **9/12 (75%)** pre-leak-fix freeze rate on this same benchmark.
 
   This matters for a confound: `use_candidate_scoring=True` was the default when
   the freeze was declared resolved (h1, 0/10 frozen), and candidate scoring
