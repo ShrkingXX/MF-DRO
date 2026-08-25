@@ -421,3 +421,50 @@ the expectation recorded in H32 before it lands: near-parity.
 **Process note.** Four errors this arc were caught by the same move: checking
 what a component *does* rather than what it is *specified* to do. Two more came
 from using a proxy metric instead of the decisive one.
+
+---
+
+## 2026-08-24 (night) — H31 lands and moves the thesis up a level
+
+**The teacher-only control.** Ran `compute_joint_mf_mes`'s argmax under the
+frozen evaluation with no DT deciding — DT still trained so the RNG stream and
+therefore every candidate pool matched exactly. 10/10 in 8900 s.
+
+    MF-MES teacher, no DT : 0.4781 +/- 0.0414
+    MF-DRO / joint MES    : 0.4007 +/- 0.0475
+    paired +0.0774, teacher better on 3/10, Wilcoxon p = 0.2324
+
+**H32's expectation, locked before H31 could land, is confirmed**: near-parity,
+predicted from the faithful location distillation (teacher-rank median 2 of 200).
+The "transformer is a net negative" hypothesis is **refuted**.
+
+**The consequential number: the teacher alone also fails the frozen bar**
+(mean+SE 0.5195 vs 0.3825). It is not the transformer that cannot clear it — the
+whole MF-MES-based approach cannot, distilled or not. That relocates the negative
+result one level up and explains why eleven interventions on the DT could not
+have helped: all of them operated below the binding constraint. The paper's
+thesis was restructured around this.
+
+**A correction to H33.** Fidelity mix over full runs: teacher 11.4% HF over 112
+iterations, MF-DRO 26.7% over 70.7 — 2.3x the rate, 37% fewer queries. H33 called
+the head's *level* a defect; here that mismatch coincides with slightly *lower*
+regret, so the implication of harm is withdrawn. Only the uninformativeness
+stands (sd 2.4e-4, corr 0.155).
+
+**A statistics error of mine, caught by the user.** I reported the cost-weighted
+reward comparison (p = 0.0371) as "significant". It is not usable: cost-weighted
+regret is not the pre-registered metric and I computed it only after the
+pre-registered one failed. Bonferroni over the two metrics gives 0.025 — it does
+not survive; over the seven tests actually printed in that table the threshold is
+0.00714 and **none** survive. Retracted from the paper, findings.md and the H37
+analysis; what remains is the descriptive fact (lower on 9/10 seeds, lower at
+every checkpoint), stated as descriptive.
+
+**And a check on the standard itself.** Every conventional test also fails
+against MF-MI-Greedy: paired Wilcoxon 0.4316, paired t 0.3518, Welch 0.4387, 95%
+CI on the paired difference [-0.3250, +0.1080] contains zero, Cohen's dz 0.311.
+82 seeds would be needed for 80% power. The frozen criterion is not the obstacle.
+
+**ETA record.** H31 estimated at 15--40 min, actual 148 min. Third miss on this
+class; the binding constraint is the LF-heavy seed, since cost-budgeted
+wall-times are set by the fidelity mix.
