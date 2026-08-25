@@ -119,3 +119,50 @@ I am recording this because the same class of error — attributing a gap betwee
 two configurations to the dimension named in the arm, when several things moved
 at once — has already produced one retraction in this project (the
 multi-fidelity attribution, lesson 22).
+
+---
+
+## FOURTH difference, observed live before any result was written
+
+RHOTRUE does not merely change the surrogate's fit — it **inverts the fidelity
+policy**. Live checkpoints against BASE's finals on Borehole:
+
+| arm | seed | HF | LF | HF% |
+|---|---|---|---|---|
+| BASE | 44 | 100 | 1 | **99%** |
+| BASE | 46 | 100 | 1 | **99%** |
+| BASE | 48 | 99 | 3 | 97% |
+| **RHOTRUE** | 44 | 6 | 128 | **4%** |
+| **RHOTRUE** | 46 | 23 | 111 | **17%** |
+
+This is mechanistically expected, not a bug: `mu_H = rho*mu_L + mu_delta` and
+`var_H = rho^2*var_L + var_delta`, so a larger rho makes each LF observation more
+informative about f_H, and the cost-normalised MES teacher shifts to the cheap
+fidelity. Pinning rho at 1.2566 instead of the fitted ~0.84 is a **50%** increase
+in how much LF is believed to say about HF.
+
+So RHOTRUE differs from BASE in **four** ways: rho's value, rho's adaptivity, the
+ensemble's rho diversity, **and the realised fidelity mix (99% HF -> 4-17% HF)**.
+
+### This weakens the experiment, and the weakening is worth stating plainly
+
+Borehole was chosen as the test bed *because fidelity is inert there* — BASE
+runs 99-100% HF, so no fidelity explanation could apply. **RHOTRUE breaks that
+property.** It is no longer a fidelity-inert comparison, which was the whole
+reason for choosing this benchmark.
+
+Consequences, fixed before results:
+
+- A RHOTRUE **win** is now ambiguous between "correcting rho misspecification"
+  and "shifting budget to a cheap, perfectly-correlated fidelity" — and on
+  Borehole corr(f_LF, f_HF) = 1.000, so the second is a live alternative that
+  h58's floor result already showed can matter.
+- A RHOTRUE **loss** is similarly ambiguous: it could be the fidelity shift
+  hurting rather than rho being right.
+- The **Hartmann control still discriminates**, because differences 2-4 apply to
+  both benchmarks while only Borehole's rho is unrepresentable. A *larger*
+  Borehole gain remains the diagnostic signal; a bare "RHOTRUE wins" does not.
+
+The clean follow-up, if RHOTRUE moves anything: pin rho AND force the BASE
+fidelity mix (`minimum_hf_fraction` at inference, h58's mechanism), isolating
+the surrogate change from the policy change.
