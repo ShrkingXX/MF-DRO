@@ -1178,3 +1178,40 @@ What the 66 runs rule out as the thing to fix:
 What remains, and is common to both variants: **one seed in three blows up**,
 and the plateau sits a few percent above the best acquisition method at 100x the
 cost. Any novel method has to attack the variance, not the fidelity handling.
+
+### NULL: DRO's catastrophic seeds do not "die early" (exploratory, no new compute)
+
+Direction recorded after h57/h58/h59 was *attack the variance*. First test on
+existing data: do the worst seeds stop improving earlier than the healthy ones?
+
+Labelling the worst seed in each (benchmark, method) group across all 18 DRO
+runs and comparing the iteration of the last incumbent improvement, as a
+fraction of the run:
+
+| group | n | mean | median |
+|---|---|---|---|
+| WORST seed | 6 | 49% | 52% |
+| other seeds | 12 | 62% | 73% |
+
+Directionally consistent, but the distributions overlap almost completely. The
+WORST seeds' individual values are **62%, 41%, 95%, 0%, 0%, 96%** — they span
+the entire range. Improvement counts are 5.8 vs 7.1, also weak.
+
+**Flaw in my own labelling, stated rather than buried:** on Currin all three
+MF-DRO seeds finish at 0.0% relative regret, so "worst" there is a ranking of
+noise. Excluding Currin does not rescue the signal — Hartmann MF-DRO seed 46 is
+*healthy* at 8.7% with its last improvement at 22%, while Hartmann SF-DRO seed
+46 is *worst* at 13.3% with its last improvement at 96%. The two orderings are
+uncorrelated.
+
+**Conclusion: early stalling does not explain the variance.** That rules out the
+most obvious mechanism and, with it, the interventions that follow from it
+(restart-on-stall, early-stopping detection, longer warmup).
+
+One observation that survives and is worth a protocol rather than a guess:
+**Hartmann MF-DRO seed 44 spent its entire 200-cost budget in 31 queries at 81%
+HF and recorded ZERO improvements.** Its failure is not stalling but
+*over-spending* — at c_H=8 it bought 25 HF queries and none beat the initial
+design's incumbent. That is the mirror image of seed 46 (2% HF, 179 queries,
+also near-zero improvement). Both extremes of the fidelity split fail; the
+middle (seed 48, 28% HF) does best. Suggestive, n=3, not tested.
