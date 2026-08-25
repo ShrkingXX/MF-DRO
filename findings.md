@@ -1066,3 +1066,49 @@ recovering 22% of the regret on the 2%-HF seed by replacing 176 LF queries with
   only the single-fidelity baseline.
 - The compute ratio is unchanged: 19.4 minutes against SF-MES's ~2 seconds.
 - n = 3, no p-values.
+
+### H59 Currin complete (6/6): SF-DRO loses 0/3 — the Hartmann direction does not generalise
+
+| arm | s44 | s46 | s48 | mean | median | rel |
+|---|---|---|---|---|---|---|
+| SF-DRO | 0.0012 | **0.1844** | 0.0001 | 0.0619 | 0.0012 | 0.4% |
+| **SF-MES** | 0.0002 | 0.0009 | 0.0000 | **0.0004** | 0.0002 | **0.0%** |
+
+**SF-DRO beats SF-MES on 0/3 seeds here**, having beaten it 3/3 on Hartmann. And
+on Currin, MF-DRO (0.0%) beats SF-DRO (0.4%) — so "single fidelity is better
+than multi" does not hold either.
+
+So the Hartmann result does **not** generalise. Both of last tick's contrasts
+reverse on this benchmark.
+
+### The pattern that does hold across both: one catastrophic seed
+
+SF-DRO's Currin mean (0.0619) is 50x its median (0.0012). Seeds 44 and 48 finish
+at 0.0012 and 0.0001 — competitive with SF-MES — and seed 46 lands at 0.1844.
+This is the same shape as MF-DRO's variance throughout: h45's regression head at
+s.e. 0.1483 against scoring's 0.0475, with seeds 49 and 50 blowing up while the
+other eight were fine.
+
+**SF-DRO inherits the variance problem.** That matters for the multi-fidelity
+story: if the catastrophic-seed behaviour survives removing the fidelity head
+entirely, then the fidelity head is not its cause, and the h58 result (a 25%
+floor recovering 22% of the regret on one seed) explains less than it appeared to.
+
+### Where the north star actually stands, on 2 of 3 benchmarks
+
+| | Currin 2D | Hartmann 6D |
+|---|---|---|
+| best baseline | **0.0%** (SF-MES) | **8.5%** (MF-MES) |
+| SF-DRO | 0.4% | 11.5% |
+| MF-DRO | 0.0% | 14.7% |
+
+Neither DRO variant meets "at least as good as the baselines" on either
+benchmark. SF-DRO is closer than MF-DRO on Hartmann and further on Currin.
+
+**Correction to the previous entry.** I wrote that the Hartmann result "changes
+the project's direction" and located the failure in the multi-fidelity
+extension. On two benchmarks that reading is not supported: the direction is
+benchmark-dependent, exactly as h57's baselines were, and the variance that
+actually costs DRO its results is present with or without multi-fidelity. The
+caveat I attached ("one benchmark of three, either could reverse the direction")
+was the right one and it fired immediately.
