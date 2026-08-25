@@ -96,6 +96,39 @@ toolchain exists on this machine.</p>
 
 
 
+
+<h2>The ceiling is the acquisition, not the transformer</h2>
+<div class="card">
+<div class="kicker">H31 &mdash; delete the DT, run its teacher alone under the frozen evaluation</div>
+<div class="scroll"><table>
+<tr><th>method</th><th class="n">final simple regret</th></tr>
+<tr><td>MF-MES teacher, <strong>no DT</strong></td><td class="n">0.4781 &plusmn; 0.0414</td></tr>
+<tr class="hi"><td>MF-DRO / joint MES</td><td class="n">0.4007 &plusmn; 0.0475</td></tr>
+<tr><td>MF-MI-Greedy</td><td class="n">0.5091 &plusmn; 0.1266</td></tr>
+</table></div>
+<p>Paired, the teacher is <strong>+0.0774 worse</strong> and better on only 3/10
+seeds (Wilcoxon <strong>p = 0.2324</strong>). The prediction locked before this
+run landed &mdash; near-parity &mdash; is <span class="good">confirmed</span>, and
+"the transformer is a net negative" is <span class="bad">refuted</span>.</p>
+<p><strong>The number that matters: the teacher alone also fails the frozen bar</strong>
+(0.5195 vs 0.3825). It is not the transformer that cannot clear it &mdash; the
+whole MF-MES-based approach cannot, distilled or not. That explains why eleven
+interventions on the DT could not have helped: every one operated
+<em>below the binding constraint</em>.</p>
+</div>
+
+<div class="card">
+<div class="kicker">A statistics claim of mine, retracted</div>
+<p>I reported the cost-weighted reward comparison (p = 0.0371) as
+<em>significant</em>. It is not usable. Cost-weighted regret is not the
+pre-registered metric and I computed it only after the pre-registered one failed
+&mdash; metric selection. Bonferroni over the two metrics gives 0.025
+(<strong>does not survive</strong>); over the seven tests printed in that table
+the threshold is 0.00714 and <strong>none survive</strong>.</p>
+<p>What remains, stated as descriptive rather than as a test: joint MES is lower
+on <strong>9/10 seeds</strong> and at <strong>every checkpoint</strong>.</p>
+</div>
+
 <h2>What the policy actually is (H32&ndash;H33)</h2>
 <div class="card">
 <div class="kicker">Faithful on location &mdash; broken on fidelity</div>
