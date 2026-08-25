@@ -1449,3 +1449,35 @@ NOLFINIT (2/3) and TEACHER (0/3) still running and **withheld**.
 Swapping the MES-entropy reward for improvement-based reward makes it slightly
 worse on every seed. The reward schema is **not** what separates MF-DRO from
 SF-DRO on Borehole. One of the four confounded factors is now excluded.
+
+### H60: NOLFINIT is a NULL — the pre-registered favourite fails
+
+**CONFIRMATORY.** Borehole, seeds 44/46/48, one flag from h57's MF-DRO.
+TEACHER (0/3) still running and withheld.
+
+| arm | s44 | s46 | s48 | mean | rel | beats BASE |
+|---|---|---|---|---|---|---|
+| BASE (h57 reuse) | 75.64 | 76.59 | 67.97 | 73.40 | 23.7% | — |
+| **NOLFINIT** (`initial_lf=0`) | 80.38 | 88.03 | **57.88** | 75.43 | 24.4% | **1/3** |
+| REWARD (`rollout_reward="improvement"`) | 79.79 | 80.56 | 69.33 | 76.56 | 24.7% | 0/3 |
+
+H60's locked prediction 2 named NOLFINIT as *the arm that moves*, reasoning that
+the KO model must identify rho and a discrepancy GP from 20 LF + 10 HF points
+where SF-DRO's plain GP fits 10 HF directly. **It does not move** — mean slightly
+worse, 1 of 3 seeds better. The prediction is refuted.
+
+Note the spread: NOLFINIT's seed 48 (57.88) is the best single Borehole cell any
+MF-DRO variant has produced, while its seed 46 (88.03) is among the worst. Same
+flag, same benchmark, opposite outcomes — the variance signature again, and a
+reason not to read the 1/3 as a weak positive.
+
+**Two of the three flag-separable factors are now excluded**: the reward schema
+and the LF initial design. Neither is what separates MF-DRO from SF-DRO on
+Borehole. TEACHER (`rollout_policy="thompson"`) is the last flag.
+
+If TEACHER is also null, H60's locked prediction 3 fires: the gap is
+attributable to **the surrogate class itself** (KO-GP vs `SingleTaskGP`), which
+is not a flag and needs a code-level swap. That was registered in advance as an
+informative outcome rather than a failed experiment, and it would be the first
+time this project has narrowed a cause by elimination rather than by proposing
+a mechanism and then retracting it.
