@@ -83,3 +83,45 @@ reported as such, not as evidence about ROI.
 n = 3, one benchmark, one beta. The paper's ablation is Ackley 10D with 10
 trials; this is neither. A null here does not refute Fig. 4b, it says the
 mechanism does not transfer to MF-DRO on Hartmann 6D at a 100 cost budget.
+
+---
+
+## Addendum (before any h56 result existed): third arm MESROI
+
+The paper's UCB/LCB rule fails here because `max_x' LCB(x')` is *pessimistic* and
+sinks as sigma grows, so every UCB clears it. A third arm replaces the bar with
+the Thompson-sampled y*, which is a sampled MAXIMUM and does not degrade:
+
+    p(x) = mean_k Phi( (mu_H(x) - y*_k) / sigma_H(x) ) = mean_k Phi(-gamma_k(x))
+    ROI  = top-q of the raw pool by p(x),  q = 0.10
+
+gamma is already computed by MES, so the criterion costs one Phi call. y* is
+drawn from the fixed Sobol `y_star_pool`, never from the raw pool, because
+`thompson_sample_y_star` output depends on |X| in location and scale.
+
+### Measured before locking (Hartmann 6D, seed 44, same initial design)
+
+- `corr(p(x), ||x - x*||)` = **-0.382** (member 0), **-0.370** (member 1), n=2000.
+  The criterion carries real signal about where the optimum is.
+- Mean normalised distance to x*, member 1: GLOBAL 0.8787, UCB/LCB sqrt(b)=0.5
+  (accept 9.2%) 0.6895, MES-ROI top-10% (accept 10.0%) **0.7050**, top-5% 0.6305.
+- **At matched acceptance the two rules concentrate equally.** MES-ROI is not
+  claimed to be sharper.
+- The `frac<0.2` "enrichment" figures this probe also produced are **not usable**:
+  the base rate is 1 point in 2000, so every such ratio turns on whether one
+  point survives. Not quoted, not locked against.
+
+### Why it is still worth an arm
+
+Control, not sharpness. UCB/LCB acceptance is an uncontrolled function of beta
+and GP state -- 100% to 0.05% across a narrow beta range, and 20.3% vs 9.2% on
+two members of the same ensemble at the same beta. top-q accepts exactly q
+always, cannot go vacuous, and needs no beta.
+
+### Locked prediction for the third arm
+
+4. **MESROI vs GLOBAL**: same criterion as prediction 1 -- lower mean final HF
+   simple regret on >= 2/3 paired seeds.
+5. **MESROI vs ROI**: if MESROI beats ROI, the gain is attributable to a stable
+   acceptance rate rather than to the shape of the plausibility set, since the
+   two were measured to concentrate equally at matched acceptance.

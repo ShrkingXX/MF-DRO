@@ -20,7 +20,9 @@ cfg=_build_mf_dro_config("h56","Hartmann_6D","mfdro",SEED,bo_iterations=2000,num
 cfg.seed=SEED; cfg.rollout_reward="mes_entropy"
 # regression head is the default now; state it anyway so the record is explicit
 cfg.use_candidate_scoring=False
-cfg.use_roi=(ARM=="ROI"); cfg.roi_beta_sqrt=0.5; cfg.roi_raw_pool=2000
+cfg.use_roi=(ARM!="GLOBAL"); cfg.roi_raw_pool=2000
+cfg.roi_mode=("mes" if ARM=="MESROI" else "ucb")
+cfg.roi_beta_sqrt=0.5; cfg.roi_top_q=0.10
 t0=time.time()
 mf=DirectMFRegretOptimization(cfg,hf["make_objective"](),lf["make_objective"](),bounds)
 r=mf.run()

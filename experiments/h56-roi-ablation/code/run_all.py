@@ -2,7 +2,7 @@ import os,subprocess
 from concurrent.futures import ThreadPoolExecutor
 H=os.path.dirname(os.path.abspath(__file__))
 PY=os.path.join(H,"..","..","..",".venv","bin","python")
-JOBS=[(a,s) for s in (44,46,48) for a in ("ROI","GLOBAL")]
+JOBS=[(a,s) for s in (44,46,48) for a in ("ROI","GLOBAL","MESROI")]
 def run(j):
     a,s=j; out=os.path.join(H,"..","results",f"{a}__seed{s}.json")
     if os.path.exists(out): print(f"[skip] {a} {s}",flush=True); return

@@ -825,6 +825,9 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             kg_topk=1,
                             fantasy_mode='sample',
                             use_roi=False,
+                            roi_mode='ucb',
+                            roi_top_q=0.10,
+                            roi_y_star_pool=None,
                             roi_beta_sqrt=2.0,
                             roi_raw_pool=2000,
                             roi_x_star=None,
@@ -1063,8 +1066,44 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             _mu, _var = ko_model.hf_posterior(_raw)
             _mu = _mu.reshape(-1)
             _sd = _var.reshape(-1).clamp_min(1e-12).sqrt()
-        _b = float(roi_beta_sqrt)
-        _keep = (_mu + _b * _sd) >= (_mu - _b * _sd).max()
+        if roi_mode == 'mes':
+            # MES-native ROI. Same flavour as the paper's rule -- a
+            # plausibility filter on "could x hold the optimum", kept separate
+            # from the acquisition that selects within it -- but the bar is the
+            # Thompson-sampled y* rather than max_x' LCB(x').
+            #
+            #     p(x) = mean_k Phi( (mu_H(x) - y*_k) / sigma_H(x) )
+            #          = mean_k Phi(-gamma_k(x))
+            #
+            # gamma is what MES already computes, so this costs one Phi call.
+            # Two reasons it is preferred here over the UCB/LCB rule:
+            #   1. max_x' LCB(x') is PESSIMISTIC and collapses downward as
+            #      sigma grows, so every UCB clears it and the ROI dissolves.
+            #      Measured on Hartmann 6D at initial_hf=6/initial_lf=45: the
+            #      paper's rule accepts 100% at the Srinivas beta and 94-100%
+            #      at sqrt(beta)=1. y* is a sampled MAXIMUM and does not
+            #      degrade with sigma.
+            #   2. top-q accepts exactly q on every member at every stage.
+            #      The UCB/LCB acceptance is an uncontrolled function of beta
+            #      and GP state -- 20.3% on member 0 vs 9.2% on member 1 at
+            #      the same beta.
+            # It is NOT sharper: at matched acceptance the two concentrate
+            # equally (mean dist to x* 0.705 vs 0.690). The gain is control.
+            #
+            # y* MUST come from the fixed Sobol y_star_pool, not from _raw:
+            # thompson_sample_y_star's output depends on |X| in both location
+            # and scale (see _y_star_for_model's docstring).
+            _ys = _y_star_for_model(ko_model, roi_y_star_pool, K=32, seed=0)
+            _ys = torch.as_tensor(np.asarray(_ys),
+                                  dtype=_mu.dtype, device=_mu.device).reshape(-1)
+            _g = (_ys.view(1, -1) - _mu.view(-1, 1)) / _sd.view(-1, 1)
+            _p = torch.as_tensor(scipy_norm.cdf(-_g.detach().cpu().numpy()),
+                                 dtype=_mu.dtype, device=_mu.device).mean(dim=1)
+            _k = max(1, int(float(roi_top_q) * _p.numel()))
+            _keep = _p >= torch.topk(_p, _k).values.min()
+        else:
+            _b = float(roi_beta_sqrt)
+            _keep = (_mu + _b * _sd) >= (_mu - _b * _sd).max()
         _surv = _raw[_keep]
         _acc = float(_keep.float().mean())
         if _surv.shape[0] >= _N_POOL:
@@ -2212,6 +2251,9 @@ class DirectMFRegretOptimization:
                     kg_topk=getattr(self.config, 'kg_topk', 1),
                     fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
                     use_roi=self.use_roi,
+                    roi_mode=getattr(self.config, 'roi_mode', 'ucb'),
+                    roi_top_q=getattr(self.config, 'roi_top_q', 0.10),
+                    roi_y_star_pool=self.y_star_pool,
                     roi_beta_sqrt=getattr(self.config, 'roi_beta_sqrt', 2.0),
                     roi_raw_pool=getattr(self.config, 'roi_raw_pool', 2000),
                     roi_x_star=self._roi_x_star,
