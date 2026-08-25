@@ -1409,3 +1409,43 @@ indexing is unusable for it.
 Consistent with the random-search calibration: MF-DRO's 99 post-init HF queries
 buy what ~1000 random draws buy, MI-Greedy's buy more than 20,000 do. The
 difference is concentrated early.
+
+### The early-HF deficit is BOREHOLE-SPECIFIC, not a general DRO cold start
+
+Same value-level indexing (best-HF-so-far by HF query number, shared 10-point HF
+init verified identical at query 0 on all three benchmarks):
+
+| benchmark | q10 | q20 | direction |
+|---|---|---|---|
+| **Borehole 8D** | **-15.1%** | **-23.9%** | MF-DRO **behind** MI-Greedy |
+| Hartmann 6D | — | — | MF-DRO **ahead** +18.3% (at q8, its last shared index) |
+| Currin 2D | +6.0% | +5.8% | MF-DRO **ahead** |
+
+So MF-DRO's search is **competitive or better per HF evaluation on two of three
+benchmarks**, and specifically deficient on Borehole. The previous entry's
+framing ("a slow start that is never recovered") is correct for Borehole and
+does **not** generalise — it is not a cold-start property of the architecture.
+
+Worth restating what this implies for the headline table: MF-DRO **beats
+MI-Greedy** on Hartmann (14.7% vs 23.9%) and Currin (0.0% vs 0.2%). Its losses
+are to **MF-MES** on Hartmann, and to both baselines on Borehole. Borehole is the
+only benchmark where it is beaten by everything.
+
+Part of the per-HF-query advantage on Hartmann and Currin is legitimate
+multi-fidelity benefit — MF-DRO also holds LF observations that MI-Greedy does
+not. That is the mechanism multi-fidelity is supposed to provide, and on those
+two benchmarks it works.
+
+### H60 partial: REWARD arm complete, and it is a clean null
+
+**CONFIRMATORY.** Borehole, seeds 44/46/48, one flag changed from h57's MF-DRO.
+NOLFINIT (2/3) and TEACHER (0/3) still running and **withheld**.
+
+| arm | s44 | s46 | s48 | mean | rel | vs BASE |
+|---|---|---|---|---|---|---|
+| BASE (h57 reuse) | 75.64 | 76.59 | 67.97 | 73.40 | 23.7% | — |
+| **REWARD** (`rollout_reward="improvement"`) | 79.79 | 80.56 | 69.33 | 76.56 | 24.7% | **beats BASE 0/3** |
+
+Swapping the MES-entropy reward for improvement-based reward makes it slightly
+worse on every seed. The reward schema is **not** what separates MF-DRO from
+SF-DRO on Borehole. One of the four confounded factors is now excluded.
