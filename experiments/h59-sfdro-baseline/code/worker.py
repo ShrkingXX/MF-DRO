@@ -46,8 +46,13 @@ def run(bench, arm, seed):
         dro.run_optimization()
         h=dro.iteration_log_history
         curve=[float(d["regret"]) for d in h]
-        qx=[list(map(float,np.asarray(d["x"]).reshape(-1))) for d in h if "x" in d]
-        qy=[float(d["y"]) for d in h if "y" in d]
+        # iteration_log_history has NO per-iteration x/y -- its keys are regret,
+        # best, mean_reward, zero_frac, rtg_target, batch_max_rtg,
+        # running_max_rtg (see dro_runner's RESULT_KEYS extraction). Looking for
+        # d["x"]/d["y"] silently produced an EMPTY trace on the first 3 Currin
+        # SF-DRO runs. The queries live on the optimizer itself.
+        qx=[list(map(float,np.asarray(v).reshape(-1))) for v in dro.data_x.detach().cpu().numpy()]
+        qy=[float(v) for v in np.asarray(dro.data_y.detach().cpu().numpy()).reshape(-1)]
     else:
         from src.baselines.mf_baselines import MultiFidelityBenchmark
         from src.baselines.additive_mes import SFMESOptimizer
