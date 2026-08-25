@@ -159,3 +159,26 @@ the DT collapses to the mean but *whether the teacher's mode structure makes
 collapsing fatal here and benign there* is the peer session's, and is credited.
 
 n = 2 vs 2 seeds throughout. No significance test, confirmatory or exploratory.
+
+### Resolution of the #2 question (still 0 results on disk)
+
+The peer session withdrew the demotion argument after checking it. Agreed
+resolution, no disagreement outstanding:
+
+- **#2 stays a criterion.** It tests the *discriminative* claim — that collapse
+  is what separates failing seeds from healthy ones — not the tautological one
+  that MSE fits the conditional mean.
+- **Both sessions predict, in advance, that #2 will fail.**
+- That failure is a **reportable negative result about the hypothesis as posed**,
+  not a criterion that underperformed. It refutes mean-collapse as an
+  *explanation* of h45's bimodality while confirming the collapse itself.
+- General form both sessions now accept: **a criterion you expect to FAIL does
+  more pre-registration work than one you expect to pass.**
+
+**For the analysis write-up:** the prediction that #2 will fail and that
+separation, if any, comes from mode geometry is dated at commit `58081bb`,
+which precedes every result file in this directory. If mode geometry does
+separate, the finding stays labelled EXPLORATORY, but the prior is genuine and
+independently checkable — a reviewer can verify the commit predates the data.
+State this in the analysis with the hash; prose alone does not carry it,
+because the commit is the evidence.
