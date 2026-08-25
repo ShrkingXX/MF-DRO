@@ -40,13 +40,29 @@ So the extra tokens are **not** ignored: the network processes them and the
 coefficient vector moves by ~20%. Yet with the **real** history a run actually
 produces, the decision never changes, to machine precision.
 
-We do not currently have a measurement reconciling these. Two candidate
-explanations — (a) the real history carries far less variation than the
-synthetic one, so the induced Δw is much smaller than 20%; (b) the induced shift
-lies close to a rescaling of `w`, which preserves an argmax — are **untested**.
-The run-level result stands on its own and is what answers the question asked;
-the synthetic probe is flagged as an open loose end rather than folded into the
-conclusion.
+## LOOSE END CLOSED — explanation (a) is refuted, (b) is supported
+
+Measured directly on a real 10-iteration run's own history:
+
+| | real history | synthetic probe |
+|---|---|---|
+| mean pairwise L2 among history states | **3.5703** | — |
+| `‖h(T=8) − h(T=1)‖` | 5.2035 (cosine **0.8947**, ~26.5°) | 7.102 (cosine 0.803) |
+| **`‖Δw‖ / ‖w‖`** | **11.20%** | 19.88% |
+| **argmax moved** | **0/12** | — |
+
+**Explanation (a) is wrong.** Real history is not impoverished relative to the
+synthetic one: it moves `w` by **11.2%**, the same order as the synthetic 19.9%.
+
+**Explanation (b) is supported.** An 11.2% perturbation of `w` — roughly 85x the
+0.13% that ordinary state variation produces (H23) — still reorders nothing. The
+induced shift lies in directions that do not change the candidate ranking. This
+is the same structure H22 found by a different route: amplifying inputs 100x
+grows the coefficient spread 76x and still moves the argmax 0/12.
+
+So the tokens are processed, `w` genuinely moves, and the decision is invariant
+anyway. The loose end resolves *into* the main account rather than complicating
+it.
 
 ## Status
 
