@@ -1865,6 +1865,23 @@ class DirectMFRegretOptimization:
         _ls_low = math.exp(LENGTHSCALE_PRIOR_LOC - 2 * LENGTHSCALE_PRIOR_SCALE)
         _ls_high = math.exp(LENGTHSCALE_PRIOR_LOC + 2 * LENGTHSCALE_PRIOR_SCALE)
         _ls_grid = torch.linspace(_ls_low, _ls_high, config.M).tolist()
+        # H49: ko_ensemble[0] is NOT just one of M rollout generators -- it is
+        # the model behind every real decision (the y* pool at 2577, the state
+        # reference grid at 2598, candidate features at 2659, _refine_proposal
+        # at 2784, inference regret at 3009). The diversity grid anchors it at
+        # the SHORTEST lengthscale, which ko_gp.py's own docstring identifies as
+        # the near-interpolation / over-fitting regime. Measured cost of that
+        # anchor, holding the acquisition fixed (H48 decomposition, MF-MES,
+        # Hartmann 6D, 10 seeds): initial_lengthscale alone +0.1058 regret on
+        # 10/10 seeds, p=0.0020; rho_init alone +0.0673, p=0.1934 (not
+        # significant). So the lengthscale anchor is the knob, and only member
+        # 0 needs to change -- members 1..M-1 keep the grid, preserving the
+        # rollout diversity it exists for and keeping member 0 in the rollout
+        # pool so the train/inference state distributions still match (the
+        # point of the earlier Bug A fix at 2591).
+        if getattr(config, 'natural_decision_lengthscale', False) and config.M > 1:
+            _ls_grid = [None] + torch.linspace(
+                _ls_low, _ls_high, config.M - 1).tolist()
         self.ko_ensemble = [
             KennedyOHaganGP(d=self.d, rho_init=_rho_inits[m],
                              initial_lengthscale=_ls_grid[m], **_ko_kwargs)
