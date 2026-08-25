@@ -350,3 +350,28 @@ active_watch:
     144/144 and 74/74 distinct with ZERO improvements.
 
 loop: cron c58fc166, every 20 min at :09/:29/:49 (off the :00/:30 marks).
+
+# ---- 2026-08-25 outer loop: h57/h58/h59 complete, 66 runs ----
+status: >
+  Neither SF-DRO nor MF-DRO meets "at least as good as the baselines" on ANY of
+  the three benchmarks. Gaps to the best baseline: 0.4pp Currin, 3.0pp Hartmann,
+  6.8pp Borehole. Best baseline changes identity per benchmark (SF-MES /
+  MF-MES / MI-Greedy).
+
+established:
+  - dropping multi-fidelity HELPS DRO: SF-DRO beats MF-DRO 3/3 Borehole, 2/3
+    Hartmann; MF-DRO wins Currin only at the saturation floor. Necessary but
+    not sufficient.
+  - DRO beats its own-fidelity MES on exactly 1 of 3 benchmarks (Hartmann 3/3),
+    which is also the only benchmark whose LF optimum (4.0019) EXCEEDS its HF
+    optimum (3.3224).
+  - the catastrophic-seed variance survives removing the fidelity head:
+    SF-DRO Currin mean 0.0619 vs median 0.0012 (50x).
+
+ruled_out_as_the_thing_to_fix:
+  - search quality (queries at 88.7-99.9th pct of domain value)
+  - query freeze (distinct == n_queries in all 9 MF-DRO cells)
+  - distance to x* (retracted; no value signal on Hartmann/Borehole)
+  - fidelity head alone (SF-DRO has none, still blows up on one seed in three)
+
+next_direction: attack the VARIANCE, not the fidelity handling.

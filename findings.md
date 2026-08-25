@@ -1112,3 +1112,69 @@ benchmark-dependent, exactly as h57's baselines were, and the variance that
 actually costs DRO its results is present with or without multi-fidelity. The
 caveat I attached ("one benchmark of three, either could reverse the direction")
 was the right one and it fired immediately.
+
+---
+
+# H57 + H58 + H59 ALL COMPLETE (66 runs) — the north star is not met by either DRO variant
+
+**CONFIRMATORY.** Budget 200 post-init, seeds 44/46/48, shared initial design,
+pinned commits, hash in every result file.
+
+## Relative simple regret (regret / f(x*))
+
+| method | Currin 2D | Hartmann 6D | Borehole 8D |
+|---|---|---|---|
+| SF-DRO | 0.4% | 11.5% | 15.1% |
+| MF-DRO | **0.0%** | 14.7% | 23.7% |
+| SF-MES | **0.0%** | 21.4% | 13.3% |
+| MF-MES | 0.6% | **8.5%** | 11.3% |
+| MF-MI-Greedy | 0.2% | 23.9% | **8.3%** |
+| MF-GP-UCB *(all-LF floor)* | 10.0% | 45.3% | 44.1% |
+
+**Best baseline changes identity every time**: SF-MES on Currin, MF-MES on
+Hartmann, MI-Greedy on Borehole.
+
+## The three results
+
+**1. NEITHER DRO variant meets the bar, on any benchmark.**
+
+| | SF-DRO | MF-DRO | best baseline |
+|---|---|---|---|
+| Currin | 0.4% | 0.0% | 0.0% (SF-MES) |
+| Hartmann | 11.5% | 14.7% | 8.5% (MF-MES) |
+| Borehole | 15.1% | 23.7% | 8.3% (MI-Greedy) |
+
+MF-DRO ties on Currin only because the benchmark is saturated — every
+non-degenerate method is inside 0.6%.
+
+**2. Dropping multi-fidelity HELPS DRO, on 2 of 3 benchmarks.** SF-DRO beats
+MF-DRO 3/3 on Borehole (15.1% vs 23.7%) and 2/3 on Hartmann (11.5% vs 14.7%);
+MF-DRO wins Currin 2/3, where both are at the saturation floor. So the
+multi-fidelity extension is a net negative for this architecture — but removing
+it is not sufficient to clear the baselines.
+
+**3. DRO beats its own-fidelity MES baseline on exactly one benchmark.**
+SF-DRO vs SF-MES: 3/3 Hartmann, 0/3 Currin, 0/3 Borehole. The Hartmann win does
+not generalise, and Hartmann is the one benchmark whose LF optimum (4.0019)
+exceeds its HF optimum (3.3224) — see the failure-mode note.
+
+## Where that leaves the north star
+
+"A novel method based on SF-DRO that is at least as good as the baselines" is
+**not reached by SF-DRO as it stands**. The gap is 0.4pp on Currin, 3.0pp on
+Hartmann, 6.8pp on Borehole — and the compute ratio is 19-67 minutes per run
+against MI-Greedy's 0.4-0.7.
+
+What the 66 runs rule out as the thing to fix:
+
+- **not the search** — stalled queries sit at the 88.7-99.9th percentile of
+  domain value, incumbents at 98.7-100th
+- **not query freeze** — `distinct == n_queries` in all 9 MF-DRO cells
+- **not distance from the optimum** — retracted; on Hartmann the best value
+  within 0.3 of x* equals the best beyond 1.0 away
+- **not (only) the fidelity head** — SF-DRO has none and still shows the
+  catastrophic-seed variance (Currin mean 0.0619 vs median 0.0012, 50x)
+
+What remains, and is common to both variants: **one seed in three blows up**,
+and the plateau sits a few percent above the best acquisition method at 100x the
+cost. Any novel method has to attack the variance, not the fidelity handling.
