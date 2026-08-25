@@ -47,6 +47,27 @@ queries HF at all — so it is not evidence of much.
 the honest headline. **The gap narrowed by roughly half across two rewards. It
 did not close.**
 
+### But the frozen metric samples one point of a trajectory (H37)
+
+Cost-weighted regret (AUC over the budget) tells a different story:
+
+| method | AUC/budget | r@100 |
+|---|---|---|
+| **MF-DRO / joint MES** | **0.6805 ± 0.070** | **0.490** |
+| MF-DRO / improvement | 0.8716 ± 0.057 | 0.815 |
+| MF-MI-Greedy | 1.0639 ± 0.127 | 1.042 |
+| MF-GP-UCB | 1.7934 ± 0.122 | 1.793 |
+
+- The **reward change is significant here**: paired −0.1911, **9/10 seeds,
+  Wilcoxon p = 0.0371** — versus p = 0.375 on final regret.
+- MF-DRO beats MI-Greedy by **2.1×** at cost 100, narrowing to 0.401 vs 0.593 by
+  cost 200. Its advantage is **early**; MI-Greedy closes late.
+
+Consistent with the fidelity finding: MF-DRO queries HF ~26–31% vs the teacher's
+~12%, buying early incumbent progress at late-budget cost. **Supplementary only**
+— the frozen success test is on final regret, still FAILS, and vs MI-Greedy this
+axis gives p = 0.0645, no more significant at n=10.
+
 **Paired analysis matters more than the means.** Better on 4/10 seeds, worse on
 6/10; mean paired diff -0.0045 but **median +0.0915**; Wilcoxon p = 0.2754. The
 near-zero mean is carried almost entirely by seed45, where MI-Greedy failed badly

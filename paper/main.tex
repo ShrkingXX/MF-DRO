@@ -460,6 +460,52 @@ incumbent cannot move by construction. Beating it is not evidence of much.
 conditioning channel predicts. MF-DRO improves the way a re-fitted acquisition
 function improves.
 
+\subsection{The frozen metric hides an anytime advantage}
+\label{sec:anytime}
+
+\begin{figure}[t]\centering
+\includegraphics[width=.72\linewidth]{figs/fig4_regret_vs_cost.pdf}
+\caption{Regret against post-initialisation cost, mean $\pm$ SE over the same ten
+seeds. MF-DRO with the joint-MES reward is below both baselines throughout the
+budget, by a factor of $2.1$ at cost $100$. The frozen protocol scores only the
+final point, where the gap has substantially narrowed.}
+\label{fig:anytime}
+\end{figure}
+
+Final simple regret samples one point of a trajectory. Integrating instead over
+the whole budget---area under the regret-vs-cost curve, divided by the
+budget---gives a different and sharper picture (Figure~\ref{fig:anytime}).
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Method & AUC/budget $\downarrow$ & regret at cost $100$ \\
+\midrule
+MF-DRO / joint MES     & $\mathbf{0.6805 \pm 0.070}$ & $\mathbf{0.490}$ \\
+MF-DRO / improvement   & $0.8716 \pm 0.057$ & $0.815$ \\
+MF-MI-Greedy           & $1.0639 \pm 0.127$ & $1.042$ \\
+MF-GP-UCB              & $1.7934 \pm 0.122$ & $1.793$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two things follow. First, the reward change is \emph{significant} on this axis:
+paired against the improvement reward, $-0.1911$ on $9/10$ seeds,
+Wilcoxon $p = 0.0371$, where the same comparison on final regret gave
+$p = 0.375$. Second, MF-DRO's advantage over MF-MI-Greedy is concentrated
+\emph{early}: a factor of $2.1$ at cost $100$, narrowing to $0.401$ versus
+$0.593$ by cost $200$. This is consistent with the fidelity finding of
+Section~\ref{sec:fidelity}---MF-DRO queries high fidelity far more often than its
+teacher does, buying early incumbent progress at the cost of late-budget
+efficiency.
+
+We report this as \textbf{supplementary}. The pre-registered success test is
+defined on final regret and is unaffected: it fails, and the paired comparison
+against MF-MI-Greedy on this axis ($p = 0.0645$) is no more significant at
+$n{=}10$ than on the frozen one. What the anytime view adds is that the gap the
+frozen metric measures at its narrowest is much wider through the middle of the
+run.
+
 \section{Why Conditioning Fixes Cannot Rescue This}
 \label{sec:related}
 
