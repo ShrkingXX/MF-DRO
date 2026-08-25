@@ -674,3 +674,50 @@ always defaulted to `True` and the `False` branch was unreachable. Found by an
 recorded result moves. An audit of every other config attribute the DT reads
 (`cand_feature_dim`, `rtg_conditioning`, `score_temp`) confirms those **are**
 forwarded; this was the only dead one.
+
+---
+
+## H57 baselines complete (27/27 cells) — the bar MF-DRO has to clear
+
+**CONFIRMATORY** for the three baseline arms; MF-DRO's 9 cells are still running
+and are **withheld** (lesson 19 — do not report the subset when the rest is
+coming). Budget 200 post-init, seeds 44/46/48, all methods drawing the identical
+initial design via `init_design.make_initial_design`, every result stamped with
+its code commit.
+
+Final HF simple regret, normalised by f(x*) so benchmarks are comparable at all:
+
+| method | Currin 2D | Hartmann 6D | Borehole 8D |
+|---|---|---|---|
+| MF-MES (Takeno, L-BFGS-B) | 0.6% | **8.5%** | 11.3% |
+| MF-MI-Greedy | **0.2%** | 23.9% | **8.3%** |
+| MF-GP-UCB | 10.0% | 45.3% | 44.1% |
+
+Paired win counts (3 seeds):
+
+| | Currin | Hartmann | Borehole |
+|---|---|---|---|
+| MES vs MI-Greedy | 1-2 | **3-0** | 1-2 |
+| MES vs GP-UCB | 3-0 | 3-0 | 3-0 |
+| MI-Greedy vs GP-UCB | 3-0 | 3-0 | 3-0 |
+
+### The finding that matters for the north star
+
+**No single baseline dominates.** MF-MES wins Hartmann 3-0 but loses Currin and
+Borehole 1-2 to MF-MI-Greedy. So "at least as good as the baselines" is not one
+number to beat — it is the per-benchmark best, and that best changes identity
+across benchmarks:
+
+    Currin 2D    0.2%   (MI-Greedy)
+    Hartmann 6D  8.5%   (MF-MES)
+    Borehole 8D  8.3%   (MI-Greedy)
+
+A method that matched MF-MES everywhere would still lose Currin by 3x and
+Borehole by 1.4x. This is a harder target than "beat MF-MES", which is how the
+goal has usually been phrased in this project.
+
+**MF-GP-UCB is decisively last**, 0-3 against both others on every benchmark.
+It is not a competitive baseline here and should not be used to flatter a
+comparison.
+
+n=3 per cell. No p-values. Directions and win counts only.
