@@ -1635,3 +1635,41 @@ shortfall on Borehole would be invisible.
 **99.7-99.9th percentile** and still finish 14-16% short. The value-percentile
 diagnostic cannot discriminate there — every method is at the top of the
 distribution and the differences live in the last fraction of a percentile.
+
+### CORRECTION: Currin is the FLATTEST benchmark near its optimum, not the steepest
+
+Last entry explained Currin seed 46's blow-up as the benchmark "saturating so
+steeply near its optimum" that a 0.9-percentile shortfall becomes a 1500x regret
+difference. **The steepness half of that is backwards.** Relative regret incurred
+by landing at a given value percentile:
+
+| benchmark | p50 | p90 | p99 | p99.9 | p100 | p99 -> p99.9 drop |
+|---|---|---|---|---|---|---|
+| **Currin 2D** | 48.5% | 17.7% | 1.5% | 0.1% | 0.0% | **1.46 pp** |
+| Hartmann 6D | 96.9% | 78.2% | 44.4% | 20.6% | 5.8% | 23.79 pp |
+| Borehole 8D | 77.6% | 53.9% | 36.2% | 23.8% | 16.2% | 12.36 pp |
+
+Currin is the **flattest** near the top — a percentile shortfall costs 1.46 pp
+there against Hartmann's 23.79. The large *ratio* comes from the denominator,
+not from steepness: the healthy Currin seeds finish at 0.0001-0.0012 absolute
+regret, so any non-trivial value divided by that is an enormous multiple.
+
+**Corrected statement.** Seed 46's 0.1844 is **1.34% relative regret**; the
+healthy seeds are at 0.009% and 0.0007%. The absolute spread is ~1.3 percentage
+points — the whole p99-to-p100 range on Currin. So:
+
+- The **conclusion holds**: the blow-up is not a policy collapse. Its search is
+  only marginally worse (89.0th percentile vs 92.1st and 97.8th).
+- The **mechanism was wrong**: it is not steep saturation. It is that Currin
+  compresses every competent method into the last 1.5 pp of regret, which makes
+  regret *ratios* on that benchmark unstable and close to meaningless.
+
+This is the same point as "Currin does not discriminate" (h57), arrived at from
+the other direction, and it is a stronger reason to distrust Currin ratios than
+the saturation story I gave.
+
+**Consequence for the variance narrative.** I have twice told the user that
+catastrophic-seed variance is the failure mode to attack. On Currin that
+variance is a 1.3 pp effect inflated by a near-zero denominator. The variance
+that matters, if any, must be demonstrated on Hartmann or Borehole where a
+percentile shortfall actually costs regret — not on Currin.
