@@ -829,3 +829,37 @@ assessment of MF-GP-UCB as a method. Either its cost-weighted acquisition is
 degenerate at these cost ratios or there is a defect in that baseline. Flagged,
 not yet diagnosed — and until it is, MF-GP-UCB should not be used as a
 comparison point in any writeup.
+
+### Correction to the MF-GP-UCB caveat above
+
+I wrote that MF-GP-UCB's 0% HF is "either a degenerate cost-weighted acquisition
+or a defect in that baseline. Flagged, not yet diagnosed." That was wrong to the
+extent it implied a possible bug — the behaviour is **documented in the class
+docstring**, predicted in advance, and attributed to the method:
+
+> On Currin 2D (c_H=3) and Hartmann 6D (c_H=8), MF-GP-UCB degenerates to all-LF
+> selection when the cost ratio exceeds the prior variance ratio of the two
+> fidelity GPs. This is a known limitation of the cost-normalized UCB approach
+> (Kandasamy et al. 2016) and is expected behavior on these benchmarks. The
+> regret curve will plateau since HF is never queried.
+
+So the 0-3 record is the documented failure mode of naive cost-normalized UCB at
+these cost ratios, not an implementation defect. My "not yet diagnosed" was a
+failure to read the docstring of the class I was running.
+
+Two things that survive the correction:
+
+1. **The reporting caveat stands.** MF-GP-UCB in a results table is a method
+   operating in a regime where it provably cannot query HF. Quoting its 45.3%
+   relative regret next to MF-MES's 8.5% invites the reading that MF-MES is 5x
+   better at optimisation, when the actual content is that one method never
+   spent on the fidelity that sets the incumbent. It should be labelled as a
+   degenerate-regime reference, not a competitor.
+
+2. **The docstring does not cover Borehole 8D, and Borehole degenerates too.**
+   At c_H=2 — the *lowest* cost ratio of the three — MF-GP-UCB is still at 0% HF
+   on all three seeds. The stated mechanism (cost ratio exceeding the prior
+   variance ratio) predicts degeneracy should be *least* likely there. Either
+   the LF/HF prior variance ratio on Borehole is under 2, or the mechanism is
+   not what drives it. Genuinely undiagnosed, unlike the first two benchmarks,
+   and cheap to settle by reading the two GPs' prior variances directly.
