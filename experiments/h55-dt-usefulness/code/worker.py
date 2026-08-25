@@ -18,7 +18,7 @@ hf=get_benchmark("Hartmann_6D_HF"); lf=get_benchmark("Hartmann_6D_LF")
 bounds=torch.tensor([hf["domain_min"],hf["domain_max"]],dtype=torch.float64)
 lo,hi=bounds[0],bounds[1]
 torch.manual_seed(SEED); np.random.seed(SEED)
-cfg=_build_mf_dro_config("h49","Hartmann_6D","mfdro",SEED,bo_iterations=50,num_epochs=10,
+cfg=_build_mf_dro_config("h55","Hartmann_6D","mfdro",SEED,bo_iterations=50,num_epochs=10,
     minimum_hf_fraction=0.25,real_hf_warmup=2,cost_budget=1e12,initial_hf=6,
     initial_lf=45,dkl_threshold=9999,bes_delta=0.0,rollout_length=8)
 cfg.seed=SEED; cfg.rollout_reward="mes_entropy"

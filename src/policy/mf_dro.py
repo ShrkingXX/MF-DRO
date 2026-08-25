@@ -824,6 +824,11 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             kg_signed=False,
                             kg_topk=1,
                             fantasy_mode='sample',
+                            use_roi=False,
+                            roi_beta_sqrt=2.0,
+                            roi_raw_pool=2000,
+                            roi_x_star=None,
+                            roi_stats=None,
                             y_star_seed=0):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
@@ -1024,13 +1029,66 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     # longer needs any candidate set at all (Fix 1, see _extract_mf_state's
     # docstring); _propose_next_query correspondingly no longer builds an
     # ROI-filtered pool either, since it had no other use for one.
-    roi_candidates = (
-        bounds[0]
-        + (bounds[1] - bounds[0])
-        * torch.rand(200, ko_model.d,
-                     device=ko_model.device,
-                     dtype=ko_model.dtype)
-    )
+    _N_POOL = 200
+    if not use_roi:
+        roi_candidates = (
+            bounds[0]
+            + (bounds[1] - bounds[0])
+            * torch.rand(_N_POOL, ko_model.d,
+                         device=ko_model.device,
+                         dtype=ko_model.dtype)
+        )
+    else:
+        # DRO paper Sec 4.2: X_hat_{m,t} = {x | UCB_m(x) >= max_x' LCB_m(x')},
+        # UCB/LCB = mu_m +/- sqrt(beta) sigma_m, computed per ensemble member
+        # on ITS OWN posterior, constraining rollout simulations only (never
+        # the real query). MF adaptation: the HF posterior, since the HF
+        # function is what is being optimized.
+        #
+        # beta: the paper calls it "an exploration-exploitation trade-off
+        # parameter" and does not give a value. The Srinivas et al. 2010
+        # formula used elsewhere in this repo gives sqrt(beta) ~ 5.5 at these
+        # pool sizes, which admits essentially the whole domain and makes the
+        # ablation vacuous. roi_beta_sqrt is therefore an explicit knob
+        # (default 2.0, a standard 2-sigma band) and roi_stats records the
+        # acceptance rate so it is visible whether the ROI actually bound.
+        _raw = (
+            bounds[0]
+            + (bounds[1] - bounds[0])
+            * torch.rand(roi_raw_pool, ko_model.d,
+                         device=ko_model.device,
+                         dtype=ko_model.dtype)
+        )
+        with torch.no_grad():
+            _mu, _var = ko_model.hf_posterior(_raw)
+            _mu = _mu.reshape(-1)
+            _sd = _var.reshape(-1).clamp_min(1e-12).sqrt()
+        _b = float(roi_beta_sqrt)
+        _keep = (_mu + _b * _sd) >= (_mu - _b * _sd).max()
+        _surv = _raw[_keep]
+        _acc = float(_keep.float().mean())
+        if _surv.shape[0] >= _N_POOL:
+            _idx = torch.randperm(_surv.shape[0], device=_surv.device)[:_N_POOL]
+            roi_candidates = _surv[_idx]
+        elif _surv.shape[0] > 0:
+            # Sample WITH replacement rather than falling back to the global
+            # pool: a tight ROI is the mechanism working, not a failure.
+            _idx = torch.randint(_surv.shape[0], (_N_POOL,), device=_surv.device)
+            roi_candidates = _surv[_idx]
+        else:
+            roi_candidates = _raw[:_N_POOL]
+        if roi_stats is not None:
+            _rec = {'accept_frac': _acc, 'n_surv': int(_surv.shape[0])}
+            if roi_x_star is not None:
+                # The failure that got ROI deleted before: an ROI that never
+                # contains anything near the optimum starves the DT of
+                # near-optimal training examples. Measured, not assumed.
+                _span = (bounds[1] - bounds[0])
+                _dn = ((roi_candidates - roi_x_star.to(roi_candidates)) / _span
+                       ).norm(dim=1)
+                _rec['min_dist_to_xstar'] = float(_dn.min())
+                _rec['frac_within_0.2'] = float((_dn <= 0.2).float().mean())
+            roi_stats.append(_rec)
 
     def _rollout_gumbel_b(ko_for_b):
         """
@@ -1801,6 +1859,15 @@ class DirectMFRegretOptimization:
         # catastrophic rather than uniform. Set use_candidate_scoring=True to
         # restore the old head.
         self.use_candidate_scoring = getattr(config, 'use_candidate_scoring', False)
+        # DRO paper Sec 4.2 ROI filtering of ROLLOUT candidates. Default OFF:
+        # this repo removed ROI after an earlier version was measured giving
+        # zero rollout steps within L2=0.2 of the optimum. roi_stats makes
+        # that failure visible instead of silent.
+        self.use_roi = getattr(config, 'use_roi', False)
+        self.roi_stats = [] if self.use_roi else None
+        _kx = getattr(config, 'known_optimal_x', None)
+        self._roi_x_star = (torch.as_tensor(_kx, dtype=bounds.dtype)
+                            if _kx is not None else None)
         # Change 1c/1d and Change 2 ablation flags (all default ON, per spec).
         self.use_candidate_features = getattr(config, 'use_candidate_features', True)
         # CRITICAL-2: `soft_targets` (default True) switches the whole
@@ -2144,6 +2211,11 @@ class DirectMFRegretOptimization:
                     kg_signed=getattr(self.config, 'kg_signed', False),
                     kg_topk=getattr(self.config, 'kg_topk', 1),
                     fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
+                    use_roi=self.use_roi,
+                    roi_beta_sqrt=getattr(self.config, 'roi_beta_sqrt', 2.0),
+                    roi_raw_pool=getattr(self.config, 'roi_raw_pool', 2000),
+                    roi_x_star=self._roi_x_star,
+                    roi_stats=self.roi_stats,
                     use_real_rollout_queries=self.use_real_rollout_queries,
                     f_hf_real=(self.f_hf if self.use_real_rollout_queries else None),
                     f_lf_real=(self.f_lf if self.use_real_rollout_queries else None),

@@ -1,4 +1,4 @@
-# H49 — is the DT useful, and does the head choice change the answer?
+# H55 — is the DT useful, and does the head choice change the answer?
 
 ## The question
 
