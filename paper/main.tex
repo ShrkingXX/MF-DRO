@@ -28,7 +28,12 @@ optimization policy does not, in practice, condition on its inputs: across the
 realised support of every input channel---the state, the return-to-go, the
 budget-to-go, and its own interaction history---the proposed query never
 changes. Stretching return-to-go over nine orders of magnitude, far outside
-anything the system can present, moves it on $1$ of $12$ probes. Establishing this is difficult because such a policy still
+anything the system can present, moves it on $1$ of $12$ probes. We then show
+this does not matter for performance, which is the more useful result: the
+policy is a faithful copy of its own teacher acquisition (median teacher-rank
+$2$ of $200$), and running that teacher \emph{without any transformer} performs
+indistinguishably ($p = 0.23$) and fails the same pre-registered bar. The
+ceiling is set by the acquisition, not by the machinery wrapped around it. Establishing this is difficult because such a policy still
 \emph{appears} adaptive---its queries move between iterations---so behavioural
 evidence is misleading. We separate the two mechanisms by holding the network's
 weights fixed and varying only its inputs, which isolates conditioning from
@@ -107,6 +112,10 @@ probes in every arm (Section~\ref{sec:interventions}).
 fixed in advance, MF-DRO fails the pre-registered success test with both
 rewards, by $0.4481$ and $0.5442$ against a bar of $0.3825$
 (Section~\ref{sec:frozen}).
+\item \textbf{The transformer is not the cause of that failure.} Deleting it and
+running the teacher acquisition alone gives indistinguishable regret
+($p = 0.23$) and fails the same bar ($0.5195$). The ceiling is the acquisition
+(Section~\ref{sec:ceiling}).
 \item \textbf{An instrumentation postmortem.} Three of our own probes were
 defective and four auto-generated verdicts were wrong. We report each, because
 the failure modes are generic to mechanistic evaluation
@@ -510,6 +519,53 @@ axis survives correction for the family reported, and the comparison against
 MF-MI-Greedy ($p = 0.0645$) would not clear an uncorrected threshold either. What the anytime view adds is that the gap the
 frozen metric measures at its narrowest is much wider through the middle of the
 run.
+
+\section{The Ceiling Is the Acquisition}
+\label{sec:ceiling}
+
+Sections~\ref{sec:mechanism}--\ref{sec:frozen} establish that the policy does not
+condition and does not clear the pre-registered bar. Neither shows that the
+transformer is \emph{responsible} for the second fact. We tested that directly by
+deleting it.
+
+The teacher acquisition was run under the identical frozen evaluation---same
+seeds, same budget, same initial design, same candidate pools---with
+\texttt{compute\_joint\_mf\_mes}'s argmax replacing the transformer's proposal.
+The DT was still trained so that the random stream, and hence every candidate
+pool, matched exactly; only the chooser differed.
+
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+Method & Final simple regret \\
+\midrule
+MF-MES teacher, \textbf{no DT} & $0.4781 \pm 0.0414$ \\
+MF-DRO / joint MES & $\mathbf{0.4007 \pm 0.0475}$ \\
+MF-MI-Greedy & $0.5091 \pm 0.1266$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Paired, the teacher is $+0.0774$ \emph{worse} and better on only $3/10$ seeds
+(Wilcoxon $p = 0.2324$). The transformer is therefore \textbf{not} a net
+negative---the two are indistinguishable at this sample size---but neither does
+it buy anything.
+
+\paragraph{The consequential number.} The teacher alone \emph{also} fails the
+pre-registered success test: mean${+}$SE $= 0.5195$ against a bar of $0.3825$.
+It is not the transformer that cannot clear the bar. The entire MF-MES-based
+approach cannot, on this benchmark, distilled or not. This relocates the
+negative result one level up and explains why the eleven interventions of
+Section~\ref{sec:interventions} could not have helped: every one of them
+operated below the binding constraint.
+
+\paragraph{A cost-allocation difference, not a defect.} The two policies spend
+their budget differently: the teacher takes $11.4\%$ high-fidelity queries over
+$112$ iterations, MF-DRO $26.7\%$ over $70.7$---$2.3\times$ the rate and $37\%$
+fewer queries. We had characterised the fidelity head's level as miscalibrated
+(Section~\ref{sec:fidelity}); on this benchmark that mismatch coincides with
+\emph{slightly lower} regret, so we withdraw the implication that its level is
+harmful. What stands is its uninformativeness: it does not respond to state.
 
 \section{Why Conditioning Fixes Cannot Rescue This}
 \label{sec:related}
