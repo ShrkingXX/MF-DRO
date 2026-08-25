@@ -73,7 +73,23 @@ needed for 80% power. *(experiments/h17, h38)*
 
 ## 3. The chain of evidence — which experiment proves which claim
 
-### Claim A — The DT's decision does not depend on its inputs.
+### Claim A — Under the linear score head, the DT's decision does not depend on its inputs.
+
+> **Scope, added after h44.** Every row below was measured under **candidate
+> scoring**, where the DT emits a weight vector and the query is
+> `argmax_k ⟨w(h), cf_k⟩` over a pool. Swap in the **regression head**
+> (`x = action_head(h)`, no pool, no argmax) and the picture changes: sweeping
+> the state moves the proposal by **49.9%** of the run's own mean pairwise query
+> spread, and sweeping RTG by **37.9%** — the first non-null RTG probe in this
+> project. BTG stays inert (0.8%). So Claim A is a statement about the *score
+> head*, not about the Decision Transformer architecture.
+>
+> Two caveats. The regression probe is a strictly more sensitive instrument — a
+> continuous head must move under input change unless its input weights are
+> exactly zero — so 49.9% is not numerically comparable to 0/12. And movement is
+> not usefulness: h44 measured neither the *direction* of movement nor regret,
+> on a single seed. Whether responsiveness buys anything is what h45 tests.
+> *(experiments/h44)*
 
 | evidence | experiment |
 |---|---|
@@ -195,6 +211,13 @@ this is not a criticism. It only bites on cheap synthetic benchmarks like ours.
 8. **So deleting the DT costs nothing** (p = 0.23), and the ceiling is set by the
    acquisition, not the transformer. **The teacher alone also fails the bar.**
    *(h31)*
+
+> **Steps 4–7 are about the score head, not the transformer.** Replace it with a
+> regression head that emits `x` directly — no pool, no argmax — and the state
+> reaches the proposal (49.9% of the run's own query spread) and so does RTG
+> (37.9%). The incumbent also stops freezing: 0/3 runs frozen, 50/50 distinct
+> proposals. What is *not* yet known is whether any of that improves regret;
+> h45 is running that comparison now. *(h42, h44)*
 
 ---
 
