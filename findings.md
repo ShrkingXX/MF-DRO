@@ -483,6 +483,31 @@ narrower claim: **the failure is architectural — the score head barely reads `
 not have rescued it.** Nothing that reaches `h` can move a decision that is not
 a function of `h`.
 
+
+## What the policy actually is: a faithful copy of an exploitative teacher
+
+Five experiments (H28–H33) rewrote the causal account three times. The final
+version:
+
+| claim | status | evidence |
+|---|---|---|
+| The teacher selects low-uncertainty points | **solid** | chosen `sigma_H` at the **2.9th percentile**; control `mu_H` at 94.2nd (H28) |
+| ...at every operating point | **solid** | never above **5.5%** across cost ratio {2,4,8,16} × y* samples {5,10,50} (H29) |
+| The student *inverted* its teacher | **RETRACTED** | it inverts nothing — it imitates (H28) |
+| `w[sigma_H]<0` means uncertainty aversion | **CORRECTED** | it is a *partial* coefficient under `corr(mu,sigma) = −0.4696`; the **teacher's own** partial coef is also negative (−0.0419, on 91.4% of sets) despite a positive marginal (+0.1585) — suppression, not aversion (H30) |
+| The distillation is lossy | **CORRECTED** | teacher's rank of the student's pick: **median 2 of 200**, range [1,12]. Faithful. My "lossy" read came from argmax agreement, a poor metric when the top candidates are near-ties (H32) |
+| The **fidelity** channel diverges | **solid** | `p` spans 0.5570–0.5577 (sd 2.4e-4) while the teacher's `ell` varies; `corr = +0.155`. Uninformative, and 0.557 vs the teacher's 4.2% on identical pools (H33) |
+
+**The synthesis.** MF-DRO's transformer reproduces its teacher's *location*
+choices closely, fails entirely to reproduce its *fidelity* choices, adds no
+conditioning (fixed rule to within 0.13%), and inherits the teacher's
+exploitative selection behaviour. The apparatus is **redundant rather than
+harmful** on location, and actively uninformative on fidelity.
+
+A student cannot out-explore a demonstrator that never explores. That is a
+statement about the *approach* — distilling an argmax-of-MES teacher — and H29
+shows it is not tunable away.
+
 ## Methodological lessons (transferable)
 
 1. **Measure the mechanism, not the downstream metric.** Every near-deterministic
@@ -520,19 +545,28 @@ a function of `h`.
    run beside them. Compounding it: `mes_entropy` is LF-heavier, so more
    iterations are needed to burn a fixed cost budget, pushing the true figure to
    ~145 min. **Second ETA miss on this class of estimate; this is the fix.**
-14. **A script's auto-verdict must key on the DECISIVE measurement, not a
+14. **Pick the decisive metric, not a proxy that correlates with it.** Four
+   instances: H13's saturating decomposition metric, H19's diversity signature,
+   the `coef_head` cosine threshold, and H24's argmax agreement — which made a
+   *faithful* distillation look lossy for three ticks until H32 measured the
+   teacher's rank of the student's pick instead.
+15. **A component's specification is not its behaviour.** MF-MES is defined as
+   information-seeking; its realised choices sit at the 2.9th percentile of
+   uncertainty. Checking what a component *does* rather than what it *is for*
+   has now caught four errors here.
+16. **A script's auto-verdict must key on the DECISIVE measurement, not a
    proxy that correlates with it.** Four wrong auto-verdicts this phase — H11
    (fired without requiring the manipulation check to pass), H13 (a metric that
    saturated at 100% in both compared arms), H19 (a signature omitting the
    variable of interest), and the `coef_head` probe (cosine threshold instead of
    argmax movement). Each proxy looked reasonable when written and printed a
    confident, wrong sentence when run.
-15. **When a probe compares "two different X", assert inside the probe that
+17. **When a probe compares "two different X", assert inside the probe that
    they are different.** H5 would have failed a one-line assertion for months.
    Three instrument defects this phase (H13's dead-signal metric, H19's
    diversity signature, H5's state swap) — all found by checking the instrument
    against the data rather than trusting it.
-16. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
+18. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
    `bes_delta`, soft-target temperature).
 
 ---

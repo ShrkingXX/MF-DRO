@@ -259,6 +259,27 @@ late_findings: >
   (H17 moved regret 0.5047->0.4007) while the inference-conditioning channel
   is INERT.
 
+teacher_arc: >
+  H28-H33 rewrote the causal account three times and settled it. The MF-MES
+  teacher selects at the 2.9th percentile of sigma_H (H28) at every operating
+  point swept (H29, never above 5.5% over 12 cells). The student does NOT invert
+  its teacher -- RETRACTED -- it imitates. w[sigma_H]<0 is a PARTIAL coefficient
+  under corr(mu,sigma)=-0.4696, and the teacher's own partial coef is negative
+  too (H30), so it is suppression rather than aversion. The distillation is
+  FAITHFUL, not lossy: teacher's rank of the student's pick is median 2 of 200
+  (H32) -- my earlier 'lossy' read came from argmax agreement, a bad metric under
+  near-ties. The one genuine divergence is FIDELITY: p spans 0.5570-0.5577
+  (sd 2.4e-4) while the teacher's ell varies, corr=+0.155 (H33).
+  Synthesis: the transformer is redundant on location, uninformative on
+  fidelity, adds no conditioning, and inherits an exploitative demonstrator.
+
+running_h31: >
+  Teacher-only arm under the frozen evaluation (no DT deciding; DT still trained
+  so the RNG stream matches and the teacher sees identical candidate pools).
+  Tests the expectation recorded in H32 BEFORE it lands: near-parity, since the
+  location distillation is faithful. A clear teacher win would implicate the
+  fidelity channel measured in H33.
+
 conclusion: >
   The research question is ANSWERED: no within-frame fix beats MF-MI-Greedy and
   MF-GP-UCB at matched real cost. Two rewards were run under the frozen
