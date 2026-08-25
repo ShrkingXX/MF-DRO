@@ -58,8 +58,11 @@ Cost-weighted regret (AUC over the budget) tells a different story:
 | MF-MI-Greedy | 1.0639 ± 0.127 | 1.042 |
 | MF-GP-UCB | 1.7934 ± 0.122 | 1.793 |
 
-- The **reward change is significant here**: paired −0.1911, **9/10 seeds,
-  Wilcoxon p = 0.0371** — versus p = 0.375 on final regret.
+- The reward change is **consistently better** here: paired −0.1911, **9/10
+  seeds**, lower at every checkpoint. **NOT a significance claim** — the p of
+  0.0371 came from a post-hoc metric computed after the pre-registered one
+  failed; over the 7 tests reported in that table the Bonferroni threshold is
+  0.00714 and **none survive**.
 - MF-DRO beats MI-Greedy by **2.1×** at cost 100, narrowing to 0.401 vs 0.593 by
   cost 200. Its advantage is **early**; MI-Greedy closes late.
 

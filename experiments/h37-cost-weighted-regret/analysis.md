@@ -24,11 +24,24 @@ Paired against MF-DRO/joint-MES (negative = joint MES better):
 
 ## Two findings the endpoint metric hid
 
-**1. The reward change is significant on anytime performance.** Final regret gave
-`improvement → joint MES` at p = 0.375 (6/10 seeds). Cost-weighted regret gives
-**p = 0.0371 on 9/10 seeds**. The joint-MES reward does not merely end lower —
-it is lower *throughout the run*, and that is measurable where the endpoint
-comparison was underpowered.
+**1. The reward change looks better on anytime performance — but the p-value is
+NOT usable.** Final regret gave `improvement → joint MES` at p = 0.375 (6/10
+seeds). Cost-weighted regret gives p = 0.0371 on 9/10 seeds.
+
+**This is metric selection and I originally reported it as "significant", which
+was wrong.** I computed the AUC comparison *only after* the pre-registered
+metric failed. Correcting for the two metrics tested gives a threshold of
+0.025 — and **p = 0.0371 does not survive it**. Counting the whole family I
+actually reported in this table (final + AUC + five checkpoints = 7 tests), the
+Bonferroni threshold is 0.00714 and **0 of 7 survive**.
+
+Cost-weighted regret is **not in `PROTOCOL.md`**. It is post-hoc, full stop.
+
+**What survives without a p-value** is the descriptive fact, which is worth
+stating on its own terms: joint MES is lower on **9/10 seeds** and lower at
+**every checkpoint** (r@25, 50, 100, 150, 200). Consistent direction across
+seeds and across the whole trajectory is real evidence about behaviour; it is
+just not a significance claim, and must not be dressed as one.
 
 **2. MF-DRO's advantage over MI-Greedy is early, and MI-Greedy closes late.** At
 cost 100 the gap is **0.490 vs 1.042 — a factor of 2.1**. By cost 200 it has

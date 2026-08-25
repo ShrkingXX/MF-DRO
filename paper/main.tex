@@ -489,20 +489,25 @@ MF-GP-UCB              & $1.7934 \pm 0.122$ & $1.793$ \\
 \end{tabular}
 \end{center}
 
-Two things follow. First, the reward change is \emph{significant} on this axis:
-paired against the improvement reward, $-0.1911$ on $9/10$ seeds,
-Wilcoxon $p = 0.0371$, where the same comparison on final regret gave
-$p = 0.375$. Second, MF-DRO's advantage over MF-MI-Greedy is concentrated
+Two things follow. First, the reward change is consistently better on this axis:
+paired against the improvement reward, $-0.1911$ on $9/10$ seeds, and lower at
+every checkpoint. We deliberately do \textbf{not} report the accompanying
+$p = 0.0371$ as a significance result: cost-weighted regret is not the
+pre-registered metric, it was computed only after the pre-registered comparison
+failed, and correcting for the metrics reported in this table
+($7$ tests, threshold $0.00714$) leaves none significant. What the anytime view
+supports is a \emph{descriptive} claim about consistency of direction, not a
+hypothesis test. Second, MF-DRO's advantage over MF-MI-Greedy is concentrated
 \emph{early}: a factor of $2.1$ at cost $100$, narrowing to $0.401$ versus
 $0.593$ by cost $200$. This is consistent with the fidelity finding of
 Section~\ref{sec:fidelity}---MF-DRO queries high fidelity far more often than its
 teacher does, buying early incumbent progress at the cost of late-budget
 efficiency.
 
-We report this as \textbf{supplementary}. The pre-registered success test is
-defined on final regret and is unaffected: it fails, and the paired comparison
-against MF-MI-Greedy on this axis ($p = 0.0645$) is no more significant at
-$n{=}10$ than on the frozen one. What the anytime view adds is that the gap the
+We report this as \textbf{supplementary and post-hoc}. The pre-registered success
+test is defined on final regret and is unaffected: it fails. No test on this
+axis survives correction for the family reported, and the comparison against
+MF-MI-Greedy ($p = 0.0645$) would not clear an uncorrected threshold either. What the anytime view adds is that the gap the
 frozen metric measures at its narrowest is much wider through the middle of the
 run.
 
