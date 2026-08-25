@@ -1969,6 +1969,15 @@ class DirectMFRegretOptimization:
         # ever activating, for ablation control).
         _dkl_threshold = getattr(config, 'dkl_threshold', None)
         _ko_kwargs = {} if _dkl_threshold is None else {'dkl_threshold': _dkl_threshold}
+        # H63: pin the KO autoregressive coefficient. rho = sigmoid(log_rho) is
+        # confined to (0,1), but Borehole's true LF->HF slope is 1.2566 (OLS over
+        # 8192 Sobol points, residual sd 0.0001), so the model cannot represent it
+        # and the shortfall is pushed into delta(x), a zero-centred GP. rho_fixed
+        # bypasses the sigmoid (ko_gp.py:245) so values >1 are settable.
+        # None (default) leaves rho fitted, i.e. unchanged behaviour.
+        _rho_fixed = getattr(config, 'ko_rho_fixed', None)
+        if _rho_fixed is not None:
+            _ko_kwargs['rho_fixed'] = float(_rho_fixed)
 
         # Ensemble diversity, analogous to SF-DRO's dro.py _initialize_models
         # (np.linspace grid of initial_lengthscale across the ensemble,
