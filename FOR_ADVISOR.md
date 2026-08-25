@@ -126,9 +126,9 @@ zero.
 
 | evidence | experiment |
 |---|---|
-| The MF-MES teacher's own choices sit at the **2.9th percentile** of σ_H (control: 94.2nd percentile of μ_H), over 1600 decisions | h28 |
+| Chosen points sit **below the pool median** in σ_H and near the top in μ_H, over 1600 decisions. Magnitude is initialisation-dependent: **2.9th** percentile with the oversized init (h28), **27.9th** with the standard one (h41) | h28, h41 |
 | True at **every** operating point swept: cost ratio {2,4,8,16} × y* samples {5,10,50}, never above **5.5%** in 12 cells | h29 |
-| Cause: MES's *score* correlates +0.1585 with σ_H, but its *argmax* is dominated by μ_H (+0.8517) | h28 |
+| Mechanism: MES depends on `γ = (y*−μ)/σ` alone and decreases in γ. Chosen γ **+1.59** vs pool **+2.72** — correct behaviour. γ>0 everywhere, so minimising it resolves through μ (99.5th pct), and μ–σ anti-correlation (−0.4696) pulls σ down as a side effect | h41, h30 |
 
 ### Claim F — Cost.
 
@@ -148,10 +148,29 @@ this is not a criticism. It only bites on cheap synthetic benchmarks like ours.
 1. **Training data comes from MF-MES rollouts.** The teacher picks every rollout
    step, so the DT can only learn what the teacher demonstrates. *(h28)*
 
-2. **What the teacher demonstrates is exploitative.** Its selections land in the
-   bottom 3% of posterior uncertainty, in every regime tested. Its scoring rule
-   does reward uncertainty, but the posterior-mean term dominates the argmax, and
-   in a GP the high-mean region is exactly where data already sits. *(h28, h29)*
+2. **What the teacher demonstrates is high-mean, below-median-uncertainty
+   points** — and this is MES behaving correctly, not malfunctioning.
+
+   MES is a function of `gamma = (y* - mu_H)/sigma_H` **only** — `log sigma`
+   cancels out of the entropy difference — and it *decreases* in `gamma`.
+   Measured: `gamma` at the chosen point is **+1.59** vs **+2.72** for the pool,
+   so the acquisition is correctly picking the highest-information candidate.
+
+   Since `mu` never exceeded the sampled `y*` (0% of 40 pools), `gamma > 0`
+   throughout, and minimising it pulls two ways: raise `mu` **or** raise `sigma`.
+   It resolves through `mu` — chosen points sit at the **99.5th percentile of
+   mu** — and because `mu` and `sigma` are **anti-correlated in a GP**
+   (`corr = -0.4696`), that drags `sigma` down to the **27.9th percentile** as a
+   side effect. *(h41; anti-correlation from h30)*
+
+   **Correction:** an earlier version of this document said "the posterior-mean
+   term dominates the argmax." **MES has no such term** — that was a UCB-shaped
+   description of an acquisition that does not have that form.
+
+   **Caveat on a number:** h28 reported the chosen-`sigma` percentile as **2.9%**,
+   but that used the oversized initial design. With the literature-standard
+   design it is **27.9%**. The direction survives; the magnitude is
+   initialisation-specific and should not be quoted as a property of MF-MES.
 
 3. **The DT copies this faithfully.** Its chosen point is the teacher's 2nd best
    of 200, median. So the DT is not adding error. *(h32)*
