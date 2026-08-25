@@ -359,9 +359,12 @@ status: >
   MF-MES / MI-Greedy).
 
 established:
-  - dropping multi-fidelity HELPS DRO: SF-DRO beats MF-DRO 3/3 Borehole, 2/3
-    Hartmann; MF-DRO wins Currin only at the saturation floor. Necessary but
-    not sufficient.
+  - SF-DRO beats MF-DRO 3/3 Borehole, 2/3 Hartmann -- MEASUREMENT STANDS, but
+    the attribution to multi-fidelity is RETRACTED (confounded). The two configs
+    differ in surrogate (KO-GP vs SingleTaskGP), rollout teacher (MF-MES vs EI),
+    reward/RTG (mes_entropy vs fixed) and initial design (20 LF points or none).
+    On Borehole MF-DRO is 99-100% HF post-init, so fidelity provably did not
+    cause the 8.6pp gap. Needs a one-variable-at-a-time decomposition.
   - DRO beats its own-fidelity MES on exactly 1 of 3 benchmarks (Hartmann 3/3),
     which is also the only benchmark whose LF optimum (4.0019) EXCEEDS its HF
     optimum (3.3224).

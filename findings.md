@@ -1245,3 +1245,58 @@ Hartmann's *best* strategy, and MF-DRO's Hartmann loss needs another explanation
 can be real, significant against chance, and still support the opposite reading.
 Before attributing it to a mechanism, check whether the mechanism can act at all
 — here the scoring rule provably cannot see LF's value.
+
+---
+
+## CONFOUND: "SF-DRO beats MF-DRO" is not a multi-vs-single-fidelity result
+
+Prompted by the question: on Borehole MF-DRO queries 99-100% HF post-init, so it
+should behave like SF-DRO — why is it worse (23.7% vs 15.1%)?
+
+Checking the two configurations, they differ in **four** ways at once, and
+fidelity is the *least* of them on this benchmark:
+
+| | MF-DRO (h57) | SF-DRO (h59) |
+|---|---|---|
+| post-init fidelity | 99-100% HF | 100% HF |
+| **initial design** | 10 HF + **20 LF** | 10 HF, no LF |
+| **surrogate** | `KennedyOHaganGP` ensemble (fits rho + discrepancy GP) | BoTorch `SingleTaskGP` ensemble |
+| **rollout teacher** | joint MF-MES (`rollout_reward="mes_entropy"`) | **EI** (`rollout_acq_function="ei"`) |
+| **reward / RTG** | MES-entropy reward | `use_mes_reward=False`, `rtg_schema="fixed"` |
+
+So the h59 comparison is **not** "the same method with and without multi-fidelity".
+It is one method against another that differs in surrogate, teacher, reward
+schema and initial design. On Borehole the fidelity behaviour is essentially
+identical between them, which means **the 8.6pp gap is attributable to the other
+three differences, not to multi-fidelity.**
+
+### What this retracts
+
+The claim "dropping multi-fidelity HELPS DRO — SF-DRO beats MF-DRO 3/3 on
+Borehole, 2/3 on Hartmann" is **confounded**. The direction of the measurement
+stands; the *causal attribution to multi-fidelity* does not. That attribution
+appears in the h57+h58+h59 summary and in `research-state.yaml`'s
+`established:` block, and both are now wrong as stated.
+
+### The decomposition this needs
+
+Four candidate causes, separable with existing machinery, each a one-variable
+change from MF-DRO:
+
+1. **Surrogate**: KO-GP vs plain GP ensemble on HF only. h48 already found "the
+   surrogate init, not the acquisition, is what survives correction" — this is
+   the lead with prior support.
+2. **Teacher**: MF-MES vs EI in the rollouts.
+3. **Reward/RTG**: `mes_entropy` vs `fixed`.
+4. **Initial design**: whether the 20 LF init points help or hurt the KO fit.
+
+On Borehole the KO model must estimate rho and a discrepancy GP from 20 LF + 10
+HF points while the plain GP fits 10 HF points directly. If rho is poorly
+identified there, the KO posterior is worse than the simpler model — which would
+explain a gap with the fidelity *behaviour* held constant, exactly what is
+observed.
+
+**Lesson 22**: before attributing a gap between two named methods to the
+dimension in their names, enumerate every configuration difference. Here the
+names said "multi-fidelity vs single-fidelity" and the configs differed in four
+places, of which fidelity was the one that provably did not act.
