@@ -889,3 +889,56 @@ expensive than LF at all.
 That makes it a *constant* in the h57 table rather than a comparison: it measures
 what the shared initial design achieves plus pure LF refinement. Useful as a
 floor, worthless as a competitor, and it should be presented that way or dropped.
+
+---
+
+## H57: MF-DRO vs baselines — Currin and Borehole complete (Hartmann withheld, 11/12)
+
+**CONFIRMATORY.** Budget 200 post-init, seeds 44/46/48, shared initial design,
+one pinned commit, hash in every result. Hartmann's MF-DRO seed 46 is still
+running and that whole benchmark is withheld per lesson 19.
+
+### Currin 2D — MF-DRO is competitive, but the benchmark is saturated
+
+| method | s44 | s46 | s48 | mean | rel | HF% | wall |
+|---|---|---|---|---|---|---|---|
+| **MF-DRO** | 0.0001 | 0.0031 | 0.0011 | **0.0014** | **0.0%** | 32% | 114.1 m |
+| MF-MES | 0.1954 | 0.0049 | 0.0362 | 0.0788 | 0.6% | 6% | 3.5 m |
+| MF-MI-Greedy | 0.0000 | 0.0000 | 0.0669 | 0.0223 | 0.2% | 25% | **0.5 m** |
+| MF-GP-UCB | 1.5399 | 2.2324 | 0.3614 | 1.3779 | 10.0% | 0% | 2.6 m |
+
+MF-DRO 3-0 over MF-MES, **1-2 against MI-Greedy**. Its mean is the lowest of any
+method, but the paired count goes the other way because MI-Greedy hits exactly
+0.0000 on two seeds. Every non-degenerate method is inside 0.6% of the optimum
+here — Currin at this budget does not discriminate.
+
+### Borehole 8D — MF-DRO loses decisively
+
+| method | s44 | s46 | s48 | mean | rel | HF% | wall |
+|---|---|---|---|---|---|---|---|
+| MF-DRO | 75.64 | 76.59 | 67.97 | 73.40 | **23.7%** | 98% | 92.1 m |
+| MF-MES | 47.12 | 25.03 | 32.58 | 34.91 | 11.3% | 74% | 5.1 m |
+| **MF-MI-Greedy** | 22.13 | 20.92 | 33.75 | **25.60** | **8.3%** | 100% | **0.7 m** |
+| MF-GP-UCB | 138.82 | 113.30 | 157.41 | 136.51 | 44.1% | 0% | 2.7 m |
+
+**MF-DRO is 0-3 against both real baselines**, at 2.9x MI-Greedy's regret. This
+is not a variance story: it loses every seed.
+
+### The bar, and where MF-DRO stands against it
+
+The north star is "at least as good as the baselines". On complete data:
+
+    Currin 2D    MF-DRO 0.0%  vs best baseline 0.2%   -> meets it (saturated)
+    Borehole 8D  MF-DRO 23.7% vs best baseline 8.3%   -> FAILS, 0-3
+
+One benchmark where everything works and one where it loses every seed is not
+"at least as good as the baselines".
+
+### Compute is the other half of the result
+
+MI-Greedy: **0.5-0.7 minutes** per run. MF-DRO: **92-114 minutes**. Roughly
+**150-200x** the compute, for a decisive loss on Borehole and a tie inside the
+noise on a saturated Currin. Any claim for a DRO-family method has to answer
+that ratio, not only the regret.
+
+n=3 per cell, no p-values. Directions and paired counts only.
