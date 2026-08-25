@@ -75,21 +75,25 @@ needed for 80% power. *(experiments/h17, h38)*
 
 ### Claim A — Under the linear score head, the DT's decision does not depend on its inputs.
 
-> **Scope, added after h44.** Every row below was measured under **candidate
-> scoring**, where the DT emits a weight vector and the query is
-> `argmax_k ⟨w(h), cf_k⟩` over a pool. Swap in the **regression head**
-> (`x = action_head(h)`, no pool, no argmax) and the picture changes: sweeping
-> the state moves the proposal by **49.9%** of the run's own mean pairwise query
-> spread, and sweeping RTG by **37.9%** — the first non-null RTG probe in this
-> project. BTG stays inert (0.8%). So Claim A is a statement about the *score
-> head*, not about the Decision Transformer architecture.
+> **Scope, added after h44, corrected after h46.** Every row below was measured
+> under **candidate scoring**, where the DT emits a weight vector and the query
+> is `argmax_k ⟨w(h), cf_k⟩` over a pool. Swapping in the **regression head**
+> (`x = action_head(h)`, no pool, no argmax) does make the output move with its
+> inputs — 49.9% of the run's own query spread for the state, 37.9% for RTG.
 >
-> Two caveats. The regression probe is a strictly more sensitive instrument — a
-> continuous head must move under input change unless its input weights are
-> exactly zero — so 49.9% is not numerically comparable to 0/12. And movement is
-> not usefulness: h44 measured neither the *direction* of movement nor regret,
-> on a single seed. Whether responsiveness buys anything is what h45 tests.
-> *(experiments/h44)*
+> **That is not evidence of conditioning.** h46 ran the control h44 lacked: the
+> same sweep on the trained DT's *own pre-training weights*. An untrained network
+> reaches **36.3%** on the state channel, 73% of the trained figure, which clears
+> the pre-registered "generic" threshold. Any non-degenerate MLP moves its output
+> when its input moves. The h44 state number is therefore withdrawn as evidence
+> and Claim A's rows stand unchallenged.
+>
+> Two residuals, both n = 1 and neither load-bearing. The 0.728 ratio clears its
+> 0.7 threshold by 0.028, so it is a boundary call. And the RTG channel does not
+> match: training raised it 2.5× (15.3% → 37.9%), the only instance in this
+> project of training *increasing* an input channel's influence. Worth one
+> confirmatory run; nothing is built on it here.
+> *(experiments/h44, h46)*
 
 | evidence | experiment |
 |---|---|
@@ -212,12 +216,19 @@ this is not a criticism. It only bites on cheap synthetic benchmarks like ours.
    acquisition, not the transformer. **The teacher alone also fails the bar.**
    *(h31)*
 
-> **Steps 4–7 are about the score head, not the transformer.** Replace it with a
-> regression head that emits `x` directly — no pool, no argmax — and the state
-> reaches the proposal (49.9% of the run's own query spread) and so does RTG
-> (37.9%). The incumbent also stops freezing: 0/3 runs frozen, 50/50 distinct
-> proposals. What is *not* yet known is whether any of that improves regret;
-> h45 is running that comparison now. *(h42, h44)*
+> **Steps 4–7 are about the score head, not the transformer.** Under a regression
+> head that emits `x` directly — no pool, no argmax — the incumbent stops
+> freezing: 0/3 runs frozen, 50/50 distinct proposals. Its output also moves with
+> its inputs, but h46 showed an *untrained* net of the same shape moves 73% as
+> much, so that is architecture rather than learned conditioning.
+>
+> The open question is whether the regression head is any *better*, and it does
+> not depend on either result above. h45 (10 seeds, cost-capped) and h47 (3
+> seeds, 50 iterations, with a matched teacher arm) are running that comparison.
+> Note what the regression head actually does: it removes the pool, the argmax
+> and the acquisition evaluation, so the DT becomes load-bearing by *subtraction*
+> — it matters more because the safety net is gone, not because it improved.
+> *(h42, h44, h46)*
 
 ---
 
