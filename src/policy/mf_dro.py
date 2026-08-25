@@ -1775,17 +1775,32 @@ class DirectMFRegretOptimization:
         # DecisionTransformer.forward_mf/propose_mf's own docstrings.
         # False (default): original regression pipeline, bit-for-bit
         # unchanged.
-        # Change 1a: candidate scoring is now the DEFAULT policy head. MSE
-        # regression (use_candidate_scoring=False) collapses to the
-        # conditional mean of the teacher's argmax distribution whenever
-        # states repeat within a batch -- which they structurally do at
-        # tau=0 (see _reference_grid_features's docstring on the M-groups-
-        # of-rollouts_per_model duplication) -- and the mean of a multimodal
+        # DEFAULT: regression head (False). Reverted from Change 1a, which
+        # had made candidate scoring the default.
+        #
+        # Change 1a's argument, kept because it is still sound and still
+        # untested: MSE regression collapses to the conditional mean of the
+        # teacher's argmax distribution whenever states repeat within a
+        # batch -- which they structurally do at tau=0 (see
+        # _reference_grid_features's docstring on the M-groups-of-
+        # rollouts_per_model duplication) -- and the mean of a multimodal
         # acquisition surface can land in a region no mode occupies.
         # Softmax-over-candidates has no such failure mode: duplicated
-        # inputs with different labels yield a DISTRIBUTION, whose argmax is
-        # always an actual candidate in the domain.
-        self.use_candidate_scoring = getattr(config, 'use_candidate_scoring', True)
+        # inputs with different labels yield a DISTRIBUTION whose argmax is
+        # always an actual candidate. The [STATE-DIAG] line printed each
+        # iteration confirms the precondition: 200 rollouts routinely give
+        # ~10 unique tau=0 states.
+        #
+        # Why the default flipped anyway: h45 measured both heads at matched
+        # settings (Hartmann 6D, cost budget 200, initial_hf=36/initial_lf=60,
+        # shared seeds) and the regression head won on 5/6, mean 0.3711 vs
+        # 0.4523 for scoring and 0.4724 for the teacher alone. So the
+        # collapse, where it happens, is not costing more than the pool +
+        # linear-score restriction costs. Its signature may instead be h45's
+        # variance: one seed at 1.1818 against a 0.2308 median, i.e. rare and
+        # catastrophic rather than uniform. Set use_candidate_scoring=True to
+        # restore the old head.
+        self.use_candidate_scoring = getattr(config, 'use_candidate_scoring', False)
         # Change 1c/1d and Change 2 ablation flags (all default ON, per spec).
         self.use_candidate_features = getattr(config, 'use_candidate_features', True)
         # CRITICAL-2: `soft_targets` (default True) switches the whole

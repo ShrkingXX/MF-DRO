@@ -425,15 +425,25 @@ def _build_mf_dro_config(exp_name, benchmark_base_name,
                           use_rtg_grounding=False,
                           dkl_threshold=30,
                           bes_delta=0.0,
-                          # Change 1a: candidate scoring is now MF-DRO's
-                          # default policy head (see mf_dro.py's
-                          # DirectMFRegretOptimization.__init__ for why MSE
-                          # regression structurally collapses to the
-                          # conditional mean of the teacher's argmax
-                          # distribution). This config builder sets the key
-                          # explicitly, so the class-level getattr default
-                          # never applies to configs built here.
-                          use_candidate_scoring=True,
+                          # DEFAULT REVERTED to the regression head. Change
+                          # 1a had made candidate scoring the default; h45
+                          # measured the two at matched settings (Hartmann
+                          # 6D, cost budget 200, initial_hf=36/initial_lf=60)
+                          # and the regression head won on 5/6 seeds, mean
+                          # 0.3711 vs 0.4523. It is also the cheaper path:
+                          # no 200-candidate pool is built at inference.
+                          #
+                          # Change 1a's argument is NOT refuted and is kept
+                          # on record in mf_dro.py's __init__ -- MSE
+                          # regression does average the teacher's argmax over
+                          # repeated tau=0 states, and the STATE-DIAG line
+                          # confirms the precondition holds (200 rollouts ->
+                          # ~10 unique tau=0 states). h45's one catastrophic
+                          # seed (1.1818 vs a 0.2308 median) is consistent
+                          # with that failure mode firing occasionally rather
+                          # than uniformly. Set use_candidate_scoring=True to
+                          # restore the old head.
+                          use_candidate_scoring=False,
                           rollout_policy="mes",
                           # ITEM 1: default switched to regret-based RTG.
                           rollout_reward="improvement",
