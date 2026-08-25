@@ -378,3 +378,44 @@ ruled_out_as_the_thing_to_fix:
   - fidelity head alone (SF-DRO has none, still blows up on one seed in three)
 
 next_direction: attack the VARIANCE, not the fidelity handling.
+
+# ---- 2026-08-25 late: three grids in flight, two candidates left for Borehole ----
+in_flight:
+  h61_teacher_optimizer: >
+    Does MF-DRO lose because its teacher barely optimises? SF-DRO does 1000
+    samples + 100-sample local refinement; MF-DRO does a flat argmax over 200
+    with none. Arms REFINE (200+100) and POOL600. Liveness check confirmed the
+    knob is active AND falsified a sub-prediction: refinement makes the query
+    spread LARGER (0.2907 vs BASE 0.2534), not smaller, which undercuts the
+    premise of the locked HARMFUL branch.
+  h62_sfdro_traces: >
+    Re-run of h59's SF-DRO arm with the trace bug fixed. SF-DRO was the only
+    method with no query trace, so it could not be run through freeze_watch or
+    stall_diagnose -- every diagnostic conclusion to date is MF-DRO-only.
+    Primary locked prediction is a REPRODUCIBILITY GATE (match h59 to 1e-9),
+    scripted before results and refusing partial evaluation.
+  h63_ko_misspecification: >
+    User hypothesis. KO assumes f_H = rho*f_L + delta with rho = sigmoid(...)
+    confined to (0,1), but Borehole's true OLS slope is 1.2566 (residual sd
+    0.0001 -- the relation is essentially EXACT). Hartmann's 0.9792 is inside
+    the range and serves as the control. RHOTRUE pins rho at the measured slope.
+
+h63_known_confound: >
+  rho_fixed applies to EVERY ensemble member, collapsing the deliberate
+  rho_init ~ U(0.3,0.95) diversity. RHOTRUE therefore differs from BASE in
+  three ways (value, adaptivity, ensemble diversity). Reading rule fixed before
+  results: a Borehole win LARGER than Hartmann's supports range-violation; a
+  flat/negative result does NOT refute it, and the follow-up is per-member
+  fitted-rho pinning.
+
+borehole_candidates_remaining:
+  - teacher optimisation quality (h61)
+  - KO rho misspecification (h63)
+  - surrogate class beyond rho (untested)
+borehole_excluded_by_measurement:
+  - fidelity allocation (99-100% HF there)
+  - reward schema (h60, 0/3)
+  - LF initial design (h60, 1/3)
+  - search location (queries at 99.7-99.9th pct of domain value)
+  - query freeze (distinct == n_queries, all cells)
+  - three geometric accounts (LF quality, local refinement, boundary reach)
