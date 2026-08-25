@@ -294,7 +294,7 @@ def _acq_one_fidelity(ko_list, X, m, f_star, c_H, c_L, n_quad="auto"):
     return acquisition(ko_list, X, f_star, c_H, c_L, n_quad=n_quad)[:, m]
 
 
-def optimize_acquisition(ko_list, bounds_np, c_H, c_L, f_star, n_pool=2000,
+def optimize_acquisition(ko_list, bounds_np, c_H, c_L, f_star, n_pool=2048,
                          k_refine=10, fidelities=(0, 1), seed=0, stats=None,
                          maxiter=50, fd_eps=1e-6, n_quad="auto"):
     """D2: Sobol pool -> top-K -> L-BFGS-B refinement, m held fixed.
@@ -315,6 +315,9 @@ def optimize_acquisition(ko_list, bounds_np, c_H, c_L, f_star, n_pool=2000,
     d = lo.size
     span = hi - lo
 
+    # 2048 not the spec's literal 2000: Sobol's balance properties hold only
+    # at powers of 2 (scipy warns otherwise), so 2^11 is the nearest size that
+    # honours the spec's intent of a 2000-point Sobol pool.
     sob = qmc.Sobol(d=d, scramble=True, seed=seed)
     X = lo + span * sob.random(n_pool)
     A = acquisition(ko_list, X, f_star, c_H, c_L, stats=stats, n_quad=n_quad)
@@ -374,7 +377,7 @@ def optimize_acquisition(ko_list, bounds_np, c_H, c_L, f_star, n_pool=2000,
 # ---------------------------------------------------------------- main loop
 def run_mf_mes(f_hf, f_lf, bounds, c_H, c_L, cost_budget, true_opt,
                X_lf0, Y_lf0, X_hf0, Y_hf0, single_fidelity=False, seed=0,
-               n_pool=2000, k_refine=10, n_fstar=10, n_fstar_grid=2000,
+               n_pool=2048, k_refine=10, n_fstar=10, n_fstar_grid=2048,
                fstar_method="gumbel", n_models=1, max_iter=2000,
                ko_kwargs=None, verbose=True):
     """D3: standalone MF-MES. No rollouts, no DT, no minimum_hf_fraction, no
