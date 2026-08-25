@@ -721,3 +721,66 @@ It is not a competitive baseline here and should not be used to flatter a
 comparison.
 
 n=3 per cell. No p-values. Directions and win counts only.
+
+---
+
+## Lesson 20 + correction: distance to x* is not a proxy for value, and the
+## "misdirected search" reading of MF-DRO's stalls was wrong
+
+**RETRACTION.** I classified h57's Hartmann seed-44 stall as MISDIRECTED on the
+grounds that its stalled HF queries sat at normalised distance 0.551 from x*
+while its own incumbent sat at 0.319 — "spending HF budget farther from the
+optimum than where it already stands". That inference is invalid.
+
+Measured on 6000 uniform samples per benchmark:
+
+| benchmark | corr(d*, f) | Spearman | best f at d*<0.3 | best f at d*>1.0 |
+|---|---|---|---|---|
+| Currin 2D | -0.799 | -0.805 | 13.7985 | 5.5057 |
+| **Hartmann 6D** | **-0.417** | -0.568 | **2.9196** | **2.8338** |
+| Borehole 8D | -0.587 | -0.571 | *0 samples* | 75.3033 |
+
+On Hartmann the best value reachable **within** 0.3 of x* is the same as the best
+reachable **beyond** 1.0 away. In Borehole's 8D domain, 6000 uniform samples
+contain zero points within 0.3 of x* at all. Distance to x* only carries
+information on Currin.
+
+The direct comparison makes the point sharper. Hartmann seed 44, same initial
+design, both traces on disk:
+
+| method | nHF | regret | d*(HF queries) | d*(best HF) |
+|---|---|---|---|---|
+| MF-DRO | 25 | 0.7531 | **0.542** | **0.319** |
+| MF-MES | 19 | **0.3019** | 1.103 | 1.146 |
+| uniform reference | | | 0.880 | |
+
+MF-DRO searched twice as close to x* as MF-MES and its best point was 3.6x
+closer — and lost on regret by 2.5x. Closeness to x* is not what wins here.
+
+### What the value-based classifier says instead
+
+Replacing distance with each query's PERCENTILE in a 20k-Sobol reference
+distribution of f over the domain (`src/analysis/value_reference.py`):
+
+| benchmark | seed | stall | %HF | q pctile | inc pctile | cause |
+|---|---|---|---|---|---|---|
+| Hartmann | 48 | 42 | 19% | 98.0% | 100.0% | NEAR-MISS |
+| Hartmann | 44 | 30 | 80% | 88.7% | 98.7% | PLATEAU |
+| Borehole | 44 | 19 | 100% | 99.7% | 99.8% | NEAR-MISS |
+| Currin | 44 | 15 | 27% | 99.9% | 100.0% | NEAR-MISS |
+| Hartmann | 46 | 13 | 0% | — | 100.0% | HF-STARVED |
+| Currin | 48 | 6 | 17% | 99.9% | 100.0% | HF-STARVED |
+
+**Not one cell is searching badly.** Every stalled cell's HF queries land in the
+top 1-11% of the domain by value, against incumbents already at the 98.7-100th
+percentile. There is no low-value search anywhere in the data.
+
+So the stall is not misdirection and not aimlessness. It is that the incumbent
+is already near the ceiling and the remaining gap is the last fraction of a
+percent — where MF-MES happens to do better. That is a much narrower problem
+than "the policy searches badly", and it means diagnostics aimed at query
+placement are aimed at the wrong thing.
+
+**Lesson 20**: a geometric proxy for a value question must be validated against
+the value before it is used to classify anything. The cost of not doing so was a
+confident, wrong mechanism reported to the user.

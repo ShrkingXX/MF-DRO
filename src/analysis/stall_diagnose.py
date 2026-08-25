@@ -65,13 +65,28 @@ def diagnose(path, live, method="MF-DRO"):
              hf_dinc=float(np.mean(np.linalg.norm(hf_x - bx, axis=1))) if n_hf and bx is not None else np.nan,
              spread=float(np.mean([np.linalg.norm(Xs[i]-Xs[j]) for i in range(len(Xs))
                                    for j in range(i+1, len(Xs))])) if len(Xs) > 1 else np.nan)
+    # VALUE-based, not distance-based. The earlier classifier called a stall
+    # MISDIRECTED when its HF queries sat farther from x* than the incumbent.
+    # That test is invalid: on Hartmann the best value reachable within 0.3 of x*
+    # (2.9196) equals the best beyond 1.0 away (2.8338), and in Borehole's 8D
+    # domain 6000 uniform samples contain ZERO points within 0.3. See
+    # src/analysis/value_reference.py. Distance to x* is kept as a reported
+    # column but no longer decides anything.
+    from src.analysis.value_reference import pct
     frange = abs(fstar) if fstar else 1.0
-    if n_hf <= 1:                      r["cause"] = "HF-STARVED"
-    elif r["hf_ygap_min"] < 0.02 * frange: r["cause"] = "NEAR-MISS"
-    elif np.isfinite(r["hf_dstar"]) and np.isfinite(r["inc_dstar"]) and \
-         r["hf_dstar"] > r["inc_dstar"] * 1.3: r["cause"] = "MISDIRECTED"
-    elif np.isfinite(r["hf_dinc"]) and r["hf_dinc"] < 0.15: r["cause"] = "CLUSTERED"
-    else:                              r["cause"] = "UNCLASSIFIED"
+    r["hf_pct"] = float(np.mean([pct(m["bench"], v) for v in hf_y])) if n_hf else np.nan
+    r["inc_pct"] = pct(m["bench"], bv) if np.isfinite(bv) else np.nan
+    if n_hf <= 1:
+        r["cause"] = "HF-STARVED"
+    elif r["hf_ygap_min"] < 0.02 * frange:
+        r["cause"] = "NEAR-MISS"
+    elif np.isfinite(r["hf_pct"]) and r["hf_pct"] < 0.50:
+        # Querying values worse than a coin flip against uniform sampling.
+        r["cause"] = "LOW-VALUE-SEARCH"
+    elif np.isfinite(r["hf_dinc"]) and r["hf_dinc"] < 0.15:
+        r["cause"] = "CLUSTERED"
+    else:
+        r["cause"] = "PLATEAU"          # high-percentile queries, none over the bar
     return r
 
 def main(method="MF-DRO", min_stall=5):
@@ -87,15 +102,17 @@ def main(method="MF-DRO", min_stall=5):
         print(f"  no {method} cell with a stall >= {min_stall} queries"); return
     rows.sort(key=lambda r: -r["n_stall"])
     print(f"  {'benchmark':<13}{'seed':>5}{'stall':>6}{'HF in':>7}{'%HF':>6}"
-          f"{'y-gap':>9}{'best gap':>10}{'d*(hf)':>8}{'d*(inc)':>9}{'d(inc)':>8}  cause")
+          f"{'best gap':>10}{'q pctile':>10}{'inc pctile':>12}{'d*(hf)':>8}  cause")
     for r in rows:
         print(f"  {r['bench']:<13}{r['seed']:>5}{r['n_stall']:>6}{r['n_hf_stall']:>7}"
-              f"{r['frac_hf']:>6.0%}{r['hf_ygap']:>9.3f}{r['hf_ygap_min']:>10.3f}"
-              f"{r['hf_dstar']:>8.3f}{r['inc_dstar']:>9.3f}{r['hf_dinc']:>8.3f}  {r['cause']}")
-    print("\n  y-gap    = mean (incumbent value - HF query value) during the stall; small = near miss")
-    print("  d*(hf)   = mean normalised distance from stalled HF queries to x*")
-    print("  d*(inc)  = distance from the INCUMBENT to x*; d*(hf) >> d*(inc) means searching away from it")
-    print("  d(inc)   = mean distance from stalled HF queries to the incumbent; small = clustered\n")
+              f"{r['frac_hf']:>6.0%}{r['hf_ygap_min']:>10.3f}{r['hf_pct']:>10.1%}"
+              f"{r['inc_pct']:>12.1%}{r['hf_dstar']:>8.3f}  {r['cause']}")
+    print("\n  best gap   = smallest (incumbent - HF query value) in the stall; ~0 = near miss")
+    print("  q pctile   = mean percentile of stalled HF query VALUES vs 20k Sobol samples")
+    print("               of the domain. <50% means searching worse than uniform sampling.")
+    print("  inc pctile = the incumbent's own percentile -- how high the bar already is")
+    print("  d*(hf)     = distance to x*, REPORTED ONLY. It does not classify: on Hartmann")
+    print("               the best value within 0.3 of x* equals the best beyond 1.0.\n")
     from collections import Counter
     for c, n in Counter(r["cause"] for r in rows).most_common():
         print(f"    {c:<14} {n} cell(s)")
