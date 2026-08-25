@@ -47,6 +47,34 @@ queries HF at all — so it is not evidence of much.
 the honest headline. **The gap narrowed by roughly half across two rewards. It
 did not close.**
 
+### The ceiling is the acquisition, not the transformer (H31)
+
+Running the MF-MES teacher under the frozen evaluation with **no DT deciding**
+(DT still trained, so the RNG stream matches and both arms see identical
+candidate pools):
+
+| method | final simple regret |
+|---|---|
+| MF-MES teacher, **no DT** | 0.4781 ± 0.0414 |
+| MF-DRO / joint MES | **0.4007 ± 0.0475** |
+| MF-MI-Greedy | 0.5091 ± 0.1266 |
+
+Paired teacher − MF-DRO **+0.0774**, teacher better on **3/10**, Wilcoxon
+**p = 0.2324**. H32's pre-landing expectation of near-parity is **confirmed**,
+and *"the transformer is a net negative" is refuted* — the apparatus neither
+costs nor buys performance.
+
+**The single most consequential number: the teacher alone also fails the frozen
+test** (mean+SE 0.5195 vs the 0.3825 bar). It is not the transformer that cannot
+clear the bar — the whole MF-MES-based approach cannot, distilled or not. The
+ceiling is set by the acquisition.
+
+Fidelity mix over full runs: teacher **11.4%** HF (12.8 of 112 iters) vs MF-DRO
+**26.7%** (18.9 of 70.7) — 2.3× the rate, 37% fewer queries per budget.
+**This corrects H33's framing**: the head's wrong *level* is not demonstrably
+harmful here (it coincides with slightly lower regret). What survives is its
+*uninformativeness* (sd 2.4e-4, corr 0.155).
+
 ### But the frozen metric samples one point of a trajectory (H37)
 
 Cost-weighted regret (AUC over the budget) tells a different story:

@@ -273,7 +273,15 @@ teacher_arc: >
   Synthesis: the transformer is redundant on location, uninformative on
   fidelity, adds no conditioning, and inherits an exploitative demonstrator.
 
-running_h31: >
+h31_result: >
+  COMPLETE (8900s). Teacher-only 0.4781 +/- 0.0414 vs MF-DRO 0.4007 +/- 0.0475;
+  paired +0.0774, teacher better on 3/10, Wilcoxon p=0.2324. H32's locked
+  expectation of near-parity CONFIRMED; 'transformer is a net negative' REFUTED.
+  Most consequential: the TEACHER ALONE also fails the frozen test (0.5195 vs
+  0.3825), so the ceiling is the acquisition, not the machinery around it.
+  Fidelity: teacher 11.4% HF over 112 iters vs MF-DRO 26.7% over 70.7.
+
+superseded_running_h31: >
   Teacher-only arm under the frozen evaluation (no DT deciding; DT still trained
   so the RNG stream matches and the teacher sees identical candidate pools).
   Tests the expectation recorded in H32 BEFORE it lands: near-parity, since the
