@@ -1300,3 +1300,77 @@ observed.
 dimension in their names, enumerate every configuration difference. Here the
 names said "multi-fidelity vs single-fidelity" and the configs differed in four
 places, of which fidelity was the one that provably did not act.
+
+---
+
+## Borehole: three geometric explanations proposed, three failed. What is left.
+
+Prompted by "if MF-DRO is all-HF on Borehole it should behave like SF-DRO — what
+makes it worse?" Each answer below was measured, and each superseded the last.
+
+### Attempt 1 — "an uninformative LF corrupts the KO surrogate". FALSE.
+
+corr(f_LF, f_HF) on Borehole is **1.000** (Pearson and Spearman, 8000 Sobol
+points). The LF is a perfect surrogate. Nothing to corrupt.
+
+### Attempt 2 — "MF-DRO fails to refine locally". FALSE, and inverted.
+
+Distance from HF query to the current incumbent, first half vs second half:
+
+| method | 1st half | 2nd half | contraction |
+|---|---|---|---|
+| **MF-DRO** | 0.1208 | 0.0822 | **0.68x** |
+| MF-MES | 0.1539 | 0.1695 | 1.10x |
+| MF-MI-Greedy | 0.9977 | 1.0811 | 1.08x |
+
+MF-DRO is the **only** method that refines, and it is the worst. MI-Greedy
+samples at ~1.0 from its own incumbent — essentially global — and wins.
+
+### Attempt 3 — "boundary aversion; x* is a corner it cannot reach". UNSUPPORTED.
+
+The premise is true: x* sits **on the boundary in 7 of 8 dimensions**, and
+MF-DRO proposes near-bound coordinates 7.4% of the time against MF-MES's 36.4%
+and MI-Greedy's 32.8% (uniform expectation 10.0%). On Hartmann it is 1.8%, i.e.
+actively boundary-averse.
+
+But the conclusion does not follow. Distance from HF queries to x*:
+
+| method | mean d* | min d* | d*(best point) | rel regret |
+|---|---|---|---|---|
+| **MF-DRO** | **0.900** | 0.786 | 0.819 | **23.7%** |
+| MF-MES | 1.030 | 0.888 | 0.961 | 11.3% |
+| MF-MI-Greedy | 1.175 | 0.406 | 0.805 | **8.3%** |
+| uniform random | 1.539 | 0.490 | — | — |
+
+**MF-DRO's queries are the CLOSEST to x* of any method and it has the worst
+regret** — the ordering is exactly inverted. All three beat the uniform
+reference, so all three locate the region. It cannot be "cannot reach the
+optimum" when it is the nearest.
+
+This is the same trap as the retracted Hartmann distance claim, and it was
+already measured: `corr(d*, f) = -0.587` on Borehole, and 6000 uniform samples
+contain **zero** points within 0.3 of x*. Distance is not a value proxy in 8D.
+
+### What IS established on Borehole
+
+1. MF-DRO plateaus at best-HF **236.18** where MI-Greedy reaches **283.97** on
+   the **same 100 HF evaluations**.
+2. Calibrated against random search: MF-DRO's 99 queries buy what ~1000 random
+   draws buy (240.32); MI-Greedy's 100 beat what 20,000 random draws buy
+   (266.08). So MF-DRO optimises — roughly 10x better than random — but the
+   winners are >200x.
+3. Fidelity is inert (99-100% HF), so nothing fidelity-related can explain it.
+4. Its queries sit at the 99.7-99.9th percentile of domain value.
+
+### Lesson 23
+
+Three separate geometric accounts of *where* MF-DRO searched — LF quality, local
+refinement, boundary reach — each looked compelling and each was refuted by the
+next measurement. In every case the refutation came from checking the quantity
+against **value** rather than against geometry. On these benchmarks, in 6-8
+dimensions, spatial descriptions of a search do not predict its outcome. Stop
+proposing them; measure value directly.
+
+The mechanism for Borehole is **unresolved**, and h60's three arms (LF init,
+reward, teacher) do not touch the action head. If they are null, an action-head
+experiment is the next protocol.
