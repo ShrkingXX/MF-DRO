@@ -14,6 +14,6 @@ def run(j):
     tail="\n".join(r.stdout.strip().splitlines()[-2:])
     print(f"[exit {r.returncode}] {a} seed{s}\n{tail}",flush=True)
     if r.returncode: print(r.stderr.strip()[-1500:],flush=True)
-with ThreadPoolExecutor(max_workers=4) as ex:
+with ThreadPoolExecutor(max_workers=7) as ex:
     list(ex.map(run,JOBS))
 print("ALL DONE",flush=True)
