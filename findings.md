@@ -1715,3 +1715,70 @@ Not established:
 The natural follow-up if REFINE also helps: a pool sweep (200/600/2000) to find
 where the acquisition-quality return flattens, since that determines whether this
 is a fix or merely a direction.
+
+---
+
+## OUTER LOOP: is this converging on the north star?
+
+Honest assessment after h57-h64 (~100 runs). The north star is a novel
+SF-DRO-based method **at least as good as the baselines**.
+
+| benchmark | MF-DRO | best baseline | gap | best intervention so far |
+|---|---|---|---|---|
+| Currin 2D | 0.0% | 0.2% | — | n/a, saturated (all methods inside 0.6%) |
+| Hartmann 6D | 14.7% | 8.5% | **6.2 pp** | none yet (h64 running, **predicted null**) |
+| Borehole 8D | 23.7% | 8.3% | **15.4 pp** | POOL600: 23.7 -> 19.5, **closed 4.2 of 15.4** |
+
+### What the pattern of interventions says
+
+Nine interventions have been run. Their effects:
+
+| intervention | effect |
+|---|---|
+| h58 HF floor at inference | +22% on one seed, no-op on 5 of 6 cells |
+| h60 reward schema | null (0/3) |
+| h60 LF initial design | null (1/3) |
+| h60 teacher identity (MES -> thompson) | **-20 pp** (strongly harmful) |
+| h61 POOL600 | **+4.2 pp** on Borehole, 3/3 |
+| h61 REFINE | pending |
+| h63 RHOTRUE | pending, four-way confounded |
+| h64 POOL600 elsewhere | pending, predicted null |
+
+**One intervention in nine has produced a durable gain, and it closes 27% of one
+benchmark's gap.** The only large effect found was *negative*. That is the shape
+of a method whose deficit is not concentrated in any single component this
+project has been able to name.
+
+### The honest read
+
+Incremental component fixes are moving single-digit points against double-digit
+gaps, while the compute ratio stays at **120-230x** against MI-Greedy. Even if
+POOL600's mechanism generalised perfectly and stacked with REFINE, Borehole would
+land near 15% against a baseline at 8.3%.
+
+So: **the north star is not reachable by continuing to repair MF-DRO's
+components.** The evidence supports a different framing of what this project has
+produced — a well-controlled negative result with an unusually complete
+elimination record:
+
+- not fidelity allocation (99-100% HF on Borehole; excluded by construction)
+- not the reward schema, not the LF initial design (h60)
+- not search location (queries at the 99.7-99.9th percentile of domain value)
+- not query freeze (`distinct == n_queries` in every cell measured)
+- not proximity to the optimum (retracted, twice, with the measurement)
+- not the catastrophic-seed variance (largely a Currin denominator artifact)
+- partially the teacher's acquisition optimisation (h61, +4.2 pp of 15.4)
+
+### What would change the answer
+
+A method that wins needs a lever the size of the gap, not the size of the
+components. Two candidates the evidence actually supports:
+
+1. **Drop the distillation.** h48 found MF-MES and MF-DRO indistinguishable at
+   n=10 with the surrogate matched, and h60 found the teacher load-bearing at
+   20 pp. If the teacher is what carries the performance, the DT is overhead —
+   and the honest contribution is that finding, not a repaired DT.
+2. **Change what the DT is asked to do.** Every result here measures the DT
+   imitating a myopic acquisition. Nothing has tested it doing something the
+   acquisition cannot — which was the original non-myopia claim, and remains the
+   only untested route to beating a well-optimised acquisition.
