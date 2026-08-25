@@ -1481,3 +1481,59 @@ is not a flag and needs a code-level swap. That was registered in advance as an
 informative outcome rather than a failed experiment, and it would be the first
 time this project has narrowed a cause by elimination rather than by proposing
 a mechanism and then retracting it.
+
+---
+
+## H60 COMPLETE (9/9): two factors excluded, the teacher is load-bearing, the surrogate remains
+
+**CONFIRMATORY.** Borehole 8D, seeds 44/46/48, budget 200, one flag changed per
+arm from h57's MF-DRO. BASE reuses h57's cells (policy code byte-identical).
+
+| arm | s44 | s46 | s48 | mean | rel | beats BASE | HF/LF per seed |
+|---|---|---|---|---|---|---|---|
+| BASE | 75.64 | 76.59 | 67.97 | 73.40 | 23.7% | — | 100/1 100/1 99/3 |
+| NOLFINIT | 80.38 | 88.03 | 57.88 | 75.43 | 24.4% | 1/3 | 75/50 100/0 93/15 |
+| REWARD | 79.79 | 80.56 | 69.33 | 76.56 | 24.7% | 0/3 | 97/7 99/2 96/8 |
+| **TEACHER** | 138.82 | 113.30 | 154.35 | **135.49** | **43.8%** | 0/3 | **2/196 2/196 5/190** |
+
+### The teacher is load-bearing, and the failure mode is self-explaining
+
+Swapping the joint-MF-MES rollout teacher for `rollout_policy="thompson"`
+**collapses the fidelity head to ~99% LF** (2, 2 and 5 HF queries out of ~198).
+Since the incumbent moves only on HF, it barely moves: `n_improvements` = 0, 0, 2.
+
+The regret then lands at *exactly* MF-GP-UCB's value on two of three seeds —
+TEACHER 138.8226 / 113.2965 vs MF-GP-UCB 138.8226 / 113.2965. That identity is
+not a coincidence: MF-GP-UCB is structurally all-LF, so both arms finish at the
+best point of the **shared initial design** and must report the same regret.
+Seed 48 differs (154.35 vs 157.41) because its 5 HF queries produced 2
+improvements.
+
+**Consequence beyond this experiment**: the fidelity head's behaviour is
+*downstream of the rollout teacher*. Change the teacher and the fidelity policy
+collapses. That is a candidate explanation for the 81%/4%/28% HF spread across
+Hartmann seeds — a policy this sensitive to its training signal is not a stable
+policy.
+
+### What the decomposition actually settles
+
+| factor | verdict |
+|---|---|
+| reward schema | **EXCLUDED** — 0/3, slightly worse |
+| LF initial design | **EXCLUDED** — 1/3, slightly worse |
+| rollout teacher | **NOT excluded** — load-bearing (20pp swing), but the EI variant was untestable |
+| surrogate class | **NOT excluded** — not a flag, untested |
+
+H60's locked prediction 3 said a null on all three would leave the surrogate.
+That is *not* what happened: TEACHER moved regret by 20 percentage points. So
+**two candidates remain**, not one.
+
+Critically, the teacher's effect is in the **wrong direction** for explaining
+SF-DRO > MF-DRO: MES → thompson makes MF-DRO much worse, while SF-DRO uses EI
+and is *better*. mf_dro offers mes/thompson/random only, so MES → EI could not
+be tested — a limitation stated in the protocol before running, not discovered
+after. The teacher cannot be ruled out; it was tested against the wrong
+alternative.
+
+**Next**: EI as an mf_dro rollout teacher (code change), or the surrogate swap.
+Both are code-level, not flags.
