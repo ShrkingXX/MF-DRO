@@ -784,3 +784,48 @@ placement are aimed at the wrong thing.
 **Lesson 20**: a geometric proxy for a value question must be validated against
 the value before it is used to classify anything. The cost of not doing so was a
 confident, wrong mechanism reported to the user.
+
+---
+
+## MF-DRO's fidelity policy is unstable across seeds — a concrete mechanism for
+## its regret variance, and a caveat on MF-GP-UCB
+
+**EXPLORATORY** (not in any locked protocol; found while checking why h58's
+FLOOR arm was a no-op). n=3 seeds per cell.
+
+HF fraction of post-initial-design queries:
+
+| benchmark | method | s44 | s46 | s48 | spread |
+|---|---|---|---|---|---|
+| Hartmann 6D | **MF-DRO** | **81%** | **4%** | **28%** | **76 pts** |
+| Hartmann 6D | MF-MES | 26% | 38% | 67% | 40 pts |
+| Hartmann 6D | MF-MI-Greedy | 12% | 13% | 11% | **2 pts** |
+| Currin 2D | MF-DRO | 20% | 31% | 43% | 23 pts |
+| Currin 2D | MF-MI-Greedy | 25% | 25% | 25% | 0 pts |
+| Borehole 8D | MF-DRO | 100% | 99% | 96% | 4 pts |
+
+On Hartmann, MF-DRO's fidelity head sends 81% of the budget to HF on one seed and
+4% on another. That is not adaptation to the seed's landscape — all three seeds
+share a benchmark and differ only in the initial design draw. It is the fidelity
+head failing to learn a stable policy.
+
+This is a concrete candidate mechanism for the variance that has dogged MF-DRO
+all along: h45 measured the regression head at s.e. **0.1483** against scoring's
+0.0475 and the teacher's 0.0414, roughly 3x. A policy that spends anywhere from
+4% to 81% of its budget on the expensive fidelity will produce exactly that
+spread in outcomes. MF-MI-Greedy, whose HF fraction varies by 2 points across
+seeds, has correspondingly tight regret.
+
+Note Borehole is the exception: MF-DRO is stable there (96-100%) because at
+c_H=2 the HF is nearly as cheap as LF and the choice barely matters.
+
+### Caveat on the h57 baseline table: MF-GP-UCB takes ZERO HF queries
+
+MF-GP-UCB is at 0% HF on **all three benchmarks, all nine cells**. Its incumbent
+can only move on initial-design points. That is very likely why it went 0-3
+against both other baselines everywhere, and it means its numbers in the h57
+table (10.0% / 45.3% / 44.1% relative regret) should NOT be read as a fair
+assessment of MF-GP-UCB as a method. Either its cost-weighted acquisition is
+degenerate at these cost ratios or there is a defect in that baseline. Flagged,
+not yet diagnosed — and until it is, MF-GP-UCB should not be used as a
+comparison point in any writeup.
