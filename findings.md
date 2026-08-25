@@ -1374,3 +1374,38 @@ proposing them; measure value directly.
 The mechanism for Borehole is **unresolved**, and h60's three arms (LF init,
 reward, teacher) do not touch the action head. If they are null, an action-head
 experiment is the next protocol.
+
+### Borehole: the gap opens in the first ~20 HF queries and never closes
+
+**Value-level, per lesson 23** — indexed by HF query number rather than cost, so
+search quality per high-fidelity evaluation is isolated from fidelity spend.
+MF-DRO and MI-Greedy share the identical 10-point HF initial design and both
+start at 72.07.
+
+| HF query # | MF-DRO | MF-MI-Greedy | gap |
+|---|---|---|---|
+| 0 (shared init) | 72.07 | 72.07 | 0 |
+| 10 | 173.07 | 219.71 | 47 |
+| **20** | 190.38 | **264.41** | **74** |
+| 30 | 201.29 | 265.97 | 65 |
+| 50 | 226.76 | 277.47 | 51 |
+| 109 | 236.18 | 283.97 | 48 |
+
+**MI-Greedy reaches 264.41 within 20 HF queries; MF-DRO does not reach it in
+109.** The gap is widest at query 20 and never closes — MF-DRO's later queries do
+improve, but only enough to partly catch up to where MI-Greedy already was.
+
+This reframes the Borehole failure. It is **not** a late plateau: it is a slow
+start that is never recovered. Whatever MF-DRO does in its first ~20 HF
+evaluations is worth roughly a third less than what MI-Greedy does with the same
+budget from the same starting point.
+
+**Excluded from the comparison**: MF-MES's curve on this index is an artifact.
+Its trace was repaired for the `is_init` bug (h57), so the initial design is
+absent from the file and its index 0 is already the first optimization query
+(199.01, not 72.07). Its regret numbers are unaffected; only this per-query
+indexing is unusable for it.
+
+Consistent with the random-search calibration: MF-DRO's 99 post-init HF queries
+buy what ~1000 random draws buy, MI-Greedy's buy more than 20,000 do. The
+difference is concentrated early.
