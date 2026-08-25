@@ -324,3 +324,29 @@ lessons_added_this_phase:
     A null-guard must be CONDITIONED on the manipulation check passing. H11's
     guard fired on 'all arms ~0%' even though arm C's manipulation never
     occurred, and auto-printed a conclusion that had to be retracted.
+
+# ---- 2026-08-25: autoresearch re-armed, scope narrowed by the user ----
+north_star: >
+  A NOVEL METHOD BASED ON SF-DRO (single-fidelity DRO, papers/DRO.pdf) that is
+  at least as good as the baselines. Not another MF-DRO ablation. The burden is
+  a method that wins, not an explanation of why the current one does not.
+
+why_the_bar_is_here:
+  h45_10of10: regression head 0.4987 mean / 0.2711 median; scoring 0.4007 /
+    0.4395; teacher 0.4781 / 0.4683. Wilcoxon regression-vs-scoring p=1.0000,
+    regression-vs-teacher p=0.9219. The two heads are TIED and neither beats
+    the MF-MES teacher it distils.
+  h48_n10: standalone Takeno MF-MES vs MF-DRO indistinguishable, p=0.625, with
+    the surrogate matched. Underpowered, not equivalent.
+  compute: MF-MES finished a whole Hartmann arm in ~6 min; MF-DRO has not
+    finished one seed in tens of minutes. ~2 orders of magnitude per run.
+
+active_watch:
+  h57: 4 methods x 3 seeds x 3 benchmarks, budget 200, pinned at one commit,
+    hash recorded per result. DO NOT DISTURB.
+  freeze_watch: src/analysis/freeze_watch.py -- separates QUERY FREEZE
+    (distinct < n) from INCUMBENT STALL (distinct == n, improvements stopped).
+    The stall is the mode that actually costs regret; h45 seeds 49/50 were
+    144/144 and 74/74 distinct with ZERO improvements.
+
+loop: cron c58fc166, every 20 min at :09/:29/:49 (off the :00/:30 marks).
