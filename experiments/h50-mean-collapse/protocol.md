@@ -226,3 +226,71 @@ Note the running processes are immune to further edits — Python loaded the
 module at 04:27 — so the peer's pending fixes cannot affect H50 mid-flight.
 The risk is only to a restart, and H50 will not be restarted without redoing
 this check.
+
+---
+## HALTED at user instruction — 0/4 results. Status of each registered item.
+
+Stopped ~45 min in, before any seed completed. Cores handed to h57. The states
+below are distinguished deliberately: "registered but not executed" is not
+"failed", and neither is "found unnecessary".
+
+### The pre-registered 3-of-3 test: NOT RUN
+Criteria #1/#2/#3 require the trained DT's proposal across a trajectory. No
+trajectory completed. **No confirmatory claim of any kind may be drawn from
+this directory.**
+
+### The validity gate (6f5ece2): REGISTERED, NEVER EXECUTED
+It was to compare H50's `sr_curve` elementwise against h45's for a shared seed,
+empirically testing whether the four `mf_dro.py` commits between 01:43 and
+04:27 (6c7989b, 3231fba, 7c72939, f123335) are inert on the
+regression-head + `mes_entropy` + `use_roi=False` path.
+
+**It did not fail, and it was not found unnecessary. It never ran.** Nobody may
+cite this directory as evidence that H50 reproduced h45, or that those commits
+are behaviour-preserving. Reading the diffs suggests they are — explicit
+`use_candidate_scoring`, a flag defaulting False, an RNG-identical
+`torch.rand(200,…)`, and code unreachable outside `roi_mode=='mes'` — but that
+is argument, not measurement, which is exactly why the gate existed.
+
+**When it becomes worth running again:** if anyone relates h57's MF-DRO arm
+back to h45/h17/h31 numbers. h57 is self-contained — all 36 jobs at one pinned
+commit with the hash recorded per result — so its internal comparison does not
+need this. Cross-experiment comparison does. Cost: one seed, ~40 min. The gate
+stays registered rather than deleted so it can be picked up unchanged.
+
+### EXPLORATORY OBSERVATION (a smoke test, not a result)
+
+Teacher argmax structure at **iteration 0 only**, all four seeds, from a
+standalone probe (`/tmp/iter0_modes.py`) that never touched the runs. 50
+argmaxes = 10 members x 5 y* draws on the same 200-point pool:
+
+| seed | group | unique | modes | top-2 weights | mode_sep | spread |
+|---|---|---|---|---|---|---|
+| 49 | FAIL | 3 | 3 | [0.50, 0.46] | 1.1578 | 0.6342 |
+| 50 | FAIL | 2 | 2 | [0.90, 0.10] | 0.4722 | 0.0867 |
+| 42 | PASS | 4 | 4 | [0.36, 0.32] | 0.8170 | 0.5869 |
+| 44 | PASS | 2 | 2 | [0.58, 0.42] | 0.4665 | 0.2319 |
+| | FAIL mean | | **2.5** | | 0.8150 | |
+| | PASS mean | | **3.0** | | 0.6417 | |
+
+Two things, both against the mean-collapse hypothesis:
+
+1. **Criterion #1 points the wrong way** — FAIL is *less* multimodal than PASS.
+2. **The two failing seeds are qualitatively opposite.** Seed 49 is the textbook
+   setup (two near-equal attractors, separation 1.158). Seed 50 has **90% of the
+   teacher's mass on one mode**, spread 0.0867 — effectively unimodal, with
+   nothing to fall between — and failed just as hard (1.1818, zero
+   improvements). Seed 42, which succeeded, is *more* multimodal than seed 50,
+   which failed.
+
+**Retraction.** I earlier called the smoke test "encouraging for mean-collapse".
+That was seeds 49 and 42 only — the pair that happens to look supportive. The
+four-seed version does not support it. This is the same selection effect this
+project has now been bitten by twice (the retracted p=0.0371 headline, and the
+criterion-drift the peer session caught at 58081bb), arrived at a third way.
+**Carry the four-seed version, not the two-seed one.**
+
+Status of this observation: iteration 0 of a trajectory that was never run,
+n=2 vs 2, EXPLORATORY. It is suggestive against the hypothesis and is not
+evidence for any alternative. Testing mean-collapse properly still requires the
+trajectory measurement H50 was built for.
