@@ -92,3 +92,23 @@ vs the pool-200 teacher (same seeds, same initial design → pairing is valid);
 Wilcoxon signed-rank on the 10 paired diffs. **No metric selection**: final HF
 regret at the budget is the single pre-declared endpoint. Anything else I look
 at gets labelled EXPLORATORY.
+
+---
+## KILLED 2026-08-25 — redundant with H48, not a result
+
+Killed at ~3.5 h with 0/10 seeds. Two reasons:
+
+1. **Redundant.** h47D overrides `propose_mf` entirely, so the DT decides
+   nothing: it is MF-MES-with-a-real-optimizer *replacing* the DT, inside the
+   DRO harness. H48 isolates exactly that, standalone, in ~1.5 min/seed
+   instead of ~4 h/seed, and additionally validates the acquisition (V1-V6).
+2. **Wrong baseline.** Its comparison target was MF-DRO/scoring-head (0.4007).
+   h45 shows the **regression head** is the stronger MF-DRO (0.3711 vs 0.4523
+   on 6 shared seeds, better on 5/6), so the scoring head is no longer the
+   reference configuration.
+
+Note for the record: h47D's config had `use_candidate_scoring=False` (the
+`_build_mf_dro_config` default), i.e. the regression-head config — but the head
+was irrelevant, since `_propose` bypassed both heads.
+
+No conclusions are drawn from this directory.
