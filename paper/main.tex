@@ -88,6 +88,12 @@ and varying only the inputs---which is what we do throughout.
 
 \paragraph{Contributions.}
 \begin{itemize}\itemsep2pt
+\item \textbf{The policy is a fixed acquisition rule.} Its state-dependent
+component perturbs the scoring coefficients by $0.13\%$; the state-independent
+part alone reproduces every decision (Section~\ref{sec:rule}). It copies its
+teacher's \emph{location} choices faithfully---median teacher-rank $2$ of
+$200$---while its \emph{fidelity} head is a near-constant
+(Section~\ref{sec:fidelity}).
 \item \textbf{A measured mechanism, not a black-box null.} We localize the
 failure to a $\sim$10$\times$ attenuation of state variation, distributed
 $0.346\times$ at the encoder and $0.294\times$ at the scoring head
@@ -300,6 +306,35 @@ the teacher's \emph{scores} over the full candidate set rather than its argmax,
 or an explicitly exploration-augmented demonstrator---not a better student and
 not a different cost ratio.
 
+\subsection{The policy is a faithful copy on location and a broken one on fidelity}
+\label{sec:fidelity}
+
+If the policy is a fixed rule that reproduces its teacher, two questions follow:
+how faithfully, and on which decision.
+
+\paragraph{Location: faithful.} Over twelve resampled pools, the teacher's rank
+of the student's chosen candidate has \textbf{median $2$ of $200$}
+(range $[1,12]$), with the student selecting the teacher's top candidate on five
+of twelve pools; the two score vectors correlate at $\rho = 0.7707$. We had
+earlier read the same relationship as a \emph{lossy} distillation from an argmax
+agreement of $8/12$, and that reading was wrong: argmax agreement is
+uninformative when the leading candidates are near-ties.
+
+\paragraph{Fidelity: uninformative.} The fidelity head emits
+$p \in [0.5570, 0.5577]$ across twenty-four decisions---standard deviation
+$2.4\times10^{-4}$---while the teacher's $\ell$ genuinely varies;
+$\mathrm{corr}(p, \ell_{\text{teacher}}) = +0.155$. Since the student draws
+$\ell \sim \mathrm{Bernoulli}(p)$, its fidelity policy is close to an
+unconditional coin flip, and at $p \approx 0.557$ against a teacher preference of
+$4.2\%$ on the identical pools it is also badly calibrated. No constraint
+mediates either policy: \texttt{minimum\_hf\_fraction} applies only inside the
+simulated rollouts, never to the real proposal.
+
+\paragraph{Consequence.} The transformer is \emph{redundant} on the decision it
+approximates well and \emph{uninformative} on the one it does not. Combined with
+Section~\ref{sec:mechanism}, MF-DRO is a faithful copy of a demonstrator that
+never explores, with the fidelity channel contributing noise.
+
 \section{Eleven Interventions}
 \label{sec:interventions}
 
@@ -327,6 +362,7 @@ H8  & sweep RTG within its realized band & $0/12$ \\
 H9  & RTG floor $\alpha_{\mathrm{rtg}}$ & void \\
 H10 & un-normalized RTG & void \\
 H11 & real history, $T{=}1 \rightarrow T{=}8$ & $0/12$ \\
+H27 & sliding window over real queries & bit-identical \\
 H11c& + DT-style RTG decrement & void \\
 H17 & joint-MES reward (live signal) & $0/12$ \\
 H19 & deterministic rollout dynamics & $0/12$ \\
@@ -354,6 +390,18 @@ $\log b_0 - \log b_T = H[y^\ast|D_0]-H[y^\ast|D_T]$ eliminates this ($0.0\%$
 dead, $100\%$ of LF steps credited, CV $0.66$ versus $1.96$) and measurably
 improves teacher-quality correlation (paired $+0.0962$, $8/10$ seeds, Wilcoxon
 $p{=}0.0195$). The argmax still moves $0/12$.
+
+\paragraph{Feeding the real trajectory changes nothing, bit-for-bit.} Supplying
+the last seven real $(\text{state}, \textsc{rtg}, \textsc{btg})$ triples plus the
+current one---a genuine sliding window, verified to grow $1 \to 6$ across a
+run---leaves every proposed query \emph{identical to machine precision}
+($\max|\Delta x| = 0$), together with the fidelity choices and the final regret.
+This is not a no-op inside the network: the same real history moves the hidden
+state to cosine $0.895$ and the coefficient vector by $11.2\%$. An $11.2\%$
+perturbation of $w$ is roughly $85\times$ the $0.13\%$ that ordinary state
+variation produces, and it still reorders nothing---the induced shift lies in
+directions that do not change the candidate ranking, the same structure the
+$100\times$ gain sweep found.
 
 \paragraph{Removing the head's bottleneck does not help.} Replacing the linear
 scoring rule $\langle w(h), \mathit{cf}_k\rangle + b(h)$ with an MLP over
