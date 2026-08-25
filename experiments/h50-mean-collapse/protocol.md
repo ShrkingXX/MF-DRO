@@ -182,3 +182,47 @@ separate, the finding stays labelled EXPLORATORY, but the prior is genuine and
 independently checkable — a reviewer can verify the commit predates the data.
 State this in the analysis with the hash; prose alone does not carry it,
 because the commit is the evidence.
+
+---
+## VALIDITY GATE — H50 must reproduce h45 (registered with 0 results on disk)
+
+Prompted by the peer session announcing an `mf_dro.py` edit. Checking their
+claim surfaced a risk to H50 that neither of us had flagged.
+
+**H50 and h45 ran different code.** h45's workers imported `mf_dro.py` at
+**01:43**; H50's imported at **04:27**, after four intervening commits:
+
+| commit | time | why it should be inert for H50 |
+|---|---|---|
+| 6c7989b | 03:14 | `use_candidate_scoring` default flip — H50 sets it explicitly |
+| 3231fba | 03:21 | `natural_decision_lengthscale`, defaults False (verified: flag off reproduces member0=0.1839) |
+| 7c72939 | 03:54 | `use_roi=False` default; branch does `torch.rand(_N_POOL=200,…)`, RNG-identical to the old literal |
+| f123335 | 04:01 | all changes inside `if roi_mode == 'mes'`, unreachable when `use_roi=False` |
+
+H50's whole design rests on each run **reproducing its h45 counterpart** — that
+is what licenses calling 49/50 FAIL and 42/44 PASS. Seeds and config are
+identical, so if the executed paths are genuinely identical the trajectories
+must match **exactly**.
+
+### The gate
+
+For each seed, compare H50's `sr_curve` against h45's `hf_regret_curve`
+element-wise, and H50's `n_iters` / `n_improvements` against h45's.
+
+- **Match** -> code equivalence is demonstrated empirically, not argued from
+  reading diffs. The FAIL/PASS grouping stands and the analysis proceeds.
+- **Diverge** -> the grouping is VOID. Seeds 49/50 cannot be called the failing
+  ones under code they were not measured under. In that case H50 is reported as
+  an uninterpretable run, the divergence is characterised, and the experiment is
+  re-run with h45's code pinned — not salvaged by re-labelling whichever seeds
+  happen to fail this time.
+
+This gate is checked and reported **before** any mode-geometry number, and its
+outcome is stated in the analysis regardless of which way it goes. Registered
+now, with 0 result files on disk, precisely so it cannot become optional if the
+grouping turns out inconvenient.
+
+Note the running processes are immune to further edits — Python loaded the
+module at 04:27 — so the peer's pending fixes cannot affect H50 mid-flight.
+The risk is only to a restart, and H50 will not be restarted without redoing
+this check.
