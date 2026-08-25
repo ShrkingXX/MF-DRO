@@ -620,6 +620,28 @@ shows it is not tunable away.
    against the data rather than trusting it.
 18. **Do not fix a scale-free quantity with an absolute threshold** (bit twice:
    `bes_delta`, soft-target temperature).
+19. **When a supporting subset is in hand and the rest is cheap, do not report
+   the subset at all.** This generalises lesson 4, which was too narrow — the
+   failure is not specific to intermediate *n*. Four instances in this project,
+   four different mechanisms, one shape: the supporting subset existed
+   *earlier* than the full set, and got reported first.
+
+   | instance | the subset reported | the full set |
+   |---|---|---|
+   | `p=0.0371` called significant | one metric of several | Bonferroni over the metrics actually examined — nothing survives |
+   | h45 head comparison, reported at 5/6 then 7/8 | seeds finished so far | 10/10: worst-on-mean, Wilcoxon **p=1.0000** |
+   | H50 criterion drift (caught pre-results at `58081bb`) | the criterion the data would support | the registered 3-of-3 test |
+   | H50 smoke test called "encouraging" | seeds 49 vs 42 | all four seeds — criterion #1 points the **wrong way** |
+
+   Note the third row: drift is the same failure applied to *criteria* instead
+   of *data*. And the second reached a user and changed a shipped default
+   (`use_candidate_scoring`, 6c7989b) that the full set does not support.
+
+   The rule is stronger than "be vigilant" because vigilance already failed
+   here four times. Waiting costs little when the remainder is cheap — the four
+   outstanding h45 seeds were hours, but the two missing smoke-test seeds were
+   **30 seconds**, and they reversed the conclusion. Independently arrived at
+   with the peer session, which counted its own instances in the same tally.
 
 ---
 
