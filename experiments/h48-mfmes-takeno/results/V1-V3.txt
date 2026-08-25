@@ -1,0 +1,17 @@
+Currin LF optimum:  13.582493
+Hartmann LF optimum: 3.658890
+Hartmann6D_w10 (alpha_basin=1.0): HF optimum=3.322368 at x=[0.2017, 0.15, 0.4769, 0.2753, 0.3117, 0.6573], LF optimum=4.001940
+Hartmann6D_w03 (alpha_basin=0.3): HF optimum=4.272641 at x=[0.215, 0.2695, 0.6125, 0.2787, 0.301, 0.6851], LF optimum=4.446512
+Hartmann6D_w01 (alpha_basin=0.1): HF optimum=6.393663 at x=[0.3427, 0.5747, 0.6304, 0.4037, 0.297, 0.3994], LF optimum=5.658429
+V1: HF closed form vs fine quadrature of the truncated-normal entropy
+   n=100  max rel err = 1.534e-08  median = 1.434e-09   [< 1e-6 required]  PASS
+
+V2: 32-pt Gauss-Hermite vs 10,000-pt trapezoid over [mu-8s, mu+8s]
+   n=100  max rel err = 2.293e-05  median = 4.782e-13   [< 1e-4 required]  PASS
+
+V3: mutual-information non-negativity on 10,000 random inputs (pre-clamp)
+   HF: min I = 1.240e-23   ClampStats(phi=0, var=0, mi=0/10000 = 0.000%)
+   LF: min I = 5.107e-15   ClampStats(phi=0, var=0, mi=0/10000 = 0.000%)
+   HF clamp rate 0.0000%  LF clamp rate 0.0000%   PASS
+
+ALL PASS

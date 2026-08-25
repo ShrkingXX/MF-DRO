@@ -42,7 +42,7 @@ import math
 
 import numpy as np
 import torch
-from numpy.polynomial.hermite import hermgauss          # PHYSICISTS' (e^{-t^2})
+from scipy.special import roots_hermite               # PHYSICISTS' (e^{-t^2})
 from scipy.stats import norm as _norm
 from scipy.optimize import minimize
 from scipy.stats import qmc
@@ -50,6 +50,16 @@ from scipy.stats import qmc
 LOG_SQRT_2PIE = 0.5 * math.log(2.0 * math.pi * math.e)
 _PHI_FLOOR = 1e-10        # spec: clamp Phi(.) before any division or log
 _VAR_FLOOR = 1e-12        # spec: clamp variances (numerical negatives occur)
+R_STEP = 25.0             # rho*sigma_L/s above which the analytic step limit is used.
+# Chosen where the two methods cross, measured against a 4,000,000-point
+# trapezoid reference (per-point relative error, 25 draws per r):
+#     r        2        6       12       20       40      100
+#   GH-256  1.8e-14  4.6e-08  2.1e-03  2.3e-02  4.1e-02  3.0e-02
+#   analytic 4.6e-01  1.5e-01  7.0e-02  4.2e-02  2.1e-02  8.2e-03
+# GH is essentially exact below r~6; the analytic s->0 limit is first-order
+# and converges as ~1/r. Neither is better than ~4% in the band r in [12,60] --
+# stated rather than hidden. Measured r on the real Hartmann 6D KO-GP is
+# median 0.77, p99 1.41, max 2.06, i.e. the GH-exact regime throughout.
 
 
 class ClampStats:
@@ -138,10 +148,15 @@ def mes_lf(pred, f_star, n_quad="auto", stats=None):
     s = np.sqrt(pred["var_delta"])                    # s(x), f*-independent
     fs = np.asarray(f_star, dtype=np.float64).reshape(-1)
 
+    # r = rho*sigma_L/s measures how step-like Phi_cond is in v. Large r is
+    # handled by the analytic s->0 branch below, so the rule never needs the
+    # node counts where numpy's hermgauss returns NaN weights (n=512) -- we
+    # use scipy.roots_hermite regardless, which is stable past 1024.
+    r_vec = rho * sig_L / s
     if n_quad == "auto":
-        r = float(np.max(rho * sig_L / s)) if s.size else 0.0
-        n_quad = 128 if r < 6.0 else (256 if r < 20.0 else 512)
-    t, w = hermgauss(int(n_quad))                     # weight e^{-t^2}
+        r_gh = float(np.max(r_vec[r_vec < R_STEP])) if np.any(r_vec < R_STEP) else 0.0
+        n_quad = 128 if r_gh < 6.0 else 256
+    t, w = roots_hermite(int(n_quad))                 # weight e^{-t^2}
     # v = mu_L + sqrt(2) sigma_L t  =>  phi((v-mu_L)/sigma_L) = e^{-t^2}/sqrt(2pi)
     v = mu_L[:, None] + math.sqrt(2.0) * sig_L[:, None] * t[None, :]   # [N,Q]
     phi_t = np.exp(-t * t) / math.sqrt(2.0 * math.pi)                  # [Q]
@@ -168,6 +183,28 @@ def mes_lf(pred, f_star, n_quad="auto", stats=None):
         acc = np.einsum("q,nq,nq->n", w, Phi_cond * safe, qlogq)
         H1 += -acc / (Phi_H * math.sqrt(math.pi))
     H1 /= len(fs)
+
+    # --- analytic s->0 branch for the step-like regime -------------------
+    # As s->0, Phi_cond -> 1{v < v*}, v* = mu_L + (f* - mu_H)/rho, and
+    #   H1 = (G/Phi_H) [ H_trunc - log(G/Phi_H) ],  G = Phi((v*-mu_L)/sigma_L),
+    #   H_trunc = log(sqrt(2 pi e) sigma_L G) - a phi(a) / (2 G),  a = (v*-mu_L)/sigma_L.
+    # No polynomial rule can resolve a step, so above R_STEP we use this
+    # instead of adding nodes. In the degenerate case (rho=1, delta->0) it
+    # reduces to G/Phi_H = 1 and I_L = I_H exactly, which is V4.
+    steep = r_vec >= R_STEP
+    if np.any(steep) and rho > 1e-12:
+        idx = np.where(steep)[0]
+        H1s = np.zeros(idx.size)
+        for f in fs:
+            v_star = mu_L[idx] + (f - mu_H[idx]) / rho
+            a = (v_star - mu_L[idx]) / sig_L[idx]
+            G = np.maximum(_norm.cdf(a), _PHI_FLOOR)
+            Phi_H = np.maximum(_norm.cdf((f - mu_H[idx]) / sig_H[idx]), _PHI_FLOOR)
+            H_tr = np.log(np.sqrt(2 * np.pi * np.e) * sig_L[idx] * G) \
+                - a * _norm.pdf(a) / (2.0 * G)
+            ratio = G / Phi_H
+            H1s += ratio * (H_tr - np.log(np.maximum(ratio, _PHI_FLOOR)))
+        H1[idx] = H1s / len(fs)
 
     I = H0 - H1
     if stats is not None:
