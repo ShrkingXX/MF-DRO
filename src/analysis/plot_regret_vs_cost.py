@@ -51,16 +51,15 @@ def plot(out=os.path.join(REPO, "to_human", "regret_vs_cost_all.png")):
             cs = _curves(b, me)
             if not cs: continue
             M = np.array([np.interp(grid, c, r, left=r[0], right=r[-1]) for c, r in cs]) / fstar
-            a.plot(grid, M.mean(0), color=col, ls=ls, lw=lw, label=me, zorder=4 if me.endswith("DRO") else 3)
-            if me == "SF-DRO":
-                a.fill_between(grid, M.min(0), M.max(0), color=col, alpha=.15, lw=0, zorder=1)
+            a.plot(grid, M.mean(0), color=col, ls=ls, lw=lw, label=me,
+                   zorder=4 if me.endswith("DRO") else 3)
         a.set_yscale("log"); a.set_xlim(0, 200); a.grid(alpha=.25, which="both")
         a.set_xlabel("cost spent (post-init)")
         a.set_title(f"{b}   f(x*)={fstar:.4g}", fontsize=10)
         if j == 0: a.set_ylabel("relative simple regret   regret / f(x*)")
     ax[0].legend(fontsize=8, loc="lower left", ncol=2)
     fig.suptitle("Regret vs cost — SF-DRO (solid red) vs MF-DRO (dashed red) vs baselines.  "
-                 "Band = min-max over seeds 44/46/48 for SF-DRO.", fontsize=11)
+                 "Mean over seeds 44/46/48, budget 200 post-init.", fontsize=11)
     fig.tight_layout()
     os.makedirs(os.path.dirname(out), exist_ok=True)
     fig.savefig(out, dpi=145, bbox_inches="tight")
