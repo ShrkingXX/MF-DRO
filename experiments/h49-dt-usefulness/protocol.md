@@ -1,11 +1,11 @@
-# H47 — is the DT useful, and does the head choice change the answer?
+# H49 — is the DT useful, and does the head choice change the answer?
 
 ## The question
 
 "Does MF-DRO's Decision Transformer contribute anything?" cannot be answered by
 comparing MF-DRO to MF-DRO. It needs the no-DT arm at the same settings, and it
 needs a per-iteration measure of what the DT did differently from the teacher it
-imitates. h47 supplies both.
+imitates. h49 supplies both.
 
 ## Why existing runs cannot be reused
 
