@@ -75,8 +75,18 @@ def run(seed):
             xd = np.asarray(x_norm.detach().cpu().numpy(), dtype=float).reshape(-1)
             d_near = float(min(np.linalg.norm(xd - c) for c in cs))
             tmean = (ws[:, None] * cs).sum(axis=0)
+            # RAW, LOSSLESS: only 3-6 of the 50 argmaxes are distinct (the pool
+            # is 200 discrete points), so unique points + counts is compact AND
+            # sufficient to re-cluster at any threshold post hoc, and to track
+            # whether modes are STABLE attractors or churn with the y* draw.
+            # Without locations those two are indistinguishable afterwards, and
+            # only the former supports the mean-collapse argument.
+            uq, ct = np.unique(np.round(S, 9), axis=0, return_counts=True)
             probe.append(dict(
                 iter=t, n_modes=int(len(cs)),
+                argmax_unique=[[float(v) for v in u] for u in uq],
+                argmax_counts=[int(c) for c in ct],
+                mode_centroids=[[float(v) for v in c] for c in cs],
                 mode_weights=[float(w) for w in ws],
                 mode_sep=float(sep),
                 d_nearest_mode=d_near,
