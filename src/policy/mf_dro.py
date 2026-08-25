@@ -2538,7 +2538,13 @@ class DirectMFRegretOptimization:
                 teacher_scores=(teacher_scores[i:i + 1].float()
                                 if (teacher_scores is not None
                                     and self.use_soft_score_target) else None),
-                has_soft=(has_soft[i:i + 1] if self.use_soft_score_target else None),
+                # has_soft is None on the REGRESSION path (no candidate sets
+                # exist to carry soft targets), so guard on the tensor itself
+                # and not only on the flag -- otherwise
+                # use_candidate_scoring=False raises TypeError here.
+                has_soft=(has_soft[i:i + 1]
+                          if (has_soft is not None and self.use_soft_score_target)
+                          else None),
             )
             grads_i = torch.autograd.grad(L_loc_i, target_params, allow_unused=True)
             flat_i = torch.cat([g.flatten() for g in grads_i if g is not None])
@@ -2987,6 +2993,25 @@ class DirectMFRegretOptimization:
             # a naive abs-difference on mismatched scales (see the same bug
             # already caught and fixed in mf_baselines.py's regret calc).
             regret = -best_hf - self.config.true_opt
+
+            # INFERENCE REGRET (Takeno et al. 2020's second metric, and the one
+            # the MFBO literature reports alongside simple regret): the regret of
+            # the model's RECOMMENDATION x_hat = argmax mu_H, not of the best
+            # point queried. SR can only fall when a good point is *evaluated*;
+            # IR falls as soon as the surrogate *believes* the right thing, so
+            # the two separate a method that finds good points from one that
+            # merely models well. Evaluated on the fixed y_star_pool reference
+            # set so it is comparable across iterations and methods.
+            # Takeno's convention: if IR > SR at an iteration, report SR (the
+            # recommendation is never worse than the best point actually seen).
+            try:
+                with torch.no_grad():
+                    _mu = self.ko_ensemble[0].hf_posterior(self.y_star_pool)[0].flatten()
+                    _xhat = self.y_star_pool[int(_mu.argmax())]
+                    _f_xhat = float(self.f_hf(_xhat.unsqueeze(0)).reshape(-1)[0])
+                inf_regret = min(-_f_xhat - self.config.true_opt, regret)
+            except Exception:
+                inf_regret = float('nan')
             neg_rtg_frac = float(np.mean([tr['neg_rtg_frac'] for tr in batch]))
 
             self.iteration_log.append({
@@ -2994,7 +3019,8 @@ class DirectMFRegretOptimization:
                 'x_t': x_t.tolist(),
                 'cumulative_cost': self.cumulative_cost,
                 'post_init_cost': self.post_init_cost,
-                'regret': regret, 'rtg_target': rtg_target,
+                'regret': regret, 'inference_regret': inf_regret,
+                'rtg_target': rtg_target,
                 'btg_target': btg_target,
                 'fid_mean': fid_mean, 'fid_std': fid_std,
                 'L_loc': L_loc, 'L_fid': L_fid,
@@ -3020,6 +3046,7 @@ class DirectMFRegretOptimization:
         L = self.iteration_log
         return {
             'hf_regret_curve': [l['regret'] for l in L],
+            'inference_regret_curve': [l.get('inference_regret') for l in L],
             # cost_curve is POST-INIT cost (starts near 0, excludes
             # initialization spending) so methods with different
             # initialization sizes are comparable on the same x-axis.
