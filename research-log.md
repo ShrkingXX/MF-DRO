@@ -468,3 +468,74 @@ CI on the paired difference [-0.3250, +0.1080] contains zero, Cohen's dz 0.311.
 **ETA record.** H31 estimated at 15--40 min, actual 148 min. Third miss on this
 class; the binding constraint is the LF-heavy seed, since cost-budgeted
 wall-times are set by the fidelity mix.
+
+---
+
+# 2026-08-25 — H57 through H61: the baseline comparison, and five retractions
+
+## Why each experiment was chosen
+
+**H57 (baseline comparison, 36 runs).** Requested directly: MF-DRO vs Takeno
+MF-MES, MF-MI-Greedy, MF-GP-UCB on Currin/Hartmann/Borehole, budget 200, seeds
+44/46/48. Chose h48's standalone Takeno MF-MES over `GreedyMFMESOptimizer`
+because h47-variant-d had measured the latter's 200-point random pool finding an
+acquisition value 4.3x worse than a 4000-point one. Pinned to one commit with
+the hash in every result file after the peer session pointed out that 36 jobs
+across a moving `src/` would be uninterpretable later.
+
+**H58 (HF floor).** `minimum_hf_fraction=0.25` is applied at exactly one site,
+inside `simulate_mf_trajectory` — the comment says "forced HF to ensure training
+diversity". Nothing enforces it on real queries. The DT is trained under a floor
+and run without one. Ran it because the incumbent moves only on HF and two of
+h57's stalls had zero HF queries.
+
+**H59 (SF-DRO baseline).** Chosen after noticing the north star is defined
+against SF-DRO and `grep -rl DirectRegretOptimization experiments/` returned
+nothing — h1..h58 all measure the multi-fidelity extension. You cannot claim a
+novel method improves on SF-DRO without knowing where SF-DRO sits.
+
+**H60 (confound decomposition).** Forced by a question I could not answer: on
+Borehole MF-DRO is 99-100% HF post-init, so it should behave like SF-DRO — why
+is it worse? Enumerating the configs showed four simultaneous differences.
+Borehole chosen as the test bed precisely because fidelity is inert there.
+
+**H61 (teacher optimiser).** h60 excluded the reward schema and the LF initial
+design, and showed the teacher is load-bearing (20pp swing). Reading the code
+found SF-DRO's `_optimize_acquisition` doing 1000 broad samples + 100-sample
+local refinement where MF-DRO's `compute_joint_mf_mes` does a flat argmax over
+200 points with no refinement at all.
+
+## Decisions that cost something
+
+- **Killed h57's launcher expecting its `subprocess.run` children to survive.**
+  They did not — six MF-DRO workers died with the parent, ~20 min lost. Asserted
+  the behaviour in a comment instead of checking it.
+- **Relaunched h59 with the full job list after fixing one arm.** The
+  results-file guard skips only FINISHED jobs, so nine running jobs were
+  duplicated — 20 workers against a 15 cap, and the duplicates swallowed SIGTERM.
+  Third occurrence of this defect (h56, h57, h59); every runner now takes arms
+  from argv.
+- **Wrote H61's arms at 1000 points without costing them.** `compute_joint_mf_mes`
+  is O(N) per rollout step, so the arms would have been ~7.7 h and ~15 h per
+  seed. Amended to 200+100 and 600 before any run, with the weakened inference
+  recorded.
+
+## Five retractions, and what caused each
+
+| retracted | cause |
+|---|---|
+| h45 reported at 5/6 then 7/8 as "regression head winning" | at 10/10 it is worst-on-mean, p=1.0000. Reported a subset while the rest was running. Became lesson 19. |
+| "MF-DRO searches misdirected on Hartmann" | distance to x* is not a value proxy: best value within 0.3 of x* equals best beyond 1.0. Lesson 20. |
+| "Hartmann's LF is a more attractive objective" | the MES reward scores LF by information about the **HF** optimum; LF's own value enters nothing. corr(f_LF,f_HF)=0.925 and the LF-heaviest seed is the BEST. Lesson 21. |
+| "dropping multi-fidelity helps DRO" | confounded — the two configs differ in surrogate, teacher, reward and init, and on Borehole fidelity provably did not act. Lesson 22. |
+| three geometric accounts of Borehole | each refuted by checking against value rather than geometry. Lesson 23. |
+
+The common shape: a statistic that is real and significant, attached to a
+mechanism that was never checked for whether it *could* act.
+
+## Standing state
+
+All of h57 (36), h58 (12), h59 (18), h60 (9) complete. H61 running.
+Neither DRO variant meets the north star on any benchmark. Two candidate causes
+remain for the Borehole gap: teacher optimisation quality (H61, running) and the
+surrogate class (KO-GP vs SingleTaskGP, not a flag, untested).
