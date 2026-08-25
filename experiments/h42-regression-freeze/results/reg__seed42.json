@@ -1,0 +1,1 @@
+{"seed": 42, "use_candidate_scoring": false, "n_iters": 50, "n_improvements": 3, "frozen": false, "distinct": 50, "x_spread": 0.22504586952820146, "final_regret": 0.42206372557792937, "first_regret": 2.4602702818268405, "final_inference_regret": 0.42206372557792937, "n_hf": 8, "n_lf": 42, "total_cost": 106.0, "wall": 1581.6}
