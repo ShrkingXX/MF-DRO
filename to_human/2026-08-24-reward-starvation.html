@@ -95,6 +95,44 @@ toolchain exists on this machine.</p>
 </div>
 
 
+
+<h2>What the policy actually is (H32&ndash;H33)</h2>
+<div class="card">
+<div class="kicker">Faithful on location &mdash; broken on fidelity</div>
+<div class="scroll"><table>
+<tr><th>decision</th><th class="n">measurement</th><th class="n">verdict</th></tr>
+<tr><td><strong>Location</strong> &mdash; teacher's rank of the student's pick</td>
+    <td class="n">median <strong>2</strong> of 200 (range 1&ndash;12)</td>
+    <td class="n good">faithful</td></tr>
+<tr><td>score correlation with teacher</td><td class="n">&rho; = 0.771</td><td class="n good">&mdash;</td></tr>
+<tr><td><strong>Fidelity</strong> &mdash; student's <code>p</code> across 24 decisions</td>
+    <td class="n">0.5570&ndash;0.5577 (sd <strong>2.4&times;10<sup>&minus;4</sup></strong>)</td>
+    <td class="n bad">near-constant</td></tr>
+<tr><td>corr(<code>p</code>, teacher's <code>ell</code>)</td><td class="n">+0.155</td><td class="n bad">uninformative</td></tr>
+</table></div>
+<p>The student picks the teacher's <em>top</em> candidate on 5 of 12 pools and is
+never worse than 12th of 200. <span class="bad">Corrected:</span> I had called the
+distillation "lossy" from an 8/12 argmax agreement &mdash; a bad metric when the
+leading candidates are near-ties.</p>
+<p>The fidelity head is a different story: <code>p</code> moves by 0.0007 across
+24 decisions while the teacher's choice genuinely varies. <code>ell ~
+Bernoulli(p)</code> is close to an unconditional coin flip.</p>
+<p><strong>So the transformer is redundant on the decision it approximates well,
+and uninformative on the one it does not.</strong></p>
+</div>
+
+<div class="card">
+<div class="kicker">Sliding-window inference &mdash; the user's test</div>
+<p>Feeding the last 7 real queries plus the current one leaves every proposal
+<strong>bit-identical</strong> (max |&Delta;x| = 0), same fidelity choices, same
+regret. Gate failed, so the 2-hour frozen run was not spent.</p>
+<p>And it is <em>not</em> a no-op inside the network: the same real history moves
+the hidden state to cosine 0.895 and the coefficient vector by
+<strong>11.2%</strong> &mdash; about 85&times; the 0.13% that ordinary state
+variation produces &mdash; and still reorders nothing. The shift lies in
+directions that do not change the candidate ranking.</p>
+</div>
+
 <h2>The teacher, not the student (H28&ndash;H30)</h2>
 <div class="card">
 <div class="kicker">Three corrections in three ticks &mdash; each narrowed the claim</div>
