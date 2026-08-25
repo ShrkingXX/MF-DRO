@@ -73,3 +73,35 @@ BASE's behaviour is unchanged by construction.
 n = 3, one benchmark. Borehole is chosen because fidelity is inert there, not
 for generality. A teacher effect here may differ on Hartmann, where the fidelity
 split does vary and the teacher drives it (h60).
+
+---
+
+## AMENDMENT (before any run, 0 result files on disk): arm sizes cut for compute
+
+`compute_joint_mf_mes` is O(N) in the candidate count and is called once per
+rollout step — 8 steps x 200 rollouts x ~100 iterations. So the pool size
+multiplies the dominant cost almost exactly. BASE took **~92 min/seed** on
+Borehole; a 1000-point pool would be ~5x that (~7.7 h/seed) and the REFINE arm
+as originally written (1000 + 100) ~10x (~15 h/seed). That is not affordable and
+I should have costed it before writing the arms.
+
+Revised, keeping both mechanisms separable and each affordable:
+
+| arm | broad | refinement | approx cost vs BASE |
+|---|---|---|---|
+| **BASE** | 200 | none | 1x (reused, not re-run) |
+| **REFINE** | 200 | **100 samples, noise 0.05** | ~1.5x |
+| **POOL600** | **600** | none | ~3x |
+
+This still separates the two mechanisms — REFINE isolates SF-DRO's *local
+refinement*, POOL600 isolates *broad-search resolution* — and REFINE is the more
+distinctive of the two, since a local pass is the thing MF-DRO's teacher lacks
+entirely. The predictions are unchanged in direction; only the magnitudes
+available are smaller, so a null on POOL600 is weaker evidence against pool size
+than the original 1000 would have been.
+
+**Regression gate passed before any arm ran**: with the new config keys at their
+defaults (`n_roi_candidates=200`, `teacher_refine_samples=0`), a 3-iteration
+Currin run reproduces the pre-edit result bit-for-bit — regret curve
+`[1.5398834959, 1.5398834959, 0.0495809348]` and `x_t[0] = [0.0, 0.0]` on both
+sides of the edit. BASE's h57 cells therefore remain valid for reuse.

@@ -824,6 +824,9 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             kg_signed=False,
                             kg_topk=1,
                             fantasy_mode='sample',
+                            n_roi_candidates=200,
+                            teacher_refine_samples=0,
+                            teacher_refine_noise=0.05,
                             use_roi=False,
                             roi_mode='ucb',
                             roi_top_q=0.10,
@@ -1032,7 +1035,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     # longer needs any candidate set at all (Fix 1, see _extract_mf_state's
     # docstring); _propose_next_query correspondingly no longer builds an
     # ROI-filtered pool either, since it had no other use for one.
-    _N_POOL = 200
+    _N_POOL = int(n_roi_candidates)
     if not use_roi:
         roi_candidates = (
             bounds[0]
@@ -1335,6 +1338,25 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             x_tau, ell_tau, scores = compute_joint_mf_mes(
                 current_ko, roi_candidates, c_H, c_L
             )
+            if teacher_refine_samples > 0:
+                # H61: SF-DRO's _optimize_acquisition does 1000 broad samples +
+                # a 100-sample local refinement at noise 0.05; MF-DRO's teacher
+                # was a flat argmax over 200 points with no refinement at all.
+                # Refine around the broad winner and re-score the UNION, so the
+                # result can only match or beat the broad-only argmax on the
+                # second call's y* draw. Gated: teacher_refine_samples=0 (the
+                # default) leaves the original path bit-identical.
+                _span = (bounds[1] - bounds[0])
+                _loc = (x_tau.reshape(1, -1)
+                        + teacher_refine_noise * _span
+                        * torch.randn(int(teacher_refine_samples), ko_model.d,
+                                      device=ko_model.device,
+                                      dtype=ko_model.dtype))
+                _loc = torch.max(torch.min(_loc, bounds[1]), bounds[0])
+                roi_candidates = torch.cat([roi_candidates, _loc], dim=0)
+                x_tau, ell_tau, scores = compute_joint_mf_mes(
+                    current_ko, roi_candidates, c_H, c_L
+                )
         if tau == 0 and scores is not None:
             bes_signal_0 = scores.max().item()
 
@@ -2250,6 +2272,9 @@ class DirectMFRegretOptimization:
                     kg_signed=getattr(self.config, 'kg_signed', False),
                     kg_topk=getattr(self.config, 'kg_topk', 1),
                     fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
+                    n_roi_candidates=getattr(self.config, 'n_roi_candidates', 200),
+                    teacher_refine_samples=getattr(self.config, 'teacher_refine_samples', 0),
+                    teacher_refine_noise=getattr(self.config, 'teacher_refine_noise', 0.05),
                     use_roi=self.use_roi,
                     roi_mode=getattr(self.config, 'roi_mode', 'ucb'),
                     roi_top_q=getattr(self.config, 'roi_top_q', 0.10),
