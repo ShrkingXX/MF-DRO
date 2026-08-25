@@ -1673,3 +1673,45 @@ catastrophic-seed variance is the failure mode to attack. On Currin that
 variance is a 1.3 pp effect inflated by a near-zero denominator. The variance
 that matters, if any, must be demonstrated on Hartmann or Borehole where a
 percentile shortfall actually costs regret — not on Currin.
+
+### H61 POOL600 complete: widening the teacher's pool improves Borehole 3/3
+
+**CONFIRMATORY for this arm.** The locked prediction it participates in
+(prediction 2: "REFINE beats BASE on >= 2/3, POOL600 lands between them") is
+**unresolved** — REFINE is 0/3 and withheld.
+
+| arm | s44 | s46 | s48 | mean | rel | HF/LF per seed |
+|---|---|---|---|---|---|---|
+| BASE (200, argmax) | 75.64 | 76.59 | 67.97 | 73.40 | 23.7% | 100/1 100/1 99/3 |
+| **POOL600 (600, argmax)** | **65.07** | **70.48** | **45.15** | **60.23** | **19.5%** | 89/22 98/5 98/4 |
+
+Better on **3/3** seeds. Mean relative regret falls 23.7% -> 19.5%, and seed 48
+improves 33% (67.97 -> 45.15).
+
+**This is the first intervention in this project that has improved Borehole.**
+h58's floor, h60's REWARD, h60's NOLFINIT and h60's TEACHER were null, null,
+null and strongly negative respectively.
+
+### Why this matters, and what it does not yet establish
+
+It supports the h61 hypothesis directly: MF-DRO's teacher argmaxes over 200
+uniform points with no refinement, where SF-DRO's does 1000 + local refinement.
+h47-variant-d had measured a 200-point pool finding an acquisition value 4.3x
+worse than a 4000-point one and not saturated there; this is the first evidence
+that the gap costs *regret*, not just acquisition value.
+
+Not established:
+
+- **n = 3, one benchmark.** No p-value.
+- The pool change also shifted the fidelity mix slightly (100/1 -> 89/22 on seed
+  44), so it is not a perfectly clean single variable — though far less severe
+  than h63's 99% -> 4% inversion.
+- **19.5% still loses to every baseline on Borehole** (MI-Greedy 8.3%, MF-MES
+  11.3%). Closing 4.2 points of a 15.4-point gap is progress toward the north
+  star, not arrival at it.
+- Whether a *larger* pool keeps helping, or 600 is near a plateau, is untested.
+  h47-variant-d's curve was still rising at 4000.
+
+The natural follow-up if REFINE also helps: a pool sweep (200/600/2000) to find
+where the acquisition-quality return flattens, since that determines whether this
+is a fix or merely a direction.
