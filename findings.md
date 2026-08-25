@@ -1009,3 +1009,60 @@ regret. What the complete data says instead:
 
 Plot: `to_human/h57_regret_vs_cost.png` (relative regret vs cost, min-max band
 over seeds, log y).
+
+---
+
+## H59 Hartmann complete (6/6): SF-DRO beats SF-MES 3/3 — and beats MF-DRO
+
+**CONFIRMATORY.** Cost budget 200 post-init, seeds 44/46/48, the same axis every
+h57 number is on. **Currin and Borehole SF-DRO cells are still running and are
+withheld.** This is one benchmark of three.
+
+| arm | s44 | s46 | s48 | mean | rel | wall |
+|---|---|---|---|---|---|---|
+| **SF-DRO** | 0.3815 | 0.4406 | 0.3233 | **0.3818** | **11.5%** | 19.4 m |
+| SF-MES | 0.7531 | 1.0214 | 0.3575 | 0.7107 | 21.4% | 0.0 m |
+
+**SF-DRO beats SF-MES on 3/3 seeds.** Placed against h57's multi-fidelity
+numbers on the identical cost axis:
+
+| method | Hartmann 6D rel. regret |
+|---|---|
+| MF-MES | **8.5%** |
+| **SF-DRO** | **11.5%** |
+| MF-DRO | 14.7% |
+| SF-MES | 21.4% |
+| MF-MI-Greedy | 23.9% |
+
+### Why this matters
+
+H59's locked prediction 3 named this as the outcome that would change the
+project: *"SF-DRO beats SF-MES where MF-DRO lost. That would locate the failure
+in the multi-fidelity extension rather than in the DRO architecture."* On
+Hartmann it fired, and my pre-registered expectation (prediction 2: SF-DRO does
+not beat SF-MES) is **refuted** here.
+
+Two contrasts carry it:
+
+1. **DRO beats its own-fidelity MES baseline 3-0 in single fidelity, having lost
+   0-3 to it in multi-fidelity** (h57). Same architecture, same benchmark, same
+   cost. The only difference is the fidelity machinery.
+2. **SF-DRO (11.5%) beats MF-DRO (14.7%).** The multi-fidelity extension makes
+   the method *worse* on this benchmark.
+
+That is consistent with everything the diagnostics found and could not explain:
+search quality was never the problem (stalled queries at the 88.7-99.9th
+percentile of domain value), while the fidelity policy was measurably broken
+(81%/4%/28% HF across seeds differing only by initial design; h58's floor
+recovering 22% of the regret on the 2%-HF seed by replacing 176 LF queries with
+19 HF ones).
+
+### What this does NOT establish
+
+- **One benchmark.** Currin and Borehole are pending and either could reverse the
+  direction. On h57 the best method changed identity by benchmark.
+- SF-DRO still loses to MF-MES (11.5% vs 8.5%), so it does not yet meet the
+  north star's bar — "at least as good as the baselines" is not met by beating
+  only the single-fidelity baseline.
+- The compute ratio is unchanged: 19.4 minutes against SF-MES's ~2 seconds.
+- n = 3, no p-values.
