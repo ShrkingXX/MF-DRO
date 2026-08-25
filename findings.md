@@ -1215,3 +1215,33 @@ HF and recorded ZERO improvements.** Its failure is not stalling but
 design's incumbent. That is the mirror image of seed 46 (2% HF, 179 queries,
 also near-zero improvement). Both extremes of the fidelity split fail; the
 middle (seed 48, 28% HF) does best. Suggestive, n=3, not tested.
+
+### RETRACTION: "Hartmann's LF is a more attractive objective" — withdrawn
+
+Prompted by a direct challenge: the MES reward and the switching condition both
+score LF by information gain about the **HF** optimum, so a high LF value cannot
+be intrinsically attractive. Checked, and the challenge is correct.
+
+1. `_compute_mes_lf_vectorized` takes `y_star_arr` = "shared **HF** Thompson
+   samples" and works through `rho`, `mu_H`, `var_delta`. LF's own optimum enters
+   nothing. Real-inference fidelity comes from the DT's `fidelity_head`, not MES.
+2. corr(f_LF, f_HF) = **+0.925** domain-wide. The true HF value at seed 46's 176
+   LF-queried points has median **3.0287 = 91% of f(x*)**. LF is an excellent
+   surrogate on Hartmann; the policy found the good region cheaply.
+3. **Regret is monotone in HF fraction, opposite to my claim**: seed 46 (2% HF,
+   179 queries) 8.7%; seed 48 (28%) 12.7%; seed 44 (81%, 31 queries) 22.7%.
+   The seed I called pathological is the best one.
+
+The 166/176 statistic is real (uniform sampling puts 0.1% of LF values above
+f(x*)_HF, so 94.3% is a 900x concentration) but it measures that the policy
+LOCATED the good region, not that it was lured into a bad one.
+
+Still standing: the 81%/4%/28% fidelity spread across seeds differing only by
+initial design, and h58's floor improving seed 46 by 22%. Withdrawn: that
+LF-heaviness is Hartmann's failure mode. On this evidence LF-heaviness is
+Hartmann's *best* strategy, and MF-DRO's Hartmann loss needs another explanation.
+
+**Lesson 21**: an extreme statistic ("94% of LF queries above the HF optimum")
+can be real, significant against chance, and still support the opposite reading.
+Before attributing it to a mechanism, check whether the mechanism can act at all
+— here the scoring rule provably cannot see LF's value.

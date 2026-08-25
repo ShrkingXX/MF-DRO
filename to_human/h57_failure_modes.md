@@ -25,46 +25,55 @@ Wall clock: MF-DRO 82–114 min per run; MF-MI-Greedy 0.4–0.7 min. **120–230
 
 ## THE TWO FAILURE MODES ARE DIFFERENT
 
-### Hartmann 6D — the low-fidelity function is a *more attractive* objective
+### Hartmann 6D — RETRACTED. The original claim here was wrong.
 
-**1. LF's optimum is higher than HF's.** Recovered by multi-start L-BFGS-B:
+**What I claimed:** the LF function's optimum (4.0019) exceeds HF's (3.3224), so
+the fidelity head "chases" it and starves the incumbent.
 
-| | HF f(x*) | LF max |
-|---|---|---|
-| Hartmann 6D | 3.3224 | **4.0019  (+20%)** |
-| Borehole 8D | 309.58 | 246.35 (lower) |
-| Currin 2D | 13.80 | 13.58 (lower) |
+**Why it is wrong — two independent reasons, both checked in code and data:**
 
-Hartmann is the only one of the three where this is true.
+**1. Nothing in the method scores LF by its own value.** The LF branch
+(`_compute_mes_lf_vectorized`) is scored against `y_star_arr`, documented in
+source as "shared **HF** Thompson samples". It computes information gain about
+the *high-fidelity* optimum through `rho`, `mu_H`, `var_delta`. LF's own optimum
+never enters any decision. And at real inference the fidelity is drawn from the
+DT's `fidelity_head`, not from the MES argmax at all.
 
-**2. The policy chases it.** Seed 46 spent **176 LF queries against 3 HF**, and
-**166 of those 176 LF values exceeded the true HF optimum** (LF median 3.783 vs
-f(x*) = 3.322). The incumbent only updates on HF, so it barely moved.
+**2. The LF function is an EXCELLENT surrogate here, not a misleading one.**
 
-**3. The fidelity split is unstable across seeds** that differ *only* by the
-initial-design draw:
+| measurement | value |
+|---|---|
+| domain-wide corr(f_LF, f_HF) | **+0.925** |
+| mean f_HF in the top-5% LF region | 1.4398 (domain mean 0.2588) |
+| true HF value at the 176 LF-queried points, median | **3.0287 = 91% of f(x\*)** |
 
-| method | s44 | s46 | s48 | spread |
+The LF budget went to a region genuinely containing near-optimal HF points. The
+policy was not misled; it correctly located the good region cheaply.
+
+**3. And the seed I called pathological is the BEST one.**
+
+| seed | HF% | queries | regret | rel |
 |---|---|---|---|---|
-| **MF-DRO** | 81% | **4%** | 28% | **76 pts** |
-| MF-MES | 26% | 38% | 67% | 40 pts |
-| MF-MI-Greedy | 12% | 13% | 11% | **2 pts** |
+| **46** | **2%** | 179 | **0.2875** | **8.7%** |
+| 48 | 28% | 67 | 0.4228 | 12.7% |
+| 44 | 81% | 31 | 0.7531 | 22.7% |
 
-**4. Forcing HF fixes part of it (H58).** A 25% floor at inference — copied
-verbatim from the rollout simulator, untuned — applied to seed 46:
+**Regret is monotone in HF fraction, in the direction opposite to my claim.** The
+LF-heaviest seed wins; the HF-heaviest loses. At c_H=8 vs c_L=1 with rho=0.925,
+spending on the cheap fidelity is correct, and seed 44's 25 expensive HF queries
+bought a worse answer than seed 46's 176 cheap ones.
 
-| | queries | HF% | regret |
-|---|---|---|---|
-| free | 179 | 2% | 0.2875 |
-| **floor** | **74** | 26% | **0.2230  (−22%)** |
+**How the error happened:** I observed that 166/176 of seed 46's LF queries
+exceeded f(x*)_HF and read it as evidence of chasing. The statistic is real and
+extreme — uniform sampling puts only 0.1% of LF values above that line, so the
+concentration is 94.3% vs 0.1% — but it measures that the policy found the good
+region, not that it was lured somewhere bad.
 
-**176 LF queries were worth less than 19 HF queries.**
-
-> **Hartmann in one line:** the fidelity head is rewarded for querying a cheap
-> surrogate whose optimum is 20% *above* the target function, so it starves the
-> incumbent, which only HF observations can move.
-
----
+**What remains true about Hartmann:** the fidelity split varies 81%/4%/28%
+across seeds differing only by the initial-design draw, and h58's 25% floor
+improved seed 46 by 22%. Both stand. But "the fidelity head chases a misleading
+LF optimum" is withdrawn, and with it the framing that LF-heaviness is the
+Hartmann failure mode.
 
 ### Borehole 8D — no fidelity problem at all; the search plateaus short
 
