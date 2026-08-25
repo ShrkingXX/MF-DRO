@@ -94,6 +94,46 @@ author list, and <strong>the paper has never been compiled</strong> — no LaTeX
 toolchain exists on this machine.</p>
 </div>
 
+
+<h2>The teacher, not the student (H28&ndash;H30)</h2>
+<div class="card">
+<div class="kicker">Three corrections in three ticks &mdash; each narrowed the claim</div>
+<p><strong>H28.</strong> The MF-MES teacher's own choices sit at the
+<strong>2.9th percentile</strong> of <code>&sigma;<sub>H</sub></code> within
+their candidate pools (control: 94.2nd percentile of
+<code>&mu;<sub>H</sub></code>). The student's uncertainty aversion is
+<em>inherited</em>. <span class="bad">Retracted:</span> my claim that "the student
+inverted the sign of its teacher's defining term" &mdash; it inverts nothing.</p>
+<p><strong>H29.</strong> Intrinsic, not tuning. Sweeping cost ratio
+{2,4,8,16} &times; y* samples {5,10,50}, the chosen-<code>&sigma;</code>
+percentile never exceeds <strong>5.5%</strong> in any of 12 cells. Ten times more
+Monte Carlo changes nothing; an 8&times; cost swing moves it ~1%&rarr;~5%.</p>
+<p><strong>H30.</strong> And the negative coefficient is <em>not</em> an aversion.
+<code>corr(&mu;<sub>H</sub>, &sigma;<sub>H</sub>) = &minus;0.4696</code> &mdash;
+in a GP the high-mean region is where data already sits. Under that collinearity
+the <em>teacher's own</em> score has a negative <strong>partial</strong>
+<code>&sigma;</code> coefficient (&minus;0.0419, negative on 91.4% of sets)
+despite a <em>positive</em> marginal correlation (+0.1585). Textbook suppression.
+<span class="bad">Corrected:</span> the paper's claim that the rule "penalises
+exactly what UCB/EI/MES reward" &mdash; MES's own partial coefficient is negative
+too.</p>
+<p><strong>What survives is behavioural, not coefficient-based:</strong>
+selections land in the bottom 3% of posterior uncertainty, in every regime
+tested. That does not depend on interpreting any weight.</p>
+</div>
+
+<div class="card">
+<div class="kicker">Running now &mdash; the sharpest remaining test</div>
+<p><strong>H31:</strong> run the MF-MES teacher under the frozen evaluation with
+<em>no Decision Transformer deciding at all</em>. The DT is still trained (so the
+RNG stream matches and the teacher sees the identical candidate pools), but its
+output is discarded.</p>
+<p>H24 found the student agrees with its teacher on only <strong>8/12</strong>
+pools, so the distillation is lossy. If the teacher alone does better, the
+transformer is a <strong>net negative</strong> &mdash; the sharpest possible form
+of this result. Reported either way.</p>
+</div>
+
 <h2>The answer to the research question</h2>
 <img src="figs/final_frozen_result.png" alt="Final frozen evaluation, 10 seeds, four arms">
 <div class="card">
