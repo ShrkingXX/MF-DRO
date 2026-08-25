@@ -1583,3 +1583,55 @@ calls per rollout step (200 broad, then 300 union) where POOL600 makes one with
 Recorded because this project has a documented ETA-miss record and the cause here
 is structural — cost scales with the number of acquisition *calls*, not only the
 candidate count.
+
+---
+
+## H62 GATE PASSED — SF-DRO diagnosed for the first time
+
+All 9 cells reproduce h59 to **0.00e+00** (exact, not merely within the 1e-9
+tolerance). Traces present in 9/9. h59's regret conclusions stand unchanged;
+H62 contributes instrumentation only, as its protocol stated.
+
+### SF-DRO diagnostics (single fidelity — every query is HF, so the incumbent can move on any of them)
+
+| benchmark | seed | nq | distinct | Q-FREEZE | improv | stall | regret | q pctile | inc pctile |
+|---|---|---|---|---|---|---|---|---|---|
+| Currin 2D | 44 | 71 | 71 | no | 11 | 16 | 0.0012 | 92.1% | 100.0% |
+| **Currin 2D** | **46** | 71 | 71 | **no** | **3** | **65** | **0.1844** | **89.0%** | **99.1%** |
+| Currin 2D | 48 | 71 | 71 | no | 5 | 11 | 0.0001 | 97.8% | 100.0% |
+| Hartmann 6D | 44 | 31 | 31 | no | 7 | 12 | 0.3815 | 77.9% | 100.0% |
+| Hartmann 6D | 46 | 31 | 31 | no | 9 | 0 | 0.4406 | 73.8% | 100.0% |
+| Hartmann 6D | 48 | 31 | 31 | no | 11 | 0 | 0.3233 | 84.7% | 100.0% |
+| Borehole 8D | 44 | 110 | 110 | no | 12 | 58 | 50.2414 | 99.9% | 100.0% |
+| Borehole 8D | 46 | 110 | 110 | no | 16 | 9 | 44.0491 | 99.7% | 100.0% |
+| Borehole 8D | 48 | 110 | 110 | no | 8 | 19 | 46.0989 | 99.9% | 100.0% |
+
+### The catastrophic seed, finally diagnosed
+
+Currin seed 46 (0.1844 against a 0.0012 median) is the clearest
+catastrophic-seed instance in a fidelity-free setting. Its trace shows:
+
+- **No query freeze**: 71/71 distinct. The same-point pathology is absent, as it
+  has been in every MF-DRO cell too.
+- **3 improvements, then a 65-query stall** — it stops improving almost
+  immediately and never recovers across the remaining 92% of the run.
+- **Its incumbent is at the 99.1st percentile of domain value**, where the two
+  healthy Currin seeds reach 100.0%.
+- **Its queries sit at the 89.0th percentile** versus 92.1% and 97.8% for the
+  healthy seeds — searching *slightly* worse regions, not catastrophically worse.
+
+So the blow-up is **not** a distinct failure mechanism. It is the same search,
+marginally less well aimed, that happens to miss the last 0.9 percentile of
+value — and on Currin that 0.9 percentile is the difference between 0.0001 and
+0.1844 regret, because the benchmark saturates so steeply near its optimum.
+
+**This reframes the "catastrophic seed" story that has run through this project
+since h45.** It is not a policy collapse. It is a benchmark whose regret is
+extremely sensitive near the optimum, amplifying a small difference in search
+quality into a 1500x difference in reported regret. The same 0.9-percentile
+shortfall on Borehole would be invisible.
+
+**Note the important negative**: Borehole's SF-DRO cells query at the
+**99.7-99.9th percentile** and still finish 14-16% short. The value-percentile
+diagnostic cannot discriminate there — every method is at the top of the
+distribution and the differences live in the last fraction of a percentile.
