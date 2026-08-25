@@ -2295,14 +2295,37 @@ class DirectMFRegretOptimization:
         # construction. Tests whether RTG is ignored or merely starved.
         if self.rollout_reward in ("improvement", "kg_incumbent") and \
                 getattr(self.config, 'rtg_target_mode', 'normalized') != 'raw':
-            _batch_max = max((t['rtg'][0].item() for t in batch if t['rtg'].numel() > 0),
-                              default=0.0)
+            # Scale by the running max of |rtg[0]|, NOT of rtg[0].
+            #
+            # The previous version tracked the signed max from a 0.0 init and
+            # floored the divisor at 1e-8. Under kg_signed=True the rewards are
+            # signed and rtg[0] (which telescopes to V_T - V_0) can be negative
+            # for every trajectory in a batch; the running max then stays pinned
+            # at its 0.0 init, the divisor falls to 1e-8, and every RTG is
+            # multiplied by 1e8 on its way into reward_embedding. A _batch_max of
+            # 1e-6 -- entirely ordinary early, when mu_H barely moves -- does the
+            # same at 1e6. A 1e-8 floor is meaningless for a signed quantity.
+            #
+            # Taking |.| preserves sign in the ratio while bounding magnitude. A
+            # degenerate batch leaves RTG unscaled rather than amplifying it.
+            # Behaviour under rollout_reward="improvement" is unchanged: rewards
+            # there are max(0.0, dV) >= 0, so abs() is the identity, and the
+            # degenerate case gave 0/1e-8 == 0 == 0/1.0.
+            _batch_max = max((abs(t['rtg'][0].item()) for t in batch
+                              if t['rtg'].numel() > 0), default=0.0)
             self._running_max_rtg_raw = max(
                 getattr(self, '_running_max_rtg_raw', 0.0), _batch_max)
-            _norm_scale = max(self._running_max_rtg_raw, 1e-8)
+            _norm_scale = self._running_max_rtg_raw
+            if not (_norm_scale > 1e-6):
+                _norm_scale = 1.0
             for t in batch:
                 if t['rtg'].numel() > 0:
                     t['rtg'] = t['rtg'] / _norm_scale
+            _rtg_mx = max((t['rtg'].abs().max().item() for t in batch
+                           if t['rtg'].numel() > 0), default=0.0)
+            assert _rtg_mx < 100.0, (
+                f"RTG normalization blew up: max|rtg|={_rtg_mx:.3e}, "
+                f"scale={_norm_scale:.3e}, reward={self.rollout_reward}")
 
         # VERIFICATION (spec): tau=0 state duplication + reference-block
         # variation, printed once per real BO iteration.
@@ -2849,11 +2872,45 @@ class DirectMFRegretOptimization:
                     fidelity_sampling=False,   # deterministic: isolate the policy, not the coin flip
                 )
             _dist = (x_t.double() - x_s.double()).norm().item()
+            # fid_agree used to compare ell_t -- a Bernoulli DRAW, since the live
+            # call runs with fidelity_sampling=self.fidelity_sampling (default
+            # True) -- against the snapshot's 0.5-threshold decision. That
+            # disagrees whenever p is in (0, 0.5) and the coin lands heads, which
+            # at the measured p ~ 0.37 base rate is most of the time, so it
+            # measured the coin and not the policy. The live call is deliberately
+            # left alone (changing it would change the policy); instead the
+            # diagnostic re-queries the live DT deterministically, with the SAME
+            # hist the live call got, and compares fidelity PROBABILITIES.
+            with torch.no_grad():
+                _x_d, _ell_d = self.dt.propose_mf(
+                    state.float(), rtg_tgt, btg_now,
+                    timestep=0,
+                    use_candidate_scoring=self.use_candidate_scoring,
+                    candidate_features=(cand_feats.float()
+                                        if cand_feats is not None else None),
+                    fidelity_sampling=False,
+                    hist=_hist,
+                )
+                _p_live = float(self.dt.last_p_pred)
+                _x_s2, _ell_s2 = self._dt_snapshot.propose_mf(
+                    state.float(), rtg_tgt, btg_now,
+                    timestep=0,
+                    use_candidate_scoring=self.use_candidate_scoring,
+                    candidate_features=(cand_feats.float()
+                                        if cand_feats is not None else None),
+                    fidelity_sampling=False,
+                    hist=_hist,
+                )
+                _p_snap = float(self._dt_snapshot.last_p_pred)
             self.decision_divergence_log.append({
                 'iter': len(self.iteration_log),
                 'argmax_agree': bool(_dist < 1e-9),
                 'dist': _dist,
-                'fid_agree': bool(int(ell_t) == int(ell_s)),
+                'dist_deterministic': (_x_d.double() - _x_s2.double()).norm().item(),
+                'p_live': _p_live,
+                'p_snapshot': _p_snap,
+                'p_abs_diff': abs(_p_live - _p_snap),
+                'fid_agree': bool(int(_ell_d) == int(_ell_s2)),
             })
 
         # propose_mf's location head is normalized to [0,1]^d (see its own
