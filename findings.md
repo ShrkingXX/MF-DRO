@@ -942,3 +942,70 @@ noise on a saturated Currin. Any claim for a DRO-family method has to answer
 that ratio, not only the regret.
 
 n=3 per cell, no p-values. Directions and paired counts only.
+
+---
+
+## H57 COMPLETE (36/36): MF-DRO does not meet the bar
+
+**CONFIRMATORY.** All 36 cells, budget 200 post-init, seeds 44/46/48, shared
+initial design, one pinned commit, hash in every result file.
+
+Relative simple regret (regret / f(x*)), and paired wins for MF-DRO out of 3:
+
+| method | Currin 2D | Hartmann 6D | Borehole 8D |
+|---|---|---|---|
+| **MF-DRO** | **0.0%** | 14.7% | 23.7% |
+| MF-MES | 0.6% | **8.5%** | 11.3% |
+| MF-MI-Greedy | 0.2% | 23.9% | **8.3%** |
+| MF-GP-UCB *(all-LF, floor)* | 10.0% | 45.3% | 44.1% |
+
+| MF-DRO vs | Currin | Hartmann | Borehole |
+|---|---|---|---|
+| MF-MES | **3-0** | 0-3 | 0-3 |
+| MF-MI-Greedy | 1-2 | 2-1 | 0-3 |
+
+### Verdict against the north star
+
+"At least as good as the baselines", per benchmark, against the best baseline:
+
+    Currin 2D    MF-DRO 0.0%  vs 0.2%  -> meets it, but every method is <0.6%
+                                          (saturated; does not discriminate)
+    Hartmann 6D  MF-DRO 14.7% vs 8.5%  -> FAILS, 0-3 to MF-MES
+    Borehole 8D  MF-DRO 23.7% vs 8.3%  -> FAILS, 0-3 to BOTH baselines
+
+**MF-DRO fails on both discriminating benchmarks and ties on the saturated one.**
+It never beats the best available baseline anywhere. The one clean win it does
+have — 3-0 over MF-MES on Currin — is on the benchmark where all three
+non-degenerate methods land inside 0.6% of the optimum.
+
+Note the identity of the best baseline changes: MF-MES on Hartmann, MI-Greedy on
+Borehole and Currin. Neither baseline dominates, which makes the bar harder than
+"beat MF-MES".
+
+### The compute ratio is not a footnote
+
+| | Currin | Hartmann | Borehole |
+|---|---|---|---|
+| MF-DRO | 114.1 m | 82.5 m | 92.1 m |
+| MF-MES | 3.5 m | 1.9 m | 5.1 m |
+| MF-MI-Greedy | **0.5 m** | **0.4 m** | **0.7 m** |
+
+**MF-DRO costs 120-230x MI-Greedy's wall time** and loses to it on two of three
+benchmarks. A method needing 200x the compute to lose is not a tuning problem.
+
+### Where this leaves the SF-DRO north star
+
+The multi-fidelity extension is not the thing to keep fixing. Every mechanism
+this project has chased — incumbent freeze, aimless search, mean-collapse,
+misdirection — has either been retracted or turned out not to be what costs the
+regret. What the complete data says instead:
+
+1. The search is **not** bad. Stalled queries sit at the 88.7-99.9th percentile
+   of domain value against incumbents at 98.7-100th.
+2. The fidelity policy **is** unstable: 81%/4%/28% HF across three Hartmann
+   seeds that differ only by initial design.
+3. The method plateaus slightly below MF-MES and far below MI-Greedy on
+   Borehole, at 100-200x the cost.
+
+Plot: `to_human/h57_regret_vs_cost.png` (relative regret vs cost, min-max band
+over seeds, log y).
