@@ -76,3 +76,19 @@ statistic, not zero. Arms S and R are only interpretable against that floor.
 
 n = 3. This sizes an effect and fixes a direction; it does not establish
 significance. The h17-vs-h31 contrast needed 82 seeds for 80% power.
+
+---
+## KILLED 2026-08-25, superseded — not a result, a cancellation
+
+Killed after ~50 min with **zero result files**. Reasons, in order:
+1. The **S arm crashed on all 3 seeds**: `candidate_features` is `None` on the
+   scoring path, so `cf = candidate_features.double()` raised `AttributeError`.
+   Same bug class as the earlier `use_candidate_scoring=False` crash.
+2. It duplicates the **H47** number with `h47-variant-d-mfmes`, which was
+   launched later and is the authoritative H47.
+3. It pushed concurrent workers to 17, over the 15-core rule.
+4. Superseded: the question moved to whether our MF-MES matches Takeno et al.
+   (H48), which is upstream of "is the DT useful".
+
+No conclusions are drawn from this directory. If revived, fix the `None`
+guard first and renumber.
