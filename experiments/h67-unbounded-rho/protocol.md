@@ -1,7 +1,10 @@
 # H67 — reparameterise rho with unbounded support (the repair h63 identified)
 
-**PROTOCOL ONLY — NOT LAUNCHED.** h66's replication has priority on cores.
-Committed now so the design predates any further data.
+**LAUNCHED 2026-08-26.** Originally held as protocol-only pending h66's cores.
+That reason lapsed: h65 (2 jobs) and h66 (6 jobs) have both fanned out fully and
+will not spawn further workers, leaving 7 of 15 cores idle for hours. h67's 6
+jobs bring the total to 14, inside the cap. No prediction below was altered when
+the launch status changed; the design predates all h67 data.
 
 ## Why
 
