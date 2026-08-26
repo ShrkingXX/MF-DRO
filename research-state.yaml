@@ -448,9 +448,24 @@ verdict_scripts_written_before_data:
                  pre-registered null (its first cell already does)
   h65 analyse -> written at 0/3, PRIMARY is variance not mean
 
+stall_thread_CLOSED: |
+  Stall length does not predict regret. In HF-opportunity units MF-DRO and
+  MI-Greedy tie at 34% terminal stall with opposite regret profiles, and
+  MI-Greedy has the lowest terminal stall on Hartmann (2%) with the worst regret
+  there -- a short terminal stall means "had not converged". Stalls are also
+  routinely broken (MF-MES recovered from 111 queries). So stall detection cannot
+  trigger an adaptive intervention, and adaptive pool widening is dropped
+  unspent. Zero QUERY FREEZES on all 9 h57 MF-DRO finals.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
   h64 1/6  Hartmann s44 came back 0.3162 vs BASE 0.7531 -- NOT tracking the
            pre-registered null
-  h65 1/3  Hartmann REFINE, variance is the primary criterion
+  h65 2/3  Hartmann REFINE, variance is the primary criterion. seed44 came back
+           0.6664 with 1 improvement in 90 queries -- WORSE than BASE's 0.7531
+           only marginally and far worse than POOL600's 0.3162 on the same seed.
+           WITHHELD until 3/3; the prediction is about variance, not this mean.
+  h66 4/10 POOL600 Hartmann replication (seeds 44/46/48 from h64 + 43). MF-MES
+           arm COMPLETE at 10/10. <=5/10 wins triggers pre-registered WITHDRAWAL
+           of h64's north-star claim. Lesson 19: no subset reporting.
