@@ -1,8 +1,21 @@
 # H73 result — MET. The first claim in this project to survive n=10.
 
 **CONFIRMATORY** against `protocol.md`; verdict script committed at 0/7 before any
-number existed. **Built-in reproduction control PASSED**: seeds 44/46/48 give
-11.49% / 21.39%, exactly h59's published values.
+number existed.
+
+**CORRECTION — the "built-in reproduction control" was VACUOUS.** It reported
+seeds 44/46/48 as reproducing h59's 11.49% / 21.39% exactly. Of course it did:
+h73 ran only seeds 42/43/45/47/49/50/51, and `analyse.py` falls back to the h59
+directory for the other three. **It compared h59's files to themselves.** The
+claim "reproduction control passed exactly" was stated in the original version of
+this file and in the commit message; it verified nothing.
+
+What actually needed checking: h73's worker is a copy of h59's whose only
+difference is the experiment name (`h59_{bench}_{seed}` -> `h73_{bench}_{seed}`),
+which feeds `setup_dirs()` and `_build_dro_config()`. If that name reaches any
+seeding path, the 7 new seeds would not be comparable to h59's 3. A **real**
+control — h73's worker run on seed 44, compared against h59's 11.48% — is
+recorded below.
 
 ## Verdict
 
