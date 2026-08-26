@@ -1,0 +1,16 @@
+import os,subprocess,sys
+from concurrent.futures import ThreadPoolExecutor
+H=os.path.dirname(os.path.abspath(__file__))
+PY=os.path.join(H,"..","..","..",".venv","bin","python")
+SEEDS=[42,43,45,47,49,50,51]          # 44/46/48 reused from h64
+ARMS=sys.argv[1:] or ["POOL600"]
+JOBS=[("Hartmann_6D",a,s) for a in ARMS for s in SEEDS]
+print(f"[launcher] arms={ARMS} seeds={SEEDS} jobs={len(JOBS)}",flush=True)
+def run(j):
+    b,a,s=j; out=os.path.join(H,"..","results",f"{b}__{a}__seed{s}.json")
+    if os.path.exists(out): print(f"[skip] {b} {a} {s}",flush=True); return
+    r=subprocess.run([PY,"-u",os.path.join(H,"worker.py"),b,a,str(s)],capture_output=True,text=True)
+    if r.returncode: print(f"[FAIL {r.returncode}] {b} {a} s{s}\n{r.stderr.strip()[-800:]}",flush=True)
+    else: print(r.stdout.strip().splitlines()[-1],flush=True)
+with ThreadPoolExecutor(max_workers=7) as ex: list(ex.map(run,JOBS))
+print("ALL DONE",flush=True)
