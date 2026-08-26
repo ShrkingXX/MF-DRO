@@ -2376,3 +2376,58 @@ approximately zero. This is the same shape as h45 (5/6 then 7/8 then worst-on-me
 at 10/10) — the failure mode lesson 19 exists to prevent, now demonstrated a
 second time with the withdrawal pre-committed **before** the data arrived, which
 is the only reason it was caught cleanly rather than argued about afterwards.
+
+## h57's comparison is not acquisition-effort-matched — and on Borehole that is worth 4.72 points
+
+h70 finished the Borehole elimination chain, and the answer is a harness
+property rather than a method property.
+
+**SF-EI with a 1000-point candidate pool reproduces MI-Greedy exactly on
+Borehole — seed for seed.**
+
+| arm | Borehole | per seed |
+|---|---|---|
+| SF-EI (200-point pool) | 12.99% | 12.7 / 13.1 / 13.2 |
+| SF-EI + ALTGP (different GP) | 12.99% | 12.7 / 13.1 / 13.2 |
+| **SF-EI + POOL1000** | **8.27%** | **7.1 / 6.8 / 10.9** |
+| MI-Greedy | **8.27%** | **7.1 / 6.8 / 10.9** |
+
+Residual +0.00. All three locked predictions met. The GP construction contributes
+**exactly zero** on Borehole — and not because the arm was inert: the two builders
+produce materially different models (max lengthscale difference **4.27**, e.g.
+0.43 vs 4.70 on one dimension). Different surrogate, identical argmax sequence.
+
+**Pool sizes across h57, read from source:**
+
+| method | acquisition pool |
+|---|---|
+| **MF-DRO** | **200** |
+| SF-MES / SF-EI | 200 |
+| MF-MI-Greedy | **1000** |
+| MF-GP-UCB | **1000** |
+| MF-MES (Takeno) | **2048 Sobol + top-K L-BFGS-B refinement** |
+
+MF-DRO has been measured throughout this project against baselines given **5x to
+10x more acquisition-optimisation effort**, and MF-MES additionally gets gradient
+refinement. On Borehole that single uncontrolled factor is worth 4.72 points —
+larger than most effects this project has spent compute chasing.
+
+**What this does and does not mean.** It does *not* rescue MF-DRO: it sits at
+23.7% while a 1000-pool greedy EI reaches 8.27%. The withdrawal stands and the
+north star remains unmet. What it means is that **the size of MF-DRO's deficit
+has never been measured under a matched acquisition budget**, so every
+quantitative gap in the standings table is partly a pool-size artifact of unknown
+magnitude. It also retrospectively explains h61 (1.44x acquisition value from
+widening Borehole's pool) and the direction of h64's POOL600.
+
+**This is the highest-value open experiment: a pool-matched re-run of h57.** It is
+a method/harness question, not a change to the frozen evaluation — every method
+keeps its algorithm, its budget, its initial design and its regret convention;
+only the acquisition-pool hyperparameter is equalised.
+
+### EXPLORATORY, unpredicted: the KO-style GP costs 6.41 points on Hartmann
+
+`_build_ko_style_gp` (LogNormal lengthscale prior + geometric-mean init), used by
+every DRO and MES arm here, reached 19.89% on Hartmann where plain
+`mf_baselines._build_gp` reached **13.48%** — 2 wins, 1 tie. Exactly neutral on
+Borehole. n=3, not predicted, and it needs its own protocol before being claimed.

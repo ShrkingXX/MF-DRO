@@ -528,6 +528,21 @@ NORTH_STAR_WITHDRAWN: |
   hypothesis (2/6 on worst case across pairs). It is the only n=10 cell and the
   most variance-favourable one; reviving needs the other pairs at n=10.
 
+POOL_SIZE_CONFOUND: |
+  h70: SF-EI with n_candidates=1000 reproduces MI-Greedy EXACTLY on Borehole,
+  seed for seed (7.1/6.8/10.9, residual +0.00). GP construction contributes 0.00
+  there despite the builders differing materially (max lengthscale diff 4.27).
+  Pool sizes in h57: MF-DRO 200, SF-MES/SF-EI 200, MI-Greedy 1000, MF-GP-UCB
+  1000, MF-MES 2048 Sobol + top-K L-BFGS-B refinement. MF-DRO was measured
+  against baselines with 5-10x more acquisition-optimisation effort; on Borehole
+  that is worth 4.72 points.
+  Does NOT rescue MF-DRO (23.7% vs 8.27%) and the withdrawal stands, but the SIZE
+  of every gap in the standings is partly a pool artifact of unknown magnitude.
+  HIGHEST-VALUE OPEN EXPERIMENT: pool-matched re-run of h57. Method/harness
+  question, not a change to the frozen evaluation.
+  EXPLORATORY unpredicted: _build_ko_style_gp costs 6.41 pts on Hartmann (19.89
+  vs 13.48 for the plain builder), neutral on Borehole. Needs its own protocol.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
