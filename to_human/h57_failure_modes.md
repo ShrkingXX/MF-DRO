@@ -244,8 +244,10 @@ SF-DRO beats its own MES counterpart on Hartmann at **n=10**, on **every seed**:
 | SF-MES | 21.17% | 5.11 | 30.74% |
 
 **+12.71 points, 10/10 paired wins, Wilcoxon p = 0.0020.** The verdict script was
-committed before any seed had run, and the reproduction control reproduced the
-earlier 3-seed values exactly.
+committed before any seed had run. Two checks were then **run, not assumed**: the
+two arms are **query-matched** (both take exactly 25 optimization iterations on
+all 10 seeds), and a **reproduction control passes bit-for-bit** — the new
+worker reproduces the earlier code's seed-44 result to 0.000e+00.
 
 This is the **only** claim in this project to survive replication at n=10 — three
 earlier ones did not, and one reversed sign. Note it also went the *other* way
