@@ -462,7 +462,7 @@ open_now:
            is the signal and Hartmann is 0/2 so far
   h64 1/6  Hartmann s44 came back 0.3162 vs BASE 0.7531 -- NOT tracking the
            pre-registered null
-  h65 2/3  Hartmann REFINE, variance is the primary criterion. seed44 came back
+  h65 1/3  Hartmann REFINE (seeds 46,48 in flight), variance is the primary criterion. seed44 came back
            0.6664 with 1 improvement in 90 queries -- WORSE than BASE's 0.7531
            only marginally and far worse than POOL600's 0.3162 on the same seed.
            WITHHELD until 3/3; the prediction is about variance, not this mean.
