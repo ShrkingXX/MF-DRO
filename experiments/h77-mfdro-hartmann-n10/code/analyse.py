@@ -12,16 +12,16 @@ import numpy as np
 from benchmarks import get_benchmark
 B="Hartmann_6D"; S=list(range(42,52)); PUB=14.68
 fs=abs(float(get_benchmark(f"{B}_HF")["known_optimal_value"]))
-H75="experiments/h77-mfdro-hartmann-n10/results"; H57="experiments/h57-baseline-comparison/results"
+H77="experiments/h77-mfdro-hartmann-n10/results"; H57="experiments/h57-baseline-comparison/results"
 
-cp=f"{H75}/{B}__MF-DRO__seed44.json"; rp=f"{H57}/{B}__MF-DRO__seed44.json"
+cp=f"{H77}/{B}__MF-DRO__seed44.json"; rp=f"{H57}/{B}__MF-DRO__seed44.json"
 if not os.path.exists(cp):
-    print("  REPRODUCTION CONTROL NOT RUN (h75 worker on Borehole seed44 absent).")
+    print("  REPRODUCTION CONTROL NOT RUN (h77 worker on Hartmann seed44 absent).")
     print("  WITHHELD -- verdict not reported without it."); sys.exit(0)
 a=json.load(open(cp))["final_regret"]; b=json.load(open(rp))["final_regret"]
 if abs(a-b)>=1e-9:
     print(f"  REPRODUCTION CONTROL FAILED: {a:.10f} vs h57 {b:.10f}, diff {abs(a-b):.3e}")
-    print("  h75's new seeds are NOT comparable to h57's. WITHHELD."); sys.exit(1)
+    print("  h77's new seeds are NOT comparable to h57's. WITHHELD."); sys.exit(1)
 print(f"  reproduction control PASS (Borehole s44 {a:.10f} == h57, diff {abs(a-b):.3e})\n")
 
 v=[]
