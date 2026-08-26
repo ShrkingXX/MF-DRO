@@ -539,3 +539,67 @@ All of h57 (36), h58 (12), h59 (18), h60 (9) complete. H61 running.
 Neither DRO variant meets the north star on any benchmark. Two candidate causes
 remain for the Borehole gap: teacher optimisation quality (H61, running) and the
 surrogate class (KO-GP vs SingleTaskGP, not a flag, untested).
+
+---
+
+# 2026-08-25 later — H62 through H65: elimination, one positive, and a user hypothesis
+
+## Why each was chosen
+
+**H62 (SF-DRO traces).** Not a hypothesis — a capability gap. h59's SF-DRO cells
+carried `n_queries: 0` from a silent instrumentation bug, so SF-DRO was the only
+method that could not go through `freeze_watch` or `stall_diagnose`, while being
+the method the north star is defined against. Every diagnostic conclusion to that
+point was MF-DRO-only. Gated on reproducing h59 to 1e-9; it reproduced to
+**0.00e+00** on all 9 cells.
+
+**H63 (KO misspecification).** The user's hypothesis, and the sharpest measurement
+in the session: KO assumes `f_H = rho*f_L + delta` with `rho = sigmoid(...)`
+confined to (0,1), but Borehole's true OLS slope is **1.2566** with residual sd
+**0.0001** — the relation is essentially exact and the model cannot represent it.
+Hartmann's 0.9792 is inside the range, making it a control.
+
+**H64 (pool generalisation).** h61's POOL600 improved Borehole 3/3. Whether that
+is a general teacher defect or Borehole-specific decides whether it is a
+contribution or a footnote.
+
+**H65 (refine generalisation).** Added after noticing **h64 tests the wrong arm**
+for the question h61 actually raised. h64 generalises POOL600 (pool size), whose
+null prediction rests on a coverage argument. REFINE is not a pool-size change —
+its liveness check showed it *widening* query spread while matching POOL600's
+mean — so h64's prediction says nothing about it.
+
+## Decisions that cost something, or nearly did
+
+- **Wrote H61's arms at 1000 points without costing the O(N) rollout call.**
+  Would have been ~7.7 h and ~15 h per seed. Amended to 200+100 and 600 before
+  any run, with the weakened inference recorded rather than glossed.
+- **Predicted REFINE would be the cheap arm.** It is the expensive one — 3.3x
+  BASE vs POOL600's 1.6x — because `compute_joint_mf_mes` has per-*call*
+  overhead and REFINE makes two calls per rollout step. Cost scales with
+  acquisition *calls*, not candidate count.
+- **Nearly reported h63's Borehole arm as support.** Its own protocol had
+  pre-declared that a Borehole win alone is insufficient and only a
+  larger-than-Hartmann gain discriminates. Withheld.
+
+## Predictions I registered and then lost
+
+| prediction | outcome |
+|---|---|
+| rho saturates near 1 on Borehole | **wrong** — fitted rho is 0.8436, short of even the representable range |
+| pool-size gain orders 8D > 6D > 2D | **wrong** — it orders 8D > 2D > 6D; Hartmann gains nothing at N=600 |
+| refinement concentrates the teacher's demonstrations | **wrong** — it widens query spread (0.2907 vs 0.2534) |
+| Currin's blow-up is steep saturation near the optimum | **wrong** — Currin is the flattest; the ratio is a denominator artifact |
+| h58's HF floor would be harmful (budget reallocation) | **wrong** — it improved the starved seed 22% |
+| **h61: REFINE beats BASE >=2/3, POOL600 between** | **MET** — 3/3, and 73.40 > 60.23 > 59.75 |
+
+One met prediction in six. The met one is also the only durable gain.
+
+## Standing state
+
+h57 (36), h58 (12), h59 (18), h60 (9), h61 (6), h62 (9) complete. h63 4/6,
+h64 1/6, h65 0/3.
+
+Best result: h61 REFINE on Borehole — 23.7% -> 19.3%, 3/3, and **seed spread
+8.62 -> 2.57**. Still loses to MI-Greedy's 8.3%. The variance collapse is the
+finding; the mean gain is matched by POOL600 at 10x the spread.
