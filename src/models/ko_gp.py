@@ -139,7 +139,8 @@ class KennedyOHaganGP:
     def __init__(self, d, rho_init=0.8, lr=0.1, train_iter=50,
                  noise_lb=1e-2, device='cpu', dtype=torch.float64,
                  dkl_threshold=30, dkl_train_iter=100, d_feature=None,
-                 rho_fixed=None, initial_lengthscale=None):
+                 rho_fixed=None, initial_lengthscale=None,
+                 rho_link='sigmoid'):
         # noise_lb default raised from 1e-4: a near-zero noise floor made
         # near-interpolation (very short lengthscale, near-exact fit to
         # each training point) more attractive to the MLL optimizer on
@@ -151,9 +152,19 @@ class KennedyOHaganGP:
         self.rho_init = rho_init  # re-applied every fit() call when
         # initial_lengthscale is set -- see fit()'s reset and
         # initial_lengthscale's docstring below for why.
-        self.log_rho = nn.Parameter(
-            torch.tensor(math.log(rho_init / (1.0 - rho_init)))
-        )
+        # rho_link: which transform maps the unconstrained parameter
+        # (self.log_rho) to rho. 'sigmoid' -> (0,1), the historical default and
+        # bit-for-bit unchanged. 'softplus' -> (0,inf), added for H67 because
+        # Borehole 8D's true LF->HF slope is 1.2566 (OLS residual sd 0.0001)
+        # and the sigmoid link CANNOT represent it -- the shortfall
+        # 0.2566*f_L(x) is forced into delta(x), a zero-centred-prior GP.
+        # The parameter keeps the name log_rho under both links so that
+        # copy(), the Adam optimizer and every state_dict path are untouched;
+        # only the transform differs.
+        if rho_link not in ('sigmoid', 'softplus'):
+            raise ValueError(f"rho_link must be 'sigmoid' or 'softplus', got {rho_link!r}")
+        self.rho_link = rho_link
+        self.log_rho = nn.Parameter(torch.tensor(self._raw_from_rho(rho_init, rho_link)))
         # rho_fixed: pin the autoregressive coefficient instead of fitting it.
         # rho_fixed=1.0 degenerates the KO model f_H = rho*f_L + delta into the
         # purely additive f_H = f_L + delta, which is the Additive-MES ablation
@@ -240,11 +251,24 @@ class KennedyOHaganGP:
         self.d_feature = d_feature if d_feature is not None else 2
         self._last_rbf_fit_time = None  # for the DKL-activation timing check
 
+    @staticmethod
+    def _raw_from_rho(rho_value, rho_link):
+        """Inverse link: rho -> unconstrained parameter, for initialization."""
+        if rho_link == 'softplus':
+            return math.log(math.expm1(rho_value))   # inverse softplus
+        return math.log(rho_value / (1.0 - rho_value))  # logit
+
+    def _rho_from_raw(self, raw):
+        """Forward link: unconstrained parameter -> rho. Differentiable."""
+        if self.rho_link == 'softplus':
+            return torch.nn.functional.softplus(raw)
+        return torch.sigmoid(raw)
+
     @property
     def rho(self):
         if self.rho_fixed is not None:
             return torch.tensor(self.rho_fixed, device=self.device, dtype=self.dtype)
-        return torch.sigmoid(self.log_rho)
+        return self._rho_from_raw(self.log_rho)
 
     def _build_gp(self, X_raw, Y_raw, use_dkl=False, prev_state_dict=None):
         """
@@ -448,7 +472,7 @@ class KennedyOHaganGP:
         # regardless of how distinct rho_init was at construction.
         if self.initial_lengthscale is not None and self.rho_fixed is None:
             with torch.no_grad():
-                self.log_rho.fill_(math.log(self.rho_init / (1.0 - self.rho_init)))
+                self.log_rho.fill_(self._raw_from_rho(self.rho_init, self.rho_link))
 
         _fit_t0 = time.time()
         Y_delta = None
@@ -486,7 +510,7 @@ class KennedyOHaganGP:
                     mu_lf_at_hf = self.gp_lf.posterior(X_hf).mean.reshape(-1)
                     mu_delta_at_hf = self.gp_delta.posterior(X_hf).mean.reshape(-1)
                 rho_optimizer.zero_grad()
-                pred = (torch.sigmoid(self.log_rho)
+                pred = (self._rho_from_raw(self.log_rho)
                         * mu_lf_at_hf + mu_delta_at_hf)
                 loss = torch.nn.functional.mse_loss(pred, Y_hf)
                 loss.backward()
@@ -618,7 +642,8 @@ class KennedyOHaganGP:
         frozen" for the whole model, not just the GPs.
         """
         new_ko = KennedyOHaganGP(self.d, device=self.device, dtype=self.dtype,
-                                  rho_fixed=self.rho_fixed)
+                                  rho_fixed=self.rho_fixed,
+                                  rho_link=self.rho_link)
         new_ko.log_rho = nn.Parameter(self.log_rho.detach().clone())
         new_ko.bounds = self.bounds
         new_ko.lr = self.lr

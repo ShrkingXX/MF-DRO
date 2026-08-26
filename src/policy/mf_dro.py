@@ -1449,6 +1449,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                 dkl_threshold=current_ko.dkl_threshold,
                 dkl_train_iter=current_ko.dkl_train_iter,
                 d_feature=current_ko.d_feature, rho_fixed=current_ko.rho_fixed,
+                rho_link=current_ko.rho_link,
                 initial_lengthscale=current_ko.initial_lengthscale,
             )
             new_ko.fit(
@@ -1978,6 +1979,13 @@ class DirectMFRegretOptimization:
         _rho_fixed = getattr(config, 'ko_rho_fixed', None)
         if _rho_fixed is not None:
             _ko_kwargs['rho_fixed'] = float(_rho_fixed)
+        # ko_rho_link (H67): 'sigmoid' (default, unchanged) confines rho to
+        # (0,1); 'softplus' gives (0,inf) so a true slope above 1 -- Borehole's
+        # is 1.2566 -- can actually be fitted instead of being capped and
+        # dumped into delta(x). Gated so the default path is bit-identical.
+        _rho_link = getattr(config, 'ko_rho_link', None)
+        if _rho_link is not None:
+            _ko_kwargs['rho_link'] = str(_rho_link)
 
         # Ensemble diversity, analogous to SF-DRO's dro.py _initialize_models
         # (np.linspace grid of initial_lengthscale across the ensemble,
