@@ -33,6 +33,45 @@ artifact.
 discriminate. Note SF-DRO beats MF-DRO on both hard benchmarks *despite* getting
 no free LF initial design.
 
+### READ THIS BEFORE QUOTING ANY HARTMANN NUMBER ABOVE
+
+Every figure in that table is **n = 3 seeds**. h72 checked what that estimator can
+do, by enumerating all C(10,3) = 120 three-seed subsets of a 10-seed run for the
+cheap methods. The harness reproduces the published cells exactly (**+0.00**), so
+these are the same numbers, better measured.
+
+![n=3 calibration](n3_calibration.png)
+
+| benchmark | method | published n=3 | n=10 | shift |
+|---|---|---|---|---|
+| Hartmann | **MI-Greedy** | 23.9% | **36.6%** | **+12.7** |
+| Hartmann | **MF-GP-UCB** | 45.3% | **66.8%** | **+21.5** |
+| Currin | MF-GP-UCB | 10.0% | 16.5% | +6.5 |
+| Borehole | MI-Greedy | 8.3% | 9.3% | +1.0 |
+| Hartmann | SF-MES | 21.4% | 21.2% | −0.2 |
+
+On Hartmann a three-seed draw of MF-GP-UCB could have landed anywhere between
+**36.7% and 88.5%**; MI-Greedy anywhere between **22.8% and 48.8%**. Seeds
+44/46/48 were a favourable draw for exactly those two. SF-MES moved by <= 0.5
+everywhere, so this is **method-dependent noise, not a property of the benchmark**.
+
+**What survives and what does not:**
+
+- **Borehole orderings are robust.** MI-Greedy stays best (8.3% -> 9.3%). The
+  pool-size result later in this deck is unaffected — it is a per-seed identity,
+  not a mean comparison.
+- **The Hartmann column is not resolved.** MI-Greedy's three-seed range overlaps
+  SF-MES's and SF-EI's, so some draw would have reversed the published ordering.
+- **MF-DRO and SF-DRO are NOT calibrated** — 82-473 min per run made n=10
+  unaffordable. Their entries are of *unknown* reliability, and MF-DRO's Hartmann
+  seeds (22.7% / 8.7% / 12.7%) show a spread comparable to methods whose means
+  moved by more than 10 points.
+
+This does **not** re-rank anything — unresolved is not reversed. But Hartmann is
+the column the withdrawn north-star claim lived in, and no Hartmann magnitude in
+this deck should be quoted as settled.
+
+
 Paired wins for MF-DRO out of 3 seeds: **0-3 to MF-MES on Hartmann**,
 **0-3 to both baselines on Borehole**. Currin does not discriminate — every
 non-degenerate method finishes inside 0.6% of the optimum.
