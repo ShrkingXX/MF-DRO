@@ -677,7 +677,7 @@ h77_hartmann_calibration_COMPLETE: |
   CALIBRATION COMPLETE for both discriminating benchmarks. Currin left at n=3 by
   design -- it does not discriminate, span bounded by construction.
 
-h79_identity_WEAKENED: |
+h79_identity_WEAKENED_TWICE: |
   SF-EI@1000 vs MI-Greedy on Borehole at n=10: bit-for-bit identical on 8/10
   seeds; seeds 45 and 49 diverge by 1.23 and 3.00 pts with SF-EI@1000 WORSE.
   PRIMARY (>=9/10) NOT MET, SECONDARY NOT MET, NULL FIRED.
@@ -688,7 +688,18 @@ h79_identity_WEAKENED: |
   100 iterations on both divergent seeds, and seed 43 differs in iteration count
   (99 vs 100) yet matches EXACTLY. Untested candidate: RNG-stream divergence from
   _explore_lf consuming draws even when selecting nothing. Hypothesis, not finding.
-  Corrections propagated to findings.md and the slide deck.
+  h79b: the trajectories were NEVER the same. Both methods split at iteration 1-2
+  on ALL four seeds examined, INCLUDING the matched controls (44, 46) whose finals
+  are bit-for-bit identical. Starting regrets differ (seed 46: 34.109 vs 36.597).
+  The 8/10 match is convergence to the same best point by DIFFERENT searches.
+  FINAL FORM: giving single-fidelity EI a 1000-point pool is enough to reach
+  MI-Greedy's final regret on 8/10 Borehole seeds -- a claim about OUTCOMES, not
+  algorithmic equivalence. The 4.72-pt gap really is closed by pool size alone.
+  h79b's own PRIMARY and SECONDARY both NOT MET; the NULL fired but its stated
+  conclusion did not follow, because the protocol assumed matched seeds implied
+  matched trajectories. Protocol-design lesson: a control that checks only the
+  endpoint cannot detect two paths to the same endpoint.
+  Corrections propagated to findings.md and the slide deck (twice).
 
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST

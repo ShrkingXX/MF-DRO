@@ -75,14 +75,17 @@ is a **tie, not a win** (SF-DRO 8.46% vs MF-MES 8.24%, 4/10, p=0.43 — post hoc
 
 ### What is known about the mechanism
 
-- **Borehole is explained for the baselines**: MI-Greedy's 5-point advantage over
-  SF-MES is **candidate pool size on 8 of 10 seeds**. SF-EI at 1000 candidates
-  reproduces MI-Greedy *bit-for-bit* on 8/10 (h70 at n=3, **h79 at n=10**). On
-  seeds 45 and 49 they diverge by 1.23 and 3.00 points with SF-EI@1000 **worse**,
-  so "entirely" — an n=3 word from h70 — is wrong. Pool size explains the great
-  majority; a minority contribution from something else is unexplained, and the
-  obvious candidate (MI-Greedy's LF phase activating) was **refuted** by the
-  iteration counts.
+- **Borehole is explained for the baselines**, in a claim narrowed twice:
+  giving single-fidelity EI a **1000-point candidate pool** is enough to reach
+  MI-Greedy's final regret on **8 of 10 seeds** (h70 at n=3, h79 at n=10). The
+  4.72-point SF-MES/MI-Greedy gap really is closed by pool size alone.
+  **But the two methods do not follow the same search** (h79b): they diverge from
+  the *first* optimization query on 3 of 4 seeds examined — the starting regrets
+  themselves differ — including a seed where the finals match to ten significant
+  figures. The 8/10 match is **convergence to the same best point by different
+  searches**, not the same algorithm. h70's "reproduces exactly, seed for seed"
+  was true of outcomes and invited a stronger reading about algorithms that the
+  data never supported.
 - **MF-DRO's own Borehole deficit is unexplained** after eliminating eight
   candidates with isolated differences: LF quality, local refinement, boundary
   aversion, fidelity allocation, rho misspecification, stall length, inner-loop
