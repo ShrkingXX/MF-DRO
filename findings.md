@@ -1904,3 +1904,54 @@ the gap is not fidelity allocation and cannot be closed by adjusting it.
 The one thing the fidelity data does establish is a floor: a configuration that
 drops below ~10% HF on Borehole cannot move its incumbent enough to compete,
 which is h58's finding arrived at from the other direction.
+
+---
+
+## H63 COMPLETE: your KO-misspecification hypothesis is SUPPORTED by the contrast
+
+**CONFIRMATORY.** Both locked predictions met.
+
+| benchmark | true slope | representable? | BASE | RHOTRUE | wins | gain |
+|---|---|---|---|---|---|---|
+| **Borehole 8D** | **1.2566** | **NO** | 23.7% | **21.8%** | **3/3** | **+1.9%** |
+| Hartmann 6D | 0.9792 | yes (control) | 14.7% | **31.3%** | **0/3** | **-16.6%** |
+
+- **Prediction 1 (PRIMARY)** — RHOTRUE beats BASE on Borehole >= 2/3: **MET (3/3)**
+- **Prediction 2 (DISCRIMINATING)** — Borehole gain exceeds Hartmann's:
+  **MET, and by a wide margin (+1.9% vs -16.6%)**
+
+The contrast is exactly the signature the protocol pre-registered. The benchmark
+whose true LF->HF slope lies **outside** the model's representable range gains
+from pinning rho at the measured value; the control whose slope lies **inside**
+it is badly harmed. Confounds 2-4 (adaptivity, ensemble rho diversity, fidelity
+mix) act on **both** benchmarks — Hartmann's mix inverted 81%->16% HF just as
+Borehole's did — so they cannot produce a contrast this asymmetric. That is why
+the contrast, not the level, was designated the signal in advance.
+
+**This is the second locked prediction met in this project, and the first
+user-originated hypothesis to survive its own control.**
+
+### What it does not license
+
+1. **rho is not the dominant term.** On the same Borehole cells, h61's POOL600
+   (19.5%) and REFINE (19.3%) both beat RHOTRUE's 21.8%. Correcting the
+   surrogate's representability buys **1.9 points**; improving the teacher's
+   acquisition optimisation buys **4.2-4.4**. Both matter; the teacher matters
+   more.
+2. **Pinning rho is not a usable fix.** It is catastrophic where the slope is
+   already representable (-16.6% on Hartmann), so it cannot be shipped as a
+   default. What the result identifies is a **modelling defect** —
+   `rho = sigmoid(log_rho)` cannot express a slope above 1 — not a tuning knob.
+   The principled repair is to reparameterise rho with unbounded support
+   (e.g. softplus, or an unconstrained scalar), letting it fit whatever the data
+   requires on either benchmark.
+3. **n = 3 per cell**, no p-values, and the four-way confound stands. The
+   contrast is what survives it, not the levels.
+
+### The concrete, testable follow-up this points to
+
+Replace `sigmoid` with an unbounded link in `KennedyOHaganGP` so rho is *fitted*
+without a (0,1) ceiling, and re-run both benchmarks. That would let Borehole
+reach ~1.26 while leaving Hartmann free to stay near 0.98 — a single change that
+should help where the ceiling binds and be inert where it does not. It is the
+first repair this project has identified that is principled rather than a knob.
