@@ -11,6 +11,80 @@
 
 ---
 
+## STATE OF THE EVIDENCE (consolidated 2026-08-26 — read this first)
+
+*The rest of this file is chronological, including superseded readings. This
+section is the current position; each claim points to the section that establishes
+it.*
+
+### The north star is not met, and never was
+
+**No DRO variant beats the best baseline on any benchmark that discriminates.**
+The single claim that ever cleared it (h64, Hartmann) was **withdrawn** at n=10:
+5/10 paired wins, p=1.0000, with the mean advantage traced to one seed. Currin
+does not discriminate — every non-degenerate method finishes inside 0.6%.
+
+### The one result that survived replication
+
+**SF-DRO beats SF-MES on Hartmann**: 8.46% vs 21.17%, **+12.71 pts, 10/10 wins,
+Wilcoxon p = 0.0020** (h73). Query-matched and reproduction-controlled, both
+verified rather than asserted. It also beats SF-EI there (9/10, p=0.0059), so it
+is not specific to one acquisition.
+
+**It does not generalise** (h74). Against the same counterpart:
+
+| benchmark | SF-DRO | SF-MES | wins | p |
+|---|---|---|---|---|
+| Hartmann | **8.46%** | 21.17% | **10/10** | 0.0020 |
+| Borehole | 14.60% | **12.76%** | 2/10 | 0.0840 |
+| Currin | 0.22% | **0.00%** | 2/10 | 0.0137 |
+
+**One win, two losses.** Against the strongest Hartmann baseline the comparison
+is a **tie, not a win** (SF-DRO 8.46% vs MF-MES 8.24%, 4/10, p=0.43 — post hoc).
+
+### What is known about the mechanism
+
+- **Borehole is explained for the baselines**: MI-Greedy's 5-point advantage over
+  SF-MES is **entirely candidate pool size**. SF-EI at 1000 candidates reproduces
+  MI-Greedy *exactly, seed for seed*, residual +0.00 (h70).
+- **MF-DRO's own Borehole deficit is unexplained** after eliminating eight
+  candidates with isolated differences: LF quality, local refinement, boundary
+  aversion, fidelity allocation, rho misspecification, stall length, inner-loop
+  optimisation, and acquisition class.
+- **SF-DRO's Hartmann advantage is LATE, not early** (h76). It is *behind* SF-MES
+  early on all three benchmarks; what differs on Hartmann is that SF-MES plateaus
+  and SF-DRO keeps descending, still falling at budget exhaustion.
+
+### Calibration status
+
+Borehole is **fully calibrated at n=10** with passed reproduction controls:
+MI-Greedy 9.29 / SF-MES 12.76 / SF-EI 12.95 / SF-DRO 14.60 / **MF-DRO 22.89** /
+MF-GP-UCB 46.65. MF-DRO is last among non-degenerate methods and it is not a
+three-seed artifact. Hartmann is calibrated for the cheap methods and SF-DRO;
+**MF-DRO's Hartmann cell is running now (h77)**.
+
+### Claims withdrawn, and why
+
+| claim | killed by |
+|---|---|
+| h64's north-star arrival | n=10: 5/10, mean was one seed, reverses without it |
+| h68's k=10 policy/acquisition mismatch | single-draw Monte-Carlo artifact; median of 12 replications is 79.4 against a reported 8.7 |
+| h70's "KO-style GP costs 6.41 pts" | n=10: sign reversed, KO-style better by 3.03, 8/10 |
+| "5-10x less acquisition effort" | `n_roi_candidates` is the *teacher's* pool; MF-DRO does zero inference-time acquisition search |
+
+### Methodological findings (these may be the most transferable output)
+
+- **Lesson 26** — n=3 does not estimate a direction here. Three of four
+  exploratory n=3 directions failed at n=10, one reversing sign.
+- **Lesson 27** — a magnitude bar and a win-count bar catch different failures;
+  a prediction needs both. Three protocols passed a bar while the underlying
+  comparison went the other way.
+- **Lesson 28** — every prediction this project met was derived from a prior
+  measurement; every one it lost was a mechanism intuition. Six mechanisms
+  proposed and refuted against three measurement-derived predictions met.
+
+---
+
 ## The answer to the research question
 
 **PROTOCOL.md asks:** does the incumbent-freeze have a fix within the DRO frame,
