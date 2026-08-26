@@ -1,0 +1,1 @@
+{"bench": "Hartmann_6D", "method": "MF-GP-UCB", "seed": 49, "budget": 200.0, "final_regret": 1.4195404494736361, "n_iters": 200, "wall_s": 139.9}

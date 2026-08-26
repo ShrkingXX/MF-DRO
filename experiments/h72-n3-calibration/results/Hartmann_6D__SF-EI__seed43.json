@@ -1,0 +1,1 @@
+{"bench": "Hartmann_6D", "method": "SF-EI", "seed": 43, "budget": 200.0, "final_regret": 0.39356318651189515, "n_iters": 25, "wall_s": 1.4}

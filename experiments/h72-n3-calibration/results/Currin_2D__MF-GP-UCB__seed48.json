@@ -1,0 +1,1 @@
+{"bench": "Currin_2D", "method": "MF-GP-UCB", "seed": 48, "budget": 200.0, "final_regret": 0.36140501152462434, "n_iters": 200, "wall_s": 139.6}

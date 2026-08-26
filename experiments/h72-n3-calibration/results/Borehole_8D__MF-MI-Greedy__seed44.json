@@ -1,0 +1,1 @@
+{"bench": "Borehole_8D", "method": "MF-MI-Greedy", "seed": 44, "budget": 200.0, "final_regret": 22.132668698022258, "n_iters": 100, "wall_s": 35.4}

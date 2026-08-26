@@ -1,0 +1,1 @@
+{"bench": "Hartmann_6D", "method": "MF-MI-Greedy", "seed": 46, "budget": 200.0, "final_regret": 1.0833879620057814, "n_iters": 14, "wall_s": 17.5}

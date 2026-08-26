@@ -1,0 +1,1 @@
+{"bench": "Currin_2D", "method": "MF-MI-Greedy", "seed": 46, "budget": 200.0, "final_regret": 4.148621223265536e-05, "n_iters": 34, "wall_s": 27.5}

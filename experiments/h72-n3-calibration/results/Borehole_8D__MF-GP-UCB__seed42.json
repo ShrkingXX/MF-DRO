@@ -1,0 +1,1 @@
+{"bench": "Borehole_8D", "method": "MF-GP-UCB", "seed": 42, "budget": 200.0, "final_regret": 143.12464873040435, "n_iters": 199, "wall_s": 132.0}
