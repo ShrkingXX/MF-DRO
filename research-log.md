@@ -603,3 +603,102 @@ h64 1/6, h65 0/3.
 Best result: h61 REFINE on Borehole — 23.7% -> 19.3%, 3/3, and **seed spread
 8.62 -> 2.57**. Still loses to MI-Greedy's 8.3%. The variance collapse is the
 finding; the mean gain is matched by POOL600 at 10x the spread.
+
+# 2026-08-26 — H66 through H73: the withdrawal, and the discovery that n=3 was never enough
+
+The session with the most retractions and the least new capability. Two claims
+withdrawn, one measurement corrected, one experiment cancelled before launch, and
+one methodological finding that calls the project's headline table into question.
+
+## Why each was chosen
+
+**h66** — replicate h64's north-star claim at n=10. Chosen because h64's 2/3 on
+Hartmann was the only time anything in this project beat a baseline, and lesson
+19 exists precisely because this project has repeatedly reported a favourable
+subset. Analysis script committed while POOL600 stood at 0/7.
+
+**h67** — unbounded rho via softplus, the "repair" h63 pointed at. Built, gated,
+and **cancelled before launch** when a three-minute pre-flight refuted its premise.
+
+**h68 / h68b** — separate OPTIMIZER failure from MODEL failure on Borehole, using
+traces already on disk. h60 had left exactly two candidates and they were
+separable offline.
+
+**h69** — split "model failure" into surrogate vs acquisition with an SF-EI arm
+differing from SF-MES in the acquisition alone, behind a bit-for-bit gate.
+
+**h70 / h70b** — the last identified differences: candidate pool size and GP
+construction. Then n=10 when h70's Hartmann result turned out to be unpredicted.
+
+**h71** — whether MF-DRO's own teacher pool is load-bearing the way the
+baselines' inference pool is. Still running.
+
+**h72** — calibrate the h57 standings against their own n=3 noise, by enumerating
+all C(10,3)=120 three-seed subsets of a 10-seed run. Chosen because lesson 26's
+corollary is that the headline table is itself n=3.
+
+**h73** — whether SF-DRO's Hartmann advantage over SF-MES, the strongest pro-DRO
+result in the project, survives n=10. Still running.
+
+## What was withdrawn
+
+| claim | how it died |
+|---|---|
+| **h64's north-star arrival** (POOL600 beats MF-MES on Hartmann) | h66 at n=10: 5/10 wins, p=1.0000. The +0.0530 mean advantage was **one seed** — drop s49 and it reverses to −0.0270 |
+| **h68's k=10 policy/acquisition mismatch** | 12 replications: the reported 8.7th percentile has a median of 79.4, range 41.2–91.3. A single Monte-Carlo draw reported as a measurement |
+| **h70's "KO-style GP costs 6.41 pts on Hartmann"** | h70b at n=10: KO-style is **better** by 3.03, 8/10. Sign reversed |
+
+## What was corrected
+
+**"MF-DRO ran at 5-10x less acquisition-optimisation effort."** Published one
+tick, corrected the next: `n_roi_candidates` is the *rollout teacher's* pool.
+`_propose_next_query` builds no candidate set, and the regression head emits
+`action_head(h).clamp(0,1)` directly — MF-DRO does **zero** inference-time
+acquisition search. Different mechanisms, not different sizes of one.
+
+## Decisions that cost something, or nearly did
+
+- **Committed source edits while a script was swapping HEAD files into the tree.**
+  `f50bc0b` claims to implement softplus and contains none of it. Left in place
+  rather than amended, with the real edits in a follow-up.
+- **Launched h71 with `results/ckpt/` absent.** `_atomic` doesn't mkdir, so every
+  checkpoint raised inside a daemon thread and died silently. Runs were healthy
+  and finals unaffected; 19 minutes of progress kept rather than restarting.
+- **h68 scored `x_dro` and `x_mig` in one acquisition call**, letting MI-Greedy's
+  strong point raise the shared `y*` and depress `x_dro` — biasing the exact
+  comparison the analysis rested on.
+- **Two protocols whose bars could not fail.** h68's PRIMARY was necessary but not
+  sufficient for its conclusion; h65's "spread < spread" passed on a 1.1%
+  contraction. Both passed while the substantive claim failed.
+
+## Predictions registered and lost
+
+| prediction | outcome |
+|---|---|
+| h66 PRIMARY: POOL600 beats MF-MES >=6/10 | **NOT MET** — 5/10 |
+| h68 SECONDARY: x_mig outranks x_dro >=5/9 | **NOT MET** — 1/9 |
+| h68b: mismatch tracks per-benchmark standing | **MISSED** — ordering was Currin > Borehole > Hartmann |
+| h69 PRIMARY: EI beats MES on Borehole by >=2 pts | **NOT MET** — +0.29 |
+| h69 CONTROL: EI worse on Hartmann | **VIOLATED** — EI better on both |
+| h70b PRIMARY: plain GP better on Hartmann | **NOT MET** — reversed |
+| h70 all three bars | **MET** — the only clean sweep |
+| h72 both bars | **MET** |
+
+## Standing state
+
+h66, h68, h69, h70, h70b, h72 complete. h67 cancelled pre-launch. **h71 (6 jobs)
+and h73 (7 jobs) running**, 12.6 of 15 cores.
+
+**North star: not met, and never was.** The only claim that ever cleared it is
+withdrawn. Nothing in this project beats the baselines on any benchmark that
+discriminates.
+
+**Borehole is explained — for the baselines.** MI-Greedy's 5-point advantage over
+SF-MES is *entirely* candidate pool size: SF-EI at 1000 candidates reproduces
+MI-Greedy **exactly, seed for seed**, residual +0.00. The GP construction
+contributes 0.00 there despite the builders differing materially.
+
+**Hartmann is not resolved.** h72: a three-seed draw of MF-GP-UCB could have
+landed anywhere in [36.7, 88.5]; MI-Greedy in [22.8, 48.8]. Published entries
+were optimistic by +12.7 and +21.5 points. MF-DRO and SF-DRO remain uncalibrated
+at 82–473 min per run — and Hartmann is the column the withdrawn claim lived in.
