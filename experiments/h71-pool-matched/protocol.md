@@ -28,11 +28,36 @@ Existing evidence is mixed and does not answer it: h61 found POOL600 moved
 Borehole 23.7% -> 19.5%, but h66 found POOL600 on Hartmann at n=10 wins only
 5/10 against MF-MES (the withdrawn claim).
 
+## CORRECTION, made while h71 was running and BEFORE any result existed
+
+The framing above is **wrong** and is corrected here rather than quietly edited.
+
+`n_roi_candidates` is **not** an inference-time acquisition pool for MF-DRO.
+`_propose_next_query` builds no candidate set at all ("No roi_candidates here
+(Fix 1)"), and with the regression head — the default since h45 — the real query
+is `x_t = action_head(h).clamp(0,1)`, a direct regression output. **MF-DRO does
+zero inference-time acquisition search.** `n_roi_candidates` governs the
+*rollout teacher's* pool, which shapes the demonstrations the DT is trained on.
+
+So MF-DRO at "200" and MI-Greedy at "1000" are **not two sizes of one mechanism**;
+they are different mechanisms. The comparison is a categorical asymmetry, not a
+5-10x effort gap, and the h70 write-up overstated it. See the correction recorded
+in findings.md.
+
+**What h71 therefore actually tests:** whether a *better-optimised teacher*
+(1000-candidate rollouts instead of 200) produces a better learned policy. That
+remains a real and useful question — it is the training-signal-quality lever, and
+h61/h64/h66 all probed it — but it is not a pool-matching exercise and no
+"now they are matched" claim follows from it.
+
+The locked predictions below are UNCHANGED. They were stated as regret
+thresholds against h57 BASE and do not depend on the mistaken framing.
+
 ## Design
 
-MF-DRO with `n_roi_candidates = 1000`, matching MI-Greedy and MF-GP-UCB exactly.
-One change from h57's MF-DRO; every other config identical, including budget,
-initial design, regret convention and the regression head.
+MF-DRO with `n_roi_candidates = 1000` (teacher rollout pool). One change from
+h57's MF-DRO; every other config identical, including budget, initial design,
+regret convention and the regression head.
 
 Borehole 8D (primary — where h70 measured the pool at 4.72 points) and
 Hartmann 6D (control), seeds 44/46/48. 6 jobs. h57 supplies BASE, no rerun.

@@ -41,10 +41,16 @@ Pool sizes read from source:
 | MF-GP-UCB | **1000** |
 | MF-MES (Takeno) | **2048 Sobol + top-K L-BFGS-B refinement** |
 
-MF-DRO was measured against baselines given **5x to 10x more acquisition-
-optimisation effort**, plus gradient refinement in MF-MES's case. h70 shows that
-on Borehole this single factor is worth 4.72 points — larger than most effects
-this project has chased.
+**CORRECTED after this file was first written.** MF-DRO's 200 is the *rollout
+teacher's* pool, not an inference-time acquisition pool: `_propose_next_query`
+builds no candidate set, and the regression head emits `action_head(h).clamp(0,1)`
+directly, so **MF-DRO does no inference-time acquisition search at all**. The
+"5-10x effort gap" framing was wrong — these are different mechanisms, not two
+sizes of one. The accurate statement is a categorical asymmetry: baselines run a
+1000-2048-point argmax per query; MF-DRO runs none.
+
+The Borehole measurement itself is unaffected: for the *greedy baselines*, pool
+size alone is worth 4.72 points and reproduces MI-Greedy exactly.
 
 This is consistent with, and retrospectively explains, h61 (widening MF-DRO's
 Borehole pool bought 1.44x acquisition value) and h64's POOL600 direction. It does

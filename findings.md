@@ -2407,10 +2407,24 @@ produce materially different models (max lengthscale difference **4.27**, e.g.
 | MF-GP-UCB | **1000** |
 | MF-MES (Takeno) | **2048 Sobol + top-K L-BFGS-B refinement** |
 
-MF-DRO has been measured throughout this project against baselines given **5x to
-10x more acquisition-optimisation effort**, and MF-MES additionally gets gradient
-refinement. On Borehole that single uncontrolled factor is worth 4.72 points —
-larger than most effects this project has spent compute chasing.
+**CORRECTED — the line above overstated the comparison.** `n_roi_candidates` is
+NOT an inference-time acquisition pool for MF-DRO. `_propose_next_query` builds
+no candidate set ("No roi_candidates here (Fix 1)") and the regression head — the
+default since h45 — emits `x_t = action_head(h).clamp(0,1)` directly. **MF-DRO
+performs zero inference-time acquisition search.** The 200 is the *rollout
+teacher's* pool, shaping training demonstrations.
+
+So MF-DRO's 200 and MI-Greedy's 1000 are **different mechanisms, not different
+sizes of one mechanism**, and "5-10x less acquisition-optimisation effort" is the
+wrong description. The accurate statement is a **categorical asymmetry**: every
+baseline optimises its acquisition over 1000-2048 candidates at every query,
+while MF-DRO emits a point from a learned head with no search at all. That is
+arguably a more striking difference, but it is not a matched-units comparison and
+no "N-fold effort gap" follows from it.
+
+What survives unchanged: h70's Borehole measurement itself. For the *greedy
+baselines*, pool size alone moves regret 4.72 points and reproduces MI-Greedy
+exactly. That result stands and is unaffected by this correction.
 
 **What this does and does not mean.** It does *not* rescue MF-DRO: it sits at
 23.7% while a 1000-pool greedy EI reaches 8.27%. The withdrawal stands and the
