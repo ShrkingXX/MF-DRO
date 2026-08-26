@@ -2987,3 +2987,76 @@ part of the claim and gets audited like the number does.
 **Cost of getting it wrong here:** low, because the corrections landed before the
 write-up. The same overclaim in a paper would have been the reviewer's finding
 rather than mine.
+
+## Why "faithful rho" makes things WORSE on Hartmann — measured, and it resolves h63
+
+**EXPLORATORY**, prompted by the user asking why pinning rho to its true value
+could possibly hurt. It is a fair objection and the answer is that **on Hartmann
+the pinned value is not faithful to anything.**
+
+### 1. There is no true slope on Hartmann
+
+"True slope" was defined as the OLS slope of `f_H` on `f_L` over 8192 Sobol
+points. How well that line actually fits was never checked:
+
+| benchmark | slope | **R²** | residual sd | relation |
+|---|---|---|---|---|
+| Borehole 8D | 1.2566 | **1.00000** | 0.0001 | **near-exact linear** |
+| Currin 2D | 1.0104 | 0.99471 | 0.1928 | strong |
+| Hartmann 6D | 0.9788 | **0.85574** | 0.1462 | **NOT linear** |
+
+On Borehole the relation *is* a line, so 1.2566 is a genuine physical constant of
+the pair. On Hartmann it is the best line through a relation that is only 86%
+linear — a summary statistic, not a truth. Pinning it imposes an exactness the
+data does not have.
+
+### 2. The cost lands entirely in the variance
+
+`mu_H = rho*mu_L + mu_delta` — delta can absorb a wrong rho.
+`var_H = rho^2*var_L + var_delta` — `rho^2` enters directly.
+
+Measured on real data at h57's initial-design sizes
+(`src/analysis/rho_variance_decomp.py`, seeds 44/46/48, 400 fresh test points):
+
+| benchmark | arm | mu_H RMSE | rho^2*var_L | var_delta | var_H |
+|---|---|---|---|---|---|
+| Hartmann | fitted (0.780) | 0.361 | 0.02 | 0.00 | 0.02 |
+| Hartmann | RHOTRUE (0.979) | 0.357 (**0.99x**) | 0.03 (1.65x) | 0.01 (**1.24x**) | 0.04 (**1.57x**) |
+| Borehole | fitted (0.844) | 32.623 | 249.73 | 719.13 | 968.85 |
+| Borehole | RHOTRUE (1.257) | 26.974 (**0.83x**) | 554.09 (2.22x) | 514.69 (**0.72x**) | 1068.78 (1.10x) |
+
+**Borehole: delta ABSORBS the change.** The correct rho leaves a genuinely
+smaller discrepancy, so `var_delta` **falls 28%**, offsetting most of the
+`rho^2` rise. Accuracy improves **17%**, total uncertainty rises only 10%. The
+model becomes better specified. -> **+1.9%, 3/3.**
+
+**Hartmann: delta does NOT absorb it — it GROWS 24%.** Forced to attribute
+structure to `rho*f_L` that is not linear in `f_L`, delta must work *harder*, not
+less. Both variance terms rise; total uncertainty inflates **57%** while accuracy
+is **unchanged (0.99x)**. The acquisition consumes `sigma_H`, so the model becomes
+uniformly more uncertain for no gain in prediction. -> **−16.6%, 0/3.**
+
+> **The answer:** faithful rho does not hurt. **Imposing a linear relation on a
+> function that does not have one** hurts — and it hurts through the uncertainty
+> channel, not the prediction channel, which is why the mean looks fine while
+> regret collapses.
+
+### 3. A wrong explanation, refuted on the way
+
+My first proposal was **attenuation**: `mu_L` is a shrunk GP posterior mean, so
+the coefficient for predicting `f_H` from `mu_L` should be *smaller* than from
+`f_L`. Measured on 400 fresh points, it is **larger** — slope of `f_H` on `mu_L`
+is **1.5946** (Hartmann) and **2.0722** (Borehole), an amplification of ~1.66x,
+because `mu_L` shrinks toward the prior and has *smaller* variance than `f_L`.
+Refuted, and the seventh mechanism proposed and refuted in this project. The
+account above is the measured one, not the guessed one.
+
+### What this revises
+
+h63's own write-up said pinning rho "cannot be shipped as a default" because it
+is catastrophic where the slope is representable. **That framing was wrong.**
+Representability was never the issue — the ceiling never binds (h67's pre-flight).
+The issue is **linearity**: pinning rho helps exactly where `f_H` is genuinely
+linear in `f_L` and hurts where it is not. That is a sharper and more useful
+statement, and it is testable on any new benchmark by computing one R² before
+running anything.
