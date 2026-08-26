@@ -37,6 +37,25 @@ differs from h57's only in inert ways, and a direct control (h75's worker on
 seed 44 vs h57's published value) is run and must pass bit-for-bit before the
 verdict is reported. The verdict script enforces this in code.
 
+## h57 safety — verified after launch, with a failed check redone
+
+h75's worker is byte-identical to h57's, so it calls
+`_build_mf_dro_config("h57", ...)` with the experiment name hardcoded. That is
+only safe if nothing writes using it. Checked statically before launch (the
+worker never calls `setup_dirs`/`save_result`/`log_global`; `mf_dro.py` never
+imports `checkpoint`; `RES` resolves relative to `__file__`) and confirmed
+dynamically after:
+
+- h57's newest result file: **Aug 25 07:44** — 25+ hours before h75 started.
+- h57's newest checkpoint: **Aug 25 13:18**.
+- Global `RESULTS_ROOT` contains **no `h57` entry at all**.
+
+A first attempt at the dynamic check used `find -newermt "-30 minutes"`, which
+this system's `bfs` rejected as an invalid timestamp; it printed `0` from the
+error, not from a match. That `0` was reported as evidence and was wrong. The
+check was redone with `ls -lt` and the global-root inspection above. Recorded
+because a verification that fails open is worse than none.
+
 ## Locked predictions
 
 1. **PRIMARY.** |n=10 mean − published n=3 (23.7%)| **< 3.0 points**. Rationale
