@@ -2687,3 +2687,40 @@ one n=3 direction that survived: the effect was far larger than the noise.
 ahead — which is exactly what the original n=3 nearly did. What settles h74 is
 not the means but the paired count, **2/10**. This is lesson 27 again from the
 other side: where magnitudes overlap, the win count carries the information.
+
+## h76 — the Hartmann advantage is LATE, and SF-DRO is *behind* early
+
+Reproduction control **PASS, 30/30 bit-for-bit** vs h72 — and real this time:
+fresh runs of the same cells, so it cannot pass by reading another experiment's
+files the way h73's did.
+
+**Both locked predictions were wrong; the NULL fired.** I predicted the crossing
+by iteration 12 of 25 (an "SF-DRO gets there early" signature); it came at **18**.
+
+| Hartmann iter | 1 | 7 | 13 | 19 | 25 |
+|---|---|---|---|---|---|
+| SF-DRO | 76.05 | 57.99 | **26.38** | **16.95** | **7.70** |
+| SF-MES | **66.08** | **48.51** | 32.85 | 23.47 | 21.17 |
+
+**1. SF-DRO is behind SF-MES early on all three benchmarks** — including the one
+it wins by 12.71 points. Iteration 1: 76.05 vs 66.08 (Hartmann), 48.66 vs 40.46
+(Borehole), 11.73 vs 9.60 (Currin). **The advantage is not early search**, which
+is what my PRIMARY assumed.
+
+**2. What differs on Hartmann is that SF-MES PLATEAUS and SF-DRO does not.**
+SF-MES flattens over the last half (32.85 -> 23.47 -> 21.17); SF-DRO keeps
+descending steeply (26.38 -> 16.95 -> **7.70**). On Borehole and Currin both
+flatten together and SF-DRO never catches up — the CONTROL held, no crossing on
+either.
+
+**3. SF-DRO has not converged on Hartmann at budget exhaustion** — its curve is
+still falling at the final iteration. Whether more budget widens the gap is
+untested and h76 cannot answer it.
+
+**What this licenses:** the effect is *late* and is about SF-MES stalling. Any
+mechanism explaining an early exploration advantage is ruled out by fact 1.
+
+**What it does not:** it identifies no mechanism. SF-DRO differs from SF-MES in
+both the policy (learned DT vs greedy MES) and the surrogate (10-model ensemble vs
+single GP), and h76 separates neither. Six mechanisms have been proposed and
+refuted in this project, so h76 deliberately proposes none.
