@@ -14,12 +14,21 @@ lever that improves MF-DRO (Borehole 23.71% -> 17.66% at pool 1000, 3/3).
 MF-DRO on **Hartmann 6D**, M in **{3, 5, 10}**, seeds **42-46** (n=5), cost
 budget **300**. 15 jobs.
 
-**Run at the TARGET shipping configuration**, not the current default:
-`n_roi_candidates=1000` + refinement (`teacher_refine_samples=100`,
-`teacher_refine_noise=0.05`). Rationale: an M decision validated at the old
-200-point pool need not hold at 1000, and a wrong M would propagate into the
-~100-run pitch-talk comparison downstream. Testing M where it will actually be
-used is the point.
+**AMENDED before any result existed — the shipping config is not runnable.**
+
+h81 was first launched at `n_roi_candidates=1000` + refinement. Measured rate:
+**17-34 min/query**, i.e. **30-57 h for a single Hartmann run**, because
+`n_roi_candidates` is consumed inside `simulate_mf_trajectory` and is therefore
+multiplied by `rollouts_per_iter x rollout_length` on every BO iteration. Pool
+1000 plus refinement is past what the rollout budget can carry. Halted at
+queries 0-1 with no results recorded.
+
+**Relaunched at the current default** (`n_roi_candidates=200`, no refinement) to
+isolate M cheaply. This is the weaker test — an M decision validated at 200 need
+not hold at a larger pool — and that limitation is recorded here rather than
+hidden. The purpose of the sweep is to free GP-side compute so a larger pool
+becomes affordable at all; establishing M first and choosing the pool second is
+the only order that fits the budget.
 
 **Note this combination is itself untested.** h71 tested pool=1000 alone; h61
 tested refinement alone at pool=200. Pool-1000-plus-refinement has never been run.
