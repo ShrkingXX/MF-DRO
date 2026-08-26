@@ -457,6 +457,17 @@ stall_thread_CLOSED: |
   trigger an adaptive intervention, and adaptive pool widening is dropped
   unspent. Zero QUERY FREEZES on all 9 h57 MF-DRO finals.
 
+rho_thread_CLOSED: |
+  The sigmoid ceiling never binds: fitted rho is 0.8436 / 0.7797 / 0.8435 on
+  Borehole / Hartmann / Currin against true slopes 1.2566 / 0.9792 / 1.0104. rho
+  sits near its 0.8 init because fit() takes 3 Adam steps per call and the
+  flexible delta-GP absorbs the shortfall, killing rho's gradient. h67 (softplus
+  link) was built, its regression gate PASSED, and it was CANCELLED before launch
+  -- 6 jobs avoided. Revises h63: RHOTRUE's Borehole gain was not ceiling removal,
+  and its -16.6% on Hartmann (where the true slope IS representable) shows the
+  under-fitted rho ~= 0.78 beats the true slope. rho is a regulariser, not a slope
+  estimate, so every "fit rho more faithfully" follow-up inherits a refuted premise.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

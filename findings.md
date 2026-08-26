@@ -2102,3 +2102,51 @@ construction. The confounded version is documented in
 LF-interleaving confound is the same one that made [lesson 23] necessary --
 a per-query metric that does not condition on fidelity will encode the fidelity
 mix rather than the quantity of interest.
+
+### The rho thread is closed: rho is not a slope estimate, it is a regulariser
+
+h67 (unbounded rho via softplus) was built, gated, and **cancelled before launch**
+when a pre-flight refuted its premise. Recorded because the reasoning kills a
+whole family of follow-ups, not just this one.
+
+**The sigmoid ceiling never binds.** Fitting the real KO model on real benchmark
+data at h57's initial-design sizes (`src/analysis/rho_capacity.py`, seeds 44/46/48):
+
+| benchmark | true slope | fitted rho | ceiling reached? |
+|---|---|---|---|
+| Borehole 8D | 1.2566 | **0.8436** | no |
+| Hartmann 6D | 0.9792 | 0.7797 | no |
+| Currin 2D | 1.0104 | 0.8435 | no |
+
+rho sits near its 0.8 initialisation on all three. The (0,1) cap cannot be what
+forces Borehole's 0.2566*f_L shortfall into delta(x), because rho never travels
+far enough to feel the cap.
+
+**What actually limits rho** (`src/analysis/rho_budget.py`): `fit()` takes ONE
+Adam step on rho per round, 3 rounds per call, lr=0.1 from rho_init=0.8. Given 90
+accumulated steps against a KNOWN synthetic slope of 1.2566, sigmoid reaches
+0.8499 and softplus 0.8718 -- and rho **oscillates** rather than climbing
+(0.8436 -> 0.8132 -> 0.8454 -> 0.8477 -> 0.8239 -> 0.8371 -> 0.8499). rho and
+delta(x) are jointly unidentifiable; the flexible delta-GP absorbs the shortfall
+first and the gradient on rho dies. Range is irrelevant when the parameter is
+never pushed toward the boundary.
+
+**This revises h63, which is the more important consequence.** RHOTRUE's +1.9%
+on Borehole was NOT "removing a ceiling" -- it supplied a rho that no link could
+have fitted. And RHOTRUE was **-16.6% on Hartmann, where the true slope 0.9792
+IS representable**: the under-fitted rho ~= 0.78 beats the true slope there. A
+parameter whose *correct* value hurts is not functioning as an estimate of that
+value. rho behaves as a **regularisation term trading LF transfer against delta
+flexibility**, and its useful setting is not the true slope.
+
+**What this closes.** Every remaining rho intervention was motivated by "fit rho
+more faithfully" -- better link, more optimizer steps, OLS initialisation, a
+prior on delta's outputscale. All inherit the same refuted premise: that the
+faithful rho is the good rho. h63's own control says otherwise. The thread is
+closed unless some result gives a reason to want a *different* rho rather than a
+*truer* one.
+
+**Prediction record: this is a case where the pre-flight, not the experiment,
+did the work.** Three short fits cost minutes and avoided 6 jobs. The pattern
+from lesson 19 onward holds -- cheap checks before expensive fan-outs keep
+paying, and mechanism intuitions (mine said the ceiling binds) keep not.
