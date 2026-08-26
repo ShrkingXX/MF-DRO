@@ -65,3 +65,49 @@ n = 3 seeds, 3 checkpoints. It classifies the failure; it does not fix it. A
 percentile is not a regret. And MI-Greedy's point being well-ranked would not
 prove that MF-DRO could have found it — only that its acquisition would have
 rewarded it.
+
+---
+
+# H68b — AMENDMENT: does the k=10 mismatch generalise? (locked before running)
+
+**CONFIRMATORY.** Written after h68's Borehole result, before any Currin or
+Hartmann number exists. h68 found MF-DRO's early proposals scoring 52.1% under
+its own acquisition on Borehole (seed 46 at the 8.7th percentile). That is one
+benchmark, and the other two are already on disk — reporting a one-benchmark
+mechanism while the rest is cheap is lesson 19's exact condition.
+
+## Question
+
+Is "the learned policy proposes points its own acquisition would reject" a
+**general defect of MF-DRO**, or **specific to the benchmark it loses worst on**?
+
+The self-contained quantity is `x_dro`'s percentile under MF-DRO's own MES
+acquisition — no baseline needed, since the question is whether the policy agrees
+with its own teacher.
+
+## Design
+
+Identical machinery to h68, run on Currin 2D and Hartmann 6D, seeds 44/46/48.
+Checkpoints k in {2, 5, 10} HF optimization queries — smaller than h68's
+{10,20,40} because Hartmann seed 46 makes only 3 HF queries in the entire run.
+Cells with insufficient HF queries are reported as MISSING, not dropped.
+
+## Locked prediction
+
+**PRIMARY.** `x_dro`'s early percentile tracks MF-DRO's standing on that
+benchmark: **highest on Currin** (rel regret 0.0%, MF-DRO wins), **lowest on
+Borehole** (23.7%, worst loss), Hartmann in between (14.7%).
+
+**If Currin is also low**, the mismatch is a general property of the learned
+policy that does NOT explain the performance differences between benchmarks —
+and h68's Borehole reading loses its explanatory force, because the same defect
+would be present where MF-DRO wins.
+
+**If all three are high except Borehole**, the mismatch is benchmark-specific and
+h68's narrow reading survives.
+
+## What this cannot settle
+
+n=3, and Hartmann's HF counts are small enough that some cells will be missing.
+Percentiles saturate near 100 late in a run (h68's k=40 showed both arms at
+100.0), so only the early checkpoints carry information.
