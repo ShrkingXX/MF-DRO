@@ -560,6 +560,21 @@ LESSON_26_n3_does_not_estimate_direction: |
   Borehole at 0.03 pts, differing on 1 seed of 10 despite materially different
   models (max lengthscale diff 4.27).
 
+h72_standings_uncalibrated: |
+  Reproduction control PASSED (+0.00 on every published cell). All C(10,3)=120
+  three-seed subsets: Hartmann MF-GP-UCB spans 36.68-88.52 (51.83 pts),
+  MI-Greedy 22.76-48.82 (26.07). Published n=3 entries were OPTIMISTIC on
+  Hartmann -- MI-Greedy 23.9->36.6 (+12.7), MF-GP-UCB 45.3->66.8 (+21.5) -- while
+  SF-MES shifted <=0.5 everywhere, so the noise is method-dependent.
+  Borehole orderings ROBUST (MI-Greedy 8.3->9.3, still best); h70's pool result
+  unaffected (per-seed identity, not a mean comparison).
+  Hartmann NOT resolved: MI-Greedy's 3-seed range overlaps SF-MES's and SF-EI's.
+  Currin overlaps are trivial (all methods ~0%) and must not be counted.
+  MF-DRO/SF-DRO NOT calibrated (82-473 min/run); their n=3 entries are of unknown
+  reliability and MF-DRO's Hartmann spread (22.7/8.7/12.7) is comparable to
+  methods whose means moved >10 pts. Hartmann is the column the withdrawn
+  north-star claim lived in.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

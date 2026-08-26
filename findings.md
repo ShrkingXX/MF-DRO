@@ -2488,3 +2488,48 @@ KO-style is better on Hartmann by 3.03 points at 8/10 with lower variance (6.75
 vs 10.81), and the two builders are equivalent on Borehole — 0.03 points at
 n=10, differing on one seed of ten despite producing materially different models
 (max lengthscale difference 4.27).
+
+## The standings' Hartmann column is not resolved at n=3 (h72)
+
+Lesson 26 said n=3 does not estimate a direction. h72 tested that against **the
+project's own headline table** by enumerating all C(10,3)=120 three-seed subsets
+for the cheap methods — the exact estimator the standings used. The reproduction
+control passed: h72's seeds 44/46/48 reproduce every published h57/h59 cell to
+**+0.00**.
+
+**What a three-seed draw could have said:**
+
+| benchmark | method | n=10 | 3-seed range | span |
+|---|---|---|---|---|
+| Hartmann | MF-GP-UCB | 66.81% | 36.68 – 88.52 | **51.83** |
+| Hartmann | MI-Greedy | 36.61% | 22.76 – 48.82 | **26.07** |
+| Hartmann | SF-EI | 18.61% | 10.84 – 26.15 | 15.32 |
+| Hartmann | SF-MES | 21.17% | 16.18 – 26.30 | 10.13 |
+| Borehole | MI-Greedy | 9.29% | 7.15 – 11.29 | 4.13 |
+| Borehole | SF-EI | 12.95% | 10.83 – 14.78 | 3.95 |
+
+**The published entries were optimistic on Hartmann**: MI-Greedy 23.9% -> **36.6%**
+(+12.7), MF-GP-UCB 45.3% -> **66.8%** (+21.5). Seeds 44/46/48 were a favourable
+draw for exactly those two. SF-MES shifted by <= 0.5 everywhere, so the noise is
+**method-dependent**, not a property of the benchmark.
+
+**Borehole survives; Hartmann does not.** Borehole's orderings are robust
+(MI-Greedy still best, 8.3 -> 9.3) and h70's pool result is unaffected, being a
+per-seed identity rather than a mean comparison. On Hartmann, MI-Greedy's 3-seed
+range overlaps SF-MES's and SF-EI's — some draw would have reversed the published
+ordering.
+
+Flagged Currin overlaps are **not** substantive: every method there sits at
+0.0-0.2%, so the ranges touch because the problem is solved. Counting them as
+"unresolved orderings" would overstate the finding.
+
+> **The limitation that matters most: MF-DRO and SF-DRO are not calibrated.** At
+> 82-473 min per run, n=10 across three benchmarks was unaffordable. Their n=3
+> entries are of *unknown* reliability, and MF-DRO's Hartmann per-seed values
+> (22.7% / 8.7% / 12.7%) show a spread comparable to methods whose means moved by
+> more than 10 points.
+
+The honest position is not that the standings are wrong. It is that **the
+Hartmann column is unresolved at n=3 for every method measured, and untested for
+the two methods this project is about** — which is the column the withdrawn
+north-star claim lived in.
