@@ -2850,3 +2850,62 @@ Every one it has lost was a mechanism intuition.** Six mechanisms proposed and
 refuted against three measurement-derived predictions met. The operational rule:
 predict from a number already on disk, or do not pre-register a direction at all —
 run the measurement first and let it set the bar.
+
+## h77 — MF-DRO's published Hartmann entry was wrong by 5.77 points
+
+Reproduction control **PASS bit-for-bit** (seed 44 = 0.7531352462 = h57, diff
+**0.000e+00**), worker byte-identical to h57's. **Both locked predictions MET.**
+
+| | |
+|---|---|
+| MF-DRO Hartmann, n=10 | **8.91%** (sd 7.39) |
+| published n=3 (44/46/48) | 14.68% |
+| shift | **−5.77 pts** |
+| three-seed range | [2.42, 18.56], span **16.14** |
+
+A three-seed estimate of this cell could have landed anywhere in a **16-point
+window**, and seeds 44/46/48 were among the worst draws available.
+
+**The standings change materially. Hartmann at n=10:**
+
+| method | n=10 | published n=3 |
+|---|---|---|
+| MF-DRO + POOL600 | 6.64% | (withdrawn by h66) |
+| MF-MES | 8.24% | 8.52% |
+| SF-DRO | 8.46% | 11.49% |
+| **MF-DRO** | **8.91%** | **14.68%** |
+| SF-EI | 18.61% | — |
+| SF-MES | 21.17% | 21.39% |
+| MF-MI-Greedy | 36.61% | 23.93% |
+| MF-GP-UCB | 66.81% | 45.29% |
+
+Four methods cluster at 6.6-8.9%, then a 10-point gap. The published table put
+MF-DRO mid-table and clearly behind MF-MES; at n=10 they are **not separable**.
+
+**POST HOC, not a claim** (means seen first): MF-DRO vs MF-MES is **4/10,
+Wilcoxon p = 0.2754** — a tie, with MF-MES marginally ahead on the mean. Seed 49
+shows the same single-seed volatility that drove h64's withdrawn claim, running
+the other way (MF-MES 25.25% vs MF-DRO 1.39%).
+
+### The north star is unchanged — still not met
+
+It is a **per-benchmark** bar:
+- **Hartmann**: a tie (4/10, p=0.2754). A tie is an *absence of evidence*, not a
+  pass.
+- **Borehole**: MF-DRO 22.89% against MI-Greedy's 9.29% at n=10 — a clear loss,
+  confirmed by h75 not to be a three-seed artifact.
+
+**h77 changes the size of MF-DRO's Hartmann deficit, not the verdict.**
+
+### The calibration programme is now complete for both discriminating benchmarks
+
+Every Hartmann and Borehole entry is n=10 with a passed reproduction control.
+Currin is left at n=3 by design — it does not discriminate, so its span is
+bounded by construction (every non-degenerate method finishes inside 0.6%).
+
+**What calibration cost and bought.** Four experiments (h72, h75, h76's control,
+h77) and roughly a day of compute. It bought: two published entries corrected by
+**+12.7 / +21.5** points (baselines, h72), one by **−5.77** (MF-DRO Hartmann,
+h77), one confirmed accurate to 0.82 (MF-DRO Borehole, h75), and the retraction
+of a finding that had reversed sign (h70b). **Every quantitative claim in this
+project's headline table has now been checked at n=10 or shown not to need it.**

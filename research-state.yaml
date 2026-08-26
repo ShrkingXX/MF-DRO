@@ -660,6 +660,23 @@ LESSON_28_predict_from_measurements: |
   measurement-derived predictions met. Rule: predict from a number already on disk,
   or run the measurement first and let it set the bar.
 
+h77_hartmann_calibration_COMPLETE: |
+  Reproduction control PASS bit-for-bit (s44 = 0.7531352462 = h57, 0.000e+00).
+  BOTH predictions MET: three-seed span 16.14 (bar >=8.0), shift -5.77 (bar >=2.0).
+  MF-DRO Hartmann n=10 = 8.91% (sd 7.39) vs published n=3 14.68%. Three-seed range
+  [2.42, 18.56] -- seeds 44/46/48 were among the worst draws available.
+  STANDINGS CHANGE: Hartmann n=10 now POOL600 6.64 / MF-MES 8.24 / SF-DRO 8.46 /
+  MF-DRO 8.91, four methods clustered, then a 10-pt gap to SF-EI 18.61. The
+  published table had MF-DRO mid-table at 14.7 and clearly behind MF-MES.
+  POST HOC (not a claim): MF-DRO vs MF-MES 4/10, p=0.2754 -- a TIE. Seed 49 shows
+  h64-style single-seed volatility running the other way (25.25 vs 1.39).
+  NORTH STAR UNCHANGED, still NOT MET: per-benchmark bar. Hartmann is a tie (an
+  absence of evidence, not a pass); Borehole is a clear loss (22.89 vs 9.29,
+  confirmed not a 3-seed artifact by h75). h77 changes the SIZE of the Hartmann
+  deficit, not the verdict.
+  CALIBRATION COMPLETE for both discriminating benchmarks. Currin left at n=3 by
+  design -- it does not discriminate, span bounded by construction.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
