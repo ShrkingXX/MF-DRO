@@ -2536,9 +2536,19 @@ north-star claim lived in.
 
 ## h73 — the first claim in this project to survive replication at n=10
 
-SF-DRO vs SF-MES on Hartmann, seeds 42-51, verdict script committed at 0/7,
-reproduction control passed exactly (seeds 44/46/48 -> 11.49% / 21.39%, matching
-h59):
+SF-DRO vs SF-MES on Hartmann, seeds 42-51, verdict script committed at 0/7.
+
+**Two verifications, both run rather than asserted:**
+- **Query-matched.** Both arms take exactly **25 optimization iterations on all
+  10 seeds** (c_H=8, budget 200 -> 200//8 = 25) plus the same 6-point HF initial
+  design. Not confounded by query count or budget accounting.
+- **Reproduction control: PASS, bit-for-bit.** h73's worker on seed 44 gives
+  0.3814912639 against h59's published 0.3814912639, diff **0.000e+00**.
+
+*An earlier version of this section claimed the control "passed exactly" using
+seeds 44/46/48. That was **vacuous** — h73 never ran those seeds, and the analysis
+falls back to the h59 directory, so it compared h59's files to themselves. The
+claim was withdrawn and the check actually performed.*
 
 | | mean | sd | worst |
 |---|---|---|---|
