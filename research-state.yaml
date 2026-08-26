@@ -419,3 +419,38 @@ borehole_excluded_by_measurement:
   - search location (queries at 99.7-99.9th pct of domain value)
   - query freeze (distinct == n_queries, all cells)
   - three geometric accounts (LF quality, local refinement, boundary reach)
+
+# ---- 2026-08-25 late: h61 landed, fidelity thread closed ----
+best_result_to_date: >
+  h61 REFINE on Borehole. 23.7% -> 19.3% relative regret, 3/3 seeds, and seed
+  SPREAD 8.62 -> 2.57. The variance collapse is the finding; POOL600 matched the
+  mean (19.5%) at 10x the spread. First locked prediction in this project to be
+  MET rather than refuted. Still loses to MI-Greedy's 8.3%.
+
+fidelity_thread_CLOSED: >
+  Seven completed Borehole configurations spanning 2-98% realised HF.
+  corr(HF%, regret) = -0.685 overall but +0.071 excluding TEACHER's 2% outlier,
+  with regret ranging only 19.3-24.7% across 18-98% HF. Starving HF below ~10%
+  is catastrophic; above that the mix carries no information. Every intervention
+  that moved the mix (h58 floor, h60 teacher, h63 rho, h61 pool/refine) has been
+  measured. Fidelity allocation is NOT the lever and cannot close the gap.
+
+prediction_record: 1 met of 6 (h61's REFINE/POOL600 ordering). Lost: rho
+  saturation, dimensional ordering of pool gain, refinement concentrating
+  demonstrations, Currin steepness, h58 floor harmful. Mechanism intuitions here
+  have been reliably wrong; pre-registered scripts have been reliably right.
+
+verdict_scripts_written_before_data:
+  h62 gate  -> PASSED, reproduced h59 to 0.00e+00 on 9/9
+  h61 analyse -> prediction 2 MET
+  h63 analyse -> written at 5/6, refuses until BOTH benchmarks complete
+  h64 analyse -> written at 0/6, warns explicitly if Hartmann contradicts the
+                 pre-registered null (its first cell already does)
+  h65 analyse -> written at 0/3, PRIMARY is variance not mean
+
+open_now:
+  h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
+           is the signal and Hartmann is 0/2 so far
+  h64 1/6  Hartmann s44 came back 0.3162 vs BASE 0.7531 -- NOT tracking the
+           pre-registered null
+  h65 1/3  Hartmann REFINE, variance is the primary criterion
