@@ -20,18 +20,44 @@ artifact.
 
 ![standings](north_star_standings.png)
 
+**Updated to n=10 wherever it exists.** Sample size is marked per cell; the
+originally published all-n=3 table is preserved below it, because four of these
+numbers moved by more than 5 points.
+
 | method | Currin 2D | Hartmann 6D | Borehole 8D |
 |---|---|---|---|
-| **MF-DRO** | 0.0% | 14.7% | 23.7% |
-| **SF-DRO** | 0.4% | 11.5% | 15.1% |
-| MF-MES (Takeno) | 0.6% | **8.5%** | 11.3% |
-| SF-MES | **0.0%** | 21.4% | 13.3% |
-| MF-MI-Greedy | 0.2% | 23.9% | **8.3%** |
-| MF-GP-UCB | 10.0% | 45.3% | 44.1% |
+| **MF-DRO** | 0.01% (n=3) | **8.91%** (n=10) | 22.89% (n=10) |
+| **SF-DRO** | 0.22% (n=10) | 8.46% (n=10) | 14.60% (n=10) |
+| MF-MES (Takeno) | 0.57% (n=3) | **8.24%** (n=10) | 11.28% (n=3) |
+| SF-MES | **0.00%** (n=10) | 21.17% (n=10) | 12.76% (n=10) |
+| MF-MI-Greedy | 0.06% (n=10) | 36.61% (n=10) | **9.29%** (n=10) |
+| MF-GP-UCB | 16.46% (n=10) | 66.81% (n=10) | 46.65% (n=10) |
 
-**No DRO variant is best on any benchmark except Currin**, and Currin does not
-discriminate. Note SF-DRO beats MF-DRO on both hard benchmarks *despite* getting
-no free LF initial design.
+*Originally published (all n=3): MF-DRO 0.0 / 14.7 / 23.7 · SF-DRO 0.4 / 11.5 /
+15.1 · MF-MES 0.6 / 8.5 / 11.3 · SF-MES 0.0 / 21.4 / 13.3 · MI-Greedy 0.2 / 23.9 /
+8.3 · MF-GP-UCB 10.0 / 45.3 / 44.1.*
+
+**What changed at n=10**, and it is not cosmetic:
+
+| cell | n=3 | n=10 | shift |
+|---|---|---|---|
+| MF-DRO, Hartmann | 14.7% | **8.91%** | **−5.8** |
+| MI-Greedy, Hartmann | 23.9% | **36.61%** | **+12.7** |
+| MF-GP-UCB, Hartmann | 45.3% | **66.81%** | **+21.5** |
+| MF-GP-UCB, Currin | 10.0% | 16.46% | +6.5 |
+| SF-DRO, Hartmann | 11.5% | 8.46% | −3.0 |
+
+**On Hartmann, four methods now cluster at 6.6-8.9%** (MF-DRO+POOL600 6.64,
+MF-MES 8.24, SF-DRO 8.46, MF-DRO 8.91) with a 10-point gap to everything else.
+The published table put MF-DRO mid-table and clearly behind MF-MES; **at n=10 they
+are not separable** (paired: 4/10, p=0.2754, post hoc).
+
+**The conclusion is unchanged: no DRO variant beats the best baseline on any
+benchmark that discriminates.** Hartmann is a tie — an absence of evidence, not a
+pass — and Borehole is a clear loss (MF-DRO 22.89% vs MI-Greedy 9.29%, confirmed
+at n=10 not to be a three-seed artifact). SF-DRO still beats MF-DRO on both hard
+benchmarks despite getting no free LF initial design, though on Hartmann the
+margin is now 0.45 points rather than 3.2.
 
 ### READ THIS BEFORE QUOTING ANY HARTMANN NUMBER ABOVE
 
