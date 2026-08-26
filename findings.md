@@ -2276,3 +2276,46 @@ replication spread was 50.2 points. Nothing was mislabelled or miscomputed. It
 was one draw, reported as a measurement. Every prior lesson in this file is about
 reporting a real number too early; this one is about reporting a number that was
 never real.
+
+### Acquisition class is not the lever either — Borehole narrows to the SURROGATE
+
+h68 left "model failure" ambiguous between surrogate and acquisition. h69
+isolates the acquisition with a **bit-for-bit regression gate** (a MES-restored
+control reproduced h59's SF-MES to 0.000e+00), so SF-EI differs from SF-MES in
+the acquisition and nothing else.
+
+| | Borehole mean | Hartmann mean |
+|---|---|---|
+| SF-MES (information-seeking) | 13.28% | 21.39% |
+| SF-EI (improvement-seeking) | **12.99%** | **19.89%** |
+| delta | +0.29 pts | +1.50 pts |
+
+**PRIMARY NOT MET** (Borehole: wins 1/3, needed >=2/3 and >=2 pts).
+**CONTROL VIOLATED** (Hartmann: EI was *better*, predicted worse-or-equal).
+**NULL fired.**
+
+MI-Greedy beats SF-MES on Borehole by **5.0 points**. Swapping the acquisition
+class buys **0.29**. It is not the acquisition.
+
+The CONTROL is what makes this interpretable, and it was written for exactly this
+case: *"if EI helps on both, the story is not acquisition class at all."* It
+helped on both. So the striking ordering flip in the standings — EI best on
+Borehole, worst on Hartmann — is not a class effect. The likely cause is the
+confound the protocol flagged before running: MI-Greedy is **12% HF on Hartmann**
+and **100% on Borehole**, so its Hartmann column is a fidelity result wearing an
+acquisition label.
+
+**The remaining candidate is now specific enough to test in one shot.**
+MI-Greedy builds its HF GP with `mf_baselines._build_gp`; SF-MES/SF-EI use
+`_build_ko_style_gp`, which additionally imposes an **Interval lengthscale
+constraint with geometric-mean initialisation**. That is the sole identified
+difference between 8.3% and 12.99% on the same benchmark with the same
+acquisition and the same loop.
+
+**Chain of elimination for Borehole, all with isolated differences:**
+LF quality (corr 1.000) -> local refinement (only contractor, still loses) ->
+boundary aversion (closest to x*, still worst) -> fidelity allocation
+(corr +0.071) -> rho (ceiling never binds) -> stall length (ties MI-Greedy at
+34%) -> inner-loop optimisation (h68: MF-DRO outranks MI-Greedy 8/9 under its
+own acquisition) -> acquisition class (h69: 0.29 of 5.0 points). **Surrogate
+hyperparameter constraints are what is left.**
