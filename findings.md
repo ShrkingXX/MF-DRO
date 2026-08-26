@@ -1782,3 +1782,45 @@ components. Two candidates the evidence actually supports:
    imitating a myopic acquisition. Nothing has tested it doing something the
    acquisition cannot — which was the original non-myopia claim, and remains the
    only untested route to beating a well-optimised acquisition.
+
+### H61 COMPLETE: first locked prediction MET — and refinement collapses the variance
+
+**CONFIRMATORY.** Borehole 8D, seeds 44/46/48, budget 200, one variable per arm.
+
+| arm | s44 | s46 | s48 | mean | rel | wins | sd | spread |
+|---|---|---|---|---|---|---|---|---|
+| BASE (200, argmax) | 75.64 | 76.59 | 67.97 | 73.40 | 23.7% | — | 4.75 | 8.62 |
+| POOL600 (600, argmax) | 65.07 | 70.48 | 45.15 | 60.23 | 19.5% | 3/3 | 13.40 | 25.33 |
+| **REFINE (200+100 local)** | **58.79** | **59.09** | **61.36** | **59.75** | **19.3%** | **3/3** | **1.41** | **2.57** |
+
+**Locked prediction 2 MET as stated**: REFINE beats BASE on >=2/3 (it is 3/3),
+and POOL600 lands between BASE and REFINE (73.40 > 60.23 > 59.75). This is the
+first locked prediction in this project to be met rather than refuted, amended
+or superseded.
+
+### The variance result is the finding, not the mean
+
+REFINE and POOL600 have nearly identical means (59.75 vs 60.23) but **REFINE's
+spread is 2.57 against POOL600's 25.33** — roughly 10x tighter, and 3x tighter
+than BASE's 8.62. Its three seeds land within 2.6 units of each other.
+
+Variance has been the one persistent failure signature in this project: h45's
+regression head at s.e. 0.1483 against scoring's 0.0475, the catastrophic seeds
+at h45 49/50 and h59 Currin 46, and h60's NOLFINIT producing both the best and
+among the worst Borehole cells from the same flag. **A local refinement pass in
+the rollout teacher is the first intervention to compress it.**
+
+Mechanistically this is not what I predicted. The liveness check found refinement
+*widening* the query spread (0.2907 vs BASE's 0.2534), so it is not concentrating
+the search. Yet it stabilises the outcome. Those are compatible — a teacher that
+reliably finds a good local optimum from wherever it starts would produce
+*diverse* queries and *consistent* results — but that is a description, not a
+tested mechanism, and it should not be stated as one.
+
+### What it does not achieve
+
+19.3% still **loses to every baseline on Borehole** (MI-Greedy 8.3%, MF-MES
+11.3%). It closes 4.4 of the 15.4-point gap — 29%. n = 3, so the sd figures are
+three-point estimates and no p-value is computable. And h64's pre-registered
+prediction says this will **not** transfer to Hartmann, where widening the pool
+buys zero acquisition value (1.00x at N=600).
