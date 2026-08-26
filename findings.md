@@ -76,8 +76,13 @@ is a **tie, not a win** (SF-DRO 8.46% vs MF-MES 8.24%, 4/10, p=0.43 — post hoc
 ### What is known about the mechanism
 
 - **Borehole is explained for the baselines**: MI-Greedy's 5-point advantage over
-  SF-MES is **entirely candidate pool size**. SF-EI at 1000 candidates reproduces
-  MI-Greedy *exactly, seed for seed*, residual +0.00 (h70).
+  SF-MES is **candidate pool size on 8 of 10 seeds**. SF-EI at 1000 candidates
+  reproduces MI-Greedy *bit-for-bit* on 8/10 (h70 at n=3, **h79 at n=10**). On
+  seeds 45 and 49 they diverge by 1.23 and 3.00 points with SF-EI@1000 **worse**,
+  so "entirely" — an n=3 word from h70 — is wrong. Pool size explains the great
+  majority; a minority contribution from something else is unexplained, and the
+  obvious candidate (MI-Greedy's LF phase activating) was **refuted** by the
+  iteration counts.
 - **MF-DRO's own Borehole deficit is unexplained** after eliminating eight
   candidates with isolated differences: LF quality, local refinement, boundary
   aversion, fidelity allocation, rho misspecification, stall length, inner-loop

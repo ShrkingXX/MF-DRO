@@ -677,6 +677,19 @@ h77_hartmann_calibration_COMPLETE: |
   CALIBRATION COMPLETE for both discriminating benchmarks. Currin left at n=3 by
   design -- it does not discriminate, span bounded by construction.
 
+h79_identity_WEAKENED: |
+  SF-EI@1000 vs MI-Greedy on Borehole at n=10: bit-for-bit identical on 8/10
+  seeds; seeds 45 and 49 diverge by 1.23 and 3.00 pts with SF-EI@1000 WORSE.
+  PRIMARY (>=9/10) NOT MET, SECONDARY NOT MET, NULL FIRED.
+  h70's 3/3 (seeds 44/46/48) are among the eight that match, so "MI-Greedy's
+  advantage is ENTIRELY pool size" was an n=3 word. Restated as "pool size on
+  8 of 10"; a minority contribution is unexplained.
+  Proposed cause (MI-Greedy's LF phase activating) REFUTED same tick: both run
+  100 iterations on both divergent seeds, and seed 43 differs in iteration count
+  (99 vs 100) yet matches EXACTLY. Untested candidate: RNG-stream divergence from
+  _explore_lf consuming draws even when selecting nothing. Hypothesis, not finding.
+  Corrections propagated to findings.md and the slide deck.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

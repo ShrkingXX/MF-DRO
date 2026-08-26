@@ -232,9 +232,16 @@ design, and showed the rollout teacher is load-bearing — swapping it moved reg
 | Teacher pool size (MF-DRO) | h71 | **Load-bearing but insufficient.** 200 -> 1000 moves Borehole **23.71% -> 17.66%, 3/3** — about a third of the gap. n=3, replication running |
 
 **The one-line version for the slide:** MI-Greedy's advantage over the
-single-fidelity MES baseline on Borehole is *entirely* candidate pool size. For
-MF-DRO the same lever is real but closes only a third of the gap, and what
-remains after eight eliminated candidates is still unexplained.
+single-fidelity MES baseline on Borehole is candidate pool size on **8 of 10
+seeds** — SF-EI at 1000 candidates reproduces it *bit-for-bit* on those eight
+(h79, n=10). For MF-DRO the same lever is real but closes only a third of the
+gap, and what remains after eight eliminated candidates is still unexplained.
+
+> **Correction:** an earlier version of this deck said "*entirely* pool size",
+> from a 3-seed check (h70) whose three seeds all happen to be among the eight
+> that match. At n=10 two seeds diverge by 1.23 and 3.00 points, with the
+> pool-matched baseline **worse** on both. Pool size still explains the great
+> majority; "entirely" does not survive.
 
 > **Caveat to state:** the POOL1000 result is **three seeds**. Three of four n=3
 > directions in this project have failed at n=10, one reversing sign. The
