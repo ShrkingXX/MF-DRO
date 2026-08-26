@@ -468,6 +468,23 @@ rho_thread_CLOSED: |
   under-fitted rho ~= 0.78 beats the true slope. rho is a regulariser, not a slope
   estimate, so every "fit rho more faithfully" follow-up inherits a refuted premise.
 
+north_star_standing: |
+  No DRO variant is best on any benchmark except Currin, where every method but
+  MF-GP-UCB is at ~0%. Best per benchmark: SF-MES 0.0% (Currin), MF-MES 8.5%
+  (Hartmann), MF-MI-Greedy 8.3% (Borehole). SF-DRO's best showing is Hartmann
+  11.5%, still behind MF-MES. North star NOT met.
+  Evaluation asymmetry documented (frozen, not changed): initial design is not
+  charged against the 200 budget, and MF arms get a free LF init worth +15/+45/+20
+  cost units. It runs AGAINST MF, so SF-DRO > MF-DRO on Hartmann/Borehole is
+  conservative. Does NOT license "MF hurts DRO" (lesson 22 retraction stands).
+
+variance_hypothesis_REFUTED: |
+  "DRO buys consistency not mean" formed from 3 instances (h61 REFINE sd 1.41,
+  h64 POOL600 sd 0.0604, SF-DRO Hartmann sd 1.76 vs 10.05). Tested on all 6
+  DRO-vs-MES pairs: DRO lower sd in 4/6, but lower WORST-CASE regret in only 2/6.
+  Borehole SF has lower sd around a worse mean AND worse worst case. Refuted.
+  Lesson 19 shape caught BEFORE reporting for the first time.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

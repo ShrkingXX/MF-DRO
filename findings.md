@@ -2150,3 +2150,63 @@ closed unless some result gives a reason to want a *different* rho rather than a
 did the work.** Three short fits cost minutes and avoided 6 jobs. The pattern
 from lesson 19 onward holds -- cheap checks before expensive fan-outs keep
 paying, and mechanism intuitions (mine said the ceiling binds) keep not.
+
+### Consolidated north-star standings, and a variance hypothesis that failed
+
+**Where the project actually stands.** All six methods, seeds 44/46/48, relative
+regret (mean), n=3 so no p-values:
+
+| method | Currin 2D | Hartmann 6D | Borehole 8D |
+|---|---|---|---|
+| SF-DRO | 0.4% | **11.5%** | 15.1% |
+| SF-MES | **0.0%** | 21.4% | 13.3% |
+| MF-DRO | **0.0%** | 14.7% | 23.7% |
+| MF-MES | 0.6% | **8.5%** | 11.3% |
+| MF-MI-Greedy | 0.2% | 23.9% | **8.3%** |
+| MF-GP-UCB | 10.0% | 45.3% | 44.1% |
+
+**No DRO variant is best on any benchmark except Currin**, where MF-DRO ties
+SF-MES at ~0.0% on a problem every method except MF-GP-UCB effectively solves.
+The north star is not met.
+
+**Evaluation asymmetry, documented not changed** (PROTOCOL.md's evaluation is
+frozen). The initial design is NOT charged against the 200-unit budget:
+optimization spends a further ~200 on top of it. MF arms additionally receive a
+free LF initial design worth **+15 / +45 / +20** cost units on
+Currin / Hartmann / Borehole -- on Hartmann that is 22.5% of the optimization
+budget handed to MF for free, and SF arms get none of it. Any SF-vs-MF reading
+must carry this: it runs AGAINST MF, so SF-DRO beating MF-DRO on Hartmann
+(11.5% vs 14.7%) and Borehole (15.1% vs 23.7%) is a conservative statement, not
+an artifact. It does NOT license "multi-fidelity hurts DRO" -- that claim was
+already retracted as confounded (lesson 22, four differences not one).
+
+**A hypothesis formed and refuted inside one tick.** Three results looked like a
+pattern -- h61's REFINE (sd 1.41 vs BASE 4.73), h64's POOL600 (sd 0.0604, lowest
+of any Hartmann method), and SF-DRO on Hartmann (sd 1.76 vs SF-MES's 10.05) --
+suggesting **DRO buys run-to-run consistency rather than mean improvement**.
+That would be a satisfying story: distributionally robust optimization delivering
+robustness, and a risk-adjusted criterion on which the north star might be met
+without winning on means.
+
+Tested against all six DRO-vs-its-MES-counterpart pairs:
+
+| benchmark | pair | sd DRO | sd MES | worst DRO | worst MES |
+|---|---|---|---|---|---|
+| Currin | SF-DRO vs SF-MES | 0.77 | **0.00** | 1.34% | **0.01%** |
+| Currin | MF-DRO vs MF-MES | **0.01** | 0.74 | **0.02%** | 1.42% |
+| Hartmann | SF-DRO vs SF-MES | **1.76** | 10.05 | **13.26%** | 30.74% |
+| Hartmann | MF-DRO vs MF-MES | 7.21 | **2.33** | 22.67% | **10.51%** |
+| Borehole | SF-DRO vs SF-MES | **1.02** | 1.77 | 16.23% | **15.14%** |
+| Borehole | MF-DRO vs MF-MES | **1.53** | 3.63 | 24.74% | **15.22%** |
+
+DRO has the lower sd in 4 of 6 -- weak on its own. On **worst-case regret**,
+which is what a robustness claim must actually be judged on, DRO is better in
+only **2 of 6**, worse than a coin flip. And Borehole SF shows why sd alone is
+not the right statistic: SF-DRO's sd is lower (1.02 vs 1.77) around a *worse*
+mean (15.12% vs 13.28%) and a *worse* worst case (16.23% vs 15.14%). Low
+variance about a bad centre is not robustness.
+
+**HYPOTHESIS REFUTED.** The three motivating instances were a supporting subset;
+the full set of six was already on disk and cheap to check. This is lesson 19's
+exact shape, caught before reporting rather than after -- the fifth time this
+failure mode has come up and the first time the check preceded the claim.
