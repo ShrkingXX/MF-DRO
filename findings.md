@@ -1955,3 +1955,61 @@ without a (0,1) ceiling, and re-run both benchmarks. That would let Borehole
 reach ~1.26 while leaving Hartmann free to stay near 0.98 — a single change that
 should help where the ceiling binds and be inert where it does not. It is the
 first repair this project has identified that is principled rather than a knob.
+
+---
+
+## H64 COMPLETE: the pre-registered null is CONTRADICTED, and MF-DRO clears the best Hartmann baseline
+
+**CONFIRMATORY**, and it goes against what I predicted.
+
+| method | s44 | s46 | s48 | mean | rel | sd |
+|---|---|---|---|---|---|---|
+| MF-DRO (BASE) | 0.7531 | 0.2875 | 0.4228 | 0.4878 | 14.7% | 0.2395 |
+| MF-MES *(best baseline)* | 0.3019 | 0.1979 | 0.3491 | 0.2830 | 8.5% | 0.0774 |
+| MF-MI-Greedy | 0.6171 | 1.0834 | 0.6848 | 0.7951 | 23.9% | — |
+| **MF-DRO + POOL600** | 0.3162 | **0.1960** | **0.2454** | **0.2525** | **7.6%** | **0.0604** |
+
+Paired: **3/3 over BASE**, **3/3 over MI-Greedy**, **2/3 over MF-MES**.
+
+**This is the first time in this project that a DRO variant has beaten the best
+baseline on a discriminating benchmark.** 7.6% against MF-MES's 8.5%, with the
+lowest seed-to-seed spread of any method tested on Hartmann (sd 0.0604 vs
+MF-MES's 0.0774 and BASE's 0.2395).
+
+### The mechanism is UNEXPLAINED, and that was written down in advance
+
+H64's pre-registered prediction was **NULL on Hartmann**, on a measured basis:
+widening the teacher's pool 200 -> 600 buys Hartmann **1.00x** additional
+acquisition value (against Borehole's 1.44x), with `y*` held fixed from an
+independent 4096-point reference. If the channel were acquisition quality, there
+was no gain available to convert into regret.
+
+The regret gain is large anyway — 14.7% -> 7.6%. So **a wider teacher pool helps
+through some channel other than the acquisition value it finds**, and this
+project does not currently know what that channel is. The addendum committed
+before these results stated: *"If Hartmann POOL600 DOES improve regret, the
+acquisition-value channel is wrong... That outcome is more interesting than the
+predicted one and must not be explained away."*
+
+I am not going to propose a mechanism now. Five of the six mechanisms I have
+proposed in this project were refuted by the next measurement, and the honest
+statement is that the effect is real, reproduced on 3/3 seeds across two
+benchmarks, and unexplained.
+
+### Currin: the no-harm check behaved as designed
+
+BASE 0.0014 vs POOL600 0.0026, wins 1/3 — both at **0.0% relative regret**.
+Pre-registered as a no-harm check on a saturated benchmark and **not counted as
+support either way**, which is what the protocol required.
+
+### Where the north star now stands
+
+| benchmark | best baseline | MF-DRO+POOL600 | met? |
+|---|---|---|---|
+| Currin 2D | 0.0% (SF-MES) | 0.0% | tie (saturated) |
+| **Hartmann 6D** | **8.5%** (MF-MES) | **7.6%** | **MET** |
+| Borehole 8D | 8.3% (MI-Greedy) | 19.5% | not met |
+
+One benchmark of three now meets "at least as good as the baselines". n = 3, no
+p-values, and the compute ratio is unchanged. But it is the first arrival, not a
+direction.
