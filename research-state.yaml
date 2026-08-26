@@ -589,6 +589,11 @@ h73_FIRST_SURVIVING_CLAIM: |
   cluster with NO LF information; MF-MES gets a free LF init worth +45 cost units.
   NORTH STAR STILL NOT MET: per-benchmark bar, and SF-DRO loses to SF-MES on
   Currin and Borehole at n=3 -- losses as unreliable as the win was. h74 tests it.
+  VERIFICATIONS (both run, not asserted): query-matched -- both arms exactly 25
+  optimization iterations on all 10 seeds (c_H=8, 200//8=25) plus the same 6-point
+  init; reproduction control -- h73's worker on seed 44 reproduces h59 bit-for-bit
+  (0.3814912639, diff 0.000e+00). An earlier "control passed" claim was VACUOUS
+  (it compared h59's files to themselves) and was withdrawn before being redone.
 
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
