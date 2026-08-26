@@ -83,6 +83,37 @@ below names a magnitude.
    points**. h66 already showed POOL600 is a coin flip there, so a large
    degradation would mean pool widening trades benchmarks rather than helping.
 
+## AMENDMENT, recorded while h71 is INCOMPLETE (2/6, Borehole 1/3)
+
+**The locked bars are unchanged.** This records context that did not exist when
+h71 was written, before its verdict is read.
+
+h71's PRIMARY compares POOL1000 against h57's BASE at **n=3 vs n=3** — which is
+exactly what lesson 26 says does not estimate a direction. That weakness was
+noted when h75 was launched, and h75 has since measured the same BASE cell at
+n=10:
+
+| | Borehole MF-DRO |
+|---|---|
+| h57 BASE, n=3 (the locked reference) | **23.71%** |
+| h75 BASE, n=10 | **22.89%** (sd 2.94) |
+| shift | −0.82 pts |
+| three-seed range | [19.56, 25.45] |
+
+**The locked reference turns out to be accurate to 0.82 points**, so h71's bar
+("beats BASE by >= 2.0 points") is not materially distorted by having been set
+against three seeds. The verdict will be evaluated against the locked n=3 value
+as specified, with the n=10 value reported alongside.
+
+What this does *not* fix: **POOL1000 itself will still be n=3.** Whatever h71
+returns is a three-seed direction, and this project's record on those is three
+failures out of four at n=10. The verdict must be read with that weight, not as
+a settled result — and its NULL branch, which fires on movement < 2.0 points, is
+the more likely outcome to be trustworthy since it asserts an absence.
+
+**Operational note:** POOL1000's Borehole runs are taking ~529 min against h57
+BASE's 82-114 min — a 5-6x slowdown, consistent with the 5x teacher pool.
+
 ## What this cannot settle
 
 n=3. It equalises the pool against MI-Greedy and MF-GP-UCB but **not** against
