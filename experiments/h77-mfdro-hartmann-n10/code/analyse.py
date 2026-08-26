@@ -1,9 +1,9 @@
-"""H75 verdict. Bars verbatim from protocol.md. Written at 0/7, before any number.
+"""H77 verdict. Bars verbatim from protocol.md. Written at 0/7, before any number.
 
 Gates enforced in code, not judgement:
   1. COMPLETENESS -- all 10 seeds present.
-  2. REPRODUCTION CONTROL -- h75's worker on Borehole seed 44 must reproduce
-     h57's published value bit-for-bit. h75 reuses seeds 44/46/48 from h57, so
+  2. REPRODUCTION CONTROL -- h77's worker on Hartmann seed 44 must reproduce
+     h57's published value bit-for-bit. h77 reuses seeds 44/46/48 from h57, so
      without this the 10-seed mean mixes code paths. h73's built-in control was
      vacuous for exactly this reason.
 """
@@ -22,12 +22,12 @@ a=json.load(open(cp))["final_regret"]; b=json.load(open(rp))["final_regret"]
 if abs(a-b)>=1e-9:
     print(f"  REPRODUCTION CONTROL FAILED: {a:.10f} vs h57 {b:.10f}, diff {abs(a-b):.3e}")
     print("  h77's new seeds are NOT comparable to h57's. WITHHELD."); sys.exit(1)
-print(f"  reproduction control PASS (Borehole s44 {a:.10f} == h57, diff {abs(a-b):.3e})\n")
+print(f"  reproduction control PASS (Hartmann s44 {a:.10f} == h57, diff {abs(a-b):.3e})\n")
 
 v=[]
 for s in S:
     hit=None
-    for d in (H75,H57):
+    for d in (H77,H57):
         p=f"{d}/{B}__MF-DRO__seed{s}.json"
         if os.path.exists(p): hit=json.load(open(p))["final_regret"]/fs*100; break
     v.append(hit)
@@ -36,7 +36,7 @@ if miss:
     print(f"  INCOMPLETE -- missing seeds {miss}. WITHHELD."); sys.exit(0)
 v=np.array(v); sub=np.array([v[list(c)].mean() for c in itertools.combinations(range(10),3)])
 shift=v.mean()-PUB; span=sub.max()-sub.min()
-print(f"  MF-DRO Borehole n=10: mean {v.mean():.2f}%  sd {v.std(ddof=1):.2f}")
+print(f"  MF-DRO Hartmann n=10: mean {v.mean():.2f}%  sd {v.std(ddof=1):.2f}")
 print(f"  per seed: {[round(x,1) for x in v]}")
 print(f"  published n=3 (seeds 44/46/48): {PUB:.2f}%   shift {shift:+.2f} pts")
 print(f"  C(10,3) three-seed range: [{sub.min():.2f}, {sub.max():.2f}]  span {span:.2f}\n")
