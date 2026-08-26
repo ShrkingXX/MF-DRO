@@ -14,8 +14,19 @@ What actually needed checking: h73's worker is a copy of h59's whose only
 difference is the experiment name (`h59_{bench}_{seed}` -> `h73_{bench}_{seed}`),
 which feeds `setup_dirs()` and `_build_dro_config()`. If that name reaches any
 seeding path, the 7 new seeds would not be comparable to h59's 3. A **real**
-control — h73's worker run on seed 44, compared against h59's 11.48% — is
-recorded below.
+control was then run: h73's worker on seed 44, against h59's published value.
+
+**REAL CONTROL: PASS, bit-for-bit.**
+
+    h73 worker    = 0.3814912639
+    h59 published = 0.3814912639
+    diff          = 0.000e+00
+
+The experiment-name difference (`h59_` -> `h73_`) reaches only `setup_dirs()`'s
+checkpoint paths, not any seeding path. h73's 7 new seeds are therefore produced
+by the same code path as h59's 3, and the 10-seed comparison is sound. The
+verification claim withdrawn above is now genuinely established — by running the
+check rather than by asserting it.
 
 ## Verdict
 
