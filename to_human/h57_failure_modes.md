@@ -219,8 +219,27 @@ locally (MF-DRO is the *only* method that contracts, 0.68x, and it loses), and
 the **closest** to x*, 0.900 vs 1.030 and 1.175, and it is the worst). A
 follow-up ablation (H60) then excluded the reward schema and the LF initial
 design, and showed the rollout teacher is load-bearing — swapping it moved regret
-23.7% -> 43.8%. Two candidates remain untested: teacher optimisation quality and
-the surrogate class.
+23.7% -> 43.8%.
+
+**Both remaining candidates have since been tested. The chain is now complete.**
+
+| candidate | tested by | result |
+|---|---|---|
+| Inner-loop optimisation | h68 | **Not it.** MF-DRO's own choices outrank MI-Greedy's under MF-DRO's own acquisition in **8 of 9** cells. It maximises its acquisition well and still loses |
+| Acquisition class (MES vs EI) | h69 | **Not it.** Swapping MES for EI with the surrogate held bit-for-bit fixed moves Borehole **0.29** of the 5.0-point gap |
+| Surrogate construction | h70 | **Not it.** Two materially different GP builders (max lengthscale difference 4.27) give **identical** regret on Borehole |
+| Candidate pool size | h70 | **This is the baselines' whole story.** SF-EI at 1000 candidates reproduces MI-Greedy **exactly, seed for seed**, residual +0.00 |
+| Teacher pool size (MF-DRO) | h71 | **Load-bearing but insufficient.** 200 -> 1000 moves Borehole **23.71% -> 17.66%, 3/3** — about a third of the gap. n=3, replication running |
+
+**The one-line version for the slide:** MI-Greedy's advantage over the
+single-fidelity MES baseline on Borehole is *entirely* candidate pool size. For
+MF-DRO the same lever is real but closes only a third of the gap, and what
+remains after eight eliminated candidates is still unexplained.
+
+> **Caveat to state:** the POOL1000 result is **three seeds**. Three of four n=3
+> directions in this project have failed at n=10, one reversing sign. The
+> replication is running with a pre-registered withdrawal condition (< 3.0 points
+> or <= 6/10 wins). Do not present it as established.
 
 
 ---
