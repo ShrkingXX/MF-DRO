@@ -46,3 +46,42 @@ of three benchmarks under replication** — not that it is the better method.
 
 It also says nothing about the multi-fidelity baselines, which are a separate
 comparison and are not pre-registered here.
+
+---
+
+## POST HOC addendum — SF-DRO vs MF-MES. **Not confirmatory.**
+
+The data already existed and both means had been seen before this comparison was
+posed. It is reported in full because it bears directly on the north star, but it
+**cannot be a claim** and no pre-registration is retro-fitted to it.
+
+| | mean | sd | worst |
+|---|---|---|---|
+| SF-DRO | 8.46% | **4.08** | **13.26%** |
+| MF-MES | **8.24%** | 6.85 | 25.25% |
+
+**SF-DRO wins 4/10. Wilcoxon p = 0.4316.** Indistinguishable, with MF-MES
+marginally ahead on the mean and SF-DRO ahead on variance and worst case.
+
+**Full Hartmann standings at n=10** (every method with 10 seeds):
+
+| method | n=10 | |
+|---|---|---|
+| MF-DRO + POOL600 | 6.64% | mean advantage withdrawn by h66 — 5/10 wins, one-seed artifact |
+| MF-MES | 8.24% | |
+| **SF-DRO** | **8.46%** | single fidelity, **no free LF initial design** |
+| SF-EI | 18.61% | single fidelity |
+| SF-MES | 21.17% | single fidelity |
+| MF-MI-Greedy | 36.61% | |
+| MF-GP-UCB | 66.81% | |
+
+Three methods cluster at 6.6-8.5% and are not separable at n=10; then a 10-point
+gap to everything else. SF-DRO reaches that cluster **without any low-fidelity
+information at all**, while MF-MES receives a free LF initial design worth +45
+cost units on Hartmann (22.5% of the optimisation budget).
+
+**Does this meet the north star?** Not as stated. "At least as good as the
+baselines" is a per-benchmark bar, and SF-DRO *loses* to SF-MES on Currin (0.4%
+vs 0.0%) and Borehole (15.1% vs 13.3%) at n=3. Hartmann alone is not the north
+star, and a post hoc tie is not a result. h74 pre-registers the generalisation
+test.
