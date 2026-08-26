@@ -302,7 +302,11 @@ BENCHMARKS.update({
         "domain_max": [1.0] * 10,
         "known_optimal_value": 0.0,
         "make_objective": lambda: AckleyFunctionHF(negate=True),
-        "cost": 10.0,
+        # cost 10.0 -> 5.0 (user-directed, 2026-08-26): the pitch-talk comparison
+        # specifies a 5:1 HF:LF ratio for Ackley. Nothing had been run on this
+        # pair, so no prior result is invalidated. Note the four benchmarks now
+        # span 2:1 (Borehole), 3:1 (Currin), 5:1 (Ackley), 8:1 (Hartmann).
+        "cost": 5.0,
         "fidelity": "H",
     },
     "Ackley_10D_LF": {
