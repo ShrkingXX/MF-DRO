@@ -2603,3 +2603,51 @@ are exactly as unreliable as the n=3 win was — lesson 26 cuts both ways — so
 generalisation is untested in both directions. **h74 pre-registers it**: SF-DRO on
 Currin and Borehole at n=10, with Borehole as the discriminating benchmark
 (PRIMARY: >=2.0 points and >=7/10 wins, where n=3 had SF-DRO losing by 1.8).
+
+## h74 — h73 does not generalise. SF-DRO wins one benchmark of three.
+
+Reproduction control passed bit-for-bit (Currin seed 44 = 0.0012218365 = h59,
+diff **0.000e+00**), and the verdict script was authored from the protocol alone
+with both gates enforced in code.
+
+| benchmark | SF-DRO | SF-MES | gap | SF-DRO wins | Wilcoxon p |
+|---|---|---|---|---|---|
+| Hartmann 6D | **8.46%** | 21.17% | **+12.71** | **10/10** | 0.0020 |
+| Borehole 8D | 14.60% | **12.76%** | −1.84 | **2/10** | 0.0840 |
+| Currin 2D | 0.22% | **0.00%** | −0.22 | **2/10** | 0.0137 |
+
+**PRIMARY NOT MET (−1.84 pts, 2/10). NULL fired.** The n=3 losses on Borehole and
+Currin were **not** noise — they replicated at n=10 with the same sign.
+
+**One win, two losses.** SF-DRO is not generally better than its own MES
+counterpart. h73's Hartmann result stands — large, replicated, verified, and not
+specific to MES (it also beats SF-EI there 9/10, p=0.0059) — but it **does not
+travel**, and Hartmann is also the benchmark h72 showed to be least resolved at
+small n.
+
+### The north star, stated plainly
+
+**Not met.** It is a per-benchmark bar. No DRO variant beats the best baseline on
+any benchmark that discriminates, and SF-DRO does not even beat its own
+single-fidelity counterpart on 2 of 3. The one arrival ever claimed (h64) was
+withdrawn at n=10.
+
+### LESSON 27 — a magnitude bar and a win-count bar catch different failures
+
+Currin's SECONDARY passed. The bar was "within 1.0 point", written to catch
+SF-DRO being *materially* worse; at −0.22 points it passes. But SF-DRO wins only
+**2/10 with p = 0.0137** — it is *reliably* slightly worse, and a magnitude bar
+cannot see that.
+
+This is the **third** protocol this session whose locked bar passed while the
+underlying comparison went the other way:
+
+| protocol | bar that passed | what was actually true |
+|---|---|---|
+| h68 PRIMARY | `x_mig` above 50th pct, 9/9 | necessary but not sufficient; the SECONDARY discriminated and failed 1/9 |
+| h65 PRIMARY | REFINE spread < BASE spread | passed on a **1.1%** contraction vs Borehole's 3.4x |
+| h74 SECONDARY | Currin within 1.0 pt | reliably worse at 2/10, p=0.0137 |
+
+**A prediction needs both a magnitude and a win count** — which is exactly why
+h74's Borehole PRIMARY required both, and why it correctly returned NOT MET
+rather than passing on the −1.84-point margin alone.

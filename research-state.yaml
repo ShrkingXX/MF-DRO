@@ -595,6 +595,21 @@ h73_FIRST_SURVIVING_CLAIM: |
   (0.3814912639, diff 0.000e+00). An earlier "control passed" claim was VACUOUS
   (it compared h59's files to themselves) and was withdrawn before being redone.
 
+h74_HARTMANN_SPECIFIC: |
+  Reproduction control PASSED bit-for-bit (Currin s44 diff 0.000e+00).
+  SF-DRO vs SF-MES at n=10, all three benchmarks:
+    Hartmann  8.46 vs 21.17  +12.71  10/10  p=0.0020  WIN
+    Borehole 14.60 vs 12.76   -1.84   2/10  p=0.0840  LOSS
+    Currin    0.22 vs  0.00   -0.22   2/10  p=0.0137  LOSS
+  PRIMARY NOT MET, NULL FIRED. ONE WIN, TWO LOSSES -- h73 does not generalise and
+  the n=3 losses were not noise. SF-DRO is not generally better than its own MES
+  counterpart.
+  NORTH STAR NOT MET: per-benchmark bar; no DRO variant beats the best baseline
+  on any discriminating benchmark, and SF-DRO loses to SF-MES on 2 of 3.
+  LESSON 27: a magnitude bar and a win-count bar catch different failures. Currin
+  SECONDARY passed on magnitude (-0.22 within 1.0) while SF-DRO was reliably worse
+  (2/10, p=0.0137). Third such case this session after h68 and h65. Require BOTH.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
