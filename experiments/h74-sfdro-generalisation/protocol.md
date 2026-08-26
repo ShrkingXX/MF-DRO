@@ -47,6 +47,25 @@ alongside h71's 6, inside the 15 cap.
 4. **REVERSED.** SF-MES ahead on Borehole by >= 2.0 points, confirming the n=3
    loss. Then the Hartmann win is an outlier benchmark, not a method property.
 
+## Reproduction control — stated BEFORE results, so it cannot be retro-fitted
+
+h73's "built-in control" turned out to be **vacuous**: it reused seeds 44/46/48
+from h59 and so compared h59's files to themselves. h74 reuses the same three
+seeds and would inherit exactly that flaw. Recording the position up front:
+
+**By inference.** `diff` shows h74's worker differs from h59's in only a docstring
+and one string literal (`exp=f"h59_..."` -> `exp=f"h74_..."`), which feeds
+`setup_dirs()` and `_build_dro_config()`. h73's **direct** control proved that
+change is inert — `h73_Hartmann_6D_44` reproduced `h59_Hartmann_6D_44` to
+**0.000e+00**, so the experiment name is not hashed into any seeding path and a
+different value of it cannot change a trajectory.
+
+**By direct measurement.** That is still an inference, so a direct control is also
+run: h74's worker on **Currin seed 44**, against h59's published value. Currin is
+chosen over Borehole only because it is cheaper (43.8 vs 67.2 min); it tests the
+same one-line difference on a second benchmark. Result recorded in `analysis.md`
+whichever way it lands, and h74's PRIMARY is not reported until it passes.
+
 ## What this cannot settle
 
 n=10 per benchmark. It compares SF-DRO to its own MES counterpart, not to the
