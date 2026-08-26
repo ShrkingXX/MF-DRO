@@ -2319,3 +2319,60 @@ boundary aversion (closest to x*, still worst) -> fidelity allocation
 34%) -> inner-loop optimisation (h68: MF-DRO outranks MI-Greedy 8/9 under its
 own acquisition) -> acquisition class (h69: 0.29 of 5.0 points). **Surrogate
 hyperparameter constraints are what is left.**
+
+## WITHDRAWN: the north-star arrival. h64's Hartmann result was noise.
+
+**This retraction is reported as prominently as the original claim, per h66's
+pre-registered failure branch.**
+
+h64 measured MF-DRO+POOL600 at **7.6% vs MF-MES's 8.5%** on Hartmann at n=3, 2/3
+paired wins, and it was announced as the project's first arrival at the north
+star. h66 replicated it at **n=10** with the analysis script written and
+committed while POOL600 stood at 0/7.
+
+| seed | POOL600 | MF-MES | winner |
+|---|---|---|---|
+| 42 | 0.2229 | 0.3306 | POOL600 |
+| 43 | 0.2668 | 0.0434 | MF-MES |
+| 44 | 0.3162 | 0.3019 | MF-MES |
+| 45 | 0.1943 | 0.2255 | POOL600 |
+| 46 | 0.1960 | 0.1979 | POOL600 |
+| 47 | 0.0580 | 0.0122 | MF-MES |
+| 48 | 0.2454 | 0.3491 | POOL600 |
+| 49 | 0.0667 | **0.8390** | POOL600 |
+| 50 | 0.4194 | 0.2394 | MF-MES |
+| 51 | 0.2212 | 0.1978 | MF-MES |
+
+| | POOL600 | MF-MES |
+|---|---|---|
+| mean | 0.2207 (6.6%) | 0.2737 (8.2%) |
+| **paired wins** | **5/10** | 5/10 |
+| Wilcoxon p | **1.0000** | (reported unconditionally) |
+
+- **PRIMARY** (mean below MF-MES **and** >=6/10 wins): **NOT MET**
+- **FAILURE branch** (<=5/10 wins -> withdraw): **FIRED**
+- **VARIANCE** (sd below BASE's 0.2395): MET at 0.1069
+
+**The mean is one seed.** POOL600's +0.0530 mean advantage comes almost entirely
+from seed 49, where MF-MES posts its worst cell (0.8390 vs 0.0667). Excluding it,
+the advantage **reverses to −0.0270** — MF-MES ahead. The median gap is +0.0103.
+This is precisely why the protocol required both a mean *and* a win count: at
+n=10 a single catastrophic baseline run moves the mean by more than the effect.
+
+> **The claim that a DRO variant beats the best Hartmann baseline is WITHDRAWN.**
+> Nothing in this project currently beats the baselines on any benchmark that
+> discriminates. The north star is not met and has not been met at any point.
+
+**On prediction 3.** POOL600's sd (0.1069) and worst case (0.4194 vs 0.8390) are
+both better than MF-MES's. This does **not** revive the variance hypothesis
+refuted earlier — that refutation checked worst-case regret across all six
+DRO-vs-MES pairs and DRO won only 2/6. But this is the only cell measured at
+**n=10**, and it is the one that most favours a variance reading. Reviving the
+hypothesis would require re-testing the other pairs at n=10, not citing this cell.
+
+**Why h64 misled.** At n=3 POOL600 went 2/3 against MF-MES. At n=10 it went 5/10.
+The n=3 result was inside sampling noise for a comparison whose true effect is
+approximately zero. This is the same shape as h45 (5/6 then 7/8 then worst-on-mean
+at 10/10) — the failure mode lesson 19 exists to prevent, now demonstrated a
+second time with the withdrawal pre-committed **before** the data arrived, which
+is the only reason it was caught cleanly rather than argued about afterwards.
