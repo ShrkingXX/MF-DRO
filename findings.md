@@ -2013,3 +2013,45 @@ support either way**, which is what the protocol required.
 One benchmark of three now meets "at least as good as the baselines". n = 3, no
 p-values, and the compute ratio is unchanged. But it is the first arrival, not a
 direction.
+
+### What POOL600 changed on Hartmann, measured (descriptive — no mechanism claimed)
+
+h64's Hartmann gain (14.7% -> 7.6%) is unexplained: the acquisition-value channel
+measured **1.00x** at N=600 there. Narrowing what actually differs, as a
+precondition for any future mechanism test. **n = 3, descriptive only.**
+
+| arm | seed | regret | nq | nHF | HF% | improv | HF spread |
+|---|---|---|---|---|---|---|---|
+| BASE | 44 | 0.7531 | 31 | 25 | 81% | 1 | 0.1538 |
+| BASE | 46 | 0.2875 | 179 | 3 | 2% | 3 | 0.3432 |
+| BASE | 48 | 0.4228 | 67 | 19 | 28% | 7 | 0.3095 |
+| POOL600 | 44 | 0.3162 | 28 | 25 | 89% | 3 | 0.3448 |
+| POOL600 | 46 | 0.1960 | 130 | 10 | 8% | 7 | 0.2910 |
+| POOL600 | 48 | 0.2454 | 151 | 7 | 5% | 6 | 0.3255 |
+
+| quantity | BASE | POOL600 | ratio |
+|---|---|---|---|
+| HF queries | 15.67 | 14.00 | 0.89x |
+| HF fraction | 0.369 | 0.339 | 0.92x |
+| **improvements** | **3.67** | **5.33** | **1.45x** |
+| HF query spread | 0.269 | 0.320 | 1.19x |
+
+**POOL600 does not buy more high-fidelity queries — it buys fewer (0.89x) — yet
+it converts them into 1.45x as many incumbent improvements.** Seed 48 is the
+sharpest case: HF queries fall 19 -> 7 while improvements rise 7 -> 6 and regret
+halves (0.4228 -> 0.2454). Seed 44 keeps HF fixed at 25 and triples improvements
+(1 -> 3).
+
+The HF query spread also *widens* (1.19x), consistent with h61's liveness check
+on Borehole where refinement widened rather than concentrated the search.
+
+**No mechanism is proposed.** Five of six mechanisms proposed in this project
+were refuted by the next measurement, and "more improvements per HF query" is a
+restatement of the outcome, not an explanation of it. What this rules out is the
+simplest candidate: the gain is **not** from spending more of the budget on the
+fidelity that moves the incumbent.
+
+It also matches h63's fidelity-thread conclusion from a different direction —
+across seven Borehole configurations the HF fraction carried no information about
+regret once the 2%-HF outlier was excluded (corr +0.071). Both point at *what is
+done with* the HF queries rather than *how many* there are.
