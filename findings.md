@@ -80,12 +80,16 @@ is a **tie, not a win** (SF-DRO 8.46% vs MF-MES 8.24%, 4/10, p=0.43 — post hoc
   MI-Greedy's final regret on **8 of 10 seeds** (h70 at n=3, h79 at n=10). The
   4.72-point SF-MES/MI-Greedy gap really is closed by pool size alone.
   **But the two methods do not follow the same search** (h79b): they diverge from
-  the *first* optimization query on 3 of 4 seeds examined — the starting regrets
-  themselves differ — including a seed where the finals match to ten significant
-  figures. The 8/10 match is **convergence to the same best point by different
-  searches**, not the same algorithm. h70's "reproduces exactly, seed for seed"
-  was true of outcomes and invited a stronger reading about algorithms that the
-  data never supported.
+  the *first* optimization query — the starting regrets themselves differ — yet
+  finish at the **same best point**, verified coordinate-identical to
+  **0.000e+00** on 2 of the matching seeds (h79c), reached at *different*
+  iterations (80 vs 96, 26 vs 31). On the 2 divergent seeds the best points differ
+  by 2.19e+04 and 4.11e+04 in raw domain units.
+  **Borehole has an attractor that a sufficiently wide EI search reliably finds
+  from this initial design, by different routes, most of the time.** That — not
+  algorithmic equivalence — is why pool size closes the gap. h70's "reproduces
+  exactly, seed for seed" was true of outcomes and invited a stronger reading
+  about algorithms that the data never supported.
 - **MF-DRO's own Borehole deficit is unexplained** after eliminating eight
   candidates with isolated differences: LF quality, local refinement, boundary
   aversion, fidelity allocation, rho misspecification, stall length, inner-loop
