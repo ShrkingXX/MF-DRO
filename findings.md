@@ -1863,3 +1863,39 @@ cells are still running.
 If Hartmann gains as much, the effect is not range-violation — it is one of the
 three confounds, most plausibly the fidelity shift, which h58 already showed can
 move Borehole regret by 22% on a single seed.
+
+### Fidelity fraction does not explain the differences between MF-DRO configurations
+
+**EXPLORATORY**, on all completed Borehole data — seven distinct configurations
+across h57, h60, h61 and h63, spanning 2% to 98% realised HF.
+
+| arm | HF% | nHF | rel regret |
+|---|---|---|---|
+| TEACHER (`rollout_policy=thompson`) | **2%** | 3 | **43.8%** |
+| RHOTRUE (`rho_fixed=1.2566`) | 18% | 30 | 21.8% |
+| NOLFINIT (`initial_lf=0`) | 82% | 89 | 24.4% |
+| **POOL600** | 90% | 95 | **19.5%** |
+| **REFINE** | 94% | 97 | **19.3%** |
+| REWARD (`rollout_reward=improvement`) | 95% | 97 | 24.7% |
+| BASE | 98% | 100 | 23.7% |
+
+Correlation across all seven is **-0.690**, but it is carried almost entirely by
+TEACHER's outlier. **Excluding that one point, the correlation collapses to
+-0.106 over the remaining six**, and the regret range across 18%-98% HF is just
+19.3%-24.7% — a 5.4-point band with no ordering in it.
+
+So: **starving HF entirely is catastrophic (2% -> 43.8%), but anywhere between
+18% and 98% the fidelity mix carries essentially no information about regret.**
+RHOTRUE at 18% HF beats BASE at 98%; REWARD at 95% is worse than RHOTRUE at 18%.
+The two best configurations sit at 90-94%, adjacent to BASE's 98%, and differ
+from it by *teacher optimisation*, not by fidelity.
+
+**This closes out the fidelity thread.** Across h58 (the HF floor), h60 (teacher
+identity), h63 (rho pinning) and h61 (pool/refinement), every intervention that
+moved the fidelity mix has been measured, and the mix is not the explanatory
+variable. MI-Greedy reaches 8.3% at 100% HF while MF-DRO reaches 19.3% at 94% —
+the gap is not fidelity allocation and cannot be closed by adjusting it.
+
+The one thing the fidelity data does establish is a floor: a configuration that
+drops below ~10% HF on Borehole cannot move its incumbent enough to compete,
+which is h58's finding arrived at from the other direction.
