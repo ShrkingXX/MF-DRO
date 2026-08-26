@@ -773,3 +773,34 @@ determined, held for the two Hartmann CONTROL cells) and h77 (5/7) running.**
 three; against the strongest Hartmann baseline it is a tie (4/10, p=0.43, post
 hoc). Borehole is fully calibrated at n=10 and MF-DRO is last among the
 non-degenerate methods there — not a three-seed artifact.
+
+## h79 / h79b — one claim, three weakenings
+
+h70's sharpest result was checked twice more, cheaply, and narrowed each time.
+
+**h79 (n=10, seconds of compute).** The SF-EI@1000 == MI-Greedy identity holds
+bit-for-bit on **8 of 10** Borehole seeds, not all. Seeds 45 and 49 diverge by
+1.23 and 3.00 points with the pool-matched baseline **worse**. h70's three seeds
+were among the eight that match. PRIMARY and SECONDARY both NOT MET, NULL fired.
+
+**h79b.** The trajectories were never the same. Both methods split at iteration
+1-2 on **all four** seeds examined, *including the matched controls* whose finals
+agree to ten significant figures. Starting regrets differ (seed 46: 34.109 vs
+36.597). Both of h79b's predictions were wrong, and the NULL fired with a stated
+conclusion that did not follow — the protocol had assumed matched endpoints
+implied matched trajectories.
+
+**Descriptive close-out.** On matching seeds the two arrive at the same value at
+different iterations (80 vs 96; 26 vs 31), so they find it independently. On
+divergent seeds one plateaus early — seed 45 has MI-Greedy reaching its final
+value at **iteration 2** and never improving across the remaining 98, yet still
+finishing ahead.
+
+**Final form:** giving single-fidelity EI a 1000-point pool is enough to reach
+MI-Greedy's final regret on 8 of 10 Borehole seeds. A claim about **outcomes**.
+The 4.72-point gap really is closed by pool size; the methods are not equivalent.
+
+**Recorded as lesson 29:** the strength of the word must match the strength of the
+check. A protocol-design corollary from h79b — a control that checks only the
+endpoint cannot detect two different paths to the same endpoint, which is exactly
+what the original claim rested on.

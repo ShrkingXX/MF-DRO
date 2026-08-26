@@ -2948,3 +2948,38 @@ h77) and roughly a day of compute. It bought: two published entries corrected by
 h77), one confirmed accurate to 0.82 (MF-DRO Borehole, h75), and the retraction
 of a finding that had reversed sign (h70b). **Every quantitative claim in this
 project's headline table has now been checked at n=10 or shown not to need it.**
+
+### LESSON 29 — the strength of the word must match the strength of the check
+
+One claim in this project was weakened three times, and each weakening came from
+a check that was cheap and available the whole time.
+
+| stage | claim | what the check actually covered |
+|---|---|---|
+| **h70** | "MI-Greedy's advantage is **entirely** pool size — SF-EI@1000 reproduces it **exactly, seed for seed**" | 3 seeds, **final regret only** |
+| **h79** | "...on **8 of 10** seeds" | 10 seeds, final regret only |
+| **h79b** | "...reaches the same **final regret**; the searches are different" | 10 seeds, **trajectories** |
+
+Nothing was miscomputed at any stage. What went wrong is that the *wording* at
+each stage asserted more than the *check* covered:
+
+- **"entirely"** was asserted from 3 seeds. It needed 10, and at 10 it failed.
+- **"exactly, seed for seed"** was asserted from endpoint agreement. It reads as
+  algorithmic equivalence, and the trajectories were never compared. When they
+  were, the two methods turned out to diverge at the **first** optimization
+  query — including on seeds whose endpoints match to ten significant figures.
+
+**The operational rule:** before writing a strong word — *entirely*, *exactly*,
+*identical*, *reproduces* — name the check that licenses it and confirm the check
+covers that strength. "Reproduces exactly" requires comparing the thing that must
+be reproduced, not a summary of it. An endpoint check cannot license a claim
+about a search.
+
+This sits alongside the others rather than replacing them: **26** says n=3 does
+not estimate a direction, **27** says a bar needs both magnitude and win count,
+**28** says predict from measurements not intuitions. **29** says the *prose* is
+part of the claim and gets audited like the number does.
+
+**Cost of getting it wrong here:** low, because the corrections landed before the
+write-up. The same overclaim in a paper would have been the reviewer's finding
+rather than mine.

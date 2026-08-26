@@ -701,6 +701,22 @@ h79_identity_WEAKENED_TWICE: |
   endpoint cannot detect two paths to the same endpoint.
   Corrections propagated to findings.md and the slide deck (twice).
 
+LESSON_29_word_strength: |
+  One claim weakened three times, each from a cheap check available all along:
+    h70  "entirely pool size, reproduces exactly seed for seed"  3 seeds, endpoint only
+    h79  "...on 8 of 10 seeds"                                   10 seeds, endpoint only
+    h79b "...same final regret; the searches are different"      10 seeds, trajectories
+  Nothing miscomputed. The WORDING at each stage asserted more than the CHECK
+  covered. "entirely" needed 10 seeds and failed at 10. "exactly, seed for seed"
+  reads as algorithmic equivalence but was endpoint agreement; the trajectories
+  diverge at the FIRST optimization query, including on seeds whose endpoints
+  match to 10 significant figures.
+  RULE: before writing entirely/exactly/identical/reproduces, name the check that
+  licenses it and confirm the check covers that strength. An endpoint check cannot
+  license a claim about a search.
+  Sits alongside 26 (n=3), 27 (bar design), 28 (predict from measurements). 29 is
+  about the PROSE being part of the claim.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
