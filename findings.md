@@ -2533,3 +2533,63 @@ The honest position is not that the standings are wrong. It is that **the
 Hartmann column is unresolved at n=3 for every method measured, and untested for
 the two methods this project is about** — which is the column the withdrawn
 north-star claim lived in.
+
+## h73 — the first claim in this project to survive replication at n=10
+
+SF-DRO vs SF-MES on Hartmann, seeds 42-51, verdict script committed at 0/7,
+reproduction control passed exactly (seeds 44/46/48 -> 11.49% / 21.39%, matching
+h59):
+
+| | mean | sd | worst |
+|---|---|---|---|
+| **SF-DRO** | **8.46%** | 4.08 | 13.26% |
+| SF-MES | 21.17% | 5.11 | 30.74% |
+
+**+12.71 points, 10/10 paired wins, Wilcoxon p = 0.0020.** PRIMARY met (bar: >=5.0
+pts and >=7/10). SECONDARY met (sd below SF-MES).
+
+**Lesson 26 is confirmed, not weakened.** The n=3 gap was 9.9 points at 3/3; the
+n=10 gap is *larger* at 12.71 with a clean sweep. n=3 pointed the right way here
+while **understating** the effect by 2.8 points — that is the same instability
+that made it overstate elsewhere, not an exception to it. Three prior n=3
+directions failed at n=10 and this one survived; the rule stands that n=3 does
+not estimate a direction, in either sign.
+
+### POST HOC — SF-DRO vs MF-MES. Not a claim.
+
+The data existed and both means had been seen before the comparison was posed, so
+this cannot be confirmatory and no pre-registration is retro-fitted.
+
+| | mean | sd | worst |
+|---|---|---|---|
+| SF-DRO | 8.46% | **4.08** | **13.26%** |
+| MF-MES | **8.24%** | 6.85 | 25.25% |
+
+**4/10 wins, p = 0.4316 — indistinguishable, not a win.**
+
+**Hartmann standings at n=10, every method with 10 seeds:**
+
+| method | n=10 |
+|---|---|
+| MF-DRO + POOL600 | 6.64% (mean advantage withdrawn by h66 — 5/10, one-seed artifact) |
+| MF-MES | 8.24% |
+| **SF-DRO** | **8.46%** — single fidelity, **no free LF initial design** |
+| SF-EI | 18.61% |
+| SF-MES | 21.17% |
+| MF-MI-Greedy | 36.61% |
+| MF-GP-UCB | 66.81% |
+
+Three methods cluster at 6.6-8.5% and are not separable; then a 10-point gap.
+SF-DRO reaches that cluster with **no low-fidelity information at all**, while
+MF-MES receives a free LF init worth +45 cost units on Hartmann — 22.5% of the
+optimisation budget.
+
+### The north star is still not met
+
+"At least as good as the baselines" is a **per-benchmark** bar. SF-DRO clears it
+on Hartmann only in the weak sense of a post hoc tie, and at n=3 it *loses* to
+SF-MES on Currin (0.4% vs 0.0%) and Borehole (15.1% vs 13.3%). Those n=3 losses
+are exactly as unreliable as the n=3 win was — lesson 26 cuts both ways — so the
+generalisation is untested in both directions. **h74 pre-registers it**: SF-DRO on
+Currin and Borehole at n=10, with Borehole as the discriminating benchmark
+(PRIMARY: >=2.0 points and >=7/10 wins, where n=3 had SF-DRO losing by 1.8).

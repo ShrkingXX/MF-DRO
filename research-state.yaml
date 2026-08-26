@@ -575,6 +575,21 @@ h72_standings_uncalibrated: |
   methods whose means moved >10 pts. Hartmann is the column the withdrawn
   north-star claim lived in.
 
+h73_FIRST_SURVIVING_CLAIM: |
+  SF-DRO beats SF-MES on Hartmann at n=10: 8.46% vs 21.17%, +12.71 pts, 10/10
+  paired wins, Wilcoxon p=0.0020. Verdict script committed at 0/7; reproduction
+  control passed exactly. PRIMARY and SECONDARY both MET. First claim in this
+  project to survive replication at n=10.
+  Lesson 26 CONFIRMED not weakened: n=3 said 9.9 pts at 3/3, n=10 says 12.71 --
+  n=3 understated by 2.8 pts. Same instability, opposite sign.
+  POST HOC (not a claim, data preceded the question): SF-DRO 8.46% vs MF-MES
+  8.24%, 4/10, p=0.4316 -- indistinguishable, NOT a win. Hartmann n=10 standings:
+  POOL600 6.64 / MF-MES 8.24 / SF-DRO 8.46 clustered and inseparable, then SF-EI
+  18.61 / SF-MES 21.17 / MI-Greedy 36.61 / GP-UCB 66.81. SF-DRO reaches the top
+  cluster with NO LF information; MF-MES gets a free LF init worth +45 cost units.
+  NORTH STAR STILL NOT MET: per-benchmark bar, and SF-DRO loses to SF-MES on
+  Currin and Borehole at n=3 -- losses as unreliable as the win was. h74 tests it.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
