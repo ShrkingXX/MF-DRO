@@ -623,6 +623,23 @@ sfdro_now_calibrated: |
   Borehole ranges OVERLAP, so a 3-seed draw could have shown SF-DRO ahead; what
   settles h74 is the paired count 2/10, not the means. MF-DRO remains uncalibrated.
 
+h76_trajectory: |
+  Reproduction control PASS 30/30 bit-for-bit vs h72 (REAL: fresh runs of the
+  same cells, cannot pass by reading another experiment's files).
+  Both locked predictions WRONG, NULL FIRED. Predicted Hartmann crossing by iter
+  12 of 25; got 18.
+  1. SF-DRO is BEHIND SF-MES early on ALL THREE benchmarks including the one it
+     wins (iter 1: 76.05 vs 66.08 Hartmann, 48.66 vs 40.46 Borehole, 11.73 vs
+     9.60 Currin). The advantage is NOT early search.
+  2. On Hartmann SF-MES PLATEAUS (32.85 -> 23.47 -> 21.17) while SF-DRO keeps
+     falling (26.38 -> 16.95 -> 7.70). On Borehole/Currin both flatten together
+     and SF-DRO never catches up -- CONTROL held, no crossing on either.
+  3. SF-DRO has NOT converged on Hartmann at budget exhaustion, still falling at
+     iter 25. Whether more budget widens the gap is UNTESTED.
+  Licenses: effect is LATE and about SF-MES stalling -- rules out any mechanism
+  explaining an early exploration advantage. Identifies NO mechanism; SF-DRO
+  differs from SF-MES in both policy and surrogate and h76 separates neither.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
