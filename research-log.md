@@ -702,3 +702,74 @@ contributes 0.00 there despite the builders differing materially.
 landed anywhere in [36.7, 88.5]; MI-Greedy in [22.8, 48.8]. Published entries
 were optimistic by +12.7 and +21.5 points. MF-DRO and SF-DRO remain uncalibrated
 at 82–473 min per run — and Hartmann is the column the withdrawn claim lived in.
+
+# 2026-08-26 (later) — H74 through H77: the scope of the one positive, and closing calibration
+
+## Why each was chosen
+
+**h74** — h73 established SF-DRO beating SF-MES on Hartmann at n=10. That is one
+benchmark, and the n=3 losses on the other two were exactly as unreliable as the
+n=3 win had been. Generalisation was untested in both directions.
+
+**h75** — MF-DRO was the last uncalibrated method, and h71's PRIMARY compares
+POOL1000 to a BASE that is also n=3. A properly estimated BASE makes h71
+interpretable rather than suggestive.
+
+**h76** — *when* the Hartmann advantage appears, measured rather than proposed.
+Six mechanisms had already been proposed and refuted, so this one asks only for a
+descriptive fact that constrains future mechanisms without asserting one.
+
+**h77** — MF-DRO's Hartmann cell, the last uncalibrated entry, sitting in the
+column h72 showed to be least resolved.
+
+## Results
+
+| experiment | verdict |
+|---|---|
+| **h74** | **NULL fired.** SF-DRO loses to SF-MES on Borehole (2/10) and Currin (2/10). One win, two losses — h73 does not generalise, and the n=3 losses were not noise |
+| **h75** | **Both bars MET.** MF-DRO Borehole n=10 = 22.89% vs published 23.71%, shift −0.82, three-seed span 5.89. The published entry held up |
+| **h76** | **NULL fired.** Crossing at iteration 18, not <=12. SF-DRO is *behind* early on all three benchmarks; what differs on Hartmann is that SF-MES plateaus and SF-DRO does not |
+| **h77** | running |
+
+## Decisions that cost something, or nearly did
+
+- **h73's reproduction control was vacuous** — it reused seeds 44/46/48 from h59
+  and so compared h59's files to themselves. Caught, withdrawn, and redone
+  directly (PASS, 0.000e+00). h74, h75 and h77 all had the same structural risk
+  and each got a real control enforced *in the verdict script* rather than left
+  to judgement.
+- **A verification that failed open.** `find -newermt "-30 minutes"` was rejected
+  by this system's `bfs`; it printed `0` from the error and I reported that `0`
+  as evidence h57 was untouched. Redone properly — h57 genuinely untouched.
+- **Two sed-induced defects in h77's verdict script** — a `NameError` from a
+  missed rename, and stale "Borehole"/"h75" labels in the printed messages. The
+  second was a repeat: my first fix patched only the strings visible in the
+  output. Fixed by grepping every occurrence.
+- **h71 launched without its `ckpt` directory**, so every checkpoint raised inside
+  a daemon thread and died silently. Runs were unaffected; monitoring was lost.
+  The `_atomic` makedirs fix means h77 is fully observable mid-run while h71
+  remains a black box — a direct demonstration of what the defect cost.
+
+## Predictions
+
+| met | grounded in |
+|---|---|
+| h75 (both bars) | h72's measurement that Borehole shifts little at n=10 |
+
+| lost | grounded in |
+|---|---|
+| h74 PRIMARY | that h73 would generalise |
+| h76 PRIMARY + SECONDARY | intuition that the advantage was early search |
+
+This extends the pattern recorded as **lesson 28**: every met prediction in this
+project derives from a prior measurement; every lost one is a mechanism intuition.
+
+## Standing state
+
+h74, h75, h76 complete. **h71 (4/6 — all three Borehole cells in, PRIMARY fully
+determined, held for the two Hartmann CONTROL cells) and h77 (5/7) running.**
+
+**North star: not met.** SF-DRO beats its own MES counterpart on one benchmark of
+three; against the strongest Hartmann baseline it is a tie (4/10, p=0.43, post
+hoc). Borehole is fully calibrated at n=10 and MF-DRO is last among the
+non-degenerate methods there — not a three-seed artifact.
