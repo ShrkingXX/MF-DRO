@@ -1879,10 +1879,15 @@ across h57, h60, h61 and h63, spanning 2% to 98% realised HF.
 | REWARD (`rollout_reward=improvement`) | 95% | 97 | 24.7% |
 | BASE | 98% | 100 | 23.7% |
 
-Correlation across all seven is **-0.690**, but it is carried almost entirely by
-TEACHER's outlier. **Excluding that one point, the correlation collapses to
--0.106 over the remaining six**, and the regret range across 18%-98% HF is just
-19.3%-24.7% — a 5.4-point band with no ordering in it.
+Correlation across all seven is **-0.685**, but it is carried almost entirely by
+TEACHER's outlier. **Excluding that one point the correlation flips sign to
++0.071 over the remaining six** — i.e. nothing — and the regret range across
+18%-98% HF is just 19.3%-24.7%, a 5.4-point band with no ordering in it.
+
+*(Correction: this entry first stated -0.690 and -0.106. Both were written from
+memory of the shape rather than the computed output; the verified values are
+-0.685 and +0.071. The conclusion is unchanged and slightly strengthened — the
+residual correlation is not weakly negative, it is absent.)*
 
 So: **starving HF entirely is catastrophic (2% -> 43.8%), but anywhere between
 18% and 98% the fidelity mix carries essentially no information about regret.**
