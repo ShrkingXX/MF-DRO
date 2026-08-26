@@ -1,0 +1,191 @@
+[
+ {
+  "bench": "Currin_2D",
+  "seed": 44,
+  "k": 2,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 44,
+  "k": 5,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 44,
+  "k": 10,
+  "pct": 99.83333333333333,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 46,
+  "k": 2,
+  "pct": 94.5,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 46,
+  "k": 5,
+  "pct": 99.33333333333333,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 46,
+  "k": 10,
+  "pct": 99.5,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 48,
+  "k": 2,
+  "pct": 99.16666666666667,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 48,
+  "k": 5,
+  "pct": 99.66666666666667,
+  "note": ""
+ },
+ {
+  "bench": "Currin_2D",
+  "seed": 48,
+  "k": 10,
+  "pct": 99.83333333333333,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 44,
+  "k": 2,
+  "pct": 99.83333333333333,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 44,
+  "k": 5,
+  "pct": 0.0,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 44,
+  "k": 10,
+  "pct": 0.0,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 46,
+  "k": 2,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 46,
+  "k": 5,
+  "pct": null,
+  "note": "only 3 HF opt queries"
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 46,
+  "k": 10,
+  "pct": null,
+  "note": "only 3 HF opt queries"
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 48,
+  "k": 2,
+  "pct": 99.83333333333333,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 48,
+  "k": 5,
+  "pct": 99.66666666666667,
+  "note": ""
+ },
+ {
+  "bench": "Hartmann_6D",
+  "seed": 48,
+  "k": 10,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 44,
+  "k": 2,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 44,
+  "k": 5,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 44,
+  "k": 10,
+  "pct": 97.16666666666667,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 46,
+  "k": 2,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 46,
+  "k": 5,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 46,
+  "k": 10,
+  "pct": 59.166666666666664,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 48,
+  "k": 2,
+  "pct": 100.0,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 48,
+  "k": 5,
+  "pct": 99.83333333333333,
+  "note": ""
+ },
+ {
+  "bench": "Borehole_8D",
+  "seed": 48,
+  "k": 10,
+  "pct": 92.66666666666666,
+  "note": ""
+ }
+]
