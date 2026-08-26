@@ -85,6 +85,24 @@ comparison and are not pre-registered here.
 
 ---
 
+## POST HOC robustness check — is the advantage specific to MES?
+
+Data already existed; this is a robustness reading on h73, not a new claim.
+h70b supplies SF-EI on Hartmann at n=10, a **different acquisition class**
+(improvement-seeking rather than information-seeking), same 25 optimization
+iterations, same initial design:
+
+| comparator | their mean | SF-DRO | gap | wins | Wilcoxon p |
+|---|---|---|---|---|---|
+| SF-MES | 21.17% | 8.46% | **+12.71** | **10/10** | 0.0020 |
+| SF-EI | 18.61% | 8.46% | **+10.15** | **9/10** | 0.0059 |
+
+**h73's result is not specific to MES.** SF-DRO beats both single-fidelity
+baselines by a comparable margin, so the Hartmann advantage is over greedy
+single-fidelity BO generally, not over one weak acquisition. Note the win counts
+differ — 10/10 against SF-MES, **9/10** against SF-EI — and SF-EI is the stronger
+of the two comparators.
+
 ## POST HOC addendum — SF-DRO vs MF-MES. **Not confirmatory.**
 
 The data already existed and both means had been seen before this comparison was
