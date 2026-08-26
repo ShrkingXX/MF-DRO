@@ -1,19 +1,37 @@
 # MF-DRO failure modes on Hartmann 6D and Borehole 8D
 ### Evidence from H57 (36 runs), H58 (12 runs), H59 (18 runs). Every number below is measured.
 
-**Setup common to all:** cost budget 200 post-init, seeds 44/46/48, all methods
-share the identical initial design, one pinned code commit recorded in every
-result file. Regret = f(x*) − best HF value found. "rel" = regret / f(x*).
+**Setup common to all:** cost budget 200 post-init, seeds 44/46/48, one pinned
+code commit recorded in every result file. Regret = f(x*) - best HF value found.
+"rel" = regret / f(x*).
+
+**Initial design is NOT symmetric - say this if asked.** All *multi-fidelity*
+arms (H57) share an identical initial design. The *single-fidelity* arms (H59)
+get the HF init only, no LF points. The initial design is also **not charged**
+against the 200-unit budget, so MF arms receive free low-fidelity information
+worth **+15 / +45 / +20** cost units on Currin / Hartmann / Borehole - on
+Hartmann that is 22.5% of the optimization budget. This runs *against* MF, so
+wherever SF beats MF below, that is a conservative statement rather than an
+artifact.
 
 ---
 
 ## Headline: MF-DRO never beats the best baseline
 
+![standings](north_star_standings.png)
+
 | method | Currin 2D | Hartmann 6D | Borehole 8D |
 |---|---|---|---|
 | **MF-DRO** | 0.0% | 14.7% | 23.7% |
+| **SF-DRO** | 0.4% | 11.5% | 15.1% |
 | MF-MES (Takeno) | 0.6% | **8.5%** | 11.3% |
+| SF-MES | **0.0%** | 21.4% | 13.3% |
 | MF-MI-Greedy | 0.2% | 23.9% | **8.3%** |
+| MF-GP-UCB | 10.0% | 45.3% | 44.1% |
+
+**No DRO variant is best on any benchmark except Currin**, and Currin does not
+discriminate. Note SF-DRO beats MF-DRO on both hard benchmarks *despite* getting
+no free LF initial design.
 
 Paired wins for MF-DRO out of 3 seeds: **0-3 to MF-MES on Hartmann**,
 **0-3 to both baselines on Borehole**. Currin does not discriminate — every
@@ -139,19 +157,6 @@ design, and showed the rollout teacher is load-bearing — swapping it moved reg
 23.7% -> 43.8%. Two candidates remain untested: teacher optimisation quality and
 the surrogate class.
 
----|---|---|---|
-| 44 | 233.94 | 309.58 | 24.4% |
-| 46 | 232.99 | 309.58 | 24.7% |
-| 48 | 241.61 | 309.58 | 22.0% |
-
-**3. The search is not bad.** Stalled queries sit at the **99.7–99.9th
-percentile** of the domain's value distribution (20k Sobol reference), against
-incumbents at 99.8–99.9th. It is searching the very top of the landscape and
-still finishing 25% short.
-
-> **Borehole in one line:** fidelity allocation is fine and the queries are in
-> the top 0.3% of the domain by value, yet the incumbent converges ~25% below
-> the optimum and stops — a search-resolution failure, not a fidelity failure.
 
 ---
 
@@ -162,6 +167,48 @@ still finishing 25% short.
 | **Incumbent freeze** (same point re-proposed) | `distinct == n_queries` in **all 9** MF-DRO cells, up to 116 queries |
 | **Aimless / low-value search** | stalled HF queries at the 88.7–99.9th percentile of domain value |
 | **Searching far from the optimum** | retracted: on Hartmann the best value within 0.3 of x* (2.9196) equals the best beyond 1.0 away (2.8338), so distance to x* carries no information |
+
+---
+
+---
+
+## Threads CLOSED by measurement — do not re-open without a new reason
+
+Each of these was a live hypothesis about why MF-DRO underperforms. Each is now
+answered, and the answer is negative.
+
+| thread | verdict | key evidence |
+|---|---|---|
+| **Fidelity allocation** | not the lever | corr(HF%, regret) = −0.685 overall but **+0.071** excluding a 2%-HF outlier; regret spans only 19.3–24.7% across 18–98% HF |
+| **rho / KO misspecification** | rho is a *regulariser*, not a slope estimate | fitted rho is 0.84 / 0.78 / 0.84 vs true slopes 1.26 / 0.98 / 1.01 — **the (0,1) ceiling never binds anywhere**. Pinning rho to the *true* slope was **−16.6%** on Hartmann, where it is representable |
+| **Incumbent stall** | stall length carries no signal | in HF-opportunity units MF-DRO and MI-Greedy tie at **34%** terminal stall with opposite regret; MI-Greedy has the *lowest* terminal stall on Hartmann (2%) and the *worst* regret there |
+| **"DRO buys consistency, not mean"** | refuted | DRO has lower sd in 4/6 pairs but lower **worst-case** regret in only **2/6**. Borehole SF-DRO: lower sd (1.02 vs 1.77) around a *worse* mean **and** a worse worst case |
+
+The rho thread matters most: it retires an entire family of follow-ups ("fit rho
+more faithfully" — better link, more optimizer steps, OLS init), because h63's
+own control shows the *faithful* rho is not the *good* rho. A planned experiment
+(H67, unbounded rho via softplus) was built, its regression gate passed, and it
+was **cancelled before launch** when a three-minute pre-flight refuted its
+premise — 6 jobs avoided.
+
+---
+
+## The one open question
+
+**Does widening the acquisition candidate pool (200 → 600) actually help on
+Hartmann?** At n=3 it measured 7.6% vs MF-MES's 8.5% — the project's only
+arrival at the north star. It is being replicated at n=10 right now.
+
+This is pre-registered: **if the wider pool wins ≤5 of 10 seeds, the claim is
+withdrawn** and reported as prominently as it was made. Interim seed counts are
+deliberately **not** shown here — reporting a favourable subset before the rest
+lands is a failure this project has committed four times, once changing a
+shipped default.
+
+The mechanism is also unexplained. Widening the pool buys **1.00×** additional
+acquisition value on Hartmann, so it is not working through the obvious channel.
+What is measured: it produces **fewer** high-fidelity queries (0.89×) yet
+**1.45×** as many incumbent improvements.
 
 ---
 
