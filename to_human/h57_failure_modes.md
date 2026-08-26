@@ -271,9 +271,28 @@ What is fair to say: SF-DRO reaches the top cluster **without any low-fidelity
 information**, while MF-MES gets a free LF initial design worth 22.5% of the
 optimisation budget.
 
-**Scope:** Hartmann only. At n=3 SF-DRO *loses* to SF-MES on Currin and Borehole —
-and those n=3 numbers are exactly as unreliable as the n=3 win was. The
-generalisation is running now (h74, n=10 on both).
+**Scope: it does not generalise. Tested and settled.**
+
+![all three](sfdro_vs_sfmes_all3.png)
+
+| benchmark | SF-DRO | SF-MES | gap | SF-DRO wins | Wilcoxon p |
+|---|---|---|---|---|---|
+| Hartmann 6D | **8.46%** | 21.17% | **+12.71** | **10/10** | 0.0020 |
+| Borehole 8D | 14.60% | **12.76%** | −1.84 | **2/10** | 0.0840 |
+| Currin 2D | 0.22% | **0.00%** | −0.22 | **2/10** | 0.0137 |
+
+**One win, two losses.** The n=3 losses on Borehole and Currin were *not* noise —
+they replicated at n=10 with the same sign. SF-DRO is not generally better than
+its own MES counterpart; it is better on Hartmann.
+
+Both arms are **query-matched** (same 25 optimization iterations, same initial
+design) and both experiments passed **bit-for-bit reproduction controls**.
+
+One nuance worth stating if asked: on Hartmann the two methods' *three-seed*
+ranges are **disjoint** — SF-DRO's worst possible 3-seed draw (12.63%) still beats
+SF-MES's best (16.18%) — so no choice of three seeds could have reversed that
+result. On Borehole the ranges overlap, and what settles it is the paired count
+(2/10), not the means.
 
 ---
 
