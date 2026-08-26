@@ -610,6 +610,19 @@ h74_HARTMANN_SPECIFIC: |
   SECONDARY passed on magnitude (-0.22 within 1.0) while SF-DRO was reliably worse
   (2/10, p=0.0137). Third such case this session after h68 and h65. Require BOTH.
 
+sfdro_now_calibrated: |
+  h72's main stated gap is closed for SF-DRO (h73+h74 give n=10 on all three).
+  3-seed subset ranges: Hartmann [3.24,12.63] span 9.39; Borehole [13.07,16.18]
+  span 3.11; Currin [0.00,0.70] span 0.70. SF-DRO is among the MORE stable
+  methods -- Hartmann span 9.39 vs SF-MES 10.13, MI-Greedy 26.07, GP-UCB 51.83.
+  Published n=3 was PESSIMISTIC for SF-DRO on Hartmann by 3.03 pts, opposite in
+  direction to the baselines (optimistic by +12.7 / +21.5).
+  Hartmann ranges are DISJOINT from SF-MES's: SF-DRO's worst 3-seed draw (12.63)
+  beats SF-MES's best (16.18), so no 3-seed subset could have reversed h73. That
+  is why h73 is the one n=3 direction that survived -- effect >> noise.
+  Borehole ranges OVERLAP, so a 3-seed draw could have shown SF-DRO ahead; what
+  settles h74 is the paired count 2/10, not the means. MF-DRO remains uncalibrated.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

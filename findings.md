@@ -2651,3 +2651,39 @@ underlying comparison went the other way:
 **A prediction needs both a magnitude and a win count** — which is exactly why
 h74's Borehole PRIMARY required both, and why it correctly returned NOT MET
 rather than passing on the −1.84-point margin alone.
+
+### h72's stated limitation is now closed for SF-DRO
+
+h72 could not calibrate SF-DRO or MF-DRO at 82-473 min per run, and flagged that
+as its main gap. h73 and h74 have since produced SF-DRO at n=10 on all three
+benchmarks, so the same C(10,3)=120 subset analysis applies:
+
+| benchmark | n=10 | 3-seed range | span | published n=3 | shift |
+|---|---|---|---|---|---|
+| Hartmann | 8.46% | 3.24 – 12.63 | 9.39 | 11.49% | **−3.03** |
+| Borehole | 14.60% | 13.07 – 16.18 | 3.11 | 15.12% | −0.52 |
+| Currin | 0.22% | 0.00 – 0.70 | 0.70 | 0.45% | −0.23 |
+
+SF-DRO is **among the more stable methods**: its Hartmann span (9.39) is smaller
+than SF-MES's (10.13) and far below MI-Greedy's (26.07) or MF-GP-UCB's (51.83).
+Note the published n=3 was *pessimistic* for SF-DRO on Hartmann by 3.03 points —
+the opposite direction from the baselines, whose n=3 entries were optimistic by
++12.7 and +21.5.
+
+**Would any 3-seed draw have reversed the conclusions?**
+
+| benchmark | SF-DRO range | SF-MES range | |
+|---|---|---|---|
+| Hartmann | [3.24, 12.63] | [16.18, 26.30] | **DISJOINT** |
+| Borehole | [13.07, 16.18] | [9.86, 15.52] | overlap |
+| Currin | [0.00, 0.70] | [0.00, 0.00] | overlap |
+
+**Hartmann: SF-DRO's worst possible 3-seed draw (12.63%) still beats SF-MES's
+best (16.18%).** h73's conclusion could not have been reversed by any choice of
+three seeds — unusually strong for this project, and it explains why h73 is the
+one n=3 direction that survived: the effect was far larger than the noise.
+
+**Borehole: the ranges overlap**, so a 3-seed draw *could* have shown SF-DRO
+ahead — which is exactly what the original n=3 nearly did. What settles h74 is
+not the means but the paired count, **2/10**. This is lesson 27 again from the
+other side: where magnitudes overlap, the win count carries the information.
