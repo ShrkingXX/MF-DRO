@@ -1824,3 +1824,42 @@ tested mechanism, and it should not be stated as one.
 three-point estimates and no p-value is computable. And h64's pre-registered
 prediction says this will **not** transfer to Hartmann, where widening the pool
 buys zero acquisition value (1.00x at N=600).
+
+### H63 Borehole arm complete — VERDICT WITHHELD, and the reason matters
+
+**Data, not a verdict.** The Hartmann control is at 1/3 and h63's protocol states
+that the discriminating signal is a **larger Borehole gain than Hartmann's**, not
+a Borehole win on its own. Reporting this as support would be reporting exactly
+what the protocol pre-declared insufficient.
+
+| arm | s44 | s46 | s48 | mean | rel | sd | HF/LF per seed |
+|---|---|---|---|---|---|---|---|
+| BASE | 75.64 | 76.59 | 67.97 | 73.40 | 23.7% | 4.73 | 100/1 100/1 99/3 |
+| RHOTRUE | 73.91 | 61.64 | 67.23 | 67.60 | 21.8% | 6.14 | **10/180 32/137 47/106** |
+
+RHOTRUE beats BASE 3/3, mean 23.7% -> 21.8%.
+
+### Three reasons this is weaker evidence than it looks
+
+1. **It is the smallest of the three Borehole gains.** h61's arms, on the same
+   benchmark and cells: POOL600 19.5%, REFINE 19.3%, RHOTRUE 21.8%. Pinning rho
+   to its true value helps *less* than widening the teacher's candidate pool.
+2. **The fidelity mix inverted**, exactly as the pre-registered fourth confound
+   said it would: 99-100% HF -> 6-31% HF. So this arm is not "BASE with a
+   corrected rho" — it is a different fidelity policy as well, on a benchmark
+   where corr(f_LF, f_HF) = 1.000 makes cheap LF queries unusually valuable.
+   The gain is ambiguous between the surrogate correction and the budget shift.
+3. **Variance went the wrong way** for a "correcting misspecification" story:
+   sd 4.73 -> 6.14. Contrast REFINE, which cut it to 1.41 on the same cells.
+
+### What still discriminates
+
+Only the Hartmann contrast. Confounds 2-4 (adaptivity, ensemble rho diversity,
+fidelity mix) apply to **both** benchmarks; only Borehole's true slope (1.2566)
+is outside the representable range, Hartmann's (0.9792) is inside. So a Borehole
+gain materially larger than Hartmann's is the signature, and 2 of 3 Hartmann
+cells are still running.
+
+If Hartmann gains as much, the effect is not range-violation — it is one of the
+three confounds, most plausibly the fidelity shift, which h58 already showed can
+move Borehole regret by 22% on a single seed.
