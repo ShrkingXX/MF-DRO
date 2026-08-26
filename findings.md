@@ -2055,3 +2055,50 @@ It also matches h63's fidelity-thread conclusion from a different direction —
 across seven Borehole configurations the HF fraction carried no information about
 regret once the 2%-HF outlier was excluded (corr +0.071). Both point at *what is
 done with* the HF queries rather than *how many* there are.
+
+### Incumbent stalls are recoverable, and stall length does NOT predict regret
+
+Primary watch on h57: **zero QUERY FREEZES** across all 9 MF-DRO finals
+(distinct == n_queries on every run). The h45 seeds-49/50 mode present is the
+INCUMBENT STALL: Hartmann s44 goes 30 of 31 queries without improving, s46 goes
+139 of 179, Currin s44 goes 97 of 134.
+
+Two questions follow, and the answer to the second retires a design idea.
+
+**1. Are stalls terminal?** No. Recoveries are routine and can be deep: MF-MES
+broke a 111-query stall on Currin, MI-Greedy broke an 87. In HF-opportunity
+units MI-Greedy broke a 75-HF-query stall on Borehole.
+
+**2. Does stall length track regret?** No. This is the useful negative.
+
+Counted in HF-OPPORTUNITY units (LF queries excluded), pooled over benchmarks,
+MF-GP-UCB omitted as structurally all-LF (0 HF queries, so the metric is
+undefined for it):
+
+| arm | nHF/run | recoveries | median | max | terminal | as % HF budget |
+|---|---|---|---|---|---|---|
+| MF-DRO | 51.2 | 40 | 4.0 | 22 | 17.2 | **34%** |
+| MF-MES | 36.1 | 47 | 3.0 | 13 | 5.2 | 14% |
+| MF-MI-Greedy | 49.1 | 35 | 2.0 | 75 | 16.7 | **34%** |
+
+MF-DRO and MI-Greedy have **identical** terminal-stall fractions (34%) and very
+different regret profiles (Borehole 23.7% vs 8.3%; Hartmann 14.7% vs 23.9%).
+Worse for the metric: MI-Greedy has the LOWEST terminal stall on Hartmann (2% --
+still improving when the budget ran out) and the WORST regret of the three real
+methods there. A short terminal stall means the run had not converged, which is
+exactly what being far from the optimum looks like.
+
+**Consequence: stall length cannot trigger an adaptive intervention**, because it
+does not separate "stuck" from "converged". The adaptive-pool-widening idea this
+measurement was scoped to motivate -- widen N only once a stall is detected,
+cheaper than h64's always-600 -- is dropped before any compute was spent on it.
+
+**Correction, within this same measurement.** Counting stalls over ALL queries
+rather than HF queries made MF-DRO look like a uniquely bad staller (terminal
+50.0 vs MF-MES's 22.4, longest-ever recovery only 39). That was an artifact of LF
+interleaving: a run with 3 HF queries in 179 is forced into a long stall by
+construction. The confounded version is documented in
+`src/analysis/stall_recovery.py` specifically so it is not reintroduced. The
+LF-interleaving confound is the same one that made [lesson 23] necessary --
+a per-query metric that does not condition on fidelity will encode the fidelity
+mix rather than the quantity of interest.
