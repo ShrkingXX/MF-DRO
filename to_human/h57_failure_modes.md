@@ -232,6 +232,49 @@ premise — 6 jobs avoided.
 
 ---
 
+## ONE RESULT THAT SURVIVED — SF-DRO on Hartmann (n=10)
+
+![h73](h73_sfdro_hartmann.png)
+
+SF-DRO beats its own MES counterpart on Hartmann at **n=10**, on **every seed**:
+
+| | mean | sd | worst |
+|---|---|---|---|
+| **SF-DRO** | **8.46%** | 4.08 | 13.26% |
+| SF-MES | 21.17% | 5.11 | 30.74% |
+
+**+12.71 points, 10/10 paired wins, Wilcoxon p = 0.0020.** The verdict script was
+committed before any seed had run, and the reproduction control reproduced the
+earlier 3-seed values exactly.
+
+This is the **only** claim in this project to survive replication at n=10 — three
+earlier ones did not, and one reversed sign. Note it also went the *other* way
+from the usual failure: the 3-seed estimate **understated** the gap (9.9 vs
+12.71 points).
+
+**But it does not clear the bar.** Against the strongest baseline on Hartmann the
+comparison is a tie, not a win:
+
+| method | n=10 |
+|---|---|
+| MF-DRO + POOL600 | 6.64% (advantage withdrawn — 5/10 wins) |
+| MF-MES | 8.24% |
+| **SF-DRO** | **8.46%** — no low-fidelity information at all |
+| SF-EI | 18.61% |
+| SF-MES | 21.17% |
+
+SF-DRO vs MF-MES is **4/10, p = 0.43** — indistinguishable. That comparison is
+**post hoc** (the data existed before the question was asked) and is not a claim.
+What is fair to say: SF-DRO reaches the top cluster **without any low-fidelity
+information**, while MF-MES gets a free LF initial design worth 22.5% of the
+optimisation budget.
+
+**Scope:** Hartmann only. At n=3 SF-DRO *loses* to SF-MES on Currin and Borehole —
+and those n=3 numbers are exactly as unreliable as the n=3 win was. The
+generalisation is running now (h74, n=10 on both).
+
+---
+
 ## RESOLVED — and the answer is a WITHDRAWAL
 
 **Did widening the acquisition candidate pool (200 -> 600) help on Hartmann?**
