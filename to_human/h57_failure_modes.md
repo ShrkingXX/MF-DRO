@@ -193,24 +193,36 @@ premise — 6 jobs avoided.
 
 ---
 
-## The one open question
+## RESOLVED — and the answer is a WITHDRAWAL
 
-**Does widening the acquisition candidate pool (200 → 600) actually help on
-Hartmann?** At n=3 it measured 7.6% vs MF-MES's 8.5% — the project's only
-arrival at the north star. It is being replicated at n=10 right now.
+**Did widening the acquisition candidate pool (200 -> 600) help on Hartmann?**
+At n=3 it measured 7.6% vs MF-MES's 8.5% and was announced as this project's
+first result beating a baseline. Replicated at **n=10**, with the analysis script
+committed while the arm stood at 0/7:
 
-This is pre-registered: **if the wider pool wins ≤5 of 10 seeds, the claim is
-withdrawn** and reported as prominently as it was made. Interim seed counts are
-deliberately **not** shown here — reporting a favourable subset before the rest
-lands is a failure this project has committed four times, once changing a
-shipped default.
+| | POOL600 | MF-MES |
+|---|---|---|
+| mean | 0.2207 (6.6%) | 0.2737 (8.2%) |
+| **paired wins** | **5/10** | 5/10 |
+| Wilcoxon p | **1.0000** | |
 
-The mechanism is also unexplained. Widening the pool buys **1.00×** additional
-acquisition value on Hartmann, so it is not working through the obvious channel.
-What is measured: it produces **fewer** high-fidelity queries (0.89×) yet
-**1.45×** as many incumbent improvements.
+The pre-registered failure branch (<=5/10 wins) **fired**.
 
----
+**The mean advantage is a single seed.** It comes almost entirely from seed 49,
+where MF-MES posts its worst run of the ten (0.8390 vs POOL600's 0.0667).
+Excluding that seed the advantage **reverses** — MF-MES ahead by 0.0270. The
+median gap is 0.0103. The protocol demanded both a better mean *and* >=6/10 wins
+precisely because at n=10 one catastrophic baseline run moves a mean further than
+the effect being tested.
+
+> **Say this plainly on the slide: the claim is withdrawn. No DRO variant in this
+> project beats the best baseline on any benchmark that discriminates, and none
+> ever did.**
+
+This is the second time the same shape has appeared — h45 read 5/6, then 7/8,
+then finished worst-on-mean at 10/10. The difference is that this time the
+withdrawal condition was written down before the data existed, so the result was
+read rather than argued about.
 
 ## Caveats to state out loud
 

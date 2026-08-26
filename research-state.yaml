@@ -516,6 +516,18 @@ h69_acquisition_NULL: |
   imposing an Interval lengthscale constraint + geometric-mean init. Testable in
   one shot -- same acquisition, same loop, swap the builder. Candidate h70.
 
+NORTH_STAR_WITHDRAWN: |
+  h66 at n=10: POOL600 5/10 paired wins vs MF-MES, Wilcoxon p=1.0000. The
+  pre-registered <=5/10 FAILURE branch FIRED. h64's 7.6%-vs-8.5% at n=3 was
+  noise. POOL600's mean advantage (+0.0530) is one seed -- drop s49 (MF-MES
+  0.8390 vs 0.0667) and it REVERSES to -0.0270; median gap +0.0103.
+  Nothing in this project beats the baselines on any discriminating benchmark.
+  The north star has NOT been met at any point.
+  Prediction 3 (variance) met -- POOL600 sd 0.1069 and worst case 0.4194 both
+  beat MF-MES's 0.2275 / 0.8390 -- but this does not revive the refuted variance
+  hypothesis (2/6 on worst case across pairs). It is the only n=10 cell and the
+  most variance-favourable one; reviving needs the other pairs at n=10.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
@@ -525,6 +537,4 @@ open_now:
            0.6664 with 1 improvement in 90 queries -- WORSE than BASE's 0.7531
            only marginally and far worse than POOL600's 0.3162 on the same seed.
            WITHHELD until 3/3; the prediction is about variance, not this mean.
-  h66 4/10 POOL600 Hartmann replication (seeds 44/46/48 from h64 + 43). MF-MES
-           arm COMPLETE at 10/10. <=5/10 wins triggers pre-registered WITHDRAWAL
-           of h64's north-star claim. Lesson 19: no subset reporting.
+  h66 COMPLETE 10/10 -- WITHDRAWAL FIRED, see NORTH_STAR_WITHDRAWN above.
