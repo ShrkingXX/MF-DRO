@@ -50,6 +50,18 @@ effect was real and n=3 had **understated** it.
 not estimate a direction reliably; here it happened to point the right way while
 underestimating the size. That is the same instability, not an exception to it.
 
+## Query-matched — verified, not assumed
+
+Both arms run **exactly 25 optimization iterations on all 10 seeds** (Hartmann
+c_H=8, budget 200 -> 200//8 = 25 for a single-fidelity method), plus the same
+6-point HF initial design. The comparison is not confounded by query count or
+budget accounting.
+
+(SF-DRO's `n_queries` field reads 0 for seeds 44/46/48 — h59's known empty-trace
+bug, where the worker filtered `if "x" in d` over `iteration_log_history`, which
+carries no coordinates. It does not touch `final_regret`, which is read from the
+regret curve.)
+
 ## Scope — what this does NOT establish
 
 This is **Hartmann only**. At n=3 SF-DRO *loses* to SF-MES on Currin (0.4% vs
