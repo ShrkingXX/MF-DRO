@@ -485,6 +485,26 @@ variance_hypothesis_REFUTED: |
   Borehole SF has lower sd around a worse mean AND worse worst case. Refuted.
   Lesson 19 shape caught BEFORE reporting for the first time.
 
+borehole_MODEL_failure: |
+  h68: MF-DRO's own choices outrank MI-Greedy's under MF-DRO's own MES
+  acquisition in 8 of 9 cells (median of 8 draws). It maximises its acquisition
+  well and still loses 23.7% vs 8.3%. So the acquisition does not correlate with
+  outcome on Borehole -- MODEL failure, not optimizer failure. Promotes
+  "surrogate class" over "teacher optimisation quality" among h60's two
+  remaining candidates. Searching harder inside this acquisition cannot help.
+  Protocol-design error recorded: the PRIMARY (x_mig > 50th pct) was necessary
+  but not sufficient for its conclusion; the SECONDARY discriminated and failed.
+
+RETRACTED_k10_mismatch: |
+  The k=10 "policy proposes points its own acquisition rejects" claim (mean 52.1,
+  seed 46 at 8.7th pct) is WITHDRAWN -- single-draw Monte-Carlo artifact. 12
+  replications give seed 46 a median of 79.4, range 41.2-91.3; the reported value
+  is outside the range. Compounded by scoring x_dro and x_mig in one call, which
+  lets x_mig raise the shared y* and depress x_dro. h68b independently missed its
+  locked prediction (Currin 99.1 > Borehole 94.3 > Hartmann 71.3, not the
+  predicted ordering). LESSON 25: measure a stochastic diagnostic's noise floor
+  before reading an effect off it.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

@@ -2210,3 +2210,69 @@ variance about a bad centre is not robustness.
 the full set of six was already on disk and cheap to check. This is lesson 19's
 exact shape, caught before reporting rather than after -- the fifth time this
 failure mode has come up and the first time the check preceded the claim.
+
+### Borehole is a MODEL failure: MF-DRO maximises an acquisition that does not predict outcome
+
+h60 left two candidates for Borehole. h68 separates them offline, and the answer
+promotes **surrogate class** over **teacher optimisation quality**.
+
+Refitting MF-DRO's own KO surrogate on its own data through k HF optimization
+queries, then scoring points under its own MES acquisition against a 600-point
+Sobol pool (median of 8 independent draws per cell):
+
+| | k=10 | k=20 | k=40 |
+|---|---|---|---|
+| MF-DRO's own next point | 98.5 / 81.9 / 97.9 | 100.0 / 99.9 / 99.9 | 100.0 / 100.0 / 100.0 |
+| MI-Greedy's k-th point | 95.5 / 96.8 / 96.0 | 94.6 / 99.3 / 97.8 | 99.5 / 69.8 / 64.2 |
+
+(seeds 44 / 46 / 48)
+
+**MF-DRO's own choices outrank MI-Greedy's in 8 of 9 cells.** It is maximising
+its acquisition *well* — better, by its own measure, than the points that win —
+and still finishes at 23.7% against MI-Greedy's 8.3%.
+
+> The acquisition prefers MF-DRO's losing points to MI-Greedy's winning ones.
+> Searching harder inside it cannot close the gap. This is the surrogate or the
+> acquisition, not the inner optimiser.
+
+This is consistent with, and explains, h61's otherwise puzzling result that
+widening Hartmann's pool buys **1.00x** acquisition value yet changes regret:
+acquisition value and regret are only loosely coupled here.
+
+**Locked predictions: PRIMARY met but was the WRONG TEST; SECONDARY missed.**
+`x_mig` above the 50th percentile (9/9) is *necessary but not sufficient* for
+optimizer failure — I mapped it to that conclusion in the protocol. The
+discriminating test was the SECONDARY (`x_mig` outranks `x_dro`), which failed at
+1/9 and points the opposite way. Writing a primary that cannot falsify its own
+conclusion is a protocol-design error, not a measurement error.
+
+### RETRACTED: the "k=10 policy/acquisition mismatch"
+
+Reported one tick earlier: at k=10 MF-DRO proposes points its own acquisition
+ranks at the 52.1st percentile, seed 46 at the **8.7th**. **Withdrawn — a
+single-draw Monte-Carlo artifact.** Twelve replications of the identical
+quantity, varying only the Thompson/pool draw:
+
+| seed | reported | median of 12 | min | max | spread |
+|---|---|---|---|---|---|
+| 44 | 89.8 | 98.9 | 94.8 | 99.8 | 5.0 |
+| 46 | **8.7** | **79.4** | 41.2 | 91.3 | **50.2** |
+| 48 | 57.7 | 99.6 | 79.7 | 100.0 | 20.3 |
+
+The reported value for seed 46 lies outside the entire replication range. A
+second systematic defect compounded it: scoring `x_dro` and `x_mig` in one
+`compute_joint_mf_mes` call lets MI-Greedy's strong point raise the shared `y*`
+Thompson samples and depress `x_dro`'s MES — biasing exactly the comparison the
+claim rested on.
+
+h68b independently undercut it: predicted Currin > Hartmann > Borehole for
+agreement-with-own-acquisition, measured Currin 99.1 > Borehole 94.3 >
+**Hartmann 71.3**. PRIMARY MISSED, and the quantity does not track per-benchmark
+performance at all.
+
+**LESSON 25 — measure a stochastic diagnostic's noise floor before reading an
+effect off it.** The retracted effect was a 47-point gap; the single-cell
+replication spread was 50.2 points. Nothing was mislabelled or miscomputed. It
+was one draw, reported as a measurement. Every prior lesson in this file is about
+reporting a real number too early; this one is about reporting a number that was
+never real.
