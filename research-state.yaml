@@ -640,6 +640,26 @@ h76_trajectory: |
   explaining an early exploration advantage. Identifies NO mechanism; SF-DRO
   differs from SF-MES in both policy and surrogate and h76 separates neither.
 
+h75_borehole_calibration_CLOSED: |
+  Reproduction control PASS bit-for-bit (s44 = 75.6374736643 = h57, 0.000e+00),
+  worker byte-identical to h57's. BOTH predictions MET.
+  MF-DRO Borehole n=10 = 22.89% (sd 2.94) vs published n=3 23.71%, shift -0.82.
+  Three-seed range [19.56, 25.45], span 5.89.
+  Every Borehole entry now n=10 with a passed control: MI-Greedy 9.29 / SF-MES
+  12.76 / SF-EI 12.95 / SF-DRO 14.60 / MF-DRO 22.89 / MF-GP-UCB 46.65. MF-DRO is
+  last among non-degenerate methods and it is NOT a 3-seed artifact -- its whole
+  range sits clear of SF-DRO's 14.60.
+  MF-DRO's Hartmann and Currin entries remain n=3; Hartmann is the least-resolved
+  column (h72 moved baselines there by +12.7 and +21.5).
+
+LESSON_28_predict_from_measurements: |
+  Every prediction this project MET was derived from a prior measurement (h70 from
+  h61's 1.44x; h72 from observed n=3 spread; h75 from h72's Borehole stability).
+  Every one it LOST was a mechanism intuition (h63/h67 rho ceiling; h69 acquisition
+  class; h76 early-advantage shape). Six mechanisms proposed and refuted vs three
+  measurement-derived predictions met. Rule: predict from a number already on disk,
+  or run the measurement first and let it set the bar.
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far

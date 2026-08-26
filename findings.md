@@ -2724,3 +2724,55 @@ mechanism explaining an early exploration advantage is ruled out by fact 1.
 both the policy (learned DT vs greedy MES) and the surrogate (10-model ensemble vs
 single GP), and h76 separates neither. Six mechanisms have been proposed and
 refuted in this project, so h76 deliberately proposes none.
+
+## h75 — the calibration programme is closed for Borehole, and MF-DRO's entry holds
+
+Reproduction control **PASS bit-for-bit** (Borehole seed 44 = 75.6374736643 =
+h57, diff **0.000e+00**), with a worker byte-identical to h57's. **Both locked
+predictions MET.**
+
+| | |
+|---|---|
+| MF-DRO Borehole, n=10 | **22.89%** (sd 2.94) |
+| published n=3 | 23.71% |
+| shift | **−0.82 pts** (PRIMARY bar: < 3.0) |
+| three-seed range | [19.56, 25.45], span **5.89** (SECONDARY bar: < 8.0) |
+
+**Every Borehole entry is now n=10 with a passed control:**
+
+| method | n=10 | 3-seed span |
+|---|---|---|
+| MF-MI-Greedy | **9.29%** | 4.13 |
+| SF-MES | 12.76% | 5.65 |
+| SF-EI | 12.95% | 3.95 |
+| SF-DRO | 14.60% | 3.11 |
+| **MF-DRO** | **22.89%** | 5.89 |
+| MF-GP-UCB | 46.65% | 18.82 |
+
+MF-DRO is last among the non-degenerate methods, and that is **not** a three-seed
+artifact — its entire three-seed range [19.56, 25.45] sits clear of SF-DRO's
+14.60%. Contrast Hartmann, where the same check moved published baseline entries
+by **+12.7** and **+21.5** points. Borehole is the stable benchmark; Hartmann is
+not.
+
+### LESSON 28 — measurement-derived predictions succeed; mechanism intuitions fail
+
+The prediction ledger has a clean split:
+
+| MET | grounded in |
+|---|---|
+| h70 (all three bars) | h61's measured 1.44x acquisition-value gain |
+| h72 (both bars) | the observed n=3 spread in existing results |
+| h75 (both bars) | h72's measurement that Borehole shifts little at n=10 |
+
+| FAILED | grounded in |
+|---|---|
+| h63 / h67 rho story | intuition that the sigmoid ceiling binds — it never does |
+| h69 acquisition class | intuition that EI-vs-MES explained Borehole — worth 0.29 of 5.0 pts |
+| h76 trajectory shape | intuition that the advantage was early — it is late, and SF-DRO starts behind |
+
+**Every prediction this project has met was derived from a prior measurement.
+Every one it has lost was a mechanism intuition.** Six mechanisms proposed and
+refuted against three measurement-derived predictions met. The operational rule:
+predict from a number already on disk, or do not pre-register a direction at all —
+run the measurement first and let it set the bar.
