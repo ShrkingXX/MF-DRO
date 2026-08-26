@@ -166,3 +166,30 @@ Consequences, fixed before results:
 The clean follow-up, if RHOTRUE moves anything: pin rho AND force the BASE
 fidelity mix (`minimum_hf_fraction` at inference, h58's mechanism), isolating
 the surrogate change from the policy change.
+
+---
+
+## VALIDITY CHECK (not a result): rho_fixed applied on Hartmann
+
+RHOTRUE's Hartmann seed 44 returned **0.7531 — identical to BASE's 0.7531**,
+which would be the signature of the config key silently not applying. It did
+apply:
+
+| run | regret | nq | HF | LF | improv |
+|---|---|---|---|---|---|
+| BASE | 0.7531 | 31 | 25 | 6 | 0 |
+| RHOTRUE | 0.7531 | **95** | **15** | **80** | 0 |
+
+95 queries at 16% HF against 31 at 81% — different runs entirely. The identical
+regret is because **neither ever beat the initial design's incumbent**
+(`improv = 0` in both), so both report the init's best value. A tie by that
+mechanism, not by the treatment failing to take.
+
+Note this also reproduces on Hartmann the fidelity inversion recorded as the
+fourth confound on Borehole: pinning rho at 0.9792 (from a fitted ~0.75) moved
+the mix 81% HF -> 16% HF. So the confound is **not** Borehole-specific, which
+strengthens the case that a RHOTRUE gain anywhere is ambiguous between the
+surrogate correction and the budget shift.
+
+Both h63 arms remain **incomplete and withheld** (Borehole 3/3, Hartmann 1/3),
+and the protocol's discriminating signal requires the full contrast.
