@@ -11,6 +11,37 @@
 
 ---
 
+### H56 (ROI ablation) — halted at 5/9, and it is not in this file. Recording it now.
+
+*Found by an audit: h56 has 7 result files on disk and **zero** mentions in this
+document. It was recorded only in a commit message, so a reader of findings.md
+would not know it existed. That is a real gap in the record, closed here.*
+
+**What it asked:** the DRO paper (§4.2) reports ROI filtering — restricting
+rollout simulations to the UCB/LCB plausible-maximizer set — beating a global
+pool. MF-DRO does not use ROI. h56 tested whether adding it helps.
+
+**Halted at 5/9 by user instruction** to free cores for h57. No arm completed;
+only seed 44 has all three arms. **The regret numbers are not an arm comparison
+and nothing about ROI-vs-global performance is claimable from them.**
+
+**What is usable**, because it is a property of the acceptance *rules* rather
+than a seed sample:
+
+| rule | acceptance rate |
+|---|---|
+| the paper's UCB/LCB ROI | swings **[0.05%, 100.00%]** within a single run; 0.54% mean on seed 46 |
+| MES-native top-q | holds exactly **10.00%** |
+
+That instability was the design prediction and it was confirmed live.
+
+**Recorded against my own design argument:** mean min-distance to x* was ~0.20
+for *every* arm despite acceptance spanning 0.54%–100%, so no ROI variant
+concentrated the rollout pool usefully — and MESROI, the variant I designed, was
+the worst arm on both seeds it ran. **Stable acceptance did not buy performance.**
+
+---
+
 ## STATE OF THE EVIDENCE (consolidated 2026-08-26 — read this first)
 
 *The rest of this file is chronological, including superseded readings. This
