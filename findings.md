@@ -2445,3 +2445,46 @@ only the acquisition-pool hyperparameter is equalised.
 every DRO and MES arm here, reached 19.89% on Hartmann where plain
 `mf_baselines._build_gp` reached **13.48%** — 2 wins, 1 tie. Exactly neutral on
 Borehole. n=3, not predicted, and it needs its own protocol before being claimed.
+
+## LESSON 26 — n=3 does not estimate a direction on these benchmarks. Three for three.
+
+h70 reported, as an unpredicted n=3 observation, that the KO-style GP
+construction costs **6.41 points on Hartmann**. h70b re-ran it at n=10 in under
+two minutes:
+
+| Hartmann | mean | sd | wins |
+|---|---|---|---|
+| KO-style builder | **18.61%** | 6.75 | **8/10** |
+| plain builder | 21.63% | 10.81 | 2/10 |
+
+**The direction reversed.** ALTGP was +6.41 at n=3 and is **−3.03 at n=10**. The
+built-in control shows why: seeds 44/46/48 reproduce h70 exactly (19.89 vs
+13.48). Those numbers were never wrong — they were the three seeds where the
+plain builder happened to win. The full set contains seed 50, where the plain
+builder posts **45.2%** against KO-style's 17.7%.
+
+**Every exploratory n=3 direction this project has taken to n=10 has failed:**
+
+| finding | n=3 | n=10 | outcome |
+|---|---|---|---|
+| h45 regression head | 5/6 then 7/8 favourable | worst-on-mean, p=1.0000 | withdrawn — **had already changed a shipped default** |
+| h64 POOL600 Hartmann | 7.6% vs 8.5%, 2/3 wins | 5/10, p=1.0000 | withdrawn — **the north-star claim** |
+| h70 KO-style GP | ALTGP +6.41 pts | ALTGP −3.03 pts, 2/10 | withdrawn — **sign reversed** |
+
+Three for three, one sign reversal. The h57 standings, and every per-benchmark
+number in this project's headline table, rest on n=3.
+
+> **Operating rule from here: an n=3 result is not reportable as a finding. It is
+> only a reason to run n=10.** Where a benchmark is cheap — the SF arms run in
+> under a second — there is no defensible reason to ever stop at n=3.
+
+This subsumes lesson 19 (do not report a supporting subset when the rest is
+cheap) and sharpens it: the problem is not only *partial* data, it is *small*
+data. h70b cost under two minutes. The two earlier failures of the same shape
+cost a shipped default and a retracted north-star arrival.
+
+**What h70b does establish**, reported as a direction and not yet replicated:
+KO-style is better on Hartmann by 3.03 points at 8/10 with lower variance (6.75
+vs 10.81), and the two builders are equivalent on Borehole — 0.03 points at
+n=10, differing on one seed of ten despite producing materially different models
+(max lengthscale difference 4.27).

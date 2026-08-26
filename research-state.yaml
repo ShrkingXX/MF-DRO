@@ -546,6 +546,20 @@ POOL_SIZE_CONFOUND: |
   EXPLORATORY unpredicted: _build_ko_style_gp costs 6.41 pts on Hartmann (19.89
   vs 13.48 for the plain builder), neutral on Borehole. Needs its own protocol.
 
+LESSON_26_n3_does_not_estimate_direction: |
+  Every exploratory n=3 direction taken to n=10 in this project has failed:
+    h45 regression head  5/6 -> worst-on-mean p=1.0000  (had changed a default)
+    h64 POOL600 Hartmann 2/3 -> 5/10 p=1.0000           (the north-star claim)
+    h70 KO-style GP      +6.41 pts -> -3.03 pts, 2/10   (SIGN REVERSED)
+  Three for three. h70b cost under two minutes. Operating rule: an n=3 result is
+  NOT reportable as a finding, only a reason to run n=10. Subsumes and sharpens
+  lesson 19 -- the problem is not just partial data, it is small data.
+  Note the h57 standings themselves are n=3.
+  h70b does establish (as a direction, unreplicated): KO-style better on Hartmann
+  by 3.03 pts at 8/10 with lower sd (6.75 vs 10.81); builders equivalent on
+  Borehole at 0.03 pts, differing on 1 seed of 10 despite materially different
+  models (max lengthscale diff 4.27).
+
 open_now:
   h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
            is the signal and Hartmann is 0/2 so far
