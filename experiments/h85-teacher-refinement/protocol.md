@@ -287,3 +287,41 @@ PROVISIONAL: these are in-flight rates from partial runs. MF-DRO slows as data
 accumulates, so the final ratio could move in either direction depending on
 whether refinement's overhead scales with the data or stays constant. No bar is
 being called; the verdict comes from analyse.py at 5/5.
+
+### P4 (wall-clock cost) — in-flight measurement, concurrent session
+
+P4 registered that refinement must cost under 2x the no-refinement control.
+First data, with h83's MF-DRO runs as the REFINE-0 control:
+
+  arm / benchmark                 wall     control   ratio
+  Hartmann REFINE-100 s43       46.4m      25.1m     1.85x   COMPLETED RUN
+  Borehole REFINE-100 (proj)      165m      82.4m    2.00x
+  Hartmann REFINE-100 (proj)      154m      94.0m    1.64x
+  Borehole HF-FLOOR   (proj)       97m      82.4m    1.18x
+  Hartmann HF-FLOOR   (proj)       49m      94.0m    0.52x
+
+TWO OBSERVATIONS.
+
+1. REFINEMENT SITS RIGHT ON THE BAR, and the projections probably UNDERSTATE it.
+   These are linear extrapolations (elapsed / fraction-of-budget-spent), but
+   MF-DRO's progress is SUBLINEAR -- GP fits get more expensive as data
+   accumulates, which is why every ETA in this project has run optimistic.
+   Borehole REFINE-100 projects to exactly 2.00x and should be expected to
+   finish above it. P4 is therefore likely to FAIL on Borehole. Recorded before
+   the runs land.
+
+2. THE HF FLOOR IS FREE, AND ON HARTMANN IT IS FASTER THAN THE CONTROL (0.52x).
+   That is not an anomaly: forcing high-fidelity queries makes a run consume its
+   cost budget faster (c_H=8 vs c_L=1 on Hartmann), so the run TERMINATES IN
+   FEWER ITERATIONS. Half the wall-clock for the same cost budget.
+
+   This matters for how the two interventions compare. If HF-FLOOR and
+   REFINE-100 produce similar regret improvements, the floor wins outright on
+   cost -- it is 3-4x cheaper in wall-clock than refinement on both benchmarks.
+   And it reframes P6, which registered that HF-FLOOR is NOT expected to improve
+   the mean: an intervention that is free and bounds a known failure mode
+   (fidelity-head collapse at 94-96% LF) is worth having even at zero mean
+   benefit, provided it does not HURT.
+
+STATUS: EXPLORATORY, one completed run plus linear projections that are known to
+be optimistic. P4's verdict waits on completed arms.
