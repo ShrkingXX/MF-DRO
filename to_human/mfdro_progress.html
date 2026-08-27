@@ -261,8 +261,8 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
   seeds intact.</p>
   <p>This matters for the two retractions above and for what survives them. The interventions were
   all developed on these two benchmarks, and <strong>Borehole is where the method genuinely loses</strong>
-  &mdash; where the ROI helped most, where teacher refinement helped most (&minus;5.85 points, better on all
-  five seeds, with its mechanism check independently passing), and where the boundary explanation
+  &mdash; where the ROI helped most, where teacher refinement helped most (&minus;2.11 points at fresh
+  seeds, better on four of five, with its mechanism check independently passing), and where the boundary explanation
   applies. That work is aimed at something real.</p>
   <p>But the diagnosis that opened this whole investigation was stated on <em>Hartmann</em> &mdash; &ldquo;wastes
   20.8% of its expensive budget&rdquo; &mdash; and Hartmann is the benchmark whose deficit does not survive
@@ -519,6 +519,44 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   which suggests the return-conditioning is doing real work rather than the policy merely imitating.
   The caveat is that those two numbers come from different model states, so only the
   ROI-versus-refinement contrast above is strictly like-for-like.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">The one that survived</p>
+  <h2>Teacher refinement, at a third of its first size</h2>
+  <div class="col">
+  <p class="lede">Three interventions were tried. Two were withdrawn above. The third survived a
+  clean re-test &mdash; and shrank on the way through. Fixing how the rollout teacher searches for its
+  next point (a local refinement around its broad pick, instead of a flat pick from random
+  candidates) improved Borehole by 5.85 points on the first seed set. At five seeds never used
+  before it is worth <strong>2.11 points, better on four of five</strong>.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th class="n">seed</th><th class="n">no refinement</th><th class="n">refined</th><th class="n">difference</th></tr></thead>
+    <tbody>
+      <tr><td class="n">52</td><td class="n">10.52%</td><td class="n">14.01%</td><td class="n lose">+3.49</td></tr>
+      <tr><td class="n">53</td><td class="n">15.33%</td><td class="n">6.76%</td><td class="n win">&minus;8.57</td></tr>
+      <tr><td class="n">54</td><td class="n">16.13%</td><td class="n">14.92%</td><td class="n win">&minus;1.21</td></tr>
+      <tr><td class="n">55</td><td class="n">16.13%</td><td class="n">15.35%</td><td class="n win">&minus;0.79</td></tr>
+      <tr><td class="n">56</td><td class="n">16.99%</td><td class="n">13.53%</td><td class="n win">&minus;3.46</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p>The direction held; the size did not. A threshold set in advance required at least half the
+  original effect, and 2.11 is 36% of it &mdash; so the earlier figure is corrected rather than
+  repeated. Cost came in at 1.25&times; the unmodified method, inside its limit and cheaper than the
+  first measurement suggested.</p>
+  <p><strong>It does not make the method competitive.</strong> Refined, MF-DRO reaches 12.91% on
+  Borehole against the strongest baseline&rsquo;s 10.07% at the same seeds. A prediction registered in
+  advance said it would not close that gap. It did not.</p>
+  <p>One detail worth stating, because it nearly produced a false headline: these seeds are 3.67
+  points <em>harder</em> for the baseline than the original ones, while barely affecting MF-DRO. Had
+  refinement reproduced its first size, MF-DRO would have appeared to overtake the baseline &mdash; on
+  an accident of which seeds the baseline finds difficult. That reading was ruled out in writing
+  before the runs finished.</p>
   </div>
 </section>
 
