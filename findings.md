@@ -3974,3 +3974,57 @@ fixed beta needs 1 to 86.
   P3 (annealing): UNTESTED -- arm D never annealed (T_real bug), relabelled to
      constant q~0.49.
   P4 (arm D not worse than arm C): arm D IS worse on both benchmarks.
+
+## H86 COMPLETE — the ROI is NOT a uniform improvement. It hurts Currin.
+
+Full h83 MF-DRO rerun, all four benchmarks, 5 seeds, on h83's frozen metric:
+
+  benchmark      MF-DRO h83   +ROI-Q10    delta    wins   best baseline        verdict
+  Currin_2D            0.01       0.13    +0.11     0/5   MI-Greedy 0.00       WORSE
+  Hartmann_6D          7.99       5.93    -2.05     4/5   MF-MES 6.62          BEATS BASELINE
+  Borehole_8D         15.82      11.59    -4.22     1/5   MF-MES 6.40          no
+  Ackley_10D           3.83       3.74    -0.09     1/5   SF-DRO 3.43          no
+
+### Registered bars, final
+
+  P1 (ROI lowers regret on BOTH Currin and Ackley, >=3/5 each): **FAILED**.
+     Currin 0/5, Ackley 1/5.
+  P2 (does NOT beat the best baseline on Currin -- registered NEGATIVE): HELD.
+  P3 (beats SF-DRO on Ackley, >=3/5): **FAILED**, 1/5.
+  P4 (no benchmark worse by more than 1 point): HELD -- Currin is +0.11.
+
+### THE HONEST SUMMARY ACROSS ALL FOUR BENCHMARKS
+
+The calibrated ROI helps 2 of 4, is ~neutral on 1, and HURTS 1:
+
+  helps materially   Hartmann (-2.05, flips the headline), Borehole (-4.22)
+  ~neutral           Ackley (-0.09, 1/5)
+  hurts              Currin (+0.11, 0/5 -- worse on every seed)
+
+Currin's absolute damage is small (0.01% -> 0.13%; both are effectively solved,
+and MI-Greedy sits at 0.00%) but the DIRECTION is consistent across all five
+seeds. It is a real cost, not noise.
+
+### This weakens a claim I made two ticks ago
+
+I argued that q=0.10's justification is "ROBUSTNESS across benchmarks -- it is
+the only setting that helps BOTH". That was measured on Hartmann and Borehole
+only, the two benchmarks h84 ran. Across all four it helps two, does nothing on
+one, and hurts one. "Robust across benchmarks" is no longer supportable as
+stated. The defensible version is narrower:
+
+  The calibrated ROI produces a large gain on the two benchmarks where MF-DRO
+  was furthest from the best baseline, a negligible change on Ackley, and a
+  small consistent regression on Currin, where MF-DRO was already within 0.01
+  points of a solved problem.
+
+That is a plausible pattern -- concentration helps when there is a lot of ground
+to make up and costs a little when the method is already near-optimal -- but it
+is a post-hoc reading of four data points and is NOT tested.
+
+### What is unaffected
+
+The control argument stands on its own: fixed beta cannot set ROI tightness
+(12.6%-100% across benchmarks, 250x within a run, 6.9x across seeds), while
+calibration hits its target to 1e-4 every run and bounds rejection cost. That is
+true regardless of which benchmarks the ROI helps.
