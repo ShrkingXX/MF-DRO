@@ -1,4 +1,4 @@
-# H88 — clean confirmation of the Borehole ROI gain at fresh seeds
+# H89 — clean confirmation of the Borehole ROI gain at fresh seeds
 
 LOCKED BEFORE ANY RUN. Written while compute is at 15/15 with h85; not launched.
 
@@ -87,3 +87,14 @@ That outcome must be stated that plainly if it occurs.
 Launch when compute frees. Requires 10 slots. A concurrent session currently
 owns the launcher and is running h85; whichever session launches this must check
 `pgrep -f 'code/worker.py' | wc -l` first and stay within 15 total.
+
+## Renumbered from H88 (concurrent-session collision)
+
+This experiment was written as H88. A concurrently running session independently
+created `experiments/h88-surrogate-vs-data` under the same number and committed
+results to it. Two distinct hypotheses cannot share an ID in a project whose
+history is its pre-registration record, so this one -- which had no results yet
+-- was renumbered to H89. The other retains H88.
+
+Recorded rather than silently renamed: anyone reading the git log will see two
+commits titled "H88" for different experiments, and this note explains why.

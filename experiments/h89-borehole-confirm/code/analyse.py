@@ -17,7 +17,7 @@ if __name__=="__main__":
         a=os.path.join(R,f"{B}__ROI-Q10__seed{s}.json"); c=os.path.join(R,f"{B}__NO-ROI__seed{s}.json")
         if os.path.exists(a) and os.path.exists(c): rows.append((s,at200(a),at200(c)))
         else: miss.append(s)
-    print("H88 -- Borehole ROI gain at FRESH seeds, q=0.10 fixed in advance.\n")
+    print("H89 -- Borehole ROI gain at FRESH seeds, q=0.10 fixed in advance.\n")
     if not rows: print("  no complete pairs yet"); sys.exit()
     print(f"  {'seed':>5}{'ROI-Q10':>10}{'no ROI':>9}{'diff':>9}")
     for s,a,c in rows: print(f"  {s:>5}{a:>10.2f}{c:>9.2f}{a-c:>+9.2f}")

@@ -1,4 +1,4 @@
-"""H88 worker: clean confirmation of the Borehole ROI gain at fresh seeds 47-51.
+"""H89 worker: clean confirmation of the Borehole ROI gain at fresh seeds 47-51.
 trace-recording and checkpoint machinery is unchanged so h83's arm-A runs stay
 directly comparable."""
 import os, sys, json, time, threading
@@ -75,7 +75,7 @@ def run(bench, arm, seed, ckpt_path):
                      daemon=True).start()
     try:
         from src.policy.mf_dro import DirectMFRegretOptimization
-        cfg=_build_mf_dro_config("h88",bench,arm,seed,bo_iterations=4000,num_epochs=10,
+        cfg=_build_mf_dro_config("h89",bench,arm,seed,bo_iterations=4000,num_epochs=10,
             minimum_hf_fraction=0.25,real_hf_warmup=2,cost_budget=BUDGET,
             initial_hf=sp["n_hf"],initial_lf=sp["n_lf"],dkl_threshold=9999,
             bes_delta=0.0,rollout_length=8)
