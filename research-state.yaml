@@ -54,15 +54,24 @@ diagnosis:
 
 current_experiment:
   id: h84-roi-strategy
-  status: RUNNING (16/34 done, 0 failures)
-  interim_result: >
-    The quantile-calibrated ROI IMPROVES MF-DRO's final regret on both benchmarks
-    tested: Borehole -4.22 pts (better 5/5, 15.82% -> 11.59%) and Hartmann -2.17
-    pts (better 3/4, 7.55% -> 5.95%). Regret improves monotonically as the ROI
-    tightens on both. It works by lifting the UPPER TAIL of the query
-    distribution, not the bulk (Hartmann d(p90) +0.031 vs d(mean) +0.000).
-    NOT final: the reproduction control has not run, so arm A is still inherited
-    from h83 rather than verified.
+  status: 32/34 done, 0 failures. Reproduction control PASSED 4/4 bit-identical.
+  headline: >
+    h83's PRIMARY finding -- MF-DRO beats no baseline on any benchmark -- NO
+    LONGER HOLDS ON HARTMANN. With the calibrated ROI, MF-DRO reaches 5.93% vs
+    MF-MES's 6.62% on h83's own metric and bar (lower mean AND >= 4/5 paired
+    seed wins). Borehole 15.82 -> 11.59 (still behind MF-MES 6.40) and Ackley
+    3.83 -> 3.74 (still behind SF-DRO 3.43). Currin pending.
+  paired_structure: >
+    The Hartmann margin is far tighter than 4/5 suggests: paired diffs are
+    -1.07/-0.71/-0.82/-0.91/+0.09, sd 0.45 against marginal spreads of 3.26 and
+    3.39, because paired seeds share an initial design. 3.39 s.e. from zero
+    (descriptive; no p-value claimed at n=5).
+  the_control_argument: >
+    Fixed beta is uncontrolled along THREE measured axes: across benchmarks
+    (12.6%-100% acceptance), within a run (250x on Borehole), and across SEEDS
+    of the same benchmark (6.9x on Hartmann, 3.6% to 24.9%). Calibration
+    collapses all three to 1.0x. This case does not depend on the regret
+    numbers at all.
   my_prediction_refuted: >
     I registered P1 as unlikely to be met, twice, from a +0.010 measurement of
     the ROI's effect on teacher-action quality at ONE model state. Refuted on
@@ -77,7 +86,12 @@ current_experiment:
     paper's set X_hat_{m,t} = {x | UCB >= max LCB} exactly; sets only beta_t,
     which the paper subscripts by t but never specifies. A constant beta is
     unusable: acceptance swings 250x on Borehole (100% at n_hf=10, 0.4% at 35).
-  arms: [ROI-OFF (h83 reuse, gated), ROI-FIX2, ROI-Q10, ROI-ANN]
+  arms: [ROI-OFF (h83 reuse, control PASSED), ROI-FIX2, ROI-Q10, ROI-ANN]
+  registered_bars: >
+    P1 FAILED (set on MEAN query quality; simple regret is a MAX statistic --
+    Lesson 22). P2 REFUTED (fixed beta was predicted to buy nothing on Borehole;
+    it posted the best regret there). Five mechanism claims refuted in total --
+    Lesson 23, four of them erring by UNDERESTIMATING the intervention.
   falsifier: >
     If ROI-Q10 and ROI-ANN both fail P1, budget waste is NOT a candidate-
     distribution problem and the target becomes the output parameterisation.
@@ -90,9 +104,18 @@ constraints:
   - num_workers x threads <= 15.
   - No p-values at n<=5. Protocol commits BEFORE result commits.
 
-pending_human_direction:
-  - If ROI improves MF-DRO, re-run ALL of h83's MF-DRO arm (4 benchmarks x 5
-    seeds) with the winning configuration.
+queued_experiments:
+  h86-roi-full: >
+    6/10. The h83 MF-DRO rerun, scoped to Currin + Ackley because h84 already
+    covered Hartmann + Borehole at the same config and seeds. Ackley done
+    (P3 FAILED, 1/5). Currin running.
+  h87-hartmann-confirm: >
+    WRITTEN AND GATED on compute. Removes the Hartmann flip's one irreducible
+    weakness -- three ROI settings were run there and the winner is reported.
+    q=0.10 fixed in advance, seeds 47-51 never used, ONE arm, MF-MES re-run at
+    the same seeds. Falsifier: if it fails, the flip is withdrawn as prominently
+    as it was announced.
+  h85-teacher-refinement: WRITTEN, queued behind compute.
 
 open_questions:
   - Does a controlled ROI raise mean HF query quality (h84 P1)?
