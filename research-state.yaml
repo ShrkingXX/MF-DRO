@@ -1,729 +1,86 @@
-project: mfdro-hartmann-freeze
+project: mfdro-aistats
 question: >
-  Does MF-DRO's incumbent-freeze on Hartmann 6D have a within-DRO-frame fix
-  that yields lower final simple regret than MF-MI-Greedy and MF-GP-UCB at
-  matched real cost?
-protocol: PROTOCOL.md   # frozen; evaluation may not be changed by the loop
+  Can a method built on SF-DRO (papers/DRO.pdf) match or beat standard
+  multi-fidelity BO baselines? If not, what specifically makes MF-DRO waste its
+  high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
-phase: concluding
+phase: deepening
+last_updated: 2026-08-27
+
 status: >
-  Frozen evaluation COMPLETE and reported (FAIL). H4/H5 refuted and SAFE (H8
-  removed the OOD confound). H6 complete at the pre-specified n=30 (null, as
-  registered); H7 complete (377 paired decisions, 0.817 agreement).
-  BREAKTHROUGH: the long-running 'is RTG inert or starved?' confound is
-  RESOLVED as STARVED, with a measured cause -- under rollout_reward=
-  "improvement" an LF step earns EXACTLY 0.0, so 63.0% of trajectories carry
-  rtg[0]==0. That one fact explains why THREE separate manipulations (H9 floor,
-  H10 normalisation, H11 arm C DT-style decrement) each voided on their own
-  check: a signal that is identically zero cannot be made to vary by rescaling
-  it. Now iterating on a reward that credits both fidelities (H12 -> H13).
+  NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
+  seeds, 0 failures) is the headline comparison and its PRIMARY pre-registered
+  prediction -- that MF-DRO beats no baseline -- was MET on all four benchmarks.
+  The project has since turned from "does it win" to "why does it lose", and
+  that diagnosis is now concrete and mechanistic. h84 is testing the first
+  candidate fix.
 
 headline_result:
-  experiment: h1-leak-fix-validation (30/30 runs, 6979 s wall)
-  frozen_success_test: FAIL (both rewards)
-  detail: >
-    MF-DRO 0.5047 +/- 0.0395 vs MF-MI-Greedy 0.5091 +/- 0.1266 and MF-GP-UCB
-    1.7934 +/- 0.1223, at matched cost (201.5 / 207.2 / 200.0). MF-DRO mean+SE
-    = 0.5442 >= MI-Greedy mean-SE = 0.3825. Reported exactly as pre-registered;
-    PROTOCOL.md permits this outcome.
-  paired_analysis: >
-    MF-DRO better on 4/10, worse on 6/10; mean paired diff -0.0045 but MEDIAN
-    +0.0915; Wilcoxon p = 0.2754. The near-zero mean is driven almost entirely
-    by seed45, where MI-Greedy failed badly (1.5396). On the median seed MF-DRO
-    is slightly WORSE. Reporting means alone would mislead.
-  freeze_resolved: >
-    0/10 runs frozen vs a pre-fix 9/12 (75%). Improvements [5,1,2,4,5,1,3,3,5,1].
-  power_caveat: >
-    0.0045 mean difference against MI-Greedy sd 0.400 -- UNDERPOWERED to
-    distinguish. Never state as demonstrated equivalence.
+  experiment: h83-main-comparison (100/100 runs, 0 failures)
+  metric: relative regret at cost 200 (ABSOLUTE simple regret on Ackley, whose optimum is 0)
+  table: |
+    Currin_2D      MI-Greedy 0.00 | MF-DRO 0.01 | GP-UCB 0.06 | MF-MES 0.35
+    Hartmann_6D    MF-MES 6.62    | MF-DRO 7.99 | SF-DRO 10.33 | MI-Greedy 47.12 | GP-UCB 56.67
+    Borehole_8D    MF-MES 6.40    | GP-UCB 8.88 | MF-DRO 15.82 | MI-Greedy 28.44
+    Ackley_10D     SF-DRO 3.43    | MF-DRO 3.83 | MF-MES 4.28 | MI-Greedy 7.71 | GP-UCB 8.60
+  bars:
+    PRIMARY: MET on all four -- MF-DRO beats no baseline by the stated bar
+             (lower mean AND >=4/5 seeds). On Ackley its mean is lower than
+             MF-MES but it wins only 2/5 seeds.
+    SECONDARY: NOT MET -- SF-DRO (10.33%) does not beat MF-DRO (7.99%) on Hartmann.
+    TERTIARY: MET -- MI-Greedy LF fraction <10% on all four (1.5/9.7/1.0/3.3%).
 
-evaluation:
-  benchmark: Hartmann_6D
-  baselines: [MF-MI-Greedy, MF-GP-UCB]
-  seeds: 10
-  metric: final simple regret at matched real cost
-  success_test: MF-DRO mean+SE < best-baseline mean-SE
+diagnosis:
+  summary: >
+    MF-DRO finds a competitive BEST point but wastes far more budget getting
+    there. Scoring each post-init HF query (y-best_init)/(y_opt-best_init):
+  numbers: |
+    Hartmann  MF-DRO mean 0.336 vs MF-MES 0.747; 20.8% of HF queries land WORSE
+              than the initial design (MF-MES 5.3%); per-dim spread 3.5x MF-MES
+    Borehole  MF-DRO mean 0.381 vs MF-MES 0.669; MF-DRO makes MORE HF queries
+              (94 vs 84) and still finds a worse maximum -- NOT budget starvation
+  mechanism: >
+    h83 runs the regression head (use_candidate_scoring=False): the DT emits
+    x = action_head(h).clamp(0,1) directly, with NO acquisition maximisation at
+    inference. Its training targets are rollout-teacher actions argmaxed over
+    roi_candidates, which with use_roi=False is UNIFORM over the domain. So the
+    policy is trained on domain-spread targets and learns to propose diffusely.
+  borehole_specific: >
+    Boundary aversion, RESURRECTED after being wrongly eliminated. 99.6% of
+    Borehole's variance is in dims 0/3/5/6, all four with x* ON the boundary;
+    MF-DRO reaches them in 0-2% of HF queries vs MF-MES's 34-70%. The recorded
+    elimination used UNWEIGHTED distance to x*; weighting by sensitivity
+    REVERSES it (0.0543 vs 0.0308). One link of the elimination chain is broken.
 
-critical_caveat: >
-  A target-leakage bug in the Decision Transformer readout was found and fixed
-  in commit 7bcc3b8, AFTER the 1280-run inventory and every prior finding was
-  generated. All pre-fix DRO-family numbers (freeze rates, regret values) are
-  suspect and must be re-measured before use.
+current_experiment:
+  id: h84-roi-strategy
+  status: RUNNING (34 jobs, launched 2026-08-27 04:00)
+  strategy: >
+    Control the ROI ACCEPTANCE RATE and solve for beta_t by bisection. Keeps the
+    paper's set X_hat_{m,t} = {x | UCB >= max LCB} exactly; sets only beta_t,
+    which the paper subscripts by t but never specifies. A constant beta is
+    unusable: acceptance swings 250x on Borehole (100% at n_hf=10, 0.4% at 35).
+  arms: [ROI-OFF (h83 reuse, gated), ROI-FIX2, ROI-Q10, ROI-ANN]
+  falsifier: >
+    If ROI-Q10 and ROI-ANN both fail P1, budget waste is NOT a candidate-
+    distribution problem and the target becomes the output parameterisation.
 
-hypotheses:
-  H0:
-    statement: Narrow-basin coverage failure at initialization
-    status: REFUTED by inventory
-    evidence: MF-MI-Greedy freezes 0/10 on the same benchmark and init family
-    note: >
-      Unaffected by the leak finding (MI-Greedy has no DT). Still requires a
-      user amendment to PROTOCOL.md's "leading hypothesis" section.
-  H1:
-    statement: Freeze originates in the DRO/DT component, not multi-fidelity
-    status: SUPPORTED, now with a concrete mechanism
-    evidence: >
-      Target leakage: readout was h[:, 3::4], the ACTION token, which under
-      triu(diagonal=1) self-attention embeds the true action. All three heads
-      predicted from their own target; propose_mf zeroes that slot at
-      inference. Ablation: zeroing a_emb cost the fidelity head 15.6% of its
-      loss pre-fix vs 0.7% post-fix. The SF path carried the identical bug
-      ([:, 2::3]), so ONE mechanism covers SF-DRO (12/12) and MF-DRO -- the
-      fidelity-threshold bug could not, since SF-DRO has no fidelity head.
-    open: does fixing it change end-to-end regret? -> h1-leak-fix-validation
-  H2:
-    statement: Freeze is a DRO x narrow-basin interaction
-    status: SUPPORTED (untested directly, and pre-fix)
-    evidence: MF-DRO does not freeze on Ackley 10D (incumbent-improved 7/9/8)
-    note: >
-      Partly reframed: on Hartmann the policy was converging on the SECOND
-      optimum x2 (f=3.2031, ||x2-x*||=1.103), not failing to converge.
-  H3:
-    statement: >
-      MF-GP-UCB's 100% freeze is a separate, already-documented mechanism
-      (cost-ratio degeneration to all-LF), not the DRO pathology
-    status: CONFIRMED empirically, all 10 seeds
-    evidence: >
-      src/baselines/mf_baselines.py:206-213 documents it. Now measured under
-      the frozen protocol at matched cost=200: MF-GP-UCB mean_n_HF = 0.0 and
-      mean_n_improved = 0.00 across ALL 10 seeds -- it never queries HF even
-      once, so the HF incumbent mathematically cannot move. Its "freeze" is
-      therefore a definitional consequence of the acquisition, not a shared
-      pathology with the DRO family. Resolves a standing open question.
+constraints:
+  - use_candidate_scoring=True is NOT an acceptable fix (human-directed):
+    pool+argmax is not the contribution.
+  - use_roi=False must stay bit-identical (gated at every commit).
+  - MF-DRO defaults in force: M=3, n_roi_candidates=600, refinement OFF.
+  - num_workers x threads <= 15.
+  - No p-values at n<=5. Protocol commits BEFORE result commits.
 
-  H4:
-    statement: >
-      MF-DRO's RTG-insensitivity is attention under-allocation to the scalar
-      conditioning tokens -- a named, published DT failure mode
-    status: REFUTED (1e53812) -- adaln 0% vs token 25% of sweeps moved the argmax
-    evidence_from_literature: >
-      RADT (arXiv:2402.03923) diagnoses exactly our measurement: DT
-      under-allocates attention to return-to-go tokens, decoupling actual from
-      target return, and argues the fix must be STRUCTURAL not parametric.
-      DDT (arXiv:2601.15953) gives an implementable mechanism: drop RTG from
-      the input, condition via AdaLN-Zero on the last RTG (D4RL hopper-medium
-      99.4 vs 68.3). See literature/rtg-attention-underallocation.md
-    why_ours_should_be_worse: >
-      Our layout is 4 tokens [rtg, btg, state, action] -- TWO of four are
-      scalar conditioning signals competing for attention, vs one of three in
-      standard DT.
-    prediction_locked: >
-      Under AdaLN, an RTG sweep over {0.1,0.5,1,2,5,10}x changes the proposed
-      argmax on >30% of sweeps, vs a measured 0% under token conditioning.
-    note: orthogonal to the 7bcc3b8 leak fix; that was labels, this is conditioning strength
-    result: >
-      AdaLN REMOVED what RTG sensitivity existed rather than adding it.
-      Two self-corrections logged: (a) the prediction's "0% under token"
-      premise was measured under different conditions -- this probe measures
-      token at 25%; (b) AdaLN-Zero inits to identity and had only 10 epochs on
-      one batch, a real confound, so this refutes "AdaLN is a cheap win", not
-      the RADT/DDT mechanism at full training scale.
-  H5:
-    statement: >
-      The bottleneck is h -> score (the score head is nearly indifferent to its
-      hidden state and ranks largely by mu_H), NOT rtg -> h
-    status: PROPOSED by the H4 result, not yet tested
-    evidence: >
-      Both H4 arms show argmax(score)==argmax(mu_H) on 67-75% of pools.
-      Independently, replacing h with the batch mean or a SHUFFLED h changes
-      the argmax only ~8% of the time. So conditioning reaches h fine, but h
-      barely reaches the score. This explains why every conditioning-side
-      intervention has failed and predicts further ones will too.
+pending_human_direction:
+  - If ROI improves MF-DRO, re-run ALL of h83's MF-DRO arm (4 benchmarks x 5
+    seeds) with the winning configuration.
 
-  H7:
-    statement: >
-      Same claim as H6, better instrument -- after ~5 iterations, continued
-      training barely changes WHAT the policy proposes
-    status: RUNNING (protocol 93429a0)
-    design: >
-      snapshot the DT at iteration 5, then replay every later iteration's
-      IDENTICAL state/RTG/BTG/candidate pool through the snapshot; record
-      argmax agreement. ~50-200 paired decisions per run vs H6's 1 regret
-      scalar. Replay forces fidelity_sampling=False so the comparison isolates
-      the policy, not the Bernoulli draw. Snapshot output is never executed.
-    prediction_locked: mean argmax agreement over t>5 is > 0.70
-  H20:
-    statement: >
-      Is the conditioning failure an artefact of the LINEAR score head, which
-      makes h influence the ranking only through an 11-dim coefficient vector?
-    status: REFUTED -- the failure is architecture-independent
-    evidence: >
-      MLP score head over [h;cf], manipulation verified (affine residual 0.0863
-      vs the linear head's exactly 0.000000), still moves the argmax 0/12 on a
-      genuine state swap. Sharpens the mechanism: attenuation is ~3x encoder +
-      ~3x head, but the ENCODER half alone suffices -- h's relative spread
-      across real states is 0.0745, so an unbottlenecked head reading that h
-      still cannot move a decision over 200 candidates.
-    bug_found: >
-      use_linear_score_head was never forwarded into dt_cfg and had been
-      UNREACHABLE since written. Caught by an assert inside the probe, not by
-      reading code. Default unchanged, so no recorded result moved.
-  H19:
-    statement: >
-      Is RCSL's near-determinism condition the binding constraint? Test the ONE
-      intervention Brandfonbrener et al. (2022) Cor. 1 predicts should work.
-    status: NULL -- and the null is the strongest result of the project
-    evidence: >
-      fantasy_mode="mean" gives deterministic dynamics (G1 verified,
-      repeat-difference 0.000e+00 vs 1.6e+00) and diversity is intact
-      (200/200 distinct trajectories, G2 PASS at the unchanged >150 bar). In
-      that regime -- exactly where RCSL theory says it should work -- the argmax
-      still moves 0/12. Near-determinism is therefore NOT what binds. The
-      proximate cause is the score-head bottleneck H5 isolated: swapping h
-      changes the argmax 0/12, so nothing reaching h can move the decision.
-    retraction: >
-      H18's claim that eps and alpha_f are coupled is WITHDRAWN. It rested on a
-      diversity signature of (rtg, ell) that omitted query locations, so
-      rollouts with a dead reward (63%) and matching fidelity pattern counted as
-      identical. With locations included there is no collapse. H18's G1 stands.
-    framing_correction: >
-      RCSL theory explains why the CONDITIONING-SIDE remedies failed, not why
-      the architecture does. My earlier "predicts everything" framing was too
-      strong; H19 is the check that caught it.
-  H8:
-    statement: >
-      Does RTG move the decision WITHIN its realised band, once the
-      out-of-distribution confound is removed?
-    status: CONFIRMED -- the earlier RTG finding SURVIVES
-    evidence: >
-      rtg_target is structurally clamped to [0.500, 1.000] (CV 0.232) by
-      max(batch_max, 0.5*running_max) on a batch-max-normalised rtg. My earlier
-      sweeps used 0.1x-10x = 100x span, ~50x WIDER than that band. Re-tested
-      in-band: argmax moved 0/12 (corr 0.99993) vs 8.3% for the OOD design --
-      i.e. the OOD confound had made RTG look MORE influential, not less.
-      H4/H5 refutations move from provisional to safe.
-    residual_confound: >
-      'network ignores RTG' vs 'RTG carries too little variation' remain
-      confounded. Separating them needs a schema change (alpha_rtg, or an
-      un-normalised conditioning quantity) plus a retrain. TOP REMAINING LEAD.
-  H6:
-    statement: The DT's learned conditioning contributes ~nothing
-    status: INCONCLUSIVE at n=10; extension to a pre-specified n=30 running
-    evidence: >
-      Paired estimate never converged and changed SIGN: n=1 -0.208, n=5 -0.103,
-      n=7 -0.010, n=9 +0.062, n=10 +0.098. At n=10 the 95% CI [-0.097, +0.292]
-      straddles zero (Wilcoxon p=0.322). Variance ratio 4.79x but Levene
-      (robust) p=0.209, and regret is right-skewed so Levene is the test to
-      believe. NOTHING established at n=10.
-
-completed_headline_h17: >
-  MF-DRO/mes_entropy 0.4007 +/- 0.0475 at matched cost, the best MF-DRO number
-  on record and lower in mean than BOTH baselines -- but paired vs MI-Greedy is
-  -0.1085 at Wilcoxon p=0.432 (6/10 seeds) and the frozen success test FAILS
-  (0.4481 >= 0.3825). ~40 seeds would be needed for 80% power; PROTOCOL.md fixes
-  10 and will not be extended.
-
-finished:
-  - id: h17-joint-mes-frozen-eval
-    protocol: experiments/h17-joint-mes-frozen-eval/protocol.md
-    design: >
-      frozen evaluation with rollout_reward=mes_entropy, 10 seeds, baselines
-      reused from h1 (stated in protocol before launch). The only question that
-      matters for the paper -- does the better conditioning signal move regret?
-    compute: 10 workers x 1 thread
-  - id: h13-kg-dense-reward-COMPLETE
-    protocol: experiments/h13-kg-dense-reward/protocol.md
-    design: >
-      2x2 over the two clips that starved H12's LF credit -- kg_signed (keep the
-      sign of dV) and kg_topk (V = mean of top-k HF posterior means instead of a
-      hard max). Arm B isolates the clip so the 2x2 says WHICH cause dominates.
-    gate: dead-signal <20% AND LF-nonzero >50%; stop on failure
-    compute: 1 worker x 1 thread (~35 s per 200-trajectory batch)
-
-completed:
-  - inventory of 1280 runs -> data/results_inventory.csv
-  - freeze-rate table by method (PRE-FIX -- reference only)
-  - verification that REVISION_LOG Hartmann claim is wrong
-  - target-leakage bug found, fixed, ablation-verified (7bcc3b8)
-  - reward switched to regret-based; gate z=2.63, p=0.0085 (was p~0.32)
-  - fidelity threshold vs Bernoulli sampling measured (3 seeds x 40 iters)
-
-lessons:
-  - Completion order in a cost-budgeted grid is biased toward HF-heavy runs.
-  - >
-    'Regret moves only on HF queries WITHIN a run' does NOT imply 'more HF
-    ACROSS runs => better regret'. FROZEN had more HF at unchanged regret.
-  - Prefer robust tests (Levene) over parametric (F, Bartlett) on skewed regret
-    data; they disagreed here and it changed the conclusion.
-  - Report intermediate n as DIRECTION, never as result -- H6's estimate changed
-    sign four times before settling.
-
-late_findings: >
-  H24/H25: the fixed rule is uncertainty-AVERSE -- w[sigma_H]<0 on 9/10
-  independently trained seeds (w[mu_H]>0 on 10/10), mean -0.2544 sd 0.2578.
-  Sign robust, magnitude not. This is the causal link to the performance
-  result: penalising HF uncertainty concentrates queries where the model is
-  already confident. H26: BTG inert in-band (0/12) and OOD (0/12); RTG inert
-  in-band (0/12) and 1/12 across 1e-3..1e6, so absolute invariance is not
-  literally true but no in-distribution value moves the decision.
-  Two channels must not be conflated: the training-signal channel is LIVE
-  (H17 moved regret 0.5047->0.4007) while the inference-conditioning channel
-  is INERT.
-
-teacher_arc: >
-  H28-H33 rewrote the causal account three times and settled it. The MF-MES
-  teacher selects at the 2.9th percentile of sigma_H (H28) at every operating
-  point swept (H29, never above 5.5% over 12 cells). The student does NOT invert
-  its teacher -- RETRACTED -- it imitates. w[sigma_H]<0 is a PARTIAL coefficient
-  under corr(mu,sigma)=-0.4696, and the teacher's own partial coef is negative
-  too (H30), so it is suppression rather than aversion. The distillation is
-  FAITHFUL, not lossy: teacher's rank of the student's pick is median 2 of 200
-  (H32) -- my earlier 'lossy' read came from argmax agreement, a bad metric under
-  near-ties. The one genuine divergence is FIDELITY: p spans 0.5570-0.5577
-  (sd 2.4e-4) while the teacher's ell varies, corr=+0.155 (H33).
-  Synthesis: the transformer is redundant on location, uninformative on
-  fidelity, adds no conditioning, and inherits an exploitative demonstrator.
-
-h31_result: >
-  COMPLETE (8900s). Teacher-only 0.4781 +/- 0.0414 vs MF-DRO 0.4007 +/- 0.0475;
-  paired +0.0774, teacher better on 3/10, Wilcoxon p=0.2324. H32's locked
-  expectation of near-parity CONFIRMED; 'transformer is a net negative' REFUTED.
-  Most consequential: the TEACHER ALONE also fails the frozen test (0.5195 vs
-  0.3825), so the ceiling is the acquisition, not the machinery around it.
-  Fidelity: teacher 11.4% HF over 112 iters vs MF-DRO 26.7% over 70.7.
-
-superseded_running_h31: >
-  Teacher-only arm under the frozen evaluation (no DT deciding; DT still trained
-  so the RNG stream matches and the teacher sees identical candidate pools).
-  Tests the expectation recorded in H32 BEFORE it lands: near-parity, since the
-  location distillation is faithful. A clear teacher win would implicate the
-  fidelity channel measured in H33.
-
-conclusion: >
-  The research question is ANSWERED: no within-frame fix beats MF-MI-Greedy and
-  MF-GP-UCB at matched real cost. Two rewards were run under the frozen
-  evaluation and both FAIL the success test (0.5442 and 0.4481 vs 0.3825). The
-  gap narrowed by roughly half; it did not close. Eleven pre-registered
-  interventions on the conditioning pathway are all null or void, and the
-  mechanism is measured: a ~10x attenuation of state variation (0.346x encoder,
-  0.294x head) leaves the argmax invariant 0/12 both within and across
-  iterations. H20 refuted the one architectural fix that could have made this a
-  positive result. Empirical programme COMPLETE; proceeding to write-up.
-
-next:
-  - >
-    DONE (H16): reward selected as mes_entropy on two pre-committed lines --
-    signal health (0.0% vs 63.0% dead rtg) and teacher quality on a fair axis
-    (+0.0962 paired, Wilcoxon p=0.0195, 8/10 seeds).
-  - switch the rollout_reward default, then run the frozen evaluation on it
-  - >
-    only if the gate passes, re-ask the RTG-sensitivity question on a signal
-    that is actually alive (the first time it will have been asked fairly)
-  - then, and only then, a regret comparison under the frozen evaluation
-
-lessons_added_this_phase:
-  - >
-    Derive the reachable range of a formula you control BEFORE experimenting on
-    it. target = max(batch_max, alpha*running_max) with batch_max <= running_max
-    caps the band at 1/alpha -- two lines of algebra that would have prevented
-    both H9 and H10.
-  - >
-    Put the manipulation check FIRST as a standalone gate, and commit to
-    stopping on failure. H12 did this and stopped cleanly; H9/H10/H11 spent full
-    experiments before discovering their manipulation never happened.
-  - >
-    A null-guard must be CONDITIONED on the manipulation check passing. H11's
-    guard fired on 'all arms ~0%' even though arm C's manipulation never
-    occurred, and auto-printed a conclusion that had to be retracted.
-
-# ---- 2026-08-25: autoresearch re-armed, scope narrowed by the user ----
-north_star: >
-  A NOVEL METHOD BASED ON SF-DRO (single-fidelity DRO, papers/DRO.pdf) that is
-  at least as good as the baselines. Not another MF-DRO ablation. The burden is
-  a method that wins, not an explanation of why the current one does not.
-
-why_the_bar_is_here:
-  h45_10of10: regression head 0.4987 mean / 0.2711 median; scoring 0.4007 /
-    0.4395; teacher 0.4781 / 0.4683. Wilcoxon regression-vs-scoring p=1.0000,
-    regression-vs-teacher p=0.9219. The two heads are TIED and neither beats
-    the MF-MES teacher it distils.
-  h48_n10: standalone Takeno MF-MES vs MF-DRO indistinguishable, p=0.625, with
-    the surrogate matched. Underpowered, not equivalent.
-  compute: MF-MES finished a whole Hartmann arm in ~6 min; MF-DRO has not
-    finished one seed in tens of minutes. ~2 orders of magnitude per run.
-
-active_watch:
-  h57: 4 methods x 3 seeds x 3 benchmarks, budget 200, pinned at one commit,
-    hash recorded per result. DO NOT DISTURB.
-  freeze_watch: src/analysis/freeze_watch.py -- separates QUERY FREEZE
-    (distinct < n) from INCUMBENT STALL (distinct == n, improvements stopped).
-    The stall is the mode that actually costs regret; h45 seeds 49/50 were
-    144/144 and 74/74 distinct with ZERO improvements.
-
-loop: cron c58fc166, every 20 min at :09/:29/:49 (off the :00/:30 marks).
-
-# ---- 2026-08-25 outer loop: h57/h58/h59 complete, 66 runs ----
-status: >
-  Neither SF-DRO nor MF-DRO meets "at least as good as the baselines" on ANY of
-  the three benchmarks. Gaps to the best baseline: 0.4pp Currin, 3.0pp Hartmann,
-  6.8pp Borehole. Best baseline changes identity per benchmark (SF-MES /
-  MF-MES / MI-Greedy).
-
-established:
-  - SF-DRO beats MF-DRO 3/3 Borehole, 2/3 Hartmann -- MEASUREMENT STANDS, but
-    the attribution to multi-fidelity is RETRACTED (confounded). The two configs
-    differ in surrogate (KO-GP vs SingleTaskGP), rollout teacher (MF-MES vs EI),
-    reward/RTG (mes_entropy vs fixed) and initial design (20 LF points or none).
-    On Borehole MF-DRO is 99-100% HF post-init, so fidelity provably did not
-    cause the 8.6pp gap. Needs a one-variable-at-a-time decomposition.
-  - DRO beats its own-fidelity MES on exactly 1 of 3 benchmarks (Hartmann 3/3),
-    which is also the only benchmark whose LF optimum (4.0019) EXCEEDS its HF
-    optimum (3.3224).
-  - the catastrophic-seed variance survives removing the fidelity head:
-    SF-DRO Currin mean 0.0619 vs median 0.0012 (50x).
-
-ruled_out_as_the_thing_to_fix:
-  - search quality (queries at 88.7-99.9th pct of domain value)
-  - query freeze (distinct == n_queries in all 9 MF-DRO cells)
-  - distance to x* (retracted; no value signal on Hartmann/Borehole)
-  - fidelity head alone (SF-DRO has none, still blows up on one seed in three)
-
-next_direction: attack the VARIANCE, not the fidelity handling.
-
-# ---- 2026-08-25 late: three grids in flight, two candidates left for Borehole ----
-in_flight:
-  h61_teacher_optimizer: >
-    Does MF-DRO lose because its teacher barely optimises? SF-DRO does 1000
-    samples + 100-sample local refinement; MF-DRO does a flat argmax over 200
-    with none. Arms REFINE (200+100) and POOL600. Liveness check confirmed the
-    knob is active AND falsified a sub-prediction: refinement makes the query
-    spread LARGER (0.2907 vs BASE 0.2534), not smaller, which undercuts the
-    premise of the locked HARMFUL branch.
-  h62_sfdro_traces: >
-    Re-run of h59's SF-DRO arm with the trace bug fixed. SF-DRO was the only
-    method with no query trace, so it could not be run through freeze_watch or
-    stall_diagnose -- every diagnostic conclusion to date is MF-DRO-only.
-    Primary locked prediction is a REPRODUCIBILITY GATE (match h59 to 1e-9),
-    scripted before results and refusing partial evaluation.
-  h63_ko_misspecification: >
-    User hypothesis. KO assumes f_H = rho*f_L + delta with rho = sigmoid(...)
-    confined to (0,1), but Borehole's true OLS slope is 1.2566 (residual sd
-    0.0001 -- the relation is essentially EXACT). Hartmann's 0.9792 is inside
-    the range and serves as the control. RHOTRUE pins rho at the measured slope.
-
-h63_known_confound: >
-  rho_fixed applies to EVERY ensemble member, collapsing the deliberate
-  rho_init ~ U(0.3,0.95) diversity. RHOTRUE therefore differs from BASE in
-  three ways (value, adaptivity, ensemble diversity). Reading rule fixed before
-  results: a Borehole win LARGER than Hartmann's supports range-violation; a
-  flat/negative result does NOT refute it, and the follow-up is per-member
-  fitted-rho pinning.
-
-borehole_candidates_remaining:
-  - teacher optimisation quality (h61)
-  - KO rho misspecification (h63)
-  - surrogate class beyond rho (untested)
-borehole_excluded_by_measurement:
-  - fidelity allocation (99-100% HF there)
-  - reward schema (h60, 0/3)
-  - LF initial design (h60, 1/3)
-  - search location (queries at 99.7-99.9th pct of domain value)
-  - query freeze (distinct == n_queries, all cells)
-  - three geometric accounts (LF quality, local refinement, boundary reach)
-
-# ---- 2026-08-25 late: h61 landed, fidelity thread closed ----
-best_result_to_date: >
-  h61 REFINE on Borehole. 23.7% -> 19.3% relative regret, 3/3 seeds, and seed
-  SPREAD 8.62 -> 2.57. The variance collapse is the finding; POOL600 matched the
-  mean (19.5%) at 10x the spread. First locked prediction in this project to be
-  MET rather than refuted. Still loses to MI-Greedy's 8.3%.
-
-fidelity_thread_CLOSED: >
-  Seven completed Borehole configurations spanning 2-98% realised HF.
-  corr(HF%, regret) = -0.685 overall but +0.071 excluding TEACHER's 2% outlier,
-  with regret ranging only 19.3-24.7% across 18-98% HF. Starving HF below ~10%
-  is catastrophic; above that the mix carries no information. Every intervention
-  that moved the mix (h58 floor, h60 teacher, h63 rho, h61 pool/refine) has been
-  measured. Fidelity allocation is NOT the lever and cannot close the gap.
-
-prediction_record: 1 met of 6 (h61's REFINE/POOL600 ordering). Lost: rho
-  saturation, dimensional ordering of pool gain, refinement concentrating
-  demonstrations, Currin steepness, h58 floor harmful. Mechanism intuitions here
-  have been reliably wrong; pre-registered scripts have been reliably right.
-
-verdict_scripts_written_before_data:
-  h62 gate  -> PASSED, reproduced h59 to 0.00e+00 on 9/9
-  h61 analyse -> prediction 2 MET
-  h63 analyse -> written at 5/6, refuses until BOTH benchmarks complete
-  h64 analyse -> written at 0/6, warns explicitly if Hartmann contradicts the
-                 pre-registered null (its first cell already does)
-  h65 analyse -> written at 0/3, PRIMARY is variance not mean
-
-stall_thread_CLOSED: |
-  Stall length does not predict regret. In HF-opportunity units MF-DRO and
-  MI-Greedy tie at 34% terminal stall with opposite regret profiles, and
-  MI-Greedy has the lowest terminal stall on Hartmann (2%) with the worst regret
-  there -- a short terminal stall means "had not converged". Stalls are also
-  routinely broken (MF-MES recovered from 111 queries). So stall detection cannot
-  trigger an adaptive intervention, and adaptive pool widening is dropped
-  unspent. Zero QUERY FREEZES on all 9 h57 MF-DRO finals.
-
-rho_thread_CLOSED: |
-  The sigmoid ceiling never binds: fitted rho is 0.8436 / 0.7797 / 0.8435 on
-  Borehole / Hartmann / Currin against true slopes 1.2566 / 0.9792 / 1.0104. rho
-  sits near its 0.8 init because fit() takes 3 Adam steps per call and the
-  flexible delta-GP absorbs the shortfall, killing rho's gradient. h67 (softplus
-  link) was built, its regression gate PASSED, and it was CANCELLED before launch
-  -- 6 jobs avoided. Revises h63: RHOTRUE's Borehole gain was not ceiling removal,
-  and its -16.6% on Hartmann (where the true slope IS representable) shows the
-  under-fitted rho ~= 0.78 beats the true slope. rho is a regulariser, not a slope
-  estimate, so every "fit rho more faithfully" follow-up inherits a refuted premise.
-
-north_star_standing: |
-  No DRO variant is best on any benchmark except Currin, where every method but
-  MF-GP-UCB is at ~0%. Best per benchmark: SF-MES 0.0% (Currin), MF-MES 8.5%
-  (Hartmann), MF-MI-Greedy 8.3% (Borehole). SF-DRO's best showing is Hartmann
-  11.5%, still behind MF-MES. North star NOT met.
-  Evaluation asymmetry documented (frozen, not changed): initial design is not
-  charged against the 200 budget, and MF arms get a free LF init worth +15/+45/+20
-  cost units. It runs AGAINST MF, so SF-DRO > MF-DRO on Hartmann/Borehole is
-  conservative. Does NOT license "MF hurts DRO" (lesson 22 retraction stands).
-
-variance_hypothesis_REFUTED: |
-  "DRO buys consistency not mean" formed from 3 instances (h61 REFINE sd 1.41,
-  h64 POOL600 sd 0.0604, SF-DRO Hartmann sd 1.76 vs 10.05). Tested on all 6
-  DRO-vs-MES pairs: DRO lower sd in 4/6, but lower WORST-CASE regret in only 2/6.
-  Borehole SF has lower sd around a worse mean AND worse worst case. Refuted.
-  Lesson 19 shape caught BEFORE reporting for the first time.
-
-borehole_MODEL_failure: |
-  h68: MF-DRO's own choices outrank MI-Greedy's under MF-DRO's own MES
-  acquisition in 8 of 9 cells (median of 8 draws). It maximises its acquisition
-  well and still loses 23.7% vs 8.3%. So the acquisition does not correlate with
-  outcome on Borehole -- MODEL failure, not optimizer failure. Promotes
-  "surrogate class" over "teacher optimisation quality" among h60's two
-  remaining candidates. Searching harder inside this acquisition cannot help.
-  Protocol-design error recorded: the PRIMARY (x_mig > 50th pct) was necessary
-  but not sufficient for its conclusion; the SECONDARY discriminated and failed.
-
-RETRACTED_k10_mismatch: |
-  The k=10 "policy proposes points its own acquisition rejects" claim (mean 52.1,
-  seed 46 at 8.7th pct) is WITHDRAWN -- single-draw Monte-Carlo artifact. 12
-  replications give seed 46 a median of 79.4, range 41.2-91.3; the reported value
-  is outside the range. Compounded by scoring x_dro and x_mig in one call, which
-  lets x_mig raise the shared y* and depress x_dro. h68b independently missed its
-  locked prediction (Currin 99.1 > Borehole 94.3 > Hartmann 71.3, not the
-  predicted ordering). LESSON 25: measure a stochastic diagnostic's noise floor
-  before reading an effect off it.
-
-h69_acquisition_NULL: |
-  SF-EI vs SF-MES with the surrogate held bit-for-bit fixed: Borehole 13.28 ->
-  12.99 (+0.29 pts, wins 1/3, PRIMARY NOT MET), Hartmann 21.39 -> 19.89 (+1.50,
-  CONTROL VIOLATED -- EI helped on BOTH, so it is not a class effect, just a
-  slightly better greedy acquisition). MI-Greedy's Borehole advantage is 5.0
-  points; acquisition class buys 0.29. NOT the lever.
-  Borehole's model failure now narrows to the SURROGATE. Sole identified
-  difference left: mf_baselines._build_gp vs _build_ko_style_gp, the latter
-  imposing an Interval lengthscale constraint + geometric-mean init. Testable in
-  one shot -- same acquisition, same loop, swap the builder. Candidate h70.
-
-NORTH_STAR_WITHDRAWN: |
-  h66 at n=10: POOL600 5/10 paired wins vs MF-MES, Wilcoxon p=1.0000. The
-  pre-registered <=5/10 FAILURE branch FIRED. h64's 7.6%-vs-8.5% at n=3 was
-  noise. POOL600's mean advantage (+0.0530) is one seed -- drop s49 (MF-MES
-  0.8390 vs 0.0667) and it REVERSES to -0.0270; median gap +0.0103.
-  Nothing in this project beats the baselines on any discriminating benchmark.
-  The north star has NOT been met at any point.
-  Prediction 3 (variance) met -- POOL600 sd 0.1069 and worst case 0.4194 both
-  beat MF-MES's 0.2275 / 0.8390 -- but this does not revive the refuted variance
-  hypothesis (2/6 on worst case across pairs). It is the only n=10 cell and the
-  most variance-favourable one; reviving needs the other pairs at n=10.
-
-POOL_SIZE_CONFOUND: |
-  h70: SF-EI with n_candidates=1000 reproduces MI-Greedy EXACTLY on Borehole,
-  seed for seed (7.1/6.8/10.9, residual +0.00). GP construction contributes 0.00
-  there despite the builders differing materially (max lengthscale diff 4.27).
-  CORRECTED: MF-DRO's n_roi_candidates=200 is the ROLLOUT TEACHER's pool, NOT an
-  inference-time acquisition pool. _propose_next_query builds no candidate set and
-  the regression head emits action_head(h).clamp(0,1) directly -- MF-DRO does ZERO
-  inference-time acquisition search. So "5-10x less effort" was the wrong
-  description; it is a CATEGORICAL asymmetry (baselines run a 1000-2048-pt argmax
-  per query, MF-DRO runs none). The h70 Borehole measurement is unaffected: for
-  the greedy baselines pool size alone is worth 4.72 points.
-  Does NOT rescue MF-DRO (23.7% vs 8.27%) and the withdrawal stands, but the SIZE
-  of every gap in the standings is partly a pool artifact of unknown magnitude.
-  HIGHEST-VALUE OPEN EXPERIMENT: pool-matched re-run of h57. Method/harness
-  question, not a change to the frozen evaluation.
-  EXPLORATORY unpredicted: _build_ko_style_gp costs 6.41 pts on Hartmann (19.89
-  vs 13.48 for the plain builder), neutral on Borehole. Needs its own protocol.
-
-LESSON_26_n3_does_not_estimate_direction: |
-  Every exploratory n=3 direction taken to n=10 in this project has failed:
-    h45 regression head  5/6 -> worst-on-mean p=1.0000  (had changed a default)
-    h64 POOL600 Hartmann 2/3 -> 5/10 p=1.0000           (the north-star claim)
-    h70 KO-style GP      +6.41 pts -> -3.03 pts, 2/10   (SIGN REVERSED)
-  Three for three. h70b cost under two minutes. Operating rule: an n=3 result is
-  NOT reportable as a finding, only a reason to run n=10. Subsumes and sharpens
-  lesson 19 -- the problem is not just partial data, it is small data.
-  Note the h57 standings themselves are n=3.
-  h70b does establish (as a direction, unreplicated): KO-style better on Hartmann
-  by 3.03 pts at 8/10 with lower sd (6.75 vs 10.81); builders equivalent on
-  Borehole at 0.03 pts, differing on 1 seed of 10 despite materially different
-  models (max lengthscale diff 4.27).
-
-h72_standings_uncalibrated: |
-  Reproduction control PASSED (+0.00 on every published cell). All C(10,3)=120
-  three-seed subsets: Hartmann MF-GP-UCB spans 36.68-88.52 (51.83 pts),
-  MI-Greedy 22.76-48.82 (26.07). Published n=3 entries were OPTIMISTIC on
-  Hartmann -- MI-Greedy 23.9->36.6 (+12.7), MF-GP-UCB 45.3->66.8 (+21.5) -- while
-  SF-MES shifted <=0.5 everywhere, so the noise is method-dependent.
-  Borehole orderings ROBUST (MI-Greedy 8.3->9.3, still best); h70's pool result
-  unaffected (per-seed identity, not a mean comparison).
-  Hartmann NOT resolved: MI-Greedy's 3-seed range overlaps SF-MES's and SF-EI's.
-  Currin overlaps are trivial (all methods ~0%) and must not be counted.
-  MF-DRO/SF-DRO NOT calibrated (82-473 min/run); their n=3 entries are of unknown
-  reliability and MF-DRO's Hartmann spread (22.7/8.7/12.7) is comparable to
-  methods whose means moved >10 pts. Hartmann is the column the withdrawn
-  north-star claim lived in.
-
-h73_FIRST_SURVIVING_CLAIM: |
-  SF-DRO beats SF-MES on Hartmann at n=10: 8.46% vs 21.17%, +12.71 pts, 10/10
-  paired wins, Wilcoxon p=0.0020. Verdict script committed at 0/7; reproduction
-  control passed exactly. PRIMARY and SECONDARY both MET. First claim in this
-  project to survive replication at n=10.
-  Lesson 26 CONFIRMED not weakened: n=3 said 9.9 pts at 3/3, n=10 says 12.71 --
-  n=3 understated by 2.8 pts. Same instability, opposite sign.
-  POST HOC (not a claim, data preceded the question): SF-DRO 8.46% vs MF-MES
-  8.24%, 4/10, p=0.4316 -- indistinguishable, NOT a win. Hartmann n=10 standings:
-  POOL600 6.64 / MF-MES 8.24 / SF-DRO 8.46 clustered and inseparable, then SF-EI
-  18.61 / SF-MES 21.17 / MI-Greedy 36.61 / GP-UCB 66.81. SF-DRO reaches the top
-  cluster with NO LF information; MF-MES gets a free LF init worth +45 cost units.
-  NORTH STAR STILL NOT MET: per-benchmark bar, and SF-DRO loses to SF-MES on
-  Currin and Borehole at n=3 -- losses as unreliable as the win was. h74 tests it.
-  VERIFICATIONS (both run, not asserted): query-matched -- both arms exactly 25
-  optimization iterations on all 10 seeds (c_H=8, 200//8=25) plus the same 6-point
-  init; reproduction control -- h73's worker on seed 44 reproduces h59 bit-for-bit
-  (0.3814912639, diff 0.000e+00). An earlier "control passed" claim was VACUOUS
-  (it compared h59's files to themselves) and was withdrawn before being redone.
-
-h74_HARTMANN_SPECIFIC: |
-  Reproduction control PASSED bit-for-bit (Currin s44 diff 0.000e+00).
-  SF-DRO vs SF-MES at n=10, all three benchmarks:
-    Hartmann  8.46 vs 21.17  +12.71  10/10  p=0.0020  WIN
-    Borehole 14.60 vs 12.76   -1.84   2/10  p=0.0840  LOSS
-    Currin    0.22 vs  0.00   -0.22   2/10  p=0.0137  LOSS
-  PRIMARY NOT MET, NULL FIRED. ONE WIN, TWO LOSSES -- h73 does not generalise and
-  the n=3 losses were not noise. SF-DRO is not generally better than its own MES
-  counterpart.
-  NORTH STAR NOT MET: per-benchmark bar; no DRO variant beats the best baseline
-  on any discriminating benchmark, and SF-DRO loses to SF-MES on 2 of 3.
-  LESSON 27: a magnitude bar and a win-count bar catch different failures. Currin
-  SECONDARY passed on magnitude (-0.22 within 1.0) while SF-DRO was reliably worse
-  (2/10, p=0.0137). Third such case this session after h68 and h65. Require BOTH.
-
-sfdro_now_calibrated: |
-  h72's main stated gap is closed for SF-DRO (h73+h74 give n=10 on all three).
-  3-seed subset ranges: Hartmann [3.24,12.63] span 9.39; Borehole [13.07,16.18]
-  span 3.11; Currin [0.00,0.70] span 0.70. SF-DRO is among the MORE stable
-  methods -- Hartmann span 9.39 vs SF-MES 10.13, MI-Greedy 26.07, GP-UCB 51.83.
-  Published n=3 was PESSIMISTIC for SF-DRO on Hartmann by 3.03 pts, opposite in
-  direction to the baselines (optimistic by +12.7 / +21.5).
-  Hartmann ranges are DISJOINT from SF-MES's: SF-DRO's worst 3-seed draw (12.63)
-  beats SF-MES's best (16.18), so no 3-seed subset could have reversed h73. That
-  is why h73 is the one n=3 direction that survived -- effect >> noise.
-  Borehole ranges OVERLAP, so a 3-seed draw could have shown SF-DRO ahead; what
-  settles h74 is the paired count 2/10, not the means. MF-DRO remains uncalibrated.
-
-h76_trajectory: |
-  Reproduction control PASS 30/30 bit-for-bit vs h72 (REAL: fresh runs of the
-  same cells, cannot pass by reading another experiment's files).
-  Both locked predictions WRONG, NULL FIRED. Predicted Hartmann crossing by iter
-  12 of 25; got 18.
-  1. SF-DRO is BEHIND SF-MES early on ALL THREE benchmarks including the one it
-     wins (iter 1: 76.05 vs 66.08 Hartmann, 48.66 vs 40.46 Borehole, 11.73 vs
-     9.60 Currin). The advantage is NOT early search.
-  2. On Hartmann SF-MES PLATEAUS (32.85 -> 23.47 -> 21.17) while SF-DRO keeps
-     falling (26.38 -> 16.95 -> 7.70). On Borehole/Currin both flatten together
-     and SF-DRO never catches up -- CONTROL held, no crossing on either.
-  3. SF-DRO has NOT converged on Hartmann at budget exhaustion, still falling at
-     iter 25. Whether more budget widens the gap is UNTESTED.
-  Licenses: effect is LATE and about SF-MES stalling -- rules out any mechanism
-  explaining an early exploration advantage. Identifies NO mechanism; SF-DRO
-  differs from SF-MES in both policy and surrogate and h76 separates neither.
-
-h75_borehole_calibration_CLOSED: |
-  Reproduction control PASS bit-for-bit (s44 = 75.6374736643 = h57, 0.000e+00),
-  worker byte-identical to h57's. BOTH predictions MET.
-  MF-DRO Borehole n=10 = 22.89% (sd 2.94) vs published n=3 23.71%, shift -0.82.
-  Three-seed range [19.56, 25.45], span 5.89.
-  Every Borehole entry now n=10 with a passed control: MI-Greedy 9.29 / SF-MES
-  12.76 / SF-EI 12.95 / SF-DRO 14.60 / MF-DRO 22.89 / MF-GP-UCB 46.65. MF-DRO is
-  last among non-degenerate methods and it is NOT a 3-seed artifact -- its whole
-  range sits clear of SF-DRO's 14.60.
-  MF-DRO's Hartmann and Currin entries remain n=3; Hartmann is the least-resolved
-  column (h72 moved baselines there by +12.7 and +21.5).
-
-LESSON_28_predict_from_measurements: |
-  Every prediction this project MET was derived from a prior measurement (h70 from
-  h61's 1.44x; h72 from observed n=3 spread; h75 from h72's Borehole stability).
-  Every one it LOST was a mechanism intuition (h63/h67 rho ceiling; h69 acquisition
-  class; h76 early-advantage shape). Six mechanisms proposed and refuted vs three
-  measurement-derived predictions met. Rule: predict from a number already on disk,
-  or run the measurement first and let it set the bar.
-
-h77_hartmann_calibration_COMPLETE: |
-  Reproduction control PASS bit-for-bit (s44 = 0.7531352462 = h57, 0.000e+00).
-  BOTH predictions MET: three-seed span 16.14 (bar >=8.0), shift -5.77 (bar >=2.0).
-  MF-DRO Hartmann n=10 = 8.91% (sd 7.39) vs published n=3 14.68%. Three-seed range
-  [2.42, 18.56] -- seeds 44/46/48 were among the worst draws available.
-  STANDINGS CHANGE: Hartmann n=10 now POOL600 6.64 / MF-MES 8.24 / SF-DRO 8.46 /
-  MF-DRO 8.91, four methods clustered, then a 10-pt gap to SF-EI 18.61. The
-  published table had MF-DRO mid-table at 14.7 and clearly behind MF-MES.
-  POST HOC (not a claim): MF-DRO vs MF-MES 4/10, p=0.2754 -- a TIE. Seed 49 shows
-  h64-style single-seed volatility running the other way (25.25 vs 1.39).
-  NORTH STAR UNCHANGED, still NOT MET: per-benchmark bar. Hartmann is a tie (an
-  absence of evidence, not a pass); Borehole is a clear loss (22.89 vs 9.29,
-  confirmed not a 3-seed artifact by h75). h77 changes the SIZE of the Hartmann
-  deficit, not the verdict.
-  CALIBRATION COMPLETE for both discriminating benchmarks. Currin left at n=3 by
-  design -- it does not discriminate, span bounded by construction.
-
-h79_identity_WEAKENED_TWICE: |
-  SF-EI@1000 vs MI-Greedy on Borehole at n=10: bit-for-bit identical on 8/10
-  seeds; seeds 45 and 49 diverge by 1.23 and 3.00 pts with SF-EI@1000 WORSE.
-  PRIMARY (>=9/10) NOT MET, SECONDARY NOT MET, NULL FIRED.
-  h70's 3/3 (seeds 44/46/48) are among the eight that match, so "MI-Greedy's
-  advantage is ENTIRELY pool size" was an n=3 word. Restated as "pool size on
-  8 of 10"; a minority contribution is unexplained.
-  Proposed cause (MI-Greedy's LF phase activating) REFUTED same tick: both run
-  100 iterations on both divergent seeds, and seed 43 differs in iteration count
-  (99 vs 100) yet matches EXACTLY. Untested candidate: RNG-stream divergence from
-  _explore_lf consuming draws even when selecting nothing. Hypothesis, not finding.
-  h79b: the trajectories were NEVER the same. Both methods split at iteration 1-2
-  on ALL four seeds examined, INCLUDING the matched controls (44, 46) whose finals
-  are bit-for-bit identical. Starting regrets differ (seed 46: 34.109 vs 36.597).
-  The 8/10 match is convergence to the same best point by DIFFERENT searches.
-  FINAL FORM: giving single-fidelity EI a 1000-point pool is enough to reach
-  MI-Greedy's final regret on 8/10 Borehole seeds -- a claim about OUTCOMES, not
-  algorithmic equivalence. The 4.72-pt gap really is closed by pool size alone.
-  h79b's own PRIMARY and SECONDARY both NOT MET; the NULL fired but its stated
-  conclusion did not follow, because the protocol assumed matched seeds implied
-  matched trajectories. Protocol-design lesson: a control that checks only the
-  endpoint cannot detect two paths to the same endpoint.
-  Corrections propagated to findings.md and the slide deck (twice).
-
-LESSON_29_word_strength: |
-  One claim weakened three times, each from a cheap check available all along:
-    h70  "entirely pool size, reproduces exactly seed for seed"  3 seeds, endpoint only
-    h79  "...on 8 of 10 seeds"                                   10 seeds, endpoint only
-    h79b "...same final regret; the searches are different"      10 seeds, trajectories
-  Nothing miscomputed. The WORDING at each stage asserted more than the CHECK
-  covered. "entirely" needed 10 seeds and failed at 10. "exactly, seed for seed"
-  reads as algorithmic equivalence but was endpoint agreement; the trajectories
-  diverge at the FIRST optimization query, including on seeds whose endpoints
-  match to 10 significant figures.
-  RULE: before writing entirely/exactly/identical/reproduces, name the check that
-  licenses it and confirm the check covers that strength. An endpoint check cannot
-  license a claim about a search.
-  Sits alongside 26 (n=3), 27 (bar design), 28 (predict from measurements). 29 is
-  about the PROSE being part of the claim.
-
-open_now:
-  h63 5/6  Hartmann s48 outstanding; Borehole 3/3 (+1.9% gain) but the CONTRAST
-           is the signal and Hartmann is 0/2 so far
-  h64 1/6  Hartmann s44 came back 0.3162 vs BASE 0.7531 -- NOT tracking the
-           pre-registered null
-  h65 1/3  Hartmann REFINE (seeds 46,48 in flight), variance is the primary criterion. seed44 came back
-           0.6664 with 1 improvement in 90 queries -- WORSE than BASE's 0.7531
-           only marginally and far worse than POOL600's 0.3162 on the same seed.
-           WITHHELD until 3/3; the prediction is about variance, not this mean.
-  h66 COMPLETE 10/10 -- WITHDRAWAL FIRED, see NORTH_STAR_WITHDRAWN above.
+open_questions:
+  - Does a controlled ROI raise mean HF query quality (h84 P1)?
+  - Does query quality translate to lower final regret (h84 P3, stated separately)?
+  - MI-Greedy and MF-GP-UCB under-optimise on Ackley/Hartmann (beat their own
+    initial design 0.8-3.0 times out of 20-40 HF queries). Cause unresolved;
+    candidate is the reference's inflated prior mean maxY+2*rangeY.
+  - Boundary aversion: causal test (change the output parameterisation) not run.
