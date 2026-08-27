@@ -3459,3 +3459,53 @@ STILL PENDING before anything is final: Hartmann Q10 (2 seeds), Hartmann ANN
 (4 seeds), all 10 ROI-FIX2 runs (P2's negative prediction), and THE
 REPRODUCTION CONTROL (4 runs), without which arm A remains inherited from h83
 rather than verified.
+
+### LESSON 22 — the PRIMARY metric must be the one the objective depends on
+
+h84 registered MEAN high-fidelity query quality as its PRIMARY metric, on the
+reasoning that the diagnosis was "MF-DRO wastes budget on low-value queries" and
+the mean is the direct measure of waste. That was the wrong choice, and the data
+shows why:
+
+  benchmark / arm        d(mean)   d(p90)   d(best)   d(regret)   n
+  Hartmann  ROI-Q10       +0.000   +0.031    +0.022     -2.17     4
+  Hartmann  ROI-ANN       -0.011   -0.037    -0.042     +3.82     1
+  Borehole  ROI-Q10       +0.114   +0.113    +0.101     -4.22     5
+  Borehole  ROI-ANN       +0.034   +0.036    +0.034     -1.31     5
+
+Simple regret is a MAX statistic: regret = f(x*) - max_i y_i over HF queries.
+A method can improve the max while leaving the mean untouched -- find one better
+point and waste the rest -- and that is EXACTLY what happens on Hartmann, where
+d(mean) is +0.000 to three decimals while d(best) is +0.022 and regret falls
+2.17 points on 3 of 4 seeds.
+
+CONSEQUENCE FOR P1. P1 is mean-based, so it FAILS on Hartmann (+0.000, 2/4 wins)
+even though the ROI IMPROVES Hartmann on the objective the project is actually
+optimising. The bar under-credits the intervention on that benchmark. P1 is
+still reported as failed on Hartmann -- the bar was registered and is not being
+moved after the fact -- but the mean-based verdict should not be mistaken for
+"the ROI does not help on Hartmann", which the regret column contradicts.
+
+The protocol is not broken, because regret WAS registered separately as P3. The
+error is in which quantity got the PRIMARY label, not in what was measured.
+
+RULE: when the objective is a max/min statistic, the primary bar should be on
+that statistic, or on both, with the distributional metric (mean, waste
+fraction) reported as MECHANISM. A mean-based bar answers "does it waste less
+budget", which is a question about process; a max-based bar answers "does it
+find a better point", which is the question the paper will be judged on.
+
+### H84 substantive finding restated on the right metric
+
+The quantile-calibrated ROI improves MF-DRO's FINAL REGRET on both benchmarks
+tested:
+
+  Borehole_8D  ROI-Q10   -4.22 pts  (better 5/5)   15.82% -> 11.59%
+  Hartmann_6D  ROI-Q10   -2.17 pts  (better 3/4)    7.55% ->  5.95%
+
+and it does so by improving the upper tail of the query distribution, not the
+bulk of it (Hartmann d(p90) +0.031 against d(mean) +0.000).
+
+STILL NOT FINAL: Hartmann Q10 has 4 of 5 seeds, ROI-FIX2 (P2's negative
+prediction) is mid-flight with 0 of 10 complete, and the REPRODUCTION CONTROL
+has not run, so arm A remains inherited from h83 rather than verified.
