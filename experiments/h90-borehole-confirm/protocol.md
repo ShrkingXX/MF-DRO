@@ -132,3 +132,32 @@ What differs: refinement's effect is 1.4x the ROI's, its mechanism bar was
 independently met, and its per-seed effects (-6.12, -6.97, -5.79, -4.75, -5.63)
 sit in a 2.2-point band with no seed carrying it -- where the Hartmann flip's
 0.36-point band turned out to be seed-set-specific.
+
+## Amendment 3 — overlap with the concurrent session's H89 is COMPLEMENTARY. Do not trim.
+
+Both sessions independently added a Borehole teacher-refinement confirmation arm
+within minutes of each other, having each concluded it was the highest-value
+unconfirmed result. That convergence is a signal the priority was right, but it
+looks like duplication and someone may be tempted to cut one. They should not.
+
+  H89 (other session), seeds 52-56:
+    Hartmann CONTROL, Hartmann HF-FLOOR, Borehole CONTROL, Borehole REFINE-100
+  H90 (this session), seeds 47-51:
+    Borehole NO-ROI, Borehole ROI-Q10, Borehole REFINE-100
+
+UNIQUE TO H90: **Borehole ROI-Q10.** H89 does not test the ROI at all. The ROI is
+the intervention this entire investigation was commissioned to evaluate, and its
+Borehole gain (-4.22 pts, 5/5, robust to dropping any seed) is the only ROI
+result still standing after the Hartmann withdrawal. Without H90 it never gets a
+clean test.
+
+THE OVERLAP IS AT DIFFERENT SEEDS, and that is worth having rather than
+tolerating. h87's central lesson was that a paired difference measured on one
+seed set does not transfer: Hartmann's paired sd was 0.45 on seeds 42-46 and
+7.45 on 47-51, because the two methods failed on different instances. Refinement
+is now the largest claimed effect in the project (-5.85 pts, 5/5). Testing it on
+TWO independent fresh seed sets (10 seeds total) is a direct response to that
+lesson, not redundancy.
+
+If compute is scarce, the arm to cut is H90's REFINE-100 -- not its ROI-Q10, and
+not H89's anything.
