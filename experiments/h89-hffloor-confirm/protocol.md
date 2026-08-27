@@ -127,3 +127,33 @@ THIS DOES NOT CHANGE P8. The bar is unchanged; this makes it evaluable as
 written. No treatment run is added, no configuration is altered, and the
 Borehole REFINE-100 arm is untouched and still unfinished, so its verdict
 remains written-blind.
+
+## Amendment 3 — P8 is CONFOUNDED at these seeds. Recorded before REFINE-100 finished.
+
+The MF-MES comparator finished before the treatment arm. Its numbers change how
+P8 must be read, and this is written while REFINE-100 is still running:
+
+  MF-MES Borehole   seeds 42-46:  6.40%    seeds 52-56: 10.07%   (+3.67 HARDER)
+  MF-DRO control    seeds 42-46: 15.82%    seeds 52-56: 15.02%   (-0.80, ~same)
+
+**The fresh seeds are much harder for MF-MES but not for MF-DRO.** The
+control-to-baseline gap is 9.42 pts at h83's seeds and only 4.95 pts here,
+entirely from seed effects, before any intervention is applied.
+
+CONSEQUENCE. If refinement reproduces h85's -5.85 pts, MF-DRO lands near 9.2%
+and would sit BELOW MF-MES's 10.07% at these seeds -- i.e. P8, registered
+NEGATIVE, would be REFUTED. **That refutation would be largely an artifact of
+which seeds MF-MES happens to find hard, not evidence that refinement closes a
+9.42-pt gap.**
+
+HOW P8 WILL BE REPORTED, decided now rather than after:
+1. The raw within-seed comparison is reported as measured.
+2. It is reported ALONGSIDE the statement that the gap at these seeds is 4.95
+   pts, not the 9.42 pts of the original comparison, and that the difference is
+   a property of the seeds.
+3. No claim that refinement "closes the gap to MF-MES" will be made on the
+   strength of seeds 52-56 alone. Establishing that needs the gap measured at
+   several seed sets, which no experiment here does.
+
+This does not change P8's threshold. It fixes the interpretation in advance so a
+seed-driven refutation cannot be presented as a method result.
