@@ -5217,3 +5217,56 @@ CONSEQUENCES CORRECTED:
     unilaterally standing down.
 
 The n=10 result is in findings.md AND in the published report, as intended.
+
+## TEACHER REFINEMENT SURVIVES A FRESH-SEED TEST — the first intervention to do so
+
+Borehole, teacher refinement vs no intervention, paired, both seed sets:
+
+  seeds 42-46:  -6.12, -6.96, -5.79, -4.76, -5.63   mean -5.85, better 5/5
+  seeds 52-56:  +3.49, -8.57, -1.21, -0.79, -3.46   mean -2.11, better 4/5
+  POOLED n=10:  mean -3.98, sd 3.36, median -4.11, better 9/10
+
+**This replicates.** Nine of ten seeds across two independent sets, on the
+benchmark where h92 established MF-DRO's deficit is genuinely real. It is the
+only intervention in this investigation to survive the test that killed the
+other two:
+
+    ROI on Hartmann (h87)     2/5 at fresh seeds   WITHDRAWN
+    HF floor on Hartmann      1/5 at fresh seeds   WITHDRAWN
+    Teacher refinement        4/5 at fresh seeds   HOLDS
+
+### The effect size shrank to ~36%, and that was predicted
+
+-5.85 on the seeds it was developed on, -2.11 on fresh ones. h90's protocol
+registered exactly this ("P2. The margin shrinks relative to -4.22 pts. Even
+without setting-selection, seeds 42-46 are where the configuration was
+developed"), and the same reasoning applies here. The original effect size was an
+upper bound obtained where there was most to fix; the replicated size is the one
+to report.
+
+### Why this one held when the others did not
+
+Both withdrawn claims rested on Hartmann, where h91 showed MF-DRO has no real
+deficit at n=10 -- there was nothing stable to improve, so improvements were
+measuring seed noise. Refinement's claim rests on Borehole, where the deficit IS
+real (8/10 at n=10) and where the mechanism is benchmark-intrinsic: the optimum
+sits on the domain boundary in all four dimensions carrying 99.6% of the
+variance, and refinement's mechanism bar (near-bound query fraction rising
+8.93% -> 16.32%) was independently met.
+
+A claim about a real deficit, with a mechanism that does not depend on the seed,
+replicated. Two claims about a seed-specific deficit did not. That is the
+cleanest lesson available from the whole investigation.
+
+### What it does NOT do
+
+MF-DRO with refinement reaches 9.96 on Borehole at seeds 42-46 against MF-MES's
+6.36, and the fresh-seed arm lands at 12.91 against MF-MES's 8.24. **It does not
+close the gap.** MF-DRO still beats no baseline on any benchmark, at any seed set
+tested. Refinement makes a real deficit smaller; it does not remove it.
+
+Refinement also costs ~1.6-2.0x wall-clock, and h85's P4 bar on that is likely
+failed.
+
+STATUS: CONFIRMATORY across two pre-registered experiments at independent seed
+sets. n=10, no p-values.
