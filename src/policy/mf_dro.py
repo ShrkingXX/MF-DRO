@@ -1159,69 +1159,100 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         # ablation vacuous. roi_beta_sqrt is therefore an explicit knob
         # (default 2.0, a standard 2-sigma band) and roi_stats records the
         # acceptance rate so it is visible whether the ROI actually bound.
-        _raw = (
-            bounds[0]
-            + (bounds[1] - bounds[0])
-            * torch.rand(roi_raw_pool, ko_model.d,
-                         device=ko_model.device,
-                         dtype=ko_model.dtype)
-        )
-        with torch.no_grad():
-            _mu, _var = ko_model.hf_posterior(_raw)
-            _mu = _mu.reshape(-1)
-            _sd = _var.reshape(-1).clamp_min(1e-12).sqrt()
-        if roi_mode == 'mes':
-            # MES-native ROI. Same flavour as the paper's rule -- a
-            # plausibility filter on "could x hold the optimum", kept separate
-            # from the acquisition that selects within it -- but the bar is the
-            # Thompson-sampled y* rather than max_x' LCB(x').
-            #
-            #     p(x) = mean_k Phi( (mu_H(x) - y*_k) / sigma_H(x) )
-            #          = mean_k Phi(-gamma_k(x))
-            #
-            # gamma is what MES already computes, so this costs one Phi call.
-            # Two reasons it is preferred here over the UCB/LCB rule:
-            #   1. max_x' LCB(x') is PESSIMISTIC and collapses downward as
-            #      sigma grows, so every UCB clears it and the ROI dissolves.
-            #      Measured on Hartmann 6D at initial_hf=6/initial_lf=45: the
-            #      paper's rule accepts 100% at the Srinivas beta and 94-100%
-            #      at sqrt(beta)=1. y* is a sampled MAXIMUM and does not
-            #      degrade with sigma.
-            #   2. top-q accepts exactly q on every member at every stage.
-            #      The UCB/LCB acceptance is an uncontrolled function of beta
-            #      and GP state -- 20.3% on member 0 vs 9.2% on member 1 at
-            #      the same beta.
-            # It is NOT sharper: at matched acceptance the two concentrate
-            # equally (mean dist to x* 0.705 vs 0.690). The gain is control.
-            #
-            # y* MUST come from the fixed Sobol y_star_pool, not from _raw:
-            # thompson_sample_y_star's output depends on |X| in both location
-            # and scale (see _y_star_for_model's docstring).
-            _ys = _y_star_for_model(ko_model, roi_y_star_pool, K=32, seed=0)
-            _ys = torch.as_tensor(np.asarray(_ys),
-                                  dtype=_mu.dtype, device=_mu.device).reshape(-1)
-            _g = (_ys.view(1, -1) - _mu.view(-1, 1)) / _sd.view(-1, 1)
-            _p = torch.as_tensor(scipy_norm.cdf(-_g.detach().cpu().numpy()),
-                                 dtype=_mu.dtype, device=_mu.device).mean(dim=1)
-            _k = max(1, int(float(roi_top_q) * _p.numel()))
-            _keep = _p >= torch.topk(_p, _k).values.min()
-        else:
-            _b = float(roi_beta_sqrt)
-            _keep = (_mu + _b * _sd) >= (_mu - _b * _sd).max()
-        _surv = _raw[_keep]
-        _acc = float(_keep.float().mean())
+        # BUG FIX (2026-08-27). The previous implementation drew ONE pool of
+        # roi_raw_pool points, filtered it, and then padded back up to
+        # _N_POOL by sampling the survivors WITH REPLACEMENT. That made the
+        # number of DISTINCT candidates handed to the teacher
+        # min(_N_POOL, roi_raw_pool * accept_frac) instead of _N_POOL, so
+        # switching the ROI on silently cut candidate resolution at the same
+        # time as it focused the region. Measured on Hartmann 6D at
+        # sqrt(beta)=2 (n_hf=6, n_lf=45): 231 distinct with the ROI on against
+        # 600 with it off -- a 2.6x cut, and far worse at tighter beta (0.9%
+        # acceptance at sqrt(beta)=1 gives ~18 distinct points duplicated to
+        # 600). Every previous ROI-on-vs-off comparison was therefore
+        # confounded: it varied the region AND the resolution together, so
+        # harm attributed to the ROI could equally have come from the padding.
+        #
+        # We now REJECTION-SAMPLE fresh pools until _N_POOL points inside the
+        # ROI have been collected, which holds resolution fixed and leaves the
+        # region as the only thing that changes.
+        #
+        # The acceptance threshold is estimated ONCE, from the first pool, and
+        # then held fixed. max_x' LCB(x') is a maximum over the domain, so
+        # re-estimating it on every draw would let it ratchet upward as draws
+        # accumulate and shrink the ROI for no principled reason.
+        _MAX_DRAWS = 40
+        def _draw_raw():
+            return (bounds[0]
+                    + (bounds[1] - bounds[0])
+                    * torch.rand(roi_raw_pool, ko_model.d,
+                                 device=ko_model.device,
+                                 dtype=ko_model.dtype))
+
+        def _mu_sd(X):
+            with torch.no_grad():
+                _m, _v = ko_model.hf_posterior(X)
+            return _m.reshape(-1), _v.reshape(-1).clamp_min(1e-12).sqrt()
+
+        _thr = None            # fixed acceptance threshold, set on the first draw
+        _chunks, _n_seen, _n_acc, _draws = [], 0, 0, 0
+        while _n_acc < _N_POOL and _draws < _MAX_DRAWS:
+            _r = _draw_raw()
+            _m, _sd = _mu_sd(_r)
+            if roi_mode == 'mes':
+                # MES-native ROI. Same flavour as the paper's rule -- a
+                # plausibility filter on "could x hold the optimum", kept
+                # separate from the acquisition that selects within it -- but
+                # the bar is the Thompson-sampled y* rather than max_x' LCB(x').
+                #
+                #     p(x) = mean_k Phi( (mu_H(x) - y*_k) / sigma_H(x) )
+                #
+                # y* MUST come from the fixed Sobol y_star_pool, not from the
+                # draw: thompson_sample_y_star's output depends on |X| in both
+                # location and scale (see _y_star_for_model's docstring).
+                _ys = _y_star_for_model(ko_model, roi_y_star_pool, K=32, seed=0)
+                _ys = torch.as_tensor(np.asarray(_ys),
+                                      dtype=_m.dtype, device=_m.device).reshape(-1)
+                _g = (_ys.view(1, -1) - _m.view(-1, 1)) / _sd.view(-1, 1)
+                _pp = torch.as_tensor(scipy_norm.cdf(-_g.detach().cpu().numpy()),
+                                      dtype=_m.dtype, device=_m.device).mean(dim=1)
+                if _thr is None:
+                    _k = max(1, int(float(roi_top_q) * _pp.numel()))
+                    _thr = torch.topk(_pp, _k).values.min()
+                _keep = _pp >= _thr
+            else:
+                # DRO paper Sec 4.2: X_hat_{m,t} = {x | UCB_m(x) >= max_x' LCB_m(x')},
+                # UCB/LCB = mu_m +/- sqrt(beta) sigma_m, per ensemble member on
+                # ITS OWN posterior, constraining rollout simulations only
+                # (never the real query). MF adaptation: the HF posterior,
+                # since the HF function is what is being optimized.
+                _b = float(roi_beta_sqrt)
+                if _thr is None:
+                    _thr = (_m - _b * _sd).max()
+                _keep = (_m + _b * _sd) >= _thr
+            _chunks.append(_r[_keep])
+            _n_seen += _r.shape[0]
+            _n_acc += int(_keep.sum())
+            _draws += 1
+
+        _surv = torch.cat(_chunks, dim=0) if _chunks else _draw_raw()[:0]
+        _acc = (_n_acc / _n_seen) if _n_seen else 0.0
         if _surv.shape[0] >= _N_POOL:
-            _idx = torch.randperm(_surv.shape[0], device=_surv.device)[:_N_POOL]
-            roi_candidates = _surv[_idx]
+            roi_candidates = _surv[:_N_POOL]
         elif _surv.shape[0] > 0:
-            # Sample WITH replacement rather than falling back to the global
-            # pool: a tight ROI is the mechanism working, not a failure.
-            _idx = torch.randint(_surv.shape[0], (_N_POOL,), device=_surv.device)
-            roi_candidates = _surv[_idx]
+            # The ROI is so tight that _MAX_DRAWS pools could not fill it.
+            # Keep every distinct survivor and top up from a fresh unfiltered
+            # draw rather than duplicating: duplicates give the teacher no new
+            # information and silently reduce resolution, which is the bug
+            # this block exists to fix.
+            _need = _N_POOL - _surv.shape[0]
+            roi_candidates = torch.cat([_surv, _draw_raw()[:_need]], dim=0)
         else:
-            roi_candidates = _raw[:_N_POOL]
+            roi_candidates = _draw_raw()[:_N_POOL]
         if roi_stats is not None:
-            _rec = {'accept_frac': _acc, 'n_surv': int(_surv.shape[0])}
+            _rec = {'accept_frac': _acc, 'n_surv': int(_surv.shape[0]),
+                    'n_draws': _draws,
+                    'n_distinct': int(torch.unique(roi_candidates, dim=0).shape[0])}
             if roi_x_star is not None:
                 # The failure that got ROI deleted before: an ROI that never
                 # contains anything near the optimum starves the DT of
@@ -1454,9 +1485,15 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                                       device=ko_model.device,
                                       dtype=ko_model.dtype))
                 _loc = torch.max(torch.min(_loc, bounds[1]), bounds[0])
-                roi_candidates = torch.cat([roi_candidates, _loc], dim=0)
+                # LOCAL variable: `roi_candidates` is defined OUTSIDE the
+                # rollout loop, so concatenating into it permanently grew the
+                # shared pool by teacher_refine_samples on every step of every
+                # rollout, and carried one step's local refinement into the
+                # next step's candidate set. Latent until now only because
+                # teacher_refine_samples defaults to 0.
+                _refined = torch.cat([roi_candidates, _loc], dim=0)
                 x_tau, ell_tau, scores = compute_joint_mf_mes(
-                    current_ko, roi_candidates, c_H, c_L
+                    current_ko, _refined, c_H, c_L
                 )
         if tau == 0 and scores is not None:
             bes_signal_0 = scores.max().item()
