@@ -4453,3 +4453,40 @@ THREE THINGS THIS GIVES:
 
 The informative test is Hartmann, where the control has 19-long LF runs and the
 floor must fire constantly. That arm is 2/5.
+
+### H85 — the HF floor works by the mechanism it was proposed for (EXPLORATORY, n=3)
+
+Hartmann HF-FLOOR, 3 of 5 seeds, against the control:
+
+   seed  ctrl LF%  ctrl HF n  ctrl reg  floor reg     diff  floor HF n
+     42       94%          8     16.41       6.91    -9.50          20
+     43       25%         24      0.67       4.46    +3.80          25
+     44       90%         12     10.16       9.64    -0.51          20
+
+   corr(control LF%, floor's effect) = -0.79
+
+The floor helps most exactly where the fidelity head had COLLAPSED. Seed 42 ran
+at 94% low fidelity with only 8 real high-fidelity evaluations; the floor lifts
+it to 20 and cuts regret by 9.50 points. Seed 44 (90% LF, 12 HF) improves
+slightly. Seed 43 -- the ONE seed where the head was working normally (25% LF,
+24 HF) -- is the one the floor hurts.
+
+That is the mechanism the intervention was proposed for: bound the
+fidelity-head-collapse failure mode, and accept a cost where there is no
+collapse to bound.
+
+VARIANCE, which is what P5 registered: control spans 0.67-16.41 (sd 5.85); the
+floor spans 4.46-9.64 (sd 2.59) so far. The floor is compressing the
+distribution from both ends, which is what a floor should do and is NOT the same
+as improving the mean -- P6 registered that it would not.
+
+AN ALTERNATIVE EXPLANATION FOR SEED 43 THAT I CANNOT RULE OUT. Its control run
+scored 0.67%, the best of all five seeds by a factor of eight. Any perturbation
+of an unusually lucky run is likely to make it worse, so the +3.80 could be
+regression to the mean rather than the floor being harmful. Note the floor
+barely changed its fidelity mix there (24 -> 25 HF queries) yet regret moved
+0.67 -> 4.46, which is a large effect from a small intervention and is more
+consistent with trajectory perturbation than with a fidelity-allocation cost.
+
+STATUS: EXPLORATORY, n=3 of 5, direction only, no p-values. Two Hartmann seeds
+outstanding, and the reproduction control for this experiment has not run.
