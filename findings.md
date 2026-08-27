@@ -4653,3 +4653,60 @@ the wall-clock, because forcing HF burns the cost budget faster.
     against MF-MES's 6.40.
 
 STATUS: EXPLORATORY synthesis over completed and partial arms.
+
+## H85 — P2 and P3 MET on Borehole, and the boundary mechanism is now confirmed end-to-end
+
+Borehole REFINE-100 complete at 5/5: paired **d = -5.85 pts, better on 5/5**,
+arm mean 15.82 -> 9.96. That is the largest intervention effect in this
+investigation, ahead of the ROI's -4.22.
+
+**P3 (refinement lowers Borehole regret on >= 4/5): MET at 5/5.**
+
+**P2 (MECHANISM): MET**, and this is the result worth keeping. P2 was registered
+so it could FAIL EVEN IF THE METHOD WORKED -- "if refinement helps regret WITHOUT
+moving the near-bound fraction, the boundary mechanism is wrong". It moved, and
+every intervention orders identically on all three quantities:
+
+  arm                 near-bound %   sens-dim hits %   rel. regret
+  no intervention           8.93            17.75         15.82
+  ROI-Q10                  12.48            24.79         11.59
+  REFINE-100               16.32            32.46          9.96
+  MF-MES (reference)       36.87            63.22          6.36
+
+  (uniform null for near-bound = 10%; sens-dim = the 4 dims carrying 99.6% of
+   Borehole's variance, all of which have boundary optima)
+
+**Regret ordering tracks boundary-reaching ordering exactly, across four
+methods.** Nothing about this was arranged: the near-bound fraction was measured
+to test a mechanism, not to rank methods, and the ranking fell out of it.
+
+### This closes a loop that ran the whole investigation
+
+  1. Borehole's optimum sits on the boundary in 7 of 8 dims, and in ALL FOUR of
+     the dims carrying 99.6% of its variance.
+  2. That was recorded as an ELIMINATED explanation, on the grounds that MF-DRO's
+     queries were the CLOSEST to x* of any method. That elimination used
+     unweighted distance; weighting by sensitivity reversed it.
+  3. The mechanism was then wrongly attributed to the head ("an L2 head cannot
+     reach a bound" -- refuted, it saturates clamp on 2.02% of coordinates) and
+     then to the ROI's inability to reach corners (also refuted, the ROI moves
+     all three boundary metrics monotonically).
+  4. The surviving explanation: the rollout TEACHER took a flat argmax over
+     uniform random candidates, which in 8-D essentially never proposes a point
+     at several bounds at once, so the DT never saw such a training target.
+  5. Refinement gives the teacher a bounded local optimiser. Near-bound fraction
+     rises 8.93 -> 16.32%, and regret falls 15.82 -> 9.96.
+
+Steps 2 and 3 were both errors of mine, corrected by measurement. Step 5 is the
+prediction that came out of the corrected mechanism, and it held.
+
+### What is still missing
+
+  - P1, the disproportionality bar (refinement helps MORE on Borehole than
+    Hartmann), needs Hartmann's fifth seed. Currently Borehole -5.85 (5/5) vs
+    Hartmann -2.02 at 4/5, which would MEET it.
+  - P4 (wall-clock < 2x) is likely FAILING; refinement is the only intervention
+    that costs real compute.
+  - The reproduction control is 3/4 (Hartmann s42 outstanding).
+  - Amendment 2: PENDING CONFIRMATION, not a finding, until fresh seeds.
+  - MF-DRO still does not beat MF-MES on Borehole: 9.96 against 6.36.
