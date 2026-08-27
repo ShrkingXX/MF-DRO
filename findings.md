@@ -4593,3 +4593,63 @@ mean here rests on ONE seed, which is a weaker position than h84's was.
 CREDIT: forcing periodic HF queries was the human's proposal. I argued against
 it from the h83 seed table and registered a negative prediction. The
 variance result and the mean result are both theirs.
+
+## SYNTHESIS — the best answer found to the ROI question is not an ROI
+
+Every intervention tried, paired against the same control (h83 MF-DRO), common
+seeds only:
+
+  Hartmann_6D   control 7.99, MF-MES 6.62        Borehole_8D  control 15.82, MF-MES 6.40
+    intervention   n  paired d  wins   sd          intervention   n  paired d  wins   sd
+    ROI-Q10        5    -2.05   4/5   3.26         REFINE-100     4    -5.87   4/4   2.65
+    REFINE-100     2    -3.71   1/2   4.23         ROI-Q10        5    -4.22   5/5   0.41
+    HF-FLOOR       5    -1.37   3/5   2.00         HF-FLOOR       5    +0.18   0/5   2.34
+
+**Teacher acquisition refinement is ahead of the ROI on BOTH benchmarks.**
+Borehole -5.87 against the ROI's -4.22; Hartmann -3.71 against -2.05. Its
+Borehole arm is 4/5 and its Hartmann arm 2/5, so neither is a verdict -- but the
+direction is consistent and it matches the one mechanism prediction I made that
+HELD: measured before any run, refinement moved the rollout teacher's action
+quality by +0.046 against the ROI's +0.010, a 4.6x ratio. At the run level the
+ratio is 1.4x (Borehole) and 1.8x (Hartmann).
+
+### The primary question's premise did not survive its own investigation
+
+The question was: *using the DRO paper's ROI heuristic, find an ROI strategy that
+stops MF-DRO wasting HF budget on low-value regions.*
+
+An ROI strategy was found and it works -- the calibrated ROI is the only setting
+that helps both benchmarks, and its Borehole gain (-4.22, 5/5, robust to
+dropping any seed) is the most solid regret result in this investigation. But
+the best intervention found is **not an ROI strategy at all**. It is fixing the
+rollout teacher's acquisition optimisation: MF-DRO's teacher took a flat argmax
+over uniform random candidates while MF-MES refined with bounded L-BFGS-B, and
+closing that gap beats relocating the candidate pool.
+
+That is worth stating plainly because the question presupposed the ROI was the
+lever. The evidence says the ROI is *a* lever and a weaker one than the teacher's
+own optimiser.
+
+### The cost dimension, which reverses part of the ranking
+
+  intervention   wall-clock vs control    where it acts
+  ROI-Q10        ~1.0x (free)             everywhere; benchmark-dependent effect
+  HF-FLOOR       0.52x Hartmann, 1.0x Borehole (free/faster)   only where the fidelity head collapses
+  REFINE-100     ~1.6-2.0x, P4 likely FAILING                  everywhere
+
+Refinement buys the largest regret reduction and is the only one that costs
+real compute. The ROI is free. The floor is free and on Hartmann finishes in half
+the wall-clock, because forcing HF burns the cost budget faster.
+
+### None of this is a finding yet
+
+  - REFINE-100 is 4/5 and 2/5. Partial arms in this project have moved +6.32 ->
+    -0.26 across three reports.
+  - h85's reproduction control is 1/4.
+  - Amendment 2 forbids announcing any h85 arm before fresh-seed confirmation.
+  - The ROI's own Borehole gain is likewise PENDING CONFIRMATION (h89, written,
+    not launched).
+  - MF-DRO still beats no baseline anywhere: the best Borehole arm is 10.67
+    against MF-MES's 6.40.
+
+STATUS: EXPLORATORY synthesis over completed and partial arms.
