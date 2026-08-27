@@ -933,6 +933,10 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             roi_top_q=0.10,
                             roi_y_star_pool=None,
                             roi_beta_sqrt=2.0,
+                            roi_beta_mode='fixed',
+                            roi_target_accept=0.10,
+                            roi_accept_start=None,
+                            roi_accept_end=None,
                             roi_raw_pool=2000,
                             roi_x_star=None,
                             roi_stats=None,
@@ -1195,6 +1199,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             return _m.reshape(-1), _v.reshape(-1).clamp_min(1e-12).sqrt()
 
         _thr = None            # fixed acceptance threshold, set on the first draw
+        _b_fixed = None        # beta_t, likewise resolved once on the first draw
+        _beta_used, _q_used = [], []
         _chunks, _n_seen, _n_acc, _draws = [], 0, 0, 0
         while _n_acc < _N_POOL and _draws < _MAX_DRAWS:
             _r = _draw_raw()
@@ -1226,9 +1232,57 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                 # ITS OWN posterior, constraining rollout simulations only
                 # (never the real query). MF adaptation: the HF posterior,
                 # since the HF function is what is being optimized.
-                _b = float(roi_beta_sqrt)
                 if _thr is None:
+                    if roi_beta_mode == 'quantile':
+                        # QUANTILE-CALIBRATED beta_t. The paper writes beta_t
+                        # with a SUBSCRIPT t and calls it "an exploration-
+                        # exploitation trade-off parameter" without giving a
+                        # value; the implementation used a constant. Holding
+                        # beta fixed makes the ROI's tightness an uncontrolled
+                        # function of the benchmark and of how much data has
+                        # accumulated. Measured acceptance at sqrt(beta)=2:
+                        #
+                        #   Borehole  n_hf=10 -> 100.0%   n_hf=35 -> 0.4%
+                        #   Ackley    n_hf=10 -> 100.0%   n_hf=35 -> 16.5%
+                        #   Hartmann  n_hf=6  ->  12.6%   n_hf=31 -> 6.0%
+                        #
+                        # a 250x swing on Borehole. The ROI is VACUOUS exactly
+                        # when the surrogate is worst, then collapses to 8 of
+                        # 2000 points once data accumulates.
+                        #
+                        # So we control the ACCEPTANCE RATE and solve for
+                        # beta_t. The ROI set stays exactly the paper's
+                        # {x | UCB >= max LCB}; only the free parameter is
+                        # chosen by a criterion instead of guessed.
+                        #
+                        # Acceptance is monotone increasing in beta: raising it
+                        # lifts every UCB and lowers max(LCB), so the test can
+                        # only get easier. Bisection is therefore valid.
+                        _q = float(roi_target_accept)
+                        if roi_accept_start is not None and roi_accept_end is not None:
+                            # Annealed q_t: loose early (explore), tight late
+                            # (exploit) -- the t-dependence the paper's beta_t
+                            # notation implies.
+                            _prog = min(max(float(n_real_iter) / max(float(T_real), 1.0), 0.0), 1.0)
+                            _q = (float(roi_accept_start)
+                                  + (float(roi_accept_end) - float(roi_accept_start)) * _prog)
+                        _blo, _bhi = 1e-3, 50.0
+                        for _ in range(40):
+                            _bm = 0.5 * (_blo + _bhi)
+                            _a = ((_m + _bm * _sd) >= (_m - _bm * _sd).max()).float().mean().item()
+                            if _a < _q:
+                                _blo = _bm
+                            else:
+                                _bhi = _bm
+                        _b = 0.5 * (_blo + _bhi)
+                        if roi_stats is not None:
+                            _beta_used.append(_b); _q_used.append(_q)
+                    else:
+                        _b = float(roi_beta_sqrt)
                     _thr = (_m - _b * _sd).max()
+                    _b_fixed = _b
+                else:
+                    _b = _b_fixed
                 _keep = (_m + _b * _sd) >= _thr
             _chunks.append(_r[_keep])
             _n_seen += _r.shape[0]
@@ -1252,7 +1306,9 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         if roi_stats is not None:
             _rec = {'accept_frac': _acc, 'n_surv': int(_surv.shape[0]),
                     'n_draws': _draws,
-                    'n_distinct': int(torch.unique(roi_candidates, dim=0).shape[0])}
+                    'n_distinct': int(torch.unique(roi_candidates, dim=0).shape[0]),
+                    'beta_sqrt': (_beta_used[0] if _beta_used else float(roi_beta_sqrt)),
+                    'target_accept': (_q_used[0] if _q_used else None)}
             if roi_x_star is not None:
                 # The failure that got ROI deleted before: an ROI that never
                 # contains anything near the optimum starves the DT of
@@ -2435,6 +2491,10 @@ class DirectMFRegretOptimization:
                     roi_top_q=getattr(self.config, 'roi_top_q', 0.10),
                     roi_y_star_pool=self.y_star_pool,
                     roi_beta_sqrt=getattr(self.config, 'roi_beta_sqrt', 2.0),
+                    roi_beta_mode=getattr(self.config, 'roi_beta_mode', 'fixed'),
+                    roi_target_accept=getattr(self.config, 'roi_target_accept', 0.10),
+                    roi_accept_start=getattr(self.config, 'roi_accept_start', None),
+                    roi_accept_end=getattr(self.config, 'roi_accept_end', None),
                     roi_raw_pool=getattr(self.config, 'roi_raw_pool', 2000),
                     roi_x_star=self._roi_x_star,
                     roi_stats=self.roi_stats,
