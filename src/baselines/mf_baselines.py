@@ -195,7 +195,7 @@ def _gp_posterior_or_prior(gp, x):
 # BASELINE 1: MF-GP-UCB (Kandasamy et al. 2016)
 # ════════════════════════════════════
 
-class MFGPUCBOptimizer:
+class MFGPUCBCostNormalized:
     """
     Independent GPs per fidelity -- NOT the KO model. gp_L is fitted only on
     LF observations, gp_H only on HF observations; no information sharing
@@ -203,14 +203,22 @@ class MFGPUCBOptimizer:
     cost-normalized UCB acquisition (a cheap, uncertain LF query can still
     win the argmax over an expensive, more-certain HF query).
 
-    NOTE: On Currin 2D (c_H=3) and Hartmann 6D (c_H=8), MF-GP-UCB degenerates
-    to all-LF selection when the cost ratio exceeds the prior variance ratio
-    of the two fidelity GPs. This is a known limitation of the
-    cost-normalized UCB approach (Kandasamy et al. 2016) and is expected
-    behavior on these benchmarks. The regret curve will plateau since HF is
-    never queried. This serves as a useful baseline comparison showing that
-    naive cost-normalized UCB is insufficient and motivates the MF-DRO
-    learned policy.
+    SUPERSEDED 2026-08-26 -- THIS IS NOT MF-GP-UCB.
+
+    Kandasamy et al. (2016) Algorithm 1 never divides a UCB by cost. It picks
+    x_t = argmax_x min_m [mu^(m) + beta^0.5 sigma^(m) + zeta^(m)] and then picks
+    the fidelity by an UNCERTAINTY THRESHOLD, m_t = min{m : beta^0.5 sigma^(m)(x_t)
+    >= gamma^(m)}, with a gamma-doubling rule that forces escalation when the
+    algorithm stalls at a low fidelity. Cost enters only through that schedule.
+
+    This class implements score(x,l) = UCB_l(x)/c_l instead. Dividing by cost is
+    why it degenerates to all-LF whenever c_H exceeds the GPs' variance ratio --
+    an artifact of the wrong rule, not a property of MF-GP-UCB. The earlier
+    docstring attributed that degeneracy to Kandasamy et al.; that attribution
+    was wrong.
+
+    Retained ONLY so h57/h72's recorded MF-GP-UCB numbers remain explainable.
+    Do not use it as a baseline. See MFGPUCBOptimizer below.
     """
 
     def __init__(self, benchmark, n_initial=5, delta=0.1,
@@ -386,6 +394,232 @@ class MFGPUCBOptimizer:
 # BASELINE 2: MF-MI-Greedy (Song, Chen & Yue 2019)
 # ════════════════════════════════════
 
+class MFGPUCBOptimizer:
+    """
+    MF-GP-UCB, Kandasamy et al. (2016) -- arXiv:1603.06288 Algorithm 1.
+
+    Faithful re-implementation (2026-08-26). The previous class under this name
+    scored candidates by UCB_l(x)/c_l, which is NOT in the paper and which made
+    the method degenerate to all-LF whenever c_H exceeded the GPs' variance
+    ratio. That class is retained above as MFGPUCBCostNormalized purely so
+    h57/h72's recorded numbers stay explainable.
+
+    ALGORITHM 1, for M=2 (m=1 low fidelity, m=2=M high fidelity):
+
+      per-fidelity GPs, each conditioned ONLY on its own fidelity's data:
+          mu^(m), sigma^(m)
+
+      1. phi^(m)(x) = mu^(m)(x) + beta_t^0.5 sigma^(m)(x) + zeta^(m)
+         phi(x)     = min_m phi^(m)(x)                       <- MIN over fidelities
+         x_t        = argmax_x phi(x)
+      2. m_t = min{ m : beta_t^0.5 sigma^(m)(x_t) >= gamma^(m) }, else M
+      3. query f^(m_t) at x_t
+      4. update D^(m_t)
+
+    zeta^(M) = 0; for M=2 there is a single zeta = zeta^(1). Cost NEVER enters
+    the selection rule -- it appears only in the gamma schedule below.
+
+    THE TWO ADAPTIVE HEURISTICS (paper Section 5), both implemented:
+
+      gamma doubling -- "If the algorithm does not query above the m-th fidelity
+        for more than lambda^(m+1)/lambda^(m) iterations, we double gamma^(m)."
+        Raising gamma^(1) makes the LF condition harder to satisfy and forces
+        escalation to HF. This is what prevents the stall the old class could
+        not escape.
+
+      zeta adaptation -- "Whenever we query at any fidelity m > 1 we also check
+        the posterior mean of the (m-1)-th fidelity. If |f^(m)(x_t) -
+        mu^(m-1)(x_t)| > zeta, we query again at x_t at the (m-1)-th fidelity.
+        If |f^(m)(x_t) - f^(m-1)(x_t)| > zeta, we update zeta to twice the
+        violation."
+
+    INITIALISATION (paper: "start with small values", no formula given). Both are
+    auto-calibrated per benchmark from the initial design so no hand-picked
+    constant has to be scale-matched to Borehole's hundreds vs Hartmann's units:
+      zeta_0  = 10th percentile of |y_H - mu_L(x_H)| over the HF initial design
+      gamma_0 = 0.1 * mean_x beta^0.5 sigma^(1)(x) over a Sobol pool
+    Both then evolve by the paper's own update rules.
+    """
+
+    def __init__(self, benchmark, n_initial=5, delta=0.1,
+                 n_initial_hf=None, n_initial_lf=None, seed=0,
+                 cost_budget=None, use_sequential_init=False):
+        self.benchmark = benchmark
+        self.d = benchmark.dim
+        self.bounds = benchmark.bounds
+        self.n_initial = n_initial
+        self.n_initial_hf = n_initial_hf if n_initial_hf is not None else n_initial
+        self.n_initial_lf = n_initial_lf if n_initial_lf is not None else n_initial
+        self.seed = seed
+        self.cost_budget = cost_budget
+        self.delta = delta
+        self.use_sequential_init = use_sequential_init
+        self.refit_every = 25
+        self.gp_L = None
+        self.gp_H = None
+        self.data_L_x, self.data_L_y = [], []
+        self.data_H_x, self.data_H_y = [], []
+        self._iters_since_refit = {'L': 0, 'H': 0}
+        # adaptive parameters (calibrated in _sample_initial)
+        self.zeta = None
+        self.gamma = None
+        self._iters_since_hf = 0
+        # paper: lambda^(m+1)/lambda^(m) iterations before doubling gamma^(m)
+        self._gamma_patience = max(1, int(round(benchmark.c_H / benchmark.c_L)))
+        self.n_gamma_doublings = 0
+        self.n_zeta_updates = 0
+        self.n_zeta_triggered_lf = 0
+
+    def _compute_beta_t(self, t, cardinality=_CANDIDATE_POOL):
+        return 2.0 * math.log(
+            cardinality * (t ** 2) * (math.pi ** 2) / (6.0 * self.delta))
+
+    def _post(self, gp, X):
+        """Batched (mu, sigma) for a [N,d] tensor; prior fallback when gp is None."""
+        if gp is None:
+            n = X.shape[0]
+            return (torch.zeros(n, dtype=DEFAULT_DTYPE),
+                    torch.ones(n, dtype=DEFAULT_DTYPE))
+        with torch.no_grad():
+            p = gp.posterior(X)
+            return (p.mean.reshape(-1),
+                    p.variance.clamp_min(1e-12).reshape(-1).sqrt())
+
+    def _add_obs(self, x, y, fidelity):
+        if fidelity == 'L':
+            self.data_L_x.append(x); self.data_L_y.append(y)
+        else:
+            self.data_H_x.append(x); self.data_H_y.append(y)
+
+    def _maybe_refit(self, fidelity):
+        xs, ys = ((self.data_L_x, self.data_L_y) if fidelity == 'L'
+                  else (self.data_H_x, self.data_H_y))
+        if not xs:
+            return
+        X = torch.stack(xs); Y = torch.tensor(ys, dtype=DEFAULT_DTYPE)
+        current = self.gp_L if fidelity == 'L' else self.gp_H
+        self._iters_since_refit[fidelity] += 1
+        full = current is None or self._iters_since_refit[fidelity] >= self.refit_every
+        if full:
+            new_gp = _build_gp(X, Y, self.bounds, self.d)
+            self._iters_since_refit[fidelity] = 0
+        else:
+            new_gp = _rebuild_frozen(current, X, Y, self.bounds, self.d)
+        if fidelity == 'L':
+            self.gp_L = new_gp
+        else:
+            self.gp_H = new_gp
+
+    def select_next(self, t):
+        """Algorithm 1 steps 1-2. Returns (x_t, fidelity)."""
+        beta_t = self._compute_beta_t(t)
+        rb = beta_t ** 0.5
+        cand = _sample_candidates(self.bounds, self.d, _CANDIDATE_POOL)
+        muL, sdL = self._post(self.gp_L, cand)
+        muH, sdH = self._post(self.gp_H, cand)
+        phi_L = muL + rb * sdL + self.zeta      # zeta^(1) = zeta
+        phi_H = muH + rb * sdH                  # zeta^(M) = 0
+        phi = torch.minimum(phi_L, phi_H)       # step 1: MIN over fidelities
+        i = int(torch.argmax(phi).item())
+        x_t = cand[i]
+        # step 2: lowest fidelity whose confidence band is still wide at x_t
+        fid = 'L' if (rb * sdL[i]).item() >= self.gamma else 'H'
+        return x_t, fid
+
+    def _post_query_updates(self, x_t, y_t, fid):
+        """Paper Section 5: zeta adaptation and gamma doubling.
+        Returns extra cost incurred by a zeta-triggered LF re-query (0 or c_L)."""
+        extra = 0.0
+        if fid == 'H':
+            self._iters_since_hf = 0
+            muL_at, _ = self._post(self.gp_L, x_t.reshape(1, -1))
+            viol = abs(float(y_t) - float(muL_at.item()))
+            if viol > self.zeta:   # ZETA_INC_COEFF = 2 below, per mfBO.m
+                # "we query again at x_t, but at the (m-1)-th fidelity"
+                y_lf = self.benchmark.evaluate(x_t, 'L')
+                self._add_obs(x_t, y_lf, 'L')
+                self._maybe_refit('L')
+                extra = self.benchmark.c_L
+                self.n_zeta_triggered_lf += 1
+                true_viol = abs(float(y_t) - float(y_lf))
+                if true_viol > self.zeta:
+                    self.zeta = 2.0 * true_viol      # "twice the violation"
+                    self.n_zeta_updates += 1
+        else:
+            self._iters_since_hf += 1
+            # Reference mfBO.m: counter fires at costs(m+1)/costs(m) and the
+            # increase coefficient is GAMMA_INC_COEFF = 5, not a doubling.
+            if self._iters_since_hf >= self._gamma_patience:
+                self.gamma *= 5.0
+                self._iters_since_hf = 0
+                self.n_gamma_doublings += 1
+        return extra
+
+    def _sample_initial(self):
+        X_lf = _lhs_init_points(self.bounds, self.d, self.n_initial_lf,
+                                self.seed, seed_offset=1,
+                                use_sequential_init=self.use_sequential_init)
+        for x in X_lf:
+            self._add_obs(x, self.benchmark.evaluate(x, 'L'), 'L')
+        X_hf = _lhs_init_points(self.bounds, self.d, self.n_initial_hf,
+                                self.seed, seed_offset=0,
+                                use_sequential_init=self.use_sequential_init)
+        for x in X_hf:
+            self._add_obs(x, self.benchmark.evaluate(x, 'H'), 'H')
+        self.initial_hf_values = list(self.data_H_y)
+        self._maybe_refit('L'); self._maybe_refit('H')
+        # --- zeta / gamma initialisation, taken from the AUTHORS' MATLAB
+        # reference (mfBO/mfboPreProcessParams.m), not invented here:
+        #     params.zeta  = ceil(1e4 * 2*maxF1F2Diff)/1e4
+        #     params.gamma = ceil(1e4 * 0.01 * rangeY)/1e4
+        # where maxF1F2Diff is max(0, max(f_H - f_L)) over PAIRED initial points
+        # and rangeY is the observed range of all initial values. An earlier
+        # version of this method used a 10th-percentile zeta and a
+        # 0.1*mean(beta^0.5 sigma) gamma -- both invented, neither anchored to
+        # the value scale. ---
+        allY = torch.tensor(list(self.data_H_y) + list(self.data_L_y),
+                            dtype=DEFAULT_DTYPE)
+        rangeY = float((allY.max() - allY.min()).item())
+        Xh = torch.stack(self.data_H_x)
+        muL_at, _ = self._post(self.gp_L, Xh)
+        # no paired HF/LF design here, so mu_L at the HF points stands in for f_L
+        diffs = torch.tensor(self.data_H_y, dtype=DEFAULT_DTYPE) - muL_at
+        maxDiff = float(torch.clamp(diffs.max(), min=0.0).item())
+        self.zeta = math.ceil(1e4 * 2.0 * maxDiff) / 1e4
+        self.gamma = math.ceil(1e4 * 0.01 * rangeY) / 1e4 or 1e-6
+
+    def run(self, bo_iterations):
+        self._sample_initial()
+        regret_curve, cost_curve, fidelities = [], [], []
+        post_init_cost = 0.0
+        for t in range(1, bo_iterations + 1):
+            x_t, fid = self.select_next(t)
+            y_t = self.benchmark.evaluate(x_t, fid)
+            self._add_obs(x_t, y_t, fid)
+            self._maybe_refit(fid)
+            post_init_cost += (self.benchmark.c_L if fid == 'L'
+                               else self.benchmark.c_H)
+            post_init_cost += self._post_query_updates(x_t, y_t, fid)
+            best_hf = max(self.data_H_y) if self.data_H_y else float('-inf')
+            regret_curve.append(-best_hf - self.benchmark.known_optimal_value_hf)
+            cost_curve.append(post_init_cost)
+            fidelities.append(fid)
+            if self.cost_budget is not None and post_init_cost >= self.cost_budget:
+                break
+        return {
+            'regret_curve': regret_curve,
+            'cost_curve': cost_curve,
+            'fidelities': fidelities,
+            'fidelity_trace': [0 if f == 'L' else 1 for f in fidelities],
+            'lf_fraction': sum(1 for f in fidelities if f == 'L') / max(len(fidelities), 1),
+            'initial_hf_values': self.initial_hf_values,
+            'final_zeta': self.zeta, 'final_gamma': self.gamma,
+            'n_gamma_doublings': self.n_gamma_doublings,
+            'n_zeta_updates': self.n_zeta_updates,
+            'n_zeta_triggered_lf': self.n_zeta_triggered_lf,
+        }
+
+
 class MFMIGreedyOptimizer:
     """
     Additive GP model (different from the KO model used by MF-DRO):
@@ -425,6 +659,17 @@ class MFMIGreedyOptimizer:
 
         self.gp_H = None
         self.gp_error = None
+        # reference episode state (mfBO.m lines 101-110)
+        self._lambda = 1.0            # params.lambda = 1
+        self._mean_acq = 0.0
+        self._cost_low = 0.0
+        self._num_low_fidel = 0
+        self._episode_best_bcr = -1.0
+        self._budget_total = float(cost_budget) if cost_budget else 1.0
+        self._spent = 0.0
+        self.gp_L_mi = None
+        self._lf_noise_var = 1.0
+        self._target_noise_var = 1e-4
         self.data_H_x, self.data_H_y = [], []
         self.data_L_x, self.data_L_y = [], []
 
@@ -455,87 +700,94 @@ class MFMIGreedyOptimizer:
         residual = Y - mu_H_at_L
         self.gp_error = _build_gp(X, residual, self.bounds, self.d)
 
-    def _information_gain(self, x, ell):
-        """
-        I(y_{x,ell}; f_H | S) in closed form. Under the additive model,
-        y_{x,ell} = f_H(x) + epsilon_ell(x) + noise, with f_H(x) and
-        epsilon_ell(x) independent given S. For Y = Z + N (Z, N independent
-        Gaussians given S), I(Y;Z) = H(Y) - H(Y|Z) = H(Y) - H(N) =
-        0.5*log(Var(Y)/Var(N)) = 0.5*log(1 + Var(Z)/Var(N)). Here Z=f_H(x)
-        (Var(Z)=sigma_H^2(x)) and N = epsilon_ell(x) + noise (Var(N) =
-        sigma_eps^2(x) + sigma_n^2, with sigma_eps==0 identically for HF).
-        """
-        mu_H, sigma_H = _gp_posterior_or_prior(self.gp_H, x)
-        var_H = (sigma_H ** 2).item()
+    def _acq_mi(self, x, ell, gp_L=None):
+        """Reference acquisition, verbatim from the authors' acqMFMIGreedy.m:
 
+            [~,~,nextStd]   = funcs{i}(x);          % fidelity i's OWN posterior std
+            [nextNoiseStd]  = noiseFuncHs{i}(x,x);  % fidelity i's OWN noise
+            acq = 0.5*log(1 + nextStd^2/nextNoiseStd^2) / costs(i);
+
+        This replaces 0.5*log(1 + var_H/(var_eps+noise)), which used the TARGET
+        fidelity's variance for both arms. That form appears in acqMFMIGreedy.m
+        as commented-out code -- the author tried it and did not ship it.
+
+        noise at fidelity i: the reference uses a squared-exponential noise GP
+        for i < M, whose k(x,x) is the constant outputscale for a stationary
+        kernel, and 1e-4*std(Y)^2 at the target. We use gp_error's outputscale
+        for the low fidelity (it models exactly that LF-vs-target discrepancy)
+        and 1e-4*std(Y)^2 at the target.
+        """
         if ell == 'H':
-            var_eps = 0.0
-            noise = self.gp_H.likelihood.noise.item() if self.gp_H is not None else _NOISE_LB
+            gp = self.gp_H
+            noise_var = self._target_noise_var
         else:
-            _, sigma_eps = _gp_posterior_or_prior(self.gp_error, x)
-            var_eps = (sigma_eps ** 2).item()
-            noise = self.gp_error.likelihood.noise.item() if self.gp_error is not None else _NOISE_LB
+            gp = gp_L if gp_L is not None else self.gp_L_mi
+            noise_var = self._lf_noise_var
+        _, sigma = _gp_posterior_or_prior(gp, x)
+        var = float((sigma ** 2).item())
+        cost = self.benchmark.c_H if ell == 'H' else self.benchmark.c_L
+        return 0.5 * math.log(1.0 + var / max(noise_var, 1e-12)) / cost
 
-        ig = 0.5 * math.log(1.0 + var_H / (var_eps + noise + 1e-12))
-        return max(ig, 0.0)
+    def _select_mi_greedy(self, t):
+        """One query, per the authors' strategyMFMIGreedy.m.
 
-    def _explore_lf(self, remaining_budget_proxy, S=None):
+        The reference does NOT batch an exploration phase: each call scores every
+        fidelity's own argmax and picks the best benefit-cost ratio, then applies
+        the episode-termination test. Our previous version ran a batched
+        Explore-LF whose phase budget was capped at c_H, which under-explored;
+        widening that cap to the paper's remaining-total made it run away to ~1%
+        target-fidelity queries because the pseudocode's stopping conditions never
+        fire at our cost ratios. The reference resolves this with an explicit cap
+        (`params.numLowFidel > 20`) that appears nowhere in the paper.
         """
-        Algorithm 2: greedy LF exploration. remaining_budget_proxy: use c_H
-        (one HF query's cost) as the phase budget B, per the task's
-        instruction (Song 2019 uses a fixed overall budget Lambda; this
-        codebase runs per-round instead, so B is re-set to c_H each round
-        rather than being a single shrinking global budget).
+        cands = _sample_candidates(self.bounds, self.d, _CANDIDATE_POOL)
+        best = None
+        for ell in ('L', 'H'):
+            accs = [self._acq_mi(cands[i], ell) for i in range(cands.shape[0])]
+            j = int(max(range(len(accs)), key=lambda k: accs[k]))
+            if best is None or accs[j] > best[2]:
+                best = (cands[j], ell, accs[j])
+        x_t, fid, acq = best
+        if self._episode_best_bcr < 0:
+            self._episode_best_bcr = acq
 
-        Stops when ANY of:
-            (a) cumulative LF cost would exceed B
-            (b) best LF info-gain/cost < best HF info-gain/cost (LF no
-                longer competitive with just querying HF directly)
-            (c) cumulative benefit/cost ratio for this phase < beta
-                (beta = 1/sqrt(B), O(1/sqrt(B)) per the paper); only checked
-                after at least one LF point has been selected, since an
-                empty phase has no cumulative ratio to compare.
+        cL = self.benchmark.c_L
+        c_sel = self.benchmark.c_H if fid == 'H' else cL
+        weighted = ((self._mean_acq * self._cost_low + acq * c_sel)
+                    / max(self._cost_low + c_sel, 1e-12))
+        remain = max(self._budget_total - self._spent, 1e-9)
+        thresh = (self._lambda * self._episode_best_bcr
+                  * math.sqrt(self._budget_total / remain))
 
-        De-duplication: selected candidates are removed from the pool after
-        being picked (a proxy for "diminishing returns" without implementing
-        full fantasy-GP conditioning inside this loop -- not specified by
-        the task, and full conditioning would require a third fantasy-model
-        machinery beyond what's asked here; removal at least prevents this
-        greedy loop from repeatedly re-selecting the exact same point).
+        # strategyMFMIGreedy.m: terminate the episode if the target fidelity won
+        # the argmax, if the weighted BCR fell below the threshold, or if more
+        # than 20 low-fidelity queries have been spent this episode.
+        if fid == 'H' or weighted < thresh or self._num_low_fidel > 20:
+            fid = 'H'
+            # target-fidelity point via GP-UCB (acqMFGPUCB with the single
+            # highest-fidelity model), NOT expected improvement. The paper says
+            # SF-GP-OPT may be any off-the-shelf BO routine; the reference
+            # instantiates it as GP-UCB.
+            beta_t = self._compute_beta_t_mi(t)
+            mu, sd = self._batch_post(self.gp_H, cands)
+            x_t = cands[int(torch.argmax(mu + (beta_t ** 0.5) * sd).item())]
+            self._episode_best_bcr = -1.0
+            acq = 0.0
+        return x_t, fid, acq
 
-        Returns: list of selected LF x locations (tensors, [d] each).
-        """
-        B = remaining_budget_proxy
-        beta = 1.0 / math.sqrt(max(B, 1e-6))
-        candidates = list(_sample_candidates(self.bounds, self.d, 200))
+    def _compute_beta_t_mi(self, t):
+        return 2.0 * math.log(_CANDIDATE_POOL * (t ** 2) * (math.pi ** 2)
+                              / (6.0 * 0.1))
 
-        selected = []
-        cumulative_cost = 0.0
-        cumulative_benefit = 0.0
-
-        best_hf_ratio = max(
-            (self._information_gain(x, 'H') / self.benchmark.c_H for x in candidates),
-            default=0.0,
-        )
-
-        while candidates:
-            ratios = [self._information_gain(x, 'L') / self.benchmark.c_L for x in candidates]
-            best_idx = max(range(len(candidates)), key=lambda i: ratios[i])
-            best_ratio = ratios[best_idx]
-
-            if best_ratio < best_hf_ratio:
-                break  # (b)
-            if cumulative_cost + self.benchmark.c_L > B:
-                break  # (a)
-            if selected and (cumulative_benefit / max(cumulative_cost, 1e-12)) < beta:
-                break  # (c)
-
-            x = candidates.pop(best_idx)
-            selected.append(x)
-            cumulative_cost += self.benchmark.c_L
-            cumulative_benefit += best_ratio * self.benchmark.c_L
-
-        return selected
+    def _batch_post(self, gp, X):
+        if gp is None:
+            n = X.shape[0]
+            return (torch.zeros(n, dtype=DEFAULT_DTYPE),
+                    torch.ones(n, dtype=DEFAULT_DTYPE))
+        with torch.no_grad():
+            p = gp.posterior(X)
+            return (p.mean.reshape(-1),
+                    p.variance.clamp_min(1e-12).reshape(-1).sqrt())
 
     def _select_hf_by_ei(self):
         """
@@ -569,75 +821,86 @@ class MFMIGreedyOptimizer:
             self._add_obs(x, y, 'L')
         self._refit_hf_gp()
         self._refit_error_gp()
+        self._refit_mi_extras()
+
+    def _refit_mi_extras(self):
+        """Per-fidelity LF GP and the two noise magnitudes the reference
+        acquisition needs. gp_error's outputscale stands in for the reference's
+        low-fidelity noise GP: for a stationary kernel its k(x,x) is exactly the
+        outputscale, so a scalar is equivalent, and gp_error already models the
+        LF-vs-target discrepancy the reference's noise GP represents."""
+        if self.data_L_x:
+            X = torch.stack(self.data_L_x)
+            Y = torch.tensor(self.data_L_y, dtype=DEFAULT_DTYPE)
+            self.gp_L_mi = _build_gp(X, Y, self.bounds, self.d)
+        allY = torch.tensor(list(self.data_H_y) + list(self.data_L_y),
+                            dtype=DEFAULT_DTYPE)
+        stdY = float(allY.std().item()) if allY.numel() > 1 else 1.0
+        self._target_noise_var = max(1e-4 * stdY ** 2, 1e-12)
+        lf_var = None
+        if self.gp_error is not None:
+            try:
+                cm = self.gp_error.covar_module
+                lf_var = float(cm.outputscale.item())
+            except Exception:
+                lf_var = None
+        self._lf_noise_var = lf_var if lf_var and lf_var > 0 else max(stdY ** 2, 1e-12)
 
     def run(self, bo_iterations):
-        """
-        Full run. Each round: Explore-LF (Phase 1) until its stopping
-        conditions fire, then one HF query via SF-GP-OPT (Phase 2). Returns
-        regret and cost curves (POST-INIT -- starts near 0, excludes
-        initialization spending). Terminates early once post_init_cost
-        reaches self.cost_budget; bo_iterations is a safety cap only.
-        Each round costs at most 2*c_H (Explore-LF is itself capped at
-        c_H by _explore_lf's own budget-proxy), so checking the budget
-        only at the top of each round bounds worst-case overshoot to
-        <2*c_H -- small relative to the cost_budget scales used here.
+        """One query per iteration, per the authors' mfBO.m loop.
+
+        The reference does not batch an exploration phase: getNextQuery returns a
+        single (point, fidelity) each step and the episode state (meanAcq,
+        numLowFidel, costLowFidel) is carried in params and reset whenever a
+        target-fidelity query is issued. Returns POST-INIT regret and cost curves.
         """
         self._sample_initial()
-        cumulative_cost = sum(self.benchmark.c_L for _ in self.data_L_y) \
-            + sum(self.benchmark.c_H for _ in self.data_H_y)
-        post_init_cost = 0.0
         budget = self.cost_budget if self.cost_budget is not None else float('inf')
+        self._budget_total = budget if budget != float('inf') else 1.0
+        post_init_cost = 0.0
+        regret_curve, cost_curve, fidelity_trace = [], [], []
 
-        regret_curve, cost_curve = [], []
-        # Per-QUERY fidelity trace (not per-round): a round issues a variable
-        # number of LF queries followed by exactly one HF query, so counting
-        # rounds would misreport lf_fraction.
-        fidelity_trace = []
-        for _ in range(bo_iterations):
+        for t in range(1, bo_iterations + 1):
             if post_init_cost >= budget:
                 break
-            lf_actions = self._explore_lf(self.benchmark.c_H)
-            fidelity_trace.extend([0] * len(lf_actions))
-            fidelity_trace.append(1)
-            for x in lf_actions:
-                y = self.benchmark.evaluate(x, 'L')
-                self._add_obs(x, y, 'L')
-                cumulative_cost += self.benchmark.c_L
-                post_init_cost += self.benchmark.c_L
-            self._refit_error_gp()
+            self._spent = post_init_cost
+            x_t, fid, acq = self._select_mi_greedy(t)
+            y_t = self.benchmark.evaluate(x_t, fid)
+            self._add_obs(x_t, y_t, fid)
+            c_sel = self.benchmark.c_H if fid == 'H' else self.benchmark.c_L
+            post_init_cost += c_sel
 
-            x_hf = self._select_hf_by_ei()
-            y_hf = self.benchmark.evaluate(x_hf, 'H')
-            self._add_obs(x_hf, y_hf, 'H')
-            cumulative_cost += self.benchmark.c_H
-            post_init_cost += self.benchmark.c_H
-            self._refit_hf_gp()
-            self._refit_error_gp()
+            # Episode state, mfBO.m lines 229-246. meanAcq is a COST-weighted
+            # running mean, not a plain one -- lower fidelities can differ in
+            # cost, which the commented-out unweighted version did not handle.
+            if fid == 'H':
+                self._mean_acq = 0.0
+                self._num_low_fidel = 0
+                self._cost_low = 0.0
+            else:
+                self._mean_acq = ((self._mean_acq * self._cost_low + acq * c_sel)
+                                  / max(self._cost_low + c_sel, 1e-12))
+                self._num_low_fidel += 1
+                self._cost_low += c_sel
 
-            best_hf = max(self.data_H_y)
-            # known_optimal_value_hf is on the RAW (pre-negation) scale
-            # (benchmarks.py's established convention); best_hf comes from
-            # data_H_y, populated by benchmark.evaluate() which calls the
-            # NEGATED (maximization-ready) f_hf -- so best_hf must be
-            # negated back before comparing, matching dro.py's own
-            # maximize-mode regret convention (-best_observed - known_opt).
-            regret = -best_hf - self.benchmark.known_optimal_value_hf
-            regret_curve.append(regret)
+            if fid == 'H':
+                self._refit_hf_gp()
+            self._refit_error_gp()
+            self._refit_mi_extras()
+
+            best_hf = max(self.data_H_y) if self.data_H_y else float('-inf')
+            regret_curve.append(-best_hf - self.benchmark.known_optimal_value_hf)
             cost_curve.append(post_init_cost)
+            fidelity_trace.append(1 if fid == 'H' else 0)
 
         return {
             'regret_curve': regret_curve,
             'cost_curve': cost_curve,
             'fidelity_trace': fidelity_trace,
-            'lf_fraction': sum(1 for e in fidelity_trace if e == 0)
-                / max(len(fidelity_trace), 1),
+            'fidelities': ['H' if f else 'L' for f in fidelity_trace],
+            'lf_fraction': 1.0 - (sum(fidelity_trace) / max(len(fidelity_trace), 1)),
             'initial_hf_values': self.initial_hf_values,
         }
-
-
-# ════════════════════════════════════
-# BASELINE 3: Greedy MF-MES (DT-free ablation of MF-DRO's own acquisition)
-# ════════════════════════════════════
 
 class GreedyMFMESOptimizer(GreedyMFBase):
     """
