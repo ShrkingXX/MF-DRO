@@ -173,6 +173,9 @@ def _rebuild_frozen(old_model, X, Y, bounds, d, noise_lb=_NOISE_LB):
     return new_model
 
 
+from src.baselines.additive_mfgp import AdditiveMFGP
+
+
 def _gp_posterior_or_prior(gp, x):
     """
     (mean, std) at x. gp=None (no observations yet at this fidelity) falls
@@ -667,7 +670,7 @@ class MFMIGreedyOptimizer:
         self._episode_best_bcr = -1.0
         self._budget_total = float(cost_budget) if cost_budget else 1.0
         self._spent = 0.0
-        self.gp_L_mi = None
+        self._amfgp = AdditiveMFGP(self.d, 2)
         self._lf_noise_var = 1.0
         self._target_noise_var = 1e-4
         self.data_H_x, self.data_H_y = [], []
@@ -700,8 +703,8 @@ class MFMIGreedyOptimizer:
         residual = Y - mu_H_at_L
         self.gp_error = _build_gp(X, residual, self.bounds, self.d)
 
-    def _acq_mi(self, x, ell, gp_L=None):
-        """Reference acquisition, verbatim from the authors' acqMFMIGreedy.m:
+    def _acq_mi(self, x, ell):
+        """Reference acquisition, from the authors' acqMFMIGreedy.m:
 
             [~,~,nextStd]   = funcs{i}(x);          % fidelity i's OWN posterior std
             [nextNoiseStd]  = noiseFuncHs{i}(x,x);  % fidelity i's OWN noise
@@ -711,66 +714,101 @@ class MFMIGreedyOptimizer:
         fidelity's variance for both arms. That form appears in acqMFMIGreedy.m
         as commented-out code -- the author tried it and did not ship it.
 
-        noise at fidelity i: the reference uses a squared-exponential noise GP
-        for i < M, whose k(x,x) is the constant outputscale for a stationary
-        kernel, and 1e-4*std(Y)^2 at the target. We use gp_error's outputscale
-        for the low fidelity (it models exactly that LF-vs-target discrepancy)
-        and 1e-4*std(Y)^2 at the target.
+        DELIBERATE DEVIATION, one squaring. `funcs{i}` is AdditiveGPRegression's
+        handle and GPComputeOutputs sets `yStd = sqrt(real(diag(yK)))`, so
+        `nextStd^2` is a genuine variance. But `noiseFuncHs{i}(x,x)` is a kernel
+        DIAGONAL -- sqExpKernel is `scale*exp(-D/2bw^2)`, hence k(x,x) = scale --
+        which is already a variance, and the reference squares it again. Taken
+        literally the acquisition is variance / variance^2, and at the target
+        fidelity the denominator becomes (1e-4*stdY^2)^2 = 1e-8*stdY^4, driving
+        the target-fidelity ratio so high that the episode terminates on its
+        first step every time. That is precisely the 100%-target-fidelity
+        collapse we measured. We therefore use the paper's Gaussian mutual
+        information, 0.5*log(1 + sigma^2/sigma_noise^2), treating
+        noiseFuncs{i}(x,x) as the variance it is. Every other element of the
+        acquisition -- per-fidelity posterior, per-fidelity noise, cost
+        division -- follows the reference exactly.
         """
-        if ell == 'H':
-            gp = self.gp_H
-            noise_var = self._target_noise_var
-        else:
-            gp = gp_L if gp_L is not None else self.gp_L_mi
-            noise_var = self._lf_noise_var
-        _, sigma = _gp_posterior_or_prior(gp, x)
-        var = float((sigma ** 2).item())
+        fi = 0 if ell == 'L' else 1
+        _, var = self._amfgp.posterior(x.reshape(1, -1).cpu().numpy(), fi)
+        noise_var = self._amfgp.noise_var[fi]
         cost = self.benchmark.c_H if ell == 'H' else self.benchmark.c_L
-        return 0.5 * math.log(1.0 + var / max(noise_var, 1e-12)) / cost
+        return 0.5 * math.log(1.0 + float(var[0]) / max(noise_var, 1e-12)) / cost
+
+    def _acq_mi_batch(self, X, ell):
+        fi = 0 if ell == 'L' else 1
+        _, var = self._amfgp.posterior(X.cpu().numpy(), fi)
+        noise_var = self._amfgp.noise_var[fi]
+        cost = self.benchmark.c_H if ell == 'H' else self.benchmark.c_L
+        return 0.5 * np.log(1.0 + var / max(noise_var, 1e-12)) / cost
 
     def _select_mi_greedy(self, t):
         """One query, per the authors' strategyMFMIGreedy.m.
 
         The reference does NOT batch an exploration phase: each call scores every
         fidelity's own argmax and picks the best benefit-cost ratio, then applies
-        the episode-termination test. Our previous version ran a batched
-        Explore-LF whose phase budget was capped at c_H, which under-explored;
-        widening that cap to the paper's remaining-total made it run away to ~1%
-        target-fidelity queries because the pseudocode's stopping conditions never
-        fire at our cost ratios. The reference resolves this with an explicit cap
-        (`params.numLowFidel > 20`) that appears nowhere in the paper.
+        the episode-termination test.
+
+        TWO STRUCTURES THE PAPER'S PSEUDOCODE DOES NOT CONTAIN, both load-bearing:
+
+        isFirstEpisode. While the first episode is live, a target-fidelity
+        argmax win is OVERRIDDEN to fidelity 1 (`nextFidel = 1`), so the run
+        opens with a forced low-fidelity exploration phase. The flag clears at
+        the first target-fidelity query and never returns. Without it every
+        episode terminates on its first step and the method is single-fidelity.
+
+        remainBudget is FROZEN within an episode -- mfBO.m updates it only in
+        the `nextFidel == numFidels` branch. The threshold's
+        sqrt(totalBudget/remainBudget) factor is therefore constant across an
+        episode rather than growing every query.
+
+        The threshold is knife-edge by construction: on an episode's first step
+        meanAcq and costLowFidel are 0, so the left side equals episodeBestBCR
+        exactly and the test reduces to 1 < sqrt(totalBudget/remainBudget). Any
+        budget already spent makes that true, which is why lambda is a
+        per-problem constant in the reference (mfBO.m carries 0.2, 1, 45 and 150
+        for different applications).
         """
         cands = _sample_candidates(self.bounds, self.d, _CANDIDATE_POOL)
         best = None
         for ell in ('L', 'H'):
-            accs = [self._acq_mi(cands[i], ell) for i in range(cands.shape[0])]
-            j = int(max(range(len(accs)), key=lambda k: accs[k]))
+            accs = self._acq_mi_batch(cands, ell)
+            j = int(np.argmax(accs))
             if best is None or accs[j] > best[2]:
-                best = (cands[j], ell, accs[j])
+                best = (cands[j], ell, float(accs[j]))
         x_t, fid, acq = best
-        if self._episode_best_bcr < 0:
-            self._episode_best_bcr = acq
+        episode_best = acq if self._episode_best_bcr < 0 else self._episode_best_bcr
+        self._episode_best_bcr = episode_best
 
-        cL = self.benchmark.c_L
-        c_sel = self.benchmark.c_H if fid == 'H' else cL
-        weighted = ((self._mean_acq * self._cost_low + acq * c_sel)
-                    / max(self._cost_low + c_sel, 1e-12))
-        remain = max(self._budget_total - self._spent, 1e-9)
-        thresh = (self._lambda * self._episode_best_bcr
+        remain = max(self._remain_budget, 1e-9)
+        thresh = (self._lambda * episode_best
                   * math.sqrt(self._budget_total / remain))
 
-        # strategyMFMIGreedy.m: terminate the episode if the target fidelity won
-        # the argmax, if the weighted BCR fell below the threshold, or if more
-        # than 20 low-fidelity queries have been spent this episode.
-        if fid == 'H' or weighted < thresh or self._num_low_fidel > 20:
+        def weighted_with(c):
+            return ((self._mean_acq * self._cost_low + acq * c)
+                    / max(self._cost_low + c, 1e-12))
+
+        if self._is_first_episode:
+            if fid == 'H':                      # forced down to fidelity 1
+                fid = 'L'
+            terminate = weighted_with(self.benchmark.c_L) < thresh
+        else:
+            terminate = (fid == 'H'
+                         or weighted_with(self.benchmark.c_H if fid == 'H'
+                                          else self.benchmark.c_L) < thresh
+                         or self._num_low_fidel > 20)
+
+        if terminate:
             fid = 'H'
             # target-fidelity point via GP-UCB (acqMFGPUCB with the single
             # highest-fidelity model), NOT expected improvement. The paper says
             # SF-GP-OPT may be any off-the-shelf BO routine; the reference
             # instantiates it as GP-UCB.
             beta_t = self._compute_beta_t_mi(t)
-            mu, sd = self._batch_post(self.gp_H, cands)
-            x_t = cands[int(torch.argmax(mu + (beta_t ** 0.5) * sd).item())]
+            # strategyMFMIGreedy.m passes the SAME funcs to the target-point
+            # routine, so the surrogate is the joint additive GP, not gp_H.
+            mu, var = self._amfgp.posterior(cands.cpu().numpy(), 1)
+            x_t = cands[int(np.argmax(mu + (beta_t ** 0.5) * np.sqrt(var)))]
             self._episode_best_bcr = -1.0
             acq = 0.0
         return x_t, fid, acq
@@ -824,27 +862,33 @@ class MFMIGreedyOptimizer:
         self._refit_mi_extras()
 
     def _refit_mi_extras(self):
-        """Per-fidelity LF GP and the two noise magnitudes the reference
-        acquisition needs. gp_error's outputscale stands in for the reference's
-        low-fidelity noise GP: for a stationary kernel its k(x,x) is exactly the
-        outputscale, so a scalar is equivalent, and gp_error already models the
-        LF-vs-target discrepancy the reference's noise GP represents."""
-        if self.data_L_x:
-            X = torch.stack(self.data_L_x)
-            Y = torch.tensor(self.data_L_y, dtype=DEFAULT_DTYPE)
-            self.gp_L_mi = _build_gp(X, Y, self.bounds, self.d)
-        allY = torch.tensor(list(self.data_H_y) + list(self.data_L_y),
-                            dtype=DEFAULT_DTYPE)
-        stdY = float(allY.std().item()) if allY.numel() > 1 else 1.0
-        self._target_noise_var = max(1e-4 * stdY ** 2, 1e-12)
-        lf_var = None
-        if self.gp_error is not None:
-            try:
-                cm = self.gp_error.covar_module
-                lf_var = float(cm.outputscale.item())
-            except Exception:
-                lf_var = None
-        self._lf_noise_var = lf_var if lf_var and lf_var > 0 else max(stdY ** 2, 1e-12)
+        """Fit the authors' JOINT additive multi-fidelity GP over both fidelities.
+
+        AdditiveGPRegression.m models f_i(x) = f_M(x) + eps_i(x) with a SHARED
+        target kernel over the pooled data plus a per-fidelity discrepancy
+        kernel, inverted with a single Cholesky, so low-fidelity observations
+        inform the target posterior directly. `noiseFuncs{i}(x,x)` is then that
+        discrepancy kernel's diagonal, i.e. the fitted scale_i.
+
+        This replaces two independently fitted GPs (gp_H on target data,
+        gp_error on low-fidelity residuals) whose outputscale merely stood in for
+        the noise GP. Under that approximation low-fidelity data could not inform
+        the target posterior at all, and the noise magnitude -- which sets the
+        entire low-vs-target balance in _acq_mi -- was never fit to anything.
+        """
+        X_list, Y_list = [], []
+        for xs, ys in ((self.data_L_x, self.data_L_y), (self.data_H_x, self.data_H_y)):
+            if xs:
+                X_list.append(torch.stack(list(xs)).cpu().numpy())
+                Y_list.append(np.asarray(list(ys), dtype=float))
+            else:
+                X_list.append(np.zeros((0, self.d)))
+                Y_list.append(np.zeros(0))
+        lo = self.bounds[0].cpu().numpy() if torch.is_tensor(self.bounds[0]) else np.asarray(self.bounds[0])
+        hi = self.bounds[1].cpu().numpy() if torch.is_tensor(self.bounds[1]) else np.asarray(self.bounds[1])
+        self._amfgp.fit(X_list, Y_list, (lo, hi))
+        self._lf_noise_var = self._amfgp.noise_var[0]
+        self._target_noise_var = self._amfgp.noise_var[1]
 
     def run(self, bo_iterations):
         """One query per iteration, per the authors' mfBO.m loop.
@@ -857,6 +901,8 @@ class MFMIGreedyOptimizer:
         self._sample_initial()
         budget = self.cost_budget if self.cost_budget is not None else float('inf')
         self._budget_total = budget if budget != float('inf') else 1.0
+        self._remain_budget = self._budget_total
+        self._is_first_episode = True
         post_init_cost = 0.0
         regret_curve, cost_curve, fidelity_trace = [], [], []
 
@@ -877,6 +923,10 @@ class MFMIGreedyOptimizer:
                 self._mean_acq = 0.0
                 self._num_low_fidel = 0
                 self._cost_low = 0.0
+                # mfBO.m:232 -- remainBudget is refreshed here and ONLY here,
+                # so it stays frozen for the whole of the next episode.
+                self._remain_budget = max(budget - post_init_cost, 1e-9)
+                self._is_first_episode = False
             else:
                 self._mean_acq = ((self._mean_acq * self._cost_low + acq * c_sel)
                                   / max(self._cost_low + c_sel, 1e-12))
