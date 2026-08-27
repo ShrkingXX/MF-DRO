@@ -1,0 +1,176 @@
+{
+ "Hartmann_6D": [
+  [
+   42,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 11.955312688413336,
+     "own_best_regret": 16.414033894333496,
+     "n_hf": 14,
+     "n_lf": 181
+    },
+    "B_MFMES_data": {
+     "rec_regret": 24.898266422212526,
+     "own_best_regret": 9.950823119668906,
+     "n_hf": 31,
+     "n_lf": 50
+    }
+   }
+  ],
+  [
+   43,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 13.419866679469445,
+     "own_best_regret": 0.6657205005889665,
+     "n_hf": 30,
+     "n_lf": 53
+    },
+    "B_MFMES_data": {
+     "rec_regret": 18.417788412111115,
+     "own_best_regret": 1.305093319024313,
+     "n_hf": 27,
+     "n_lf": 78
+    }
+   }
+  ],
+  [
+   44,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 11.955312688413336,
+     "own_best_regret": 7.982905817311987,
+     "n_hf": 18,
+     "n_lf": 154
+    },
+    "B_MFMES_data": {
+     "rec_regret": 21.175589818099652,
+     "own_best_regret": 9.08721998212918,
+     "n_hf": 25,
+     "n_lf": 98
+    }
+   }
+  ],
+  [
+   45,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 11.955312688413336,
+     "own_best_regret": 5.277301412187746,
+     "n_hf": 12,
+     "n_lf": 198
+    },
+    "B_MFMES_data": {
+     "rec_regret": 23.177587294354428,
+     "own_best_regret": 6.787744366036491,
+     "n_hf": 30,
+     "n_lf": 57
+    }
+   }
+  ],
+  [
+   46,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 16.449745394005177,
+     "own_best_regret": 7.422826486827896,
+     "n_hf": 14,
+     "n_lf": 181
+    },
+    "B_MFMES_data": {
+     "rec_regret": 11.955312688413336,
+     "own_best_regret": 5.956347643101152,
+     "n_hf": 27,
+     "n_lf": 79
+    }
+   }
+  ]
+ ],
+ "Borehole_8D": [
+  [
+   42,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 23.83929632816846,
+     "own_best_regret": 15.281187017973705,
+     "n_hf": 103,
+     "n_lf": 34
+    },
+    "B_MFMES_data": {
+     "rec_regret": 22.00306367511489,
+     "own_best_regret": 1.358096965181172,
+     "n_hf": 96,
+     "n_lf": 48
+    }
+   }
+  ],
+  [
+   43,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 21.611463037649738,
+     "own_best_regret": 14.766317699562588,
+     "n_hf": 109,
+     "n_lf": 23
+    },
+    "B_MFMES_data": {
+     "rec_regret": 22.00306367511489,
+     "own_best_regret": 6.300003886321864,
+     "n_hf": 94,
+     "n_lf": 53
+    }
+   }
+  ],
+  [
+   44,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 22.00306367511489,
+     "own_best_regret": 12.9330257172482,
+     "n_hf": 103,
+     "n_lf": 34
+    },
+    "B_MFMES_data": {
+     "rec_regret": 25.28709404346441,
+     "own_best_regret": 15.219619991802146,
+     "n_hf": 89,
+     "n_lf": 63
+    }
+   }
+  ],
+  [
+   45,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 22.00306367511489,
+     "own_best_regret": 16.90286781271887,
+     "n_hf": 101,
+     "n_lf": 39
+    },
+    "B_MFMES_data": {
+     "rec_regret": 16.19760966395485,
+     "own_best_regret": 0.8322136344452812,
+     "n_hf": 98,
+     "n_lf": 44
+    }
+   }
+  ],
+  [
+   46,
+   {
+    "A_MFDRO_data": {
+     "rec_regret": 23.83929632816846,
+     "own_best_regret": 19.191617389345836,
+     "n_hf": 104,
+     "n_lf": 33
+    },
+    "B_MFMES_data": {
+     "rec_regret": 21.611463037649738,
+     "own_best_regret": 8.085148472173158,
+     "n_hf": 94,
+     "n_lf": 52
+    }
+   }
+  ]
+ ]
+}
