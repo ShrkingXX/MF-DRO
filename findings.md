@@ -4811,3 +4811,80 @@ general conclusion to a five-seed result.
 
 STATUS: EXPLORATORY read-only analysis of another session's in-progress
 experiment. Its Borehole arms are still running.
+
+# ================================================================
+# WITHDRAWN: the HF floor's variance result. It did not replicate.
+# ================================================================
+
+**Reported as prominently as the original claim, per h89's pre-registered
+falsifier.**
+
+h85 measured the real-query HF floor on Hartmann at 5/5 seeds: mean
+7.99% -> 6.62% and across-seed sd **5.85 -> 2.00**, a 66% variance cut. I
+recorded it as PROVISIONAL and registered h89 to confirm it at fresh seeds with
+`real_hf_every=4` fixed in advance.
+
+h89, seeds 52-56:
+
+   seed   control    floor     diff   control LF streak
+     52     2.54%    2.54%    +0.00                   4
+     53     0.82%    0.82%    +0.00                   1
+     54     0.76%    9.07%    +8.30                  11
+     55     5.78%    5.45%    -0.33                   6
+     56     3.39%    3.39%    +0.00                   1
+
+   control mean 2.66% sd 2.08    floor mean 4.25% sd **3.17**
+   paired mean **+1.60 pts**, better 1/5
+
+**P1 (PRIMARY, variance) FAILED: sd went UP, 2.08 -> 3.17. P2 FAILED: the mean
+got WORSE by 1.60 pts. The variance claim is withdrawn.**
+
+## P3 MET but P4 inverted — the mechanism is worse than "did not replicate"
+
+P3 asked whether fidelity collapse recurs at fresh seeds. It does: LF streaks of
+4, 11 and 6 on three of five, so the floor had something to fire on.
+
+P4 asked whether the gain concentrates in collapsed seeds. **The correlation is
+-0.84 -- the wrong sign.** The floor HARMS the most-collapsed seeds. Seed 54,
+whose control has the longest streak (11), is where the floor does its worst
+damage: 0.76% -> 9.07%, a 12x degradation. The two seeds it left untouched
+(53, 56, streak 1) are unchanged by construction.
+
+So the mechanism story is not merely unconfirmed, it is INVERTED. I claimed the
+floor rescues runs whose fidelity head collapses. On fresh seeds it wrecks them.
+
+## Why h85 looked good, in hindsight
+
+h85's seeds 42-46 had control LF streaks of 131, 5, 73, 75, 50 -- four of five
+collapsed, and collapsed far harder than anything at seeds 52-56 (max 11). The
+h85 control was therefore unusually BAD, and much of the "variance reduction"
+was the floor pulling in an unusually dispersed control rather than the floor
+being stabilising. h85's own gain was carried almost entirely by seed 42
+(16.41% -> 6.91%), which I recorded at the time; the fresh seeds contain no
+comparably catastrophic control, and the effect vanishes.
+
+## Cost of this episode
+
+Second withdrawal today, same shape as the first: a result that met its bars at
+n=5 on one seed set, was recorded as provisional with caveats attached, and did
+not survive fresh seeds. The Hartmann ROI flip went the same way (h84 4/5 ->
+h87 2/5).
+
+**What keeps working is the confirmation discipline, not my judgement about
+which results will hold.** Both withdrawn claims looked good and had honest
+caveats attached. Only the fresh-seed reruns separated them from the real ones.
+
+## A PROCESS MISS, disclosed
+
+h89's protocol stated the analysis script would be committed BEFORE the
+treatment arm finished. It was not: the Hartmann floor arm completed first and
+seed 53's outcome had been observed before the script existed. The bars were
+transcribed unmodified and the verdict is mechanical, but the "written blind"
+guarantee does not hold for this arm. It does hold for the Borehole refinement
+arm, still running.
+
+## Still standing
+
+The teacher-refinement result (Borehole -5.85 pts, 5/5) remains PROVISIONAL and
+untested at fresh seeds. Given two withdrawals today, it should be assumed not
+to replicate until h89's Borehole arm says otherwise.
