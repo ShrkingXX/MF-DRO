@@ -4888,3 +4888,58 @@ arm, still running.
 The teacher-refinement result (Borehole -5.85 pts, 5/5) remains PROVISIONAL and
 untested at fresh seeds. Given two withdrawals today, it should be assumed not
 to replicate until h89's Borehole arm says otherwise.
+
+## THE DIAGNOSIS THAT LAUNCHED THIS INVESTIGATION IS LARGELY SEED-SET SPECIFIC
+
+The premise of the entire ROI programme, stated in every task prompt:
+
+  "MF-DRO's mean HF query score is 0.336 vs MF-MES's 0.747 on Hartmann, 20.8% of
+   its HF queries land WORSE than the initial design, and its proposals are 3x
+   more dispersed."
+
+Every one of those numbers was measured on seeds 42-46. The same configuration,
+unchanged, on seeds 52-56:
+
+  seed set    n   mean q-score   best q   % below init   HF queries
+  42-46       5          0.336    0.858         20.8%           12
+  52-56       5          0.685    0.963          4.2%           24
+  (MF-MES on 42-46:      0.747                   5.3%)
+
+**On fresh seeds MF-DRO wastes 4.2% of its high-fidelity budget, not 20.8%.**
+Its mean query score doubles, its best query rises from 0.858 to 0.963, and it
+takes 24 real HF evaluations instead of 12. Those are the numbers that were used
+to characterise MF-DRO as wasteful; at other seeds it is not, or is far less so.
+
+### What this does and does not overturn
+
+DOES NOT invalidate the interventions' paired results. Every arm was compared
+against a control on the SAME seeds, so seed difficulty cancels within each
+comparison. Borehole ROI -4.22 (5/5) and Borehole refinement -5.85 (5/5) are
+real differences on the instances they were measured on.
+
+DOES mean the PROBLEM those interventions address is much smaller on typical
+seeds than the founding diagnosis implies. An intervention that recovers wasted
+high-fidelity budget has far less to recover when only 4.2% is being wasted.
+This is exactly why the HF floor -- which targets the collapse directly --
+produced -1.37 pts on 42-46 and +1.60 on 52-56.
+
+CANNOT YET SAY the GAP to MF-MES closed. MF-MES was not run at 52-56. And the
+seed sets do not move the two methods together: h87 measured MF-MES at 9.89 on
+seeds 47-51 against 6.62 on 42-46, i.e. WORSE, while MF-DRO is BETTER at 52-56.
+Establishing whether MF-DRO's deficit is itself seed-set specific requires
+running MF-MES at 52-56. That is 5 cheap runs (~2 min each) and it is the single
+highest-value unrun experiment in this project.
+
+### The pattern, now four instances deep
+
+  1. h84's Hartmann paired sd of 0.45 became 7.45 at fresh seeds.
+  2. "Lower tail risk" was a property of seeds 47-51.
+  3. The fidelity-head collapse rate is 80% on 42-46 and 29% on 52-56.
+  4. The founding diagnosis itself: 20.8% waste on 42-46, 4.2% on 52-56.
+
+Seeds 42-46 are not a neutral sample of Hartmann instances for MF-DRO. Every
+headline number in h83, h84, h85 and h86 rests on them.
+
+STATUS: EXPLORATORY. Derived from the concurrent session's H89 control arm,
+read-only, no new runs. Borehole's fresh controls are still running and will say
+whether the same holds there.
