@@ -257,3 +257,33 @@ Verifying `real_hf_every=4` does what it says, from live checkpoints:
 NO PERFORMANCE CLAIM IS MADE HERE. This records only that the intervention
 fires as specified and where it can possibly matter, so that a null on Borehole
 is not later mistaken for a null on the mechanism.
+
+## In-flight cost measurement (provisional; P4 is on the boundary)
+
+Wall-clock minutes per post-init query, against h83's MF-DRO runs as the
+REFINE-0 control:
+
+  arm          bench          min/query   vs control
+  REFINE-0     Hartmann_6D        0.783       1.00x
+  REFINE-0     Borehole_8D        0.773       1.00x
+  REFINE-100   Hartmann_6D        1.562       1.99x
+  REFINE-100   Borehole_8D        1.565       2.02x
+  HF-FLOOR     Hartmann_6D        0.938       1.20x
+  HF-FLOOR     Borehole_8D        0.935       1.21x
+
+TWO READINGS.
+
+1. **Refinement is firing.** A ~2x cost is the expected signature of 100 extra
+   acquisition evaluations per rollout step. The arm is not silently inert --
+   worth confirming, since the teacher_refine_samples branch had a latent bug
+   (it grew the shared candidate pool across rollout steps) that was only fixed
+   on 2026-08-27 and had never been exercised at teacher_refine_samples > 0.
+2. **P4 is on the boundary and likely to FAIL.** It required wall-clock under
+   2x. Borehole already reads 2.02x. Whatever the regret result, a fix that
+   doubles wall-clock is a different proposition from one that is free, and P4
+   exists precisely to keep that visible.
+
+PROVISIONAL: these are in-flight rates from partial runs. MF-DRO slows as data
+accumulates, so the final ratio could move in either direction depending on
+whether refinement's overhead scales with the data or stays constant. No bar is
+being called; the verdict comes from analyse.py at 5/5.
