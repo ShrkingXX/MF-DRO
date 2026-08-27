@@ -4028,3 +4028,46 @@ The control argument stands on its own: fixed beta cannot set ROI tightness
 (12.6%-100% across benchmarks, 250x within a run, 6.9x across seeds), while
 calibration hits its target to 1e-4 every run and bounds rejection cost. That is
 true regardless of which benchmarks the ROI helps.
+
+### Why the ROI hurts Currin — measured, and it makes the pattern quantitative
+
+  bench         arm        HFq   LF%   mean q   best q   <init   rel.reg   beta_t
+  Currin_2D     no ROI      27   81%    0.934    0.999    0.0%    0.01%      --
+  Currin_2D     ROI-Q10     24   84%    0.926    0.996    0.0%    0.13%     4.04
+  Hartmann_6D   no ROI      12   80%    0.336    0.858   20.8%    7.55%      --
+  Hartmann_6D   ROI-Q10     13   74%    0.338    0.874   19.6%    5.93%     2.55
+  Borehole_8D   no ROI      94   12%    0.381    0.633    7.9%   15.82%      --
+  Borehole_8D   ROI-Q10     85   26%    0.495    0.734    3.0%   11.59%     1.86
+
+TWO THINGS EXPLAIN CURRIN.
+
+1. THE REGRESSION IS TINY IN ABSOLUTE TERMS AND LARGE IN RELATIVE ONES. Best
+   query score goes 0.999 -> 0.996, a change of 0.003. But relative regret is
+   the REMAINING gap, and when you are already 99.9% of the way to the optimum,
+   losing 0.003 multiplies what is left by roughly 13x. The "0.01% -> 0.13%"
+   headline and the "-0.003 in best score" are the same event. Both are true;
+   the second is the honest scale.
+
+2. CURRIN HAS NO BUDGET WASTE FOR THE ROI TO FIX. The ROI exists to stop MF-DRO
+   spending high-fidelity budget on low-value regions. On Currin, ZERO PERCENT
+   of MF-DRO's HF queries land below its initial design and the mean query
+   scores 0.934 -- there is no waste. Applying a concentration mechanism to a
+   method that is not wasting anything can only cost.
+
+THE PATTERN, NOW QUANTITATIVE. The ROI's effect on the BEST query tracks how
+much headroom the method had:
+
+  benchmark    headroom (1 - best q)   d(best q)   d(rel.regret)
+  Borehole_8D          0.367            +0.101       -4.22 pts
+  Hartmann_6D          0.142            +0.016       -2.05 pts
+  Currin_2D            0.001            -0.003       +0.11 pts
+
+Earlier I offered "concentration helps when there is ground to make up and
+costs a little when the method is already near-optimal" as a plausible post-hoc
+story. It is now measured on the quantity that determines regret, and it is
+monotone across all three. It remains three points and a mechanism, not a law --
+Ackley is the fourth and its headroom is 0.433 with d(best q) small, which does
+NOT fit, so the relationship is not simply proportional to headroom.
+
+STATUS: EXPLORATORY. Derived from completed runs, no new experiment. The Ackley
+exception is stated rather than dropped.
