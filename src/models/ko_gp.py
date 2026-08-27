@@ -415,6 +415,15 @@ class KennedyOHaganGP:
         return new_model
 
     def fit(self, X_lf, Y_lf, X_hf, Y_hf, bounds):
+        # H82: mf_dro memoises pure functions of this model (hyperparameter
+        # features, y* draws, reference-grid features) on a cache attached to
+        # the object. fit() mutates the hyperparameters IN PLACE, so every
+        # cached value becomes stale here and must be dropped. make_fantasy_ko
+        # returns a NEW object and so needs no invalidation. This is the only
+        # place a KennedyOHaganGP's parameters change after construction.
+        _c = getattr(self, "_mfdro_cache", None)
+        if _c is not None:
+            _c.clear()
         """
         Fit all parameters via 3 rounds of alternating optimization:
             Step 1: fit gp_lf on (X_lf, Y_lf)

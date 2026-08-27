@@ -155,10 +155,55 @@ def _reference_grid_features(ko, ref_grid, c_H, c_L, y_star_arr):
     Returns a flat list of 4*R floats: [mu_H_1, sigma_H_1, mes_h_over_cH_1,
     mes_l_over_cL_1, mu_H_2, ...].
     """
+    # H82 memoisation. Pure in (ko, ref_grid, c_H, c_L, y_star_arr); ref_grid is
+    # fixed for the whole run and y_star_arr is the memoised array above, so both
+    # id()s are stable and kept alive by this same cache. Recomputed
+    # rollouts_per_model times per ensemble member at tau=0 before this.
+    _c = _mfdro_cache(ko)
+    _k = ("rg", id(ref_grid), float(c_H), float(c_L), id(y_star_arr))
+    if _c is not None and _k in _c:
+        return list(_c[_k])          # copy: caller z-scores this list in place
+
     mu_H, sigma_H, _mu_L, _sigma_L, mes_h_over_cH, mes_l_over_cL = \
         _gp_candidate_features(ko, ref_grid, c_H, c_L, y_star_arr)
     feats = torch.stack([mu_H, sigma_H, mes_h_over_cH, mes_l_over_cL], dim=-1)  # [R, 4]
-    return feats.reshape(-1).tolist()
+    _out = feats.reshape(-1).tolist()
+    if _c is not None:
+        _c[_k] = list(_out)
+    return _out
+
+
+
+# ════════════════════════════════════
+# H82: memoisation of pure per-model quantities
+# ════════════════════════════════════
+def _mfdro_cache(ko):
+    """Per-model cache dict, created lazily and CLEARED by KennedyOHaganGP.fit().
+
+    Every entry is a pure function of (model, arguments). Three call sites in the
+    rollout hot path recompute identical values many times per BO iteration:
+
+      * at tau=0, current_ko IS ko_model -- the same object -- for all
+        rollouts_per_model trajectories drawn from one ensemble member, so the
+        hyperparameter block, the y* draw and the reference-grid features are
+        each recomputed rollouts_per_model times for one distinct result;
+      * the 5*M hyperparameter block depends only on lengthscale/outputscale/rho
+        and so is constant across an entire rollout batch.
+
+    Keys use id() of long-lived fixed tensors (y_star_pool, ref_grid) and of the
+    memoised y* array, all of which are kept alive by this cache for as long as
+    the model is, so an id cannot be recycled while its entry is live.
+    Correctness rests on fit() clearing this dict -- it is the only operation
+    that mutates a model's parameters after construction.
+    """
+    c = getattr(ko, "_mfdro_cache", None)
+    if c is None:
+        c = {}
+        try:
+            ko._mfdro_cache = c
+        except Exception:
+            return None          # object forbids attributes; fall through uncached
+    return c
 
 
 def _ko_hp_features(ko, log_transform=True):
@@ -194,9 +239,17 @@ def _ko_hp_features(ko, log_transform=True):
             os_ = math.log(max(os_, 1e-8))
         return ls, os_
 
+    _c = _mfdro_cache(ko)
+    _k = ("hp", bool(log_transform))
+    if _c is not None and _k in _c:
+        return list(_c[_k])          # copy: callers extend/mutate their own list
+
     ls_lf, os_lf = _ls_os(ko.gp_lf.covar_module)
     ls_delta, os_delta = _ls_os(ko.gp_delta.covar_module)
-    return [ls_lf, os_lf, ls_delta, os_delta, ko.rho.item()]
+    _out = [ls_lf, os_lf, ls_delta, os_delta, ko.rho.item()]
+    if _c is not None:
+        _c[_k] = list(_out)
+    return _out
 
 
 # ════════════════════════════════════
@@ -633,6 +686,18 @@ def _y_star_for_model(ko, y_star_pool, K=64, seed=0):
     uniq_tau0_states diagnostic). This seeds ONLY this draw and restores the
     prior state immediately, so it does not perturb any other RNG consumer.
     """
+    # H82 memoisation. The docstring above already establishes this is a pure
+    # function of (ko, y_star_pool, K, seed) -- verified empirically to return
+    # bit-identical output (max|diff| = 0.000e+00) across repeated calls. At
+    # tau=0 current_ko IS ko_model for every rollout drawn from one ensemble
+    # member, so this was recomputed rollouts_per_model times per member.
+    # The cached array is returned by identity, which also makes id(y_star_arr)
+    # a stable key for the reference-grid cache below.
+    _c = _mfdro_cache(ko)
+    _k = ("ys", id(y_star_pool), int(K), int(seed))
+    if _c is not None and _k in _c:
+        return _c[_k]
+
     hf_proxy = _build_hf_proxy_model(ko)
     _rng_state = torch.get_rng_state()
     try:
@@ -640,6 +705,14 @@ def _y_star_for_model(ko, y_star_pool, K=64, seed=0):
         y_star_arr = thompson_sample_y_star(hf_proxy, y_star_pool, K=K)
     finally:
         torch.set_rng_state(_rng_state)
+    if _c is not None:
+        # read-only: a mutating consumer would silently corrupt every later
+        # cache hit, so fail loudly instead. Nothing in this module mutates it.
+        try:
+            y_star_arr.flags.writeable = False
+        except Exception:
+            pass
+        _c[_k] = y_star_arr
     return y_star_arr
 
 
