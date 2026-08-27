@@ -109,3 +109,21 @@ Both controls run FIRST (Lesson 21). Total 20 runs.
 If P5 fails, the refinement result is withdrawn as prominently as it was
 recorded. If P5 passes but P6 fails, it is reported as a real but much smaller
 effect than h85 suggested, and h85's figure is corrected.
+
+## Amendment 2 — run MF-MES at seeds 52-56 so P8 is evaluable (before the treatment arm finishes)
+
+P8 was registered as "refinement does NOT close the gap to MF-MES on Borehole
+(6.40%)". That 6.40% is measured at seeds 42-46. h87 showed fresh seeds can be
+3.27 pts harder for MF-MES, so comparing a seeds-52-56 result against it would
+be a cross-seed-set comparison of exactly the kind that produced the
+final_regret-vs-grid-at-200 error earlier today. The analysis script already
+refuses that comparison and prints CANNOT EVALUATE.
+
+The fix is to run the comparator at the matched seeds. MF-MES on Borehole costs
+~5 min/run against MF-DRO's ~100, and 10 worker slots are free while the
+REFINE-100 arm finishes.
+
+THIS DOES NOT CHANGE P8. The bar is unchanged; this makes it evaluable as
+written. No treatment run is added, no configuration is altered, and the
+Borehole REFINE-100 arm is untouched and still unfinished, so its verdict
+remains written-blind.
