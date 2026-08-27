@@ -108,3 +108,21 @@ The IR (inference regret) plot was dropped at the human's explicit direction.
 <= 15 concurrent workers, 1 thread each (15-core M5 Pro). Every job checkpoints
 its trace every 20 s to results/ckpt/ so a killed run is not total loss and a
 run in flight can be inspected with freeze_watch.py.
+
+## Amendment (made at launch, BEFORE any result file existed — 0/100 complete)
+
+COSMETIC DEFECT, knowingly left in place. `worker.py:81` passes the literal
+`"h57"` as `exp_name` to `_build_mf_dro_config` for the MF-DRO and MF-MES arms,
+inherited from the copied h57 worker. Verified harmless before deciding to leave
+it: `exp_name` drives only `results/{exp_name}/{checkpoints,logs}`;
+`src/policy/mf_dro.py` contains NO resume/checkpoint-load path; `setup_dirs` is
+never called on that arm; `log_iter`/`log_global` are guarded; and `results/h57`
+does not exist on disk. Nothing is created, written or read under it, so no h57
+state can leak into an h83 run despite the overlapping seeds 44 and 46.
+
+Not fixed mid-flight because editing worker.py would make jobs launched after
+the edit run different source than the 15 already in flight — the exact
+moving-src/ hazard the per-run code hash exists to detect — in exchange for
+changing nothing observable. The SF-DRO arm is labelled correctly
+(`setup_dirs(f"h83_{bench}_{seed}")`, confirmed writing to
+`results/h83_Currin_2D_42`).
