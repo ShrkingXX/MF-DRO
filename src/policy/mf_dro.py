@@ -17,7 +17,23 @@ from types import SimpleNamespace
 import torch
 import gpytorch
 import numpy as np
-from numpy.polynomial.hermite_e import hermegauss
+from numpy.polynomial.hermite_e import hermegauss as _hermegauss_raw
+from functools import lru_cache as _lru_cache
+
+
+@_lru_cache(maxsize=8)
+def _hermegauss_cached(n):
+    """H82: hermegauss(n) is a pure function of n, recomputed on every LF-MES
+    call. Returns the SAME arrays each time, so they must not be mutated --
+    nothing in this module does. maxsize=8 covers every n_quad ever used."""
+    xi, wi = _hermegauss_raw(n)
+    xi.flags.writeable = False
+    wi.flags.writeable = False
+    return xi, wi
+
+
+def hermegauss(n):
+    return _hermegauss_cached(int(n))
 from scipy.stats import norm as scipy_norm
 
 from gumbel_thompson import thompson_sample_y_star, fit_gumbel_to_samples
@@ -600,7 +616,8 @@ def _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr):
     return np.maximum(H0 - H1, 0.0)
 
 
-def _compute_mes_lf_vectorized(roi_candidates, ko_model, y_star_arr, n_quad=32):
+def _compute_mes_lf_vectorized(roi_candidates, ko_model, y_star_arr, n_quad=32,
+                                precomputed=None):
     """
     Vectorized LF MES (Takeno 2020 Lemma 3.1) for ALL candidates
     simultaneously, replacing the per-candidate _lf_mes_info_gain loop.
@@ -613,9 +630,18 @@ def _compute_mes_lf_vectorized(roi_candidates, ko_model, y_star_arr, n_quad=32):
     """
     LOG_SQRT_2PIE = 0.5 * np.log(2.0 * np.pi * np.e)
 
+    # H82: _gp_candidate_features computes lf_posterior(X) and hf_posterior(X)
+    # immediately before calling this and then discarded them, so both were
+    # evaluated twice per call. `precomputed` lets the caller hand them over.
+    # RAW tensors are passed, not derived sigmas: this function clamps variance
+    # at 1e-12 while _gp_candidate_features clamps at 0.0, so reusing the
+    # caller's sigma would change results. Passing raw keeps it bit-identical.
     with torch.no_grad():
-        mu_L, var_L = ko_model.lf_posterior(roi_candidates)
-        mu_H, var_H = ko_model.hf_posterior(roi_candidates)
+        if precomputed is not None:
+            mu_L, var_L, mu_H, var_H = precomputed
+        else:
+            mu_L, var_L = ko_model.lf_posterior(roi_candidates)
+            mu_H, var_H = ko_model.hf_posterior(roi_candidates)
         var_delta = ko_model.gp_delta.posterior(roi_candidates).variance.reshape(-1)
     mu_L = mu_L.numpy()
     sigma_L = np.sqrt(np.maximum(var_L.numpy(), 1e-12))
@@ -755,7 +781,9 @@ def _gp_candidate_features(ko, X, c_H, c_L, y_star_arr):
 
     mes_h = torch.tensor(_compute_mes_hf_vectorized(X, hf_proxy, y_star_arr),
                           dtype=X.dtype, device=X.device)
-    mes_l = torch.tensor(_compute_mes_lf_vectorized(X, ko, y_star_arr),
+    mes_l = torch.tensor(_compute_mes_lf_vectorized(
+                              X, ko, y_star_arr,
+                              precomputed=(mu_L, var_L, mu_H, var_H)),
                           dtype=X.dtype, device=X.device)
     return mu_H, sigma_H, mu_L, sigma_L, mes_h / c_H, mes_l / c_L
 
