@@ -2390,7 +2390,7 @@ class DirectMFRegretOptimization:
                     kg_signed=getattr(self.config, 'kg_signed', False),
                     kg_topk=getattr(self.config, 'kg_topk', 1),
                     fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
-                    n_roi_candidates=getattr(self.config, 'n_roi_candidates', 200),
+                    n_roi_candidates=getattr(self.config, 'n_roi_candidates', 600),
                     teacher_refine_samples=getattr(self.config, 'teacher_refine_samples', 0),
                     teacher_refine_noise=getattr(self.config, 'teacher_refine_noise', 0.05),
                     use_roi=self.use_roi,

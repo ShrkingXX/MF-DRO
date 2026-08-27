@@ -399,7 +399,26 @@ def run_single_seed(exp_name, benchmark_name, variant_name, seed,
 
 def _build_mf_dro_config(exp_name, benchmark_base_name,
                           variant_name, seed,
-                          M=10,
+                          # DEFAULTS CHANGED 2026-08-26 (user-directed):
+                          # M 10 -> 3, n_roi_candidates 200 -> 600, refinement
+                          # left OFF. Evidence and its limits:
+                          #   M: h81 measured M10/M3 wall-time at only 1.39x, so
+                          #      shrinking M frees far less compute than the
+                          #      premise assumed. Its statistical verdict was
+                          #      still WITHHELD at 13/15 when this was set.
+                          #   pool 600: measured 1.96x BASE cost. Buys 4.25 pts
+                          #      on Borehole (n=3) and, on Hartmann at n=10,
+                          #      8.91% -> 6.64% with sd 7.39 -> 3.22 -- but only
+                          #      6/10 paired wins at p=0.5566, i.e. NOT a
+                          #      demonstrated win. Adopted as an engineering
+                          #      choice on cost-efficiency and variance, not as
+                          #      a performance claim. Pool 1000 costs 5.87x for
+                          #      1.8 pts more: ~3.5x worse per unit cost.
+                          #   refinement: ~1.5x on its own, and h65 showed its
+                          #      variance benefit does not generalise off
+                          #      Borehole. Weakest of the three levers; OFF.
+                          # Combined M3 + pool600 ~= 1.41x BASE overall.
+                          M=3,
                           rollout_length=8,
                           # ITEM 3: raised 7 -> 20 (needed for the item-4
                           # gate measurement to be statistically meaningful
