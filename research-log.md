@@ -1055,3 +1055,71 @@ these was re-running them, not judgement about which would hold.
 
 STILL OPEN: Currin and Ackley have never been measured at a second seed set.
 H90 (Borehole ROI + refinement at seeds 47-51, 15 runs) launched 17:45.
+
+## 2026-08-27 (close) — H89 complete. The session's full arc, and what it cost.
+
+### The question and the answer
+
+PRIMARY QUESTION: find an ROI strategy, using the DRO paper's own heuristic,
+that stops MF-DRO wasting HF budget on low-value regions.
+
+ANSWER: the ROI is a lever but the weakest of the three tried, and none of them
+makes MF-DRO competitive. h83's headline stands unchanged after 104 runs across
+six experiments: **MF-DRO beats no baseline on any of four benchmarks.**
+
+### Three interventions, one survivor
+
+  intervention          first measurement        fresh-seed re-test        verdict
+  calibrated ROI        Hartmann flip, 4/5       h87: 2/5                  WITHDRAWN
+  HF floor              Hartmann sd 5.85->2.00   h89: sd 2.08->3.17        WITHDRAWN
+  teacher refinement    Borehole -5.85, 5/5      h89: -2.11, 4/5           SURVIVES, 36% of size
+
+The ROI's own per-benchmark effect (n=5, control verified bit-identical 4/4):
+Borehole -4.22 (5/5), Hartmann -1.62 (3/5), Ackley -0.09 (1/5), Currin +0.11
+(0/5, HARMED). It helps two benchmarks, does nothing on one, harms one.
+
+### What is solid
+
+1. **Teacher refinement is real**: -2.11 pts on Borehole, 4/5 fresh seeds, at
+   1.25x wall-clock. It does NOT close the gap to MF-MES (12.91% vs 10.07% at
+   matched seeds), as pre-registered.
+2. **A constant beta cannot set ROI tightness.** Acceptance varies 12.6%-100%
+   across benchmarks, 250x within one run, and 6.9x across seeds of one
+   benchmark. Quantile-calibrated beta_t collapses all three to 1.0x. This is a
+   controllability result and holds regardless of performance.
+3. **The surrogate, not the data, limits recommendation quality** (h88). Every
+   recommendation lands in 11.96-29.03% while best observed points reach
+   0.67-19.19%, whichever dataset the GP is fit on.
+
+### The methodological result, which may outlast the empirical ones
+
+Eight mechanism claims were made this session. SEVEN were refuted. The one that
+held -- refinement moves the teacher 4.6x more than the ROI, because the flat
+argmax over random candidates is the binding constraint -- was the only one that
+came from a measurement taken BEFORE the claim rather than an argument about
+why something was impossible.
+
+TWO claims were announced and then withdrawn. Both:
+  - met their pre-registered bars at n=5 on one seed set
+  - were recorded as PROVISIONAL with accurate caveats attached
+  - died when re-run on seeds never used before
+
+**The caveats were correct and did not prevent either announcement.** What
+separated the surviving result from them was re-running it. That is the
+session's most transferable finding, and it is why h89 and h87 existed at all.
+
+Supporting rules now standing (findings.md Lessons 21-23):
+  - a control that can void an experiment runs FIRST
+  - the PRIMARY metric must be the statistic the objective depends on
+  - measure the quantity a mechanism operates on, under its own conditions
+  - n=5 cannot characterise a paired difference here (paired sd 0.45 on one
+    seed set became 7.45 on another)
+
+### Open, and honestly open
+
+- h90 (session B) is independently re-testing refinement at seeds 47-51. If it
+  disagrees with h89's -2.11, the effect size is unsettled at n=5 twice over.
+- The Currin harm (+0.11, 0/5) has a hypothesis (nothing to fix on an
+  already-solved benchmark) and no test.
+- The RTG/reward signal and the state representation remain untouched by any
+  measurement this session.
