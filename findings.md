@@ -3712,3 +3712,53 @@ MF-DRO+ROI-Q10 beat SF-DRO on Ackley) was registered as GENUINELY UNCERTAIN
 rather than predicted, specifically because of this record. If I had predicted
 it, the base rate above says the prediction would more likely have been "no" and
 more likely have been wrong.
+
+### The beta_t calibration in production, and why it explains P2's refutation
+
+CALIBRATION QUALITY across every completed calibrated run (10 runs, 2 benchmarks):
+
+  arm       target   achieved   error     beta_t solved   passes   distinct
+  ROI-Q10     10%      9.99%    0.0001    1.67 - 3.10       3.5       600
+
+Target hit to 1e-4 on every run, with beta_t solved anywhere in 1.67-3.10 -- it
+adapts WITHIN a run as data accumulates, not only across benchmarks. Every run
+receives the full 600 distinct candidates, so the resolution bug stays fixed.
+
+A PROPERTY OF CALIBRATION I HAD NOT ARTICULATED: it bounds the rejection-sampling
+cost. Pinning acceptance at ~10% fixes the passes needed at ceil(600/200) = 4 at
+every stage of every run. Fixed beta does not:
+
+  bench        n_hf   arm        accept   passes needed   over the 40 cap?
+  Borehole_8D    10   ROI-FIX2   100.00%        1
+  Borehole_8D    35   ROI-FIX2     0.35%       86          YES
+  Borehole_8D    10   ROI-Q10      9.95%        4
+  Borehole_8D    35   ROI-Q10      9.95%        4
+  Hartmann_6D    31   ROI-FIX2     5.95%        6
+  Hartmann_6D    31   ROI-Q10      9.95%        4
+
+Measured mean passes in the real runs match: ROI-Q10 3.5, ROI-FIX2 6.5 (Borehole)
+and 8.8 (Hartmann), the latter inflated by rollouts that hit the cap.
+
+THIS EXPLAINS WHY P2 FAILED. I predicted fixed beta would buy nothing on Borehole
+because its acceptance collapses to 0.4% late in a run. It does -- but the
+FALLBACK I wrote for the pool fix ("keep every distinct survivor and top up from
+a fresh unfiltered draw rather than duplicating") converts that collapse into
+GRACEFUL DEGRADATION: late-run ROI-FIX2 gets roughly half in-ROI candidates and
+half uniform, i.e. it fades toward no-ROI instead of collapsing onto a handful of
+duplicated points. It therefore keeps whatever benefit it accrued early and mid
+run, and finishes at -4.81 pts.
+
+So my prediction was reasoning about the PRE-FIX failure mode. Before the
+resolution fix, 0.35% acceptance would have produced 7 distinct points duplicated
+to 600 -- which very likely WOULD have crippled it. My own fix is what made the
+arm I predicted would fail succeed. Sixth instance of Lesson 23's pattern:
+reasoning about a system state that no longer existed.
+
+CONSEQUENCE FOR THE CONTRIBUTION. Calibration's case is now three-part, and only
+the third is about performance:
+  1. A fixed beta cannot express "tight" -- acceptance swings 250x across
+     benchmarks and data sizes and is set by posterior scale, not by choice.
+  2. A fixed beta cannot bound rejection cost -- it needs 1 to 86 passes over a
+     single run, and past the cap it silently dilutes the ROI toward uniform.
+  3. q=0.10 is the only setting tested that helps BOTH benchmarks; fixed beta
+     wins Borehole by 0.6 pts and loses Hartmann by 7.9 pts.
