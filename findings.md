@@ -4334,3 +4334,46 @@ TWO LIMITS, both real:
 
 STATUS: EXPLORATORY, derived from existing traces, no new runs. Useful mainly
 for what it ELIMINATES.
+
+### "Lower tail risk" is NOT supported — and my first test of it was invalid
+
+h87's withdrawal noted that MF-DRO+ROI "wins big when MF-MES happens to fail and
+loses narrowly the rest of the time", and described that as *lower tail risk,
+not better typical performance*. That phrasing entered findings.md and the
+published report. It is a claim, and it had never been tested beyond the five
+seeds that suggested it. Tested now, across every benchmark and both seed sets.
+
+**FIRST ATTEMPT, INVALID.** I correlated MF-MES's regret against the difference
+(MF-DRO - MF-MES) and got -0.58 pooled, with four of five benchmark/seed-sets
+strongly negative. That looks like decisive support. It is an artifact:
+corr(M, D-M) is mechanically negative whenever var(M) > cov(D,M), because the
+two quantities share the M term. This is the standard change-score-versus-
+baseline trap and it would have produced a confident, wrong finding. Discarded.
+
+**VALID TEST**, comparing each method's OWN spread and worst case, with no
+shared term:
+
+  benchmark            DRO sd   MES sd   DRO worst   MES worst   worse tail
+  Currin_2D              0.02     0.60        0.03        1.42   MF-MES
+  Hartmann_6D            5.85     3.39       16.41        9.95   MF-DRO
+  Borehole_8D            2.36     5.94       19.19       15.44   MF-DRO
+  Ackley_10D             0.98     0.69        4.98        4.87   MF-DRO
+  Hartmann_6D (h87)      2.89     9.36        9.56       25.25   MF-MES
+
+MF-DRO has the smaller worst case on **2 of 5**, and the smaller spread on 3 of
+5. On Hartmann's original seeds and on Borehole it has BOTH a larger spread and
+a worse tail than MF-MES.
+
+**CONCLUSION: the tail-risk claim does not hold as a general property.** What
+h87 observed was real for seeds 47-51 -- where MF-MES's own spread was 9.36 and
+its worst case 25.25 -- but it is a property of that seed set, not of the
+methods. The same pattern appeared once before and misled me: h84's tight paired
+sd of 0.45 was also a seed-set property that became 7.45 elsewhere.
+
+**ACTION:** the phrase "lower tail risk" should be removed or qualified wherever
+it appears in findings.md, research-log.md and the to_human report. It is not a
+finding; it is one seed set's shape. The honest statement about h87 is the
+narrow one already recorded: MF-DRO+ROI lost 2/5 and the flip is withdrawn.
+
+STATUS: EXPLORATORY, existing data, no new runs. Reported as a NEGATIVE result on
+a hypothesis this project raised about itself.
