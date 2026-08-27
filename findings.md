@@ -3224,3 +3224,44 @@ of the ROI, which bounds how much any ROI setting can buy.
 LIMITS: one benchmark, one KO model rather than the M=3 ensemble, and the model
 is fit on the initial design only -- later in a run the posterior sharpens and
 the ROI may track x* better. n=12 rollouts. EXPLORATORY.
+
+### H84 pre-result, part 2: the ROI is the WEAKER of two teacher knobs (EXPLORATORY)
+
+Also recorded before any h84 run completed. Same harness as part 1, but scoring
+teacher actions on h83's own metric, (f - best_init)/(f_opt - best_init), and
+crossing the ROI against `teacher_refine_samples` at a MATCHED model state
+(Hartmann_6D, n_hf=6, n_lf=45, 12 rollouts x 8 steps, one KO model):
+
+  ROI    refine   mean score   best score   >0 frac
+  OFF         0        0.173        0.974       68%
+  OFF       100        0.219        0.834       75%
+  Q10         0        0.183        0.717       77%
+  Q10       100        0.208        0.830       81%
+
+  ROI alone:         +0.010
+  refinement alone:  +0.046   (4.6x the ROI's effect)
+  both:               0.208   (NOT additive -- slightly below refinement alone)
+
+The gap h84 is trying to close is 0.336 -> 0.747. An effect of +0.010 on the
+teacher does not plausibly produce it. The ROI again costs reach: the single
+best teacher action falls 0.974 -> 0.717 when the ROI is switched on at q=0.10.
+
+A SURPRISE worth flagging, with its caveat. MF-DRO's REAL HF queries score 0.336
+(h83) while its teacher's actions here score 0.173-0.219 -- the DT is
+OUTPERFORMING the average action it is trained on, roughly doubling it. That is
+consistent with RTG conditioning doing real work (the policy is trained to
+prefer high-return actions, not to imitate the mean action). CAVEAT: these are
+not apples-to-apples. The teacher numbers are at the INITIAL model (n_hf=6),
+whereas 0.336 averages over a whole run during which the surrogate improves. The
+ROI-vs-refinement contrast IS apples-to-apples -- same model state, same
+everything but the two knobs -- and that is the load-bearing comparison here.
+
+WHAT THIS PREDICTS FOR h84. P1 (arm C beats arm A by >= +0.10 on mean HF query
+score, >= 4/5 seeds) now looks UNLIKELY to be met. Registered here before the
+results land. If P1 fails, the protocol's falsification clause applies: budget
+waste is not primarily a candidate-DISTRIBUTION problem, and the target becomes
+the acquisition optimisation the teacher runs and the output parameterisation of
+the head -- not the region candidates are drawn from.
+
+LIMITS: one benchmark, one KO model rather than the M=3 ensemble, initial model
+state only, n=12 rollouts. EXPLORATORY.
