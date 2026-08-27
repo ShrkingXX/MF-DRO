@@ -4290,3 +4290,47 @@ launcher.
 NOTE: Borehole's gain does NOT make MF-DRO competitive there. MF-MES is at 6.40
 against MF-DRO's 11.59. The claim is "the ROI closes 27% of the gap", not "MF-DRO
 wins".
+
+### The "good model, bad policy" hypothesis is REFUTED (EXPLORATORY)
+
+A natural explanation for MF-DRO's budget waste: the surrogate knows where the
+optimum is, but the policy fails to query there. If true, INFERENCE regret
+(f(x*) - f(argmax mu_H), what the model would RECOMMEND) would be well below
+SIMPLE regret (f(x*) - best HF query actually made).
+
+Measured across all 20 h83 MF-DRO runs:
+
+  benchmark      simple regret   inference regret   ratio
+  Currin_2D              0.01%              0.01%    1.00
+  Hartmann_6D            7.55%              7.55%    1.00
+  Borehole_8D           15.82%             15.82%    1.00
+  Ackley_10D             3.829              3.829    1.00   (absolute)
+
+Ratio 1.00 on every benchmark. The model's recommendation is NEVER better than
+the best point it already queried.
+
+THE CLAMP DOES NOT EXPLAIN THIS. mf_dro.py:3480 applies Takeno's convention,
+`inf_regret = min(IR_raw, SR)` -- "if IR > SR at an iteration, report SR". That
+caps the ratio at 1.00 from ABOVE but leaves any value BELOW 1.00 fully
+expressible. A model that knew something its queries missed would show ratio
+< 1. None does, on any seed of any benchmark.
+
+SO THE FAILURE IS NOT "knows but does not go there". MF-DRO's surrogate does not
+hold hidden knowledge of a better point. That rules out one whole class of fix
+(better exploitation of an already-good model) and points instead at the loop
+being jointly limited: poor queries produce an uninformed model, which produces
+poor queries.
+
+TWO LIMITS, both real:
+1. The recommender is WEAK by construction -- `ko_ensemble[0].hf_posterior`
+   argmaxed over the fixed Sobol `y_star_pool`, i.e. ONE ensemble member and a
+   fixed grid, not an optimisation. A stronger recommender might find a better
+   point the metric never considers. This bounds how much the result can carry.
+2. The circularity is unavoidable from observational data: the model is fit on
+   the queries, so "bad model" and "bad queries" cannot be separated by looking
+   at completed runs. Breaking it needs an intervention -- e.g. fitting the
+   surrogate on a fixed high-quality design and asking whether its
+   recommendation improves.
+
+STATUS: EXPLORATORY, derived from existing traces, no new runs. Useful mainly
+for what it ELIMINATES.
