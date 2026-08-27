@@ -77,15 +77,26 @@ if __name__=="__main__":
     for b in BENCH:
         opt=None
         print(f"=== {b} ===")
-        print(f"  {'method':14s}{'rel.regret %':>14s}{'seeds':>8s}{'LF%':>8s}   per-seed rel%")
+        _o=float(get_benchmark(f"{b}_HF")["known_optimal_value"])
+        _abs=abs(_o)<1e-9
+        _lbl="abs.regret" if _abs else "rel.regret %"
+        if _abs: print(f"  (f(x*) = 0 exactly -> relative regret undefined; ABSOLUTE SR reported)")
+        print(f"  {'method':14s}{_lbl:>14s}{'seeds':>8s}{'LF%':>8s}   per-seed")
         for m in METHODS:
             rows=[D[(b,m,s)] for s in SEEDS if (b,m,s) in D]
             if not rows: print(f"  {m:14s}{'--':>14s}"); continue
             opt=rows[0]["opt"]
             fin=np.array([grid(r["cost"],r["sr"],G)[-1] for r in rows],dtype=float)
-            rel=100.0*fin/abs(opt)
+            # Ackley_10D's optimum is exactly 0 (verified: argmax = [0.5]^10,
+            # f = 0.0, by 120 polished multi-starts), so SR/|f(x*)| divides by
+            # zero and relative regret is UNDEFINED there. Report absolute
+            # simple regret on such benchmarks instead. Absolute SR is a
+            # monotone transform of relative SR wherever both are defined, so
+            # this changes no within-benchmark ranking -- only the units.
+            rel=fin if abs(opt)<1e-9 else 100.0*fin/abs(opt)
             lf=100.0*np.mean([r["lf_frac"] for r in rows])
-            print(f"  {m:14s}{np.nanmean(rel):>13.2f}%{len(rows):>8d}{lf:>7.1f}%   "
+            _u="" if _abs else "%"
+            print(f"  {m:14s}{np.nanmean(rel):>13.2f}{_u:1s}{len(rows):>8d}{lf:>7.1f}%   "
                   +" ".join(f"{v:6.2f}" for v in rel))
         print()
     print("PRE-REGISTERED BARS (protocol.md) -- evaluated in analysis.md, not here.")

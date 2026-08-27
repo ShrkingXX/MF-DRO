@@ -126,3 +126,23 @@ moving-src/ hazard the per-run code hash exists to detect — in exchange for
 changing nothing observable. The SF-DRO arm is labelled correctly
 (`setup_dirs(f"h83_{bench}_{seed}")`, confirmed writing to
 `results/h83_Currin_2D_42`).
+
+## Amendment 2 — metric on Ackley_10D (made with 2/100 runs complete)
+
+Ackley_10D's optimum is EXACTLY 0, so the frozen metric SR/|f(x*)| divides by
+zero and relative regret is undefined on that benchmark. On Ackley_10D only,
+ABSOLUTE simple regret is reported instead. The other three benchmarks are
+unchanged.
+
+Forced by the metric being undefined, not by anything seen in results: absolute
+SR is a monotone transform of relative SR wherever both are defined, so no
+within-benchmark ranking can change. The two completed runs at the time of this
+amendment were the pre-launch Ackley wiring validations (MF-GP-UCB, MF-MI-Greedy,
+seed 42); neither method is MF-DRO and neither bears on any pre-registered bar.
+
+Optimum verified rather than assumed, because nothing had ever been run on this
+benchmark pair: 120 L-BFGS-B polishes from the best of 4000 random starts give
+max = 0.000000 at x = [0.5]^10 (the domain CENTRE) for both Ackley_10D_HF and
+Ackley_10D_LF. A single polish from the best of 20k random points instead stalls
+at -3.574 in a local basin -- the standard 10-D Ackley multimodality trap, and
+the reason the declared value was briefly and wrongly suspected of being off.
