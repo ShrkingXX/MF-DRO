@@ -3376,3 +3376,51 @@ the evidence is now MIXED rather than pointing one way, and my pre-registered
 pessimism may turn out wrong. Recorded now, before the remaining seeds land.
 
 STATUS: EXPLORATORY. Borehole only; ROI-Q10 n=1, ROI-ANN n=5.
+
+### H84 INTERIM — the quantile-calibrated ROI works on Borehole, and my registered prediction is failing
+
+CONFIRMATORY against h84's pre-registered P1 (protocol committed before any run).
+Paired against ROI-OFF on common seeds only.
+
+  Borehole_8D                d(q-score)      d(rel.regret)     seeds
+    ROI-Q10 (q=0.10)   +0.098  (4/4 wins)   -3.39 pts (4/4)    42,43,44,45
+    ROI-ANN (q~0.49)   +0.034  (4/5 wins)   -1.31 pts (3/5)    42-46
+
+  Hartmann_6D
+    ROI-Q10 (q=0.10)   +0.039  (2/3 wins)   -2.44 pts (2/3)    42,43,44
+    ROI-ANN (q~0.49)   -0.011  (0/1)        +3.82 pts (0/1)    43
+
+  Arm means, Borehole: rel. regret 15.82% (OFF) -> 11.58% (Q10); queries landing
+  WORSE than the initial design 7.9% -> 2.7%; MF-MES reference 6.40%.
+
+P1's bar is +0.10 on mean HF query score, >= 4/5 seeds, on BOTH benchmarks. On
+Borehole ROI-Q10 sits at +0.098 with 4/4 -- at the bar. Hartmann is weaker
+(+0.039). One Borehole seed and two Hartmann seeds are still running, so P1's
+verdict is not final, but it is no longer heading the way I registered.
+
+I REGISTERED P1 AS UNLIKELY TO BE MET, twice, before the runs -- on the grounds
+that the ROI moves the rollout teacher by only +0.010 against a 0.336 -> 0.747
+gap. That reasoning is not holding up on Borehole. Why it was wrong is now
+visible: I measured the ROI's effect on the TEACHER's action quality at a single
+model state and treated that as an upper bound on its effect on the POLICY. But
+the policy is trained on the teacher's whole action DISTRIBUTION across rollouts
+and iterations, and the ROI narrows that distribution -- an effect that a
+single-state mean cannot capture. The +0.010 was a real measurement of the wrong
+quantity.
+
+TIGHTER IS BETTER ON BOREHOLE, and the ordering is consistent with the boundary
+mechanism: q=0.10 (+0.098) beats q~0.49 (+0.034) beats no ROI, matching the
+monotone boundary-reach measurements recorded above (sensitive-dim hits
+17.75 -> 19.86 -> 23.47%). On Hartmann, whose optimum is interior, the loose arm
+is if anything harmful (-0.011 at n=1). That is a benchmark-DEPENDENT optimum
+for q, which is exactly what quantile calibration makes expressible and a fixed
+beta cannot.
+
+STATUS: INTERIM. Borehole Q10 n=4/5, Hartmann Q10 n=3/5, ROI-ANN Hartmann n=1/5,
+ROI-FIX2 not started, and THE REPRODUCTION CONTROL HAS NOT RUN -- arm A is still
+inherited from h83 rather than verified. No claim is final until it does.
+
+PENDING HUMAN DIRECTION: if the ROI improves MF-DRO, re-run all of h83's MF-DRO
+arm (4 benchmarks x 5 seeds) with the winning configuration. The Borehole
+evidence is approaching that threshold; the trigger is deliberately held until
+h84 completes and the reproduction control passes.
