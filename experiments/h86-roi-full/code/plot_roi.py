@@ -24,10 +24,7 @@ H83=os.path.join(REPO,'experiments','h83-main-comparison','results')
 H84=os.path.join(REPO,'experiments','h84-roi-strategy','results')
 H86=os.path.join(REPO,'experiments','h86-roi-full','results')
 ROI={"Hartmann_6D":H84,"Borehole_8D":H84,"Currin_2D":H86,"Ackley_10D":H86}
-# Currin_2D omitted while its MF-DRO seeds are still running -- add it back
-# here once experiments/h86-roi-full/results/Currin_2D__ROI-Q10__seed*.json
-# is complete at 5 seeds.
-BENCH=("Hartmann_6D","Borehole_8D","Ackley_10D")
+BENCH=("Currin_2D","Hartmann_6D","Borehole_8D","Ackley_10D")   # all complete at 5 seeds
 BASE=("SF-DRO","MF-MES","MF-MI-Greedy","MF-GP-UCB")
 C={"MF-MES":"#2471A3","SF-DRO":"#E67E22","MF-MI-Greedy":"#27AE60","MF-GP-UCB":"#7D3C98"}
 DRO_OLD="#E8836F"; DRO_NEW="#8E1B0F"
