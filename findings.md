@@ -3543,3 +3543,48 @@ CAUTION ON THE FIX2 AND ANN NUMBERS: both are single seeds on Hartmann, and seed
 43 is the CONTROL's best seed (0.67% relative regret), so it is the hardest seed
 to beat and the least representative one to draw an ordering from. The four
 remaining FIX2 seeds per benchmark are in flight.
+
+### H84 — P1 FAILS as written. Both benchmarks now complete for ROI-Q10.
+
+  arm / benchmark          d(q-score)        d(rel.regret)      n
+  ROI-Q10  Borehole_8D    +0.114 (5/5)      -4.22 pts (5/5)     5
+  ROI-Q10  Hartmann_6D    +0.001 (3/5)      -1.62 pts (3/5)     5
+  ROI-ANN  Borehole_8D    +0.034 (4/5)      -1.31 pts (3/5)     5
+  ROI-ANN  Hartmann_6D    -0.011 (1/3)      +1.45 pts (0/3)     3
+
+P1 required +0.10 on mean HF query score, >= 4/5 seeds, on BOTH benchmarks.
+Borehole meets it (+0.114, 5/5); Hartmann does not (+0.001, 3/5). **P1 FAILS.**
+Reported as failed; the bar is not being renegotiated after the fact.
+
+On the objective itself (relative regret, the max-statistic -- Lesson 22),
+ROI-Q10 improves BOTH benchmarks, but only Borehole does so convincingly:
+5/5 seeds and -4.22 pts against 3/5 seeds and -1.62 pts.
+
+### CORRECTION to the monotonicity claim I made one tick ago
+
+I wrote: "regret improves MONOTONICALLY as the ROI tightens" on both benchmarks.
+That was based on n=1 for Hartmann's two loose arms. At higher n it does not
+hold strictly:
+
+  Hartmann_6D    acceptance   d(rel.regret)    n
+    ROI-Q10        10.0%         -1.62         5
+    ROI-FIX2       24.9%         +2.34         1
+    ROI-ANN        49.8%         +1.45         3    <- BETTER than FIX2, not worse
+
+FIX2 (24.9% acceptance) is worse than ANN (49.8%), which breaks the ordering.
+FIX2 is still n=1 so the comparison is weak in both directions, but the honest
+statement is narrower than what I wrote:
+
+  WHAT SURVIVES: a TIGHT ROI (q=0.10) beats every looser setting on both
+  benchmarks. The ordering AMONG loose settings is unresolved.
+  WHAT DOES NOT: strict monotonicity in acceptance.
+
+Also note Hartmann's ROI-Q10 effect SHRANK as the fifth seed landed, from
+-2.17 pts (3/4) to -1.62 pts (3/5). I reported the n=4 figure last tick. That is
+the ordinary instability of n=4 -> n=5 and a reminder not to lean on partial
+arms, which is the same trap the unpaired-means artifact created earlier in this
+experiment.
+
+STILL OUTSTANDING: 9 of 10 ROI-FIX2 runs, 2 ROI-ANN Hartmann seeds, and the
+REPRODUCTION CONTROL, which has now STARTED (4 checkpoints live) but not
+finished. Arm A remains inherited from h83 until it does.
