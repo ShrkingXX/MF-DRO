@@ -7,21 +7,30 @@
 # later withdrawn. Before quoting anything below, check it against this block.
 #
 # NORTH STAR: SETTLED NEGATIVE. MF-DRO beats no baseline on any of the four
-#   benchmarks (h83, 100 runs, 0 failures). A claim that a calibrated ROI
-#   overturned this on Hartmann was announced and then WITHDRAWN (h87: 2/5
-#   seeds against a bar requiring 4/5).
+#   benchmarks (h83, 100 runs, 0 failures). TWO fixes were announced and then
+#   WITHDRAWN after failing at fresh seeds:
+#     - the calibrated ROI's Hartmann flip  (h84 4/5 -> h87 2/5)
+#     - the HF floor's variance result      (h85 sd 5.85->2.00 -> h89 sd 2.08->3.17,
+#       with the collapse/benefit correlation at -0.84, the WRONG SIGN)
+#
+# THE ONE SURVIVING INTERVENTION: teacher acquisition refinement on Borehole.
+#   h85 measured -5.85 pts (5/5). h89 at fresh seeds 52-56 gives **-2.11 pts
+#   (4/5)** -- REAL but ~36% of the original size, at 1.25x wall-clock. Per
+#   h89's registered falsifier, **-2.11 is the figure; -5.85 is superseded and
+#   any occurrence of it below is a historical record of what h85 measured, not
+#   a current claim.** It does NOT close the gap to MF-MES (12.91% vs 10.07%
+#   at matched seeds).
 #
 # WHAT THE ROI ACTUALLY DOES, per benchmark, all n=5, control verified 4/4:
-#   Borehole_8D  -4.22 pts (5/5 seeds)  -- real, but still behind MF-MES
-#   Hartmann_6D  -1.62 pts (3/5)        -- does NOT beat MF-MES; flip withdrawn
-#   Ackley_10D   -0.09 pts (1/5)        -- negligible
-#   Currin_2D    +0.11 pts (0/5)        -- HARMED
+#   Borehole_8D  -4.22 pts (5/5)  -- real, but still behind MF-MES
+#   Hartmann_6D  -1.62 pts (3/5)  -- does NOT beat MF-MES; flip withdrawn
+#   Ackley_10D   -0.09 pts (1/5)  -- negligible
+#   Currin_2D    +0.11 pts (0/5)  -- HARMED
 #
 # THE ONE CLEAN CONTRIBUTION: a constant beta cannot set ROI tightness. Measured
 #   acceptance varies 12.6%-100% across benchmarks, 250x within a single run,
 #   and 6.9x across SEEDS of one benchmark. Quantile-calibrated beta_t collapses
-#   all three to 1.0x. This is a controllability result and does not depend on
-#   any performance claim.
+#   all three to 1.0x. A controllability result; independent of performance.
 #
 # STANDING METHOD RULES EARNED THE HARD WAY:
 #   - Lesson 21: a control that can void an experiment must run FIRST.
@@ -4712,6 +4721,12 @@ prediction that came out of the corrected mechanism, and it held.
   - MF-DRO still does not beat MF-MES on Borehole: 9.96 against 6.36.
 
 ### H85 PROVISIONAL: teacher refinement is the largest effect in the project
+> **[SUPERSEDED 2026-08-27 — h89 corrects this figure.]**
+> The -5.85 pts below is h85's measurement at seeds 42-46. At fresh seeds
+> 52-56 the effect is **-2.11 pts (4/5)**, about 36% of this size. The effect
+> is REAL (P5 met) but this magnitude is not. Retained as the record of what
+> was measured; -2.11 is the figure to quote.
+
 
 Borehole REFINE-100 complete at 5/5, paired against the control:
 
