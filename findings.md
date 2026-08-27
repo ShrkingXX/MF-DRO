@@ -3123,3 +3123,59 @@ information 0.5*log(1 + sigma^2/sigma_noise^2) instead.
 
 STATUS: EXPLORATORY. The lambda sweep had no locked protocol -- it was run to decide a
 baseline configuration, not to test a hypothesis. n=2-3 per cell, no p-values.
+
+## CORRECTION to the Borehole elimination chain: boundary aversion is BACK (h83)
+
+findings.md:1446 ("Attempt 3 -- boundary aversion; x* is a corner it cannot
+reach. UNSUPPORTED") and the elimination chain at :2432 both rest on ONE metric:
+MF-DRO's HF queries are the closest to x* of any method yet it has the worst
+regret, so proximity is inverted and the boundary story cannot be the cause.
+
+That metric is UNWEIGHTED Euclidean distance in normalised 8-D space, and on
+Borehole it is misleading. Freezing each dimension at its midpoint and measuring
+the loss of output variance over 3000 samples gives the sensitivity shares:
+
+  dim 0: 81.6%   dim 6: 8.0%   dim 5: 5.4%   dim 3: 4.6%   dims 1,2,4,7: 0.4% total
+
+99.6% of Borehole's variance lives in dims 0, 3, 5 and 6 -- and ALL FOUR have
+x* exactly on the domain boundary. The fraction of HF queries landing within
+0.05 of x* in those dims (h83, 5 seeds):
+
+  dim:            0      3      5      6
+  MF-DRO        68%     1%     0%     2%
+  MF-MES        99%    49%    34%    70%
+
+MF-DRO fails to reach the boundary in every sensitive dimension. Re-running the
+distance comparison with dimensions weighted by sensitivity REVERSES it:
+
+  unweighted min d*:  MF-DRO 0.2535  <  MF-MES 0.2998   (the old refutation)
+  weighted   min d*:  MF-DRO 0.0543  >  MF-MES 0.0308   (MF-DRO 76% farther)
+
+MF-DRO looked closer only because it sat nearer x* in the four dimensions
+carrying 0.4% of the variance. The inversion that killed this hypothesis was an
+artifact of the metric, not a property of the runs.
+
+STATUS AND LIMITS. This is EXPLORATORY, n=5, one benchmark, and it is
+correlation plus a mechanism, NOT causation. What is established: (a) the
+sensitive dims all have boundary optima, (b) MF-DRO essentially never reaches
+them while MF-MES routinely does, (c) the weighted metric agrees with the regret
+ordering where the unweighted one contradicted it. What is NOT established: that
+making the head boundary-capable would close the gap. The causal test is to
+change the output parameterisation and re-measure.
+
+The elimination chain's conclusion ("surrogate hyperparameter constraints are
+what is left") no longer follows -- one of its links is broken.
+
+DOES NOT EXPLAIN HARTMANN. Hartmann's x* is interior in all six dimensions
+(0.15-0.657), so boundary aversion is irrelevant there. Hartmann's MF-DRO
+deficit is separate: it spends 90-96% of its budget on LF and makes ~12 HF
+queries against MF-MES's 22, and 20.8% of its HF queries land WORSE than the
+best initial-design point (MF-MES: 5.3%).
+
+CONSTRAINT ON ANY FIX (human-directed, 2026-08-27): use_candidate_scoring=True
+is NOT an acceptable remedy. The DT in candidate-scoring mode is already
+established as useless -- the pool+argmax does the work -- so switching to it
+would relaunder standard BO as the contribution. Any fix must keep the
+regression head emitting x directly. That points at the output
+parameterisation: an L2 head is pulled toward the interior and clamp(0,1)
+gives it no gradient to push onto a bound.
