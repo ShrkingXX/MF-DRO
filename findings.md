@@ -4710,3 +4710,42 @@ prediction that came out of the corrected mechanism, and it held.
   - The reproduction control is 3/4 (Hartmann s42 outstanding).
   - Amendment 2: PENDING CONFIRMATION, not a finding, until fresh seeds.
   - MF-DRO still does not beat MF-MES on Borehole: 9.96 against 6.36.
+
+### H85 PROVISIONAL: teacher refinement is the largest effect in the project
+
+Borehole REFINE-100 complete at 5/5, paired against the control:
+
+  seed    control   REFINE-100    diff
+    42     15.28%        9.16%   -6.12
+    43     14.77%        7.80%   -6.97
+    44     12.93%        7.14%   -5.79
+    45     16.90%       12.15%   -4.75
+    46     19.19%       13.56%   -5.63
+
+  mean 15.82% -> 9.96%   paired d = -5.85 pts, better 5/5
+
+Every seed improves, by 4.75 to 6.97 pts. For comparison, on the same benchmark
+and seeds the calibrated ROI gave -4.22 (5/5) and the HF floor gave +0.18 (0/5).
+
+  Hartmann REFINE-100 (4/5 so far): mean 7.99% -> 5.97%, sd 5.85 -> 3.01.
+
+THIS IS THE PREDICTION THAT HELD. Before any of these runs I measured, at a
+matched model state, that the ROI moves the rollout teacher's action quality by
++0.010 while acquisition refinement moves it by +0.046 -- 4.6x more -- and
+argued the teacher's flat argmax over random candidates was the binding
+constraint, not the region those candidates come from. Of the many mechanism
+claims I made in this project, this is the one that survived contact with data.
+
+CONTEXT THAT KEEPS IT HONEST:
+1. **It does not close the gap.** MF-MES is at 6.40% on Borehole; refinement
+   reaches 9.96%, still 3.56 pts behind. The h83 headline is unaffected.
+2. **It costs ~2x wall-clock** (1.99-2.02x measured in flight), so it is not a
+   free improvement. h85's P4 set 2x as the bar and it sits on the boundary.
+3. **PROVISIONAL, not a finding.** Amendment 2 applies. h89 now carries a
+   Borehole refinement confirmation arm at fresh seeds 52-56, registered before
+   these numbers were written up, with a falsifier requiring withdrawal if the
+   paired difference fails at >= 4/5.
+
+REPRODUCTION CONTROL: 3 of 4 now bit-identical (Hartmann s43, Borehole s42/s43),
+plus the 4 Borehole HF-FLOOR seeds that were bit-identical by construction. Only
+Hartmann s42 outstanding.
