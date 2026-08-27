@@ -3811,3 +3811,35 @@ it closes the gap fully on only one benchmark so far.
 
 STATUS: CONFIRMATORY against a reproduction control verified bit-identical 4/4,
 on h83's own frozen metric. Ackley is n=4/5 and Currin is unrun.
+
+### H86 — P3 FAILED. The ROI does almost nothing on Ackley.
+
+P3 (registered as GENUINELY UNCERTAIN, not predicted): "On Ackley, MF-DRO +
+ROI-Q10 beats SF-DRO's 3.43 absolute SR on >= 3/5 seeds."
+
+FAILED, 1/5. Ackley at n=5: 3.83 -> 3.74, a delta of just -0.09, against
+-2.05 on Hartmann and -4.22 on Borehole.
+
+  benchmark      n   MF-DRO h83   +ROI-Q10    delta   wins   best baseline
+  Hartmann_6D    5        7.99       5.93     -2.05    4/5   MF-MES 6.62   BEATS
+  Borehole_8D    5       15.82      11.59     -4.22    1/5   MF-MES 6.40   no
+  Ackley_10D     5        3.83       3.74     -0.09    1/5   SF-DRO 3.43   no
+  Currin_2D      0          --    pending                    MI-Greedy 0.00
+
+THE PARTIAL-ARM WARNING, THIRD INSTANCE. At n=4 Ackley's delta read -0.40; at
+n=5 it is -0.09. Previously: Hartmann's ROI-Q10 went -2.17 (3/4) -> -1.62 (3/5),
+and the very first landed run produced an unpaired +0.45 artifact. Every time a
+partial arm has been rosier than the complete one. Treat any n<5 arm in this
+project as an upper bound, not an estimate.
+
+WHY ACKLEY GETS ALMOST NOTHING -- a hypothesis, not a measurement. Ackley_10D's
+optimum is the domain CENTRE ([0.5]^10) and the function is a needle: 20k random
+samples reach only -5.41 against an optimum of 0. Restricting to the top 10% of
+a 10-dimensional domain still leaves an enormous region, so the ROI's
+concentration buys little where the target is a point rather than a basin or a
+boundary. Borehole (boundary optimum, 4 sensitive dims) and Hartmann (6-D, broad
+basin) both give the filter something to grip. This is consistent with the
+boundary-reach measurements but is NOT tested here.
+
+SO THE ROI's BENEFIT IS STRONGLY BENCHMARK-DEPENDENT: -4.22, -2.05, -0.09 across
+three benchmarks, all at the same q=0.10. It is not a uniform improvement.
