@@ -1,4 +1,4 @@
-# H89 — clean confirmation of the Borehole ROI gain at fresh seeds
+# H90 — clean confirmation of the Borehole ROI gain at fresh seeds
 
 LOCKED BEFORE ANY RUN. Written while compute is at 15/15 with h85; not launched.
 
@@ -98,3 +98,37 @@ history is its pre-registration record, so this one -- which had no results yet
 
 Recorded rather than silently renamed: anyone reading the git log will see two
 commits titled "H88" for different experiments, and this note explains why.
+
+## Amendment 2 — renumbered again (H89 -> H90) and a third arm added
+
+RENUMBER. A concurrent session created `experiments/h89-hffloor-confirm` an hour
+after this session published a claims block reserving `h89-borehole-confirm`.
+Reserving SLUGS does not prevent NUMBER collisions. This experiment moves to H90
+(it has no results; renumbering is free) and the claims block now reserves
+number RANGES instead: the other session holds h85-h89, this session holds h90+.
+Second collision of the day; the first was H88.
+
+THIRD ARM, added BEFORE launch. h85 finished while this was queued and produced
+the largest intervention effect measured anywhere in this investigation:
+**teacher refinement on Borehole, -5.85 pts, better on 5/5 seeds**, with its
+mechanism bar P2 also met (near-bound fraction 8.93% -> 16.32%). Neither
+confirmation experiment written by either session covered it -- this one tested
+the ROI, the other tests the HF floor. Confirming the second-best result while
+leaving the best one unconfirmed would be indefensible.
+
+  arms: NO-ROI (control), ROI-Q10, REFINE-100
+  seeds: 47-51, never used for Borehole
+  15 runs, exactly the worker cap
+
+Both treatment configurations are FIXED IN ADVANCE and are the ones h85/h84 ran.
+No variant of either will be run on these seeds.
+
+### Additional prediction for the new arm
+
+**P4. REFINE-100's paired difference against NO-ROI is negative on >= 4/5 fresh
+seeds.** h85 measured -5.85 on 5/5 at seeds 42-46. I expect this to hold, and
+note that I made the same call for the Hartmann ROI flip in h87 and was wrong.
+What differs: refinement's effect is 1.4x the ROI's, its mechanism bar was
+independently met, and its per-seed effects (-6.12, -6.97, -5.79, -4.75, -5.63)
+sit in a 2.2-point band with no seed carrying it -- where the Hartmann flip's
+0.36-point band turned out to be seed-set-specific.

@@ -1,4 +1,4 @@
-"""H89 worker: clean confirmation of the Borehole ROI gain at fresh seeds 47-51.
+"""H90 worker: clean confirmation of the Borehole ROI gain at fresh seeds 47-51.
 trace-recording and checkpoint machinery is unchanged so h83's arm-A runs stay
 directly comparable."""
 import os, sys, json, time, threading
@@ -36,6 +36,9 @@ KNOWN_X={"Currin_2D":[0.21666666328646256,0.008707968518137932],
 ARMS={
  "ROI-Q10": dict(use_roi=True, roi_beta_mode='quantile', roi_target_accept=0.10),
  "NO-ROI":  dict(use_roi=False),
+ # Added before launch: teacher refinement is the LARGEST effect h85 measured
+ # (Borehole -5.85 pts, 5/5) and no confirmation experiment covered it.
+ "REFINE-100": dict(use_roi=False, teacher_refine_samples=100, teacher_refine_noise=0.05),
 }
 RES=os.path.join(os.path.dirname(__file__),"..","results")
 
@@ -75,7 +78,7 @@ def run(bench, arm, seed, ckpt_path):
                      daemon=True).start()
     try:
         from src.policy.mf_dro import DirectMFRegretOptimization
-        cfg=_build_mf_dro_config("h89",bench,arm,seed,bo_iterations=4000,num_epochs=10,
+        cfg=_build_mf_dro_config("h90",bench,arm,seed,bo_iterations=4000,num_epochs=10,
             minimum_hf_fraction=0.25,real_hf_warmup=2,cost_budget=BUDGET,
             initial_hf=sp["n_hf"],initial_lf=sp["n_lf"],dkl_threshold=9999,
             bes_delta=0.0,rollout_length=8)
