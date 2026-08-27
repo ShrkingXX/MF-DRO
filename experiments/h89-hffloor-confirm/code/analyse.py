@@ -100,8 +100,10 @@ if __name__=="__main__":
         # P8 NEGATIVE: refinement does NOT close the gap to MF-MES on Borehole.
         # MF-MES must be evaluated AT THESE SEEDS, not h83's -- h87 showed fresh
         # seeds can be far harder, so comparing to h83's 6.40% would be invalid.
-        H83=os.path.join(REPO,'experiments','h83-main-comparison','results')
-        mp=[os.path.join(H83,f"Borehole_8D__MF-MES__seed{s_}.json") for s_ in com2]
+        # The comparator was run AT THESE SEEDS (Amendment 2) into h89's own
+        # results dir. Looking only in h83's was a bug -- it would have reported
+        # CANNOT EVALUATE while the matched-seed runs sat on disk.
+        mp=[os.path.join(R,f"Borehole_8D__MF-MES__seed{s_}.json") for s_ in com2]
         if all(os.path.exists(x) for x in mp):
             mes=float(np.mean([rel("Borehole_8D",x) for x in mp]))
             print(f"    P8 NEGATIVE (does NOT close the gap to MF-MES): "
