@@ -4490,3 +4490,60 @@ consistent with trajectory perturbation than with a fidelity-allocation cost.
 
 STATUS: EXPLORATORY, n=3 of 5, direction only, no p-values. Two Hartmann seeds
 outstanding, and the reproduction control for this experiment has not run.
+
+## H85 — the HF floor: P5 MET, and my NEGATIVE prediction P6 is REFUTED
+
+Hartmann HF-FLOOR complete at 5/5, paired against the control:
+
+               n    mean     sd     range           per-seed
+  REFINE-0     5    7.99    5.85   0.67 - 16.41   16.41  0.67  10.16  5.28  7.42
+  HF-FLOOR     5    6.62    2.00   4.46 -  9.64    6.91  4.46   9.64  6.87  5.20
+  paired difference  -1.37 pts, better on 3/5
+
+**P5 (VARIANCE, the bar I registered as this arm's primary): MET, decisively.**
+Standard deviation falls 5.85 -> 2.00 and the range narrows from 15.74 points to
+5.18. The floor compresses the distribution from both ends, which is what a floor
+is for.
+
+**P6 (registered NEGATIVE: "HF-FLOOR does NOT improve mean relative regret on
+Hartmann by >= 1 point"): REFUTED.** The mean improved by 1.37 points.
+
+I registered P6 with an explicit consequence: *"if it DOES improve the mean, the
+fidelity-allocation story is more important than this project's measurements have
+indicated and the diagnosis needs revisiting."* That consequence now applies.
+
+### Why my earlier analysis pointed the wrong way
+
+Before this ran I argued fidelity allocation was a weak lever, from two pieces of
+evidence: across h83's Hartmann seeds, HF COUNT did not predict outcome (6 HF ->
+0.933 max score; 12 HF -> 0.648), and across benchmarks MF-DRO already made MORE
+HF queries than MF-MES on Borehole and Currin while losing.
+
+Both are observations of NATURALLY OCCURRING variation in HF count. The floor is
+an INTERVENTION on it. Those are different quantities, and the first does not
+bound the second: seeds where the policy happens to choose few HF queries differ
+from the ones where it chooses many in every other respect too -- the fidelity
+head chose differently because the run was different. Reading an interventional
+effect off an observational correlation is the error, and it is a close cousin of
+the change-score artifact I caught myself making earlier today.
+
+The human proposed this intervention and I argued against its likely size. The
+measurement says the intervention is worth 1.37 points of mean and a 65%
+reduction in spread.
+
+### What still holds this back
+
+  1. ONLY 3/5 SEEDS improve. The mean gain is real but is not accompanied by a
+     seed majority at the level h83's bar requires. P6 was written as a
+     mean-only bar and is refuted on its own terms; had it carried a >= 4/5 seed
+     clause it would NOT be.
+  2. THE REPRODUCTION CONTROL IS 1/4. Only Hartmann s43 has reproduced h83
+     bit-identically. Until all four land, the control arm is unverified.
+  3. AMENDMENT 2 APPLIES. No h85 arm is announced as a finding before fresh-seed
+     confirmation with the configuration fixed in advance. This is PENDING
+     CONFIRMATION, exactly as the Borehole ROI gain is.
+  4. BOREHOLE HF-FLOOR IS INERT (bit-identical on 4/5 seeds), so this is a
+     one-benchmark result. The floor only acts where the fidelity head collapses.
+
+STATUS: CONFIRMATORY against registered bars P5 and P6, on one benchmark, with an
+unverified control and no fresh-seed replication.
