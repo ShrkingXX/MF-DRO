@@ -175,3 +175,34 @@ Corollary on seed count: h87 showed that a paired sd of 0.45 on one seed set can
 become 7.45 on another, because the two methods fail on DIFFERENT seeds. n=5 is
 not enough to characterise a paired difference in this project. Treat every
 n=5 margin here as a hypothesis.
+
+## Review note (written by a CONCURRENT session while h85 was already running)
+
+Two sessions have been working this repo in parallel. This note is a review of
+the launched configuration, not a change to it -- the launcher is running and
+killing it would kill its 15 workers.
+
+FINDING: **the reproduction control is queued LAST, violating Lesson 21.**
+`run_all.py` builds 20 treatment jobs and then appends the 4 REFINE-0 control
+jobs, so with `max_workers=15` the controls dispatch only after most treatment
+runs finish -- roughly two hours in, on Borehole timings. Lesson 21 was recorded
+in findings.md precisely because h84 did this: a control that can VOID the
+experiment must run FIRST, since its failure invalidates every arm-relative
+number. h87's launcher got this right (MF-MES first, explicitly commented);
+h85's launcher predates the lesson and was not updated.
+
+NOT FIXED, deliberately: restarting the launcher would kill 15 in-flight
+workers, and the cost of a late control here is bounded -- Amendment 2 already
+forbids announcing any h85 result before fresh-seed confirmation, so a control
+that lands late cannot cause a premature announcement. The defect is recorded
+rather than repaired.
+
+ACTION FOR WHOEVER ANALYSES h85: do not report any arm-vs-REFINE-0 number until
+all four control runs have completed and reproduced h83 bit-identically. The
+analysis must print "reuse unverified" until then, as h84's did.
+
+CONCURRENCY HAZARD, for the record: this session and another both wrote the h87
+withdrawal to findings.md ~50 seconds apart, producing a duplicate that had to
+be consolidated. Two sessions launching experiments independently can also
+exceed the 15-worker cap. Compute was checked before writing this note: 15
+workers, all h85, at the cap and not over.
