@@ -1,3 +1,38 @@
+# ============================================================================
+# CONCURRENT SESSIONS -- READ THIS FIRST, BEFORE STARTING WORK
+# ============================================================================
+# Two Claude sessions have been working this repo in parallel today. That has
+# already produced three collisions, all of which cost real work:
+#   1. The H87 withdrawal was written twice, ~50 s apart, into findings.md.
+#   2. HF-FLOOR's Borehole bit-identity was verified twice, independently.
+#   3. Two DIFFERENT experiments were both created as H88
+#      (h88-surrogate-vs-data and h88-borehole-confirm; the latter renumbered
+#      to H89 because it had no results yet).
+#
+# Neither session can see the other's intent. Before starting anything:
+#   - run `git log --oneline -8` and check the last ~15 minutes
+#   - run `pgrep -f 'code/worker.py' | wc -l` TWICE a few seconds apart
+#     (single samples transiently over-report by 1-2 during worker turnover)
+#   - claim what you are taking below, in a commit, before doing it
+#
+concurrent_sessions:
+  compute_owner: >
+    Whichever session holds the running launcher owns compute. As of this
+    writing that is the h85 session. A second session must NOT launch while
+    workers are at 15.
+  claimed_by_session_A:
+    - h85-teacher-refinement   # owns the launcher and its analysis
+    - h88-surrogate-vs-data    # has results
+  claimed_by_session_B:
+    - h89-borehole-confirm     # protocol + code written, NOT launched, gated on compute
+    - to_human/ report and the published artifact
+    - read-only cross-checks and stress tests of completed arms
+  unclaimed_and_open:
+    - the q < 0.10 question: h84 showed tight beats loose on Borehole but the
+      teacher measurements imply a turning point below q=0.10 (at q=0.02 the
+      closest approach to x* degrades 0.022 -> 0.110). The optimum for q lies in
+      (0.02, 0.10) and is UNLOCATED. No experiment tests it.
+
 project: mfdro-aistats
 question: >
   Can a method built on SF-DRO (papers/DRO.pdf) match or beat standard
