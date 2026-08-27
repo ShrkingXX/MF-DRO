@@ -5397,3 +5397,26 @@ per-query measure named explicitly, which is precisely the difference.
 
 RULE ADDED: when a registered bar admits more than one measure, report BOTH and
 name which one the verdict turns on -- before computing either.
+
+### End-of-session audit: every headline number recomputed from the result files
+
+Seven claims carried by the published report and findings.md, recomputed
+independently from the raw run JSONs using h83's own sr_curve/grid:
+
+  claim                                    recomputed   claimed   status
+  Hartmann MF-MES                                6.62      6.62   OK
+  Borehole MF-MES                                6.40      6.40   OK
+  Currin MF-MI-Greedy                            0.00      0.00   OK
+  Borehole ROI delta                            -4.22     -4.22   OK
+  h89 refinement delta (fresh seeds)            -2.11     -2.11   OK
+  h89 refined level                             12.91     12.91   OK
+  h89 MF-MES at fresh seeds                     10.07     10.07   OK
+
+All seven match to <0.02. Run after two withdrawals and a corrected cost bar, on
+the principle that a document containing retractions is exactly the document
+whose surviving numbers most need re-checking -- the edits that remove a claim
+are also the edits most likely to disturb a neighbouring one.
+
+This audits ARITHMETIC, not interpretation. It does not revalidate any of the
+session's conclusions; those rest on the pre-registered bars and the fresh-seed
+re-tests, not on these figures being transcribed correctly.
