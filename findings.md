@@ -3588,3 +3588,33 @@ experiment.
 STILL OUTSTANDING: 9 of 10 ROI-FIX2 runs, 2 ROI-ANN Hartmann seeds, and the
 REPRODUCTION CONTROL, which has now STARTED (4 checkpoints live) but not
 finished. Arm A remains inherited from h83 until it does.
+
+### H84 REPRODUCTION CONTROL: PASSED, 4/4, bit-identical
+
+  Hartmann_6D s42   |d(regret)| = 0.000e+00   max|dx| = 0.000e+00   OK
+  Hartmann_6D s43   |d(regret)| = 0.000e+00   max|dx| = 0.000e+00   OK
+  Borehole_8D s42   |d(regret)| = 0.000e+00   max|dx| = 0.000e+00   OK
+  Borehole_8D s43   |d(regret)| = 0.000e+00   max|dx| = 0.000e+00   OK
+
+Four live ROI-OFF runs reproduce h83's stored MF-DRO output EXACTLY -- identical
+final regret and identical query traces, through the full optimisation loop, not
+merely the rollout gate. Both benchmarks are represented, two seeds each.
+
+This is what makes every h84 comparison legitimate. The arm-A numbers were
+reused from h83 rather than re-run, across three commits to src/policy/mf_dro.py
+(the ROI-pool rejection-sampling fix, the beta_t quantile calibration, and the
+real-query HF floor). The reuse now rests on a measured result rather than on
+the bit-identity gate plus code inspection, both of which covered less: the gate
+tested `simulate_mf_trajectory` only, and the real loop DID gain code (the
+`real_hf_every` block, inert at its default of 0).
+
+This project has previously claimed a control passed when it had never run
+(withdrawn, h73). That is why the analysis printed "reuse unverified" on every
+tick until now and why h86 was gated behind this. The gate held at 3/4 despite
+the evidence looking good -- relaxing a pre-registered gate because the numbers
+are encouraging is the failure the gate exists to prevent.
+
+CONSEQUENCE: h84's results are CONFIRMED as measured against a verified control.
+  Borehole_8D  ROI-Q10  d(rel.regret) = -4.22 pts (better 5/5)
+  Hartmann_6D  ROI-Q10  d(rel.regret) = -1.62 pts (better 3/5)
+  P1 (mean query score, +0.10 on >=4/5, BOTH benchmarks) FAILED.
