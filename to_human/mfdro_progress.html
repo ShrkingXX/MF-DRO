@@ -94,8 +94,9 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
   <p class="eyebrow">MF-DRO &middot; research progress &middot; 27 Aug 2026</p>
   <h1>Why MF-DRO Loses</h1>
   <p class="standfirst">One hundred runs across five methods and four benchmarks settled the
-  headline question negatively: MF-DRO beat no baseline anywhere. Diagnosing why led to a fix
-  &mdash; and on one benchmark of four, that fix now clears the bar the original comparison set.</p>
+  headline question negatively: MF-DRO beat no baseline anywhere. Diagnosing why produced a fix that
+  appeared to clear that bar on one benchmark &mdash; and a clean re-test at fresh seeds withdrew it.
+  The original finding stands.</p>
   <div class="chips">
     <span class="chip">h83 &middot; 100/100 runs &middot; 0 failures</span>
     <span class="chip">ROI experiment complete &middot; 34/34</span>
@@ -104,13 +105,37 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
 </header>
 
 <section>
-  <p class="kicker">Update &middot; the fix works on one benchmark</p>
-  <h2>Hartmann flips</h2>
+  <p class="kicker">Retraction &middot; announced, then withdrawn</p>
+  <h2>The Hartmann result did not replicate</h2>
   <div class="col">
-  <p class="lede">Everything below this section describes the original comparison and the diagnosis.
-  This is what changed after it. Giving MF-DRO a <em>calibrated</em> Region of Interest &mdash; the DRO
-  paper&rsquo;s own filter, with its unspecified &beta; solved for a target tightness rather than guessed
-  &mdash; moves it past the best baseline on Hartmann.</p>
+  <p class="lede">An earlier version of this page reported that a <em>calibrated</em> Region of Interest
+  moved MF-DRO past the best baseline on Hartmann, overturning the headline above. A clean re-test
+  &mdash; the ROI setting fixed in advance, a single arm, five seeds never used before, and the analysis
+  script committed before the runs finished &mdash; <strong>failed to reproduce it: 2 of 5 seeds, against a
+  bar requiring 4.</strong> The claim is withdrawn, and this retraction is given the same prominence the
+  claim was.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th class="n">seed</th><th class="n">MF-DRO + ROI</th><th class="n">MF-MES</th><th class="n">difference</th></tr></thead>
+    <tbody>
+      <tr><td class="n">47</td><td class="n">2.19</td><td class="n">0.37</td><td class="n lose">+1.82</td></tr>
+      <tr><td class="n">48</td><td class="n">4.66</td><td class="n">10.68</td><td class="n win">&minus;6.01</td></tr>
+      <tr><td class="n">49</td><td class="n">9.56</td><td class="n">25.25</td><td class="n win">&minus;15.69</td></tr>
+      <tr><td class="n">50</td><td class="n">7.95</td><td class="n">7.20</td><td class="n lose">+0.74</td></tr>
+      <tr><td class="n">51</td><td class="n">6.98</td><td class="n">5.95</td><td class="n lose">+1.03</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Why the earlier number was misleading.</strong> The average difference across these five
+  seeds still favours MF-DRO by 3.62 points &mdash; and that average is almost entirely one seed. On
+  seed 49 the baseline collapses (25.25%) and MF-DRO does not (9.56%). On three of the other four,
+  MF-DRO loses, by 0.74, 1.03 and 1.82. The honest description is that it wins big when the baseline
+  happens to fail and loses narrowly the rest of the time: <em>lower tail risk, not better typical
+  performance</em>. That is a real property and a much weaker claim, and it is not what was announced.</p>
+  <p>This is precisely why the original comparison required both a lower average <em>and</em> a majority of
+  individual seeds. The average alone would have confirmed the result.</p>
   </div>
   <div class="scroll">
   <table>
