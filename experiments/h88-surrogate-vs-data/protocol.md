@@ -62,3 +62,29 @@ data, not a method proposal.
 Both designs were produced by optimisers, so neither is a neutral probe of the
 surrogate class. A conclusive test would fit on a space-filling design of
 matched cost; that is added as condition C if A/B prove informative.
+
+## Condition C — the trigger fired
+
+A/B proved informative (P1 failed in the informative direction; P2 fired and
+forced a correction), so condition C runs as pre-registered.
+
+C. Fit the same KO GP on a SPACE-FILLING Sobol design at cost matched to
+   MF-DRO's own run (same number of HF and LF points), then recommend by the
+   same 4096-point argmax.
+
+Neither A nor B is a neutral probe of the surrogate class -- both designs came
+from optimisers, which concentrate. C is the neutral one: it asks whether the KO
+surrogate can recommend a good point AT ALL at this data budget, given data
+chosen to inform it rather than to exploit it.
+
+**P4 (pre-registered now, before running C).** C's recommendation is BETTER than
+both A and B on >= 4/5 seeds, on both benchmarks. Reasoning: A/B showed that the
+more dispersed design (MF-DRO's) already gives the better model, and a Sobol
+design is more dispersed still. If P4 FAILS -- if a design built purely for
+coverage cannot beat two optimisers' designs -- then the limit is the SURROGATE
+at this budget, not the data, and no policy change can fix the recommendation
+gap.
+
+This is a diagnostic on the model, not a method proposal. C's design is not
+something an optimiser could adopt: it spends the whole budget without ever
+exploiting.
