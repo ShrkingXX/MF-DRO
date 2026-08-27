@@ -193,7 +193,28 @@ queued_experiments:
     published report. The verdict was mechanical: analyse.py was committed while
     the treatment arm was still running, refuses verdicts below 5/5, and prints
     the falsifier itself.
-  h85-teacher-refinement: WRITTEN, queued behind compute.
+  h85-teacher-refinement: >
+    COMPLETE 24/24, 0 failures, reproduction control PASSED 4/4 bit-identical.
+    Borehole REFINE-100 -5.85 pts (5/5); Hartmann REFINE-100 -1.93 (3/5);
+    Hartmann HF-FLOOR -1.37 (3/5) with sd 5.85 -> 2.00; Borehole HF-FLOOR +0.18
+    (0/5, non-binding, 4 runs bit-identical). Bars P1/P2/P3/P4/P5 MET, P6
+    REFUTED. P2 was the mechanism bar (near-bound 8.93% -> 16.32%).
+  h89-hffloor-confirm: >
+    RUNNING (10/20). HF FLOOR ARM COMPLETE AND ITS RESULT IS **WITHDRAWN**:
+    at fresh seeds 52-56 the across-seed sd went UP (2.08 -> 3.17, P1 PRIMARY
+    FAILED) and the paired mean got WORSE by 1.60 pts (P2 FAILED), better 1/5.
+    P3 MET (collapse recurs, streaks 4/11/6) but P4's correlation is -0.84, the
+    WRONG SIGN -- the floor HARMS the most-collapsed seeds (seed 54: 0.76% ->
+    9.07%). The mechanism is inverted, not merely unconfirmed.
+    Borehole REFINE-100 arm still running -- that is the live question.
+  SECOND WITHDRAWAL OF THE DAY: >
+    Both the ROI's Hartmann flip (h84 4/5 -> h87 2/5) and the HF floor's
+    variance result (h85 -> h89) met their bars at n=5 on one seed set, were
+    recorded as provisional WITH correct caveats attached, and died at fresh
+    seeds. The confirmation discipline is what separates real results from
+    these; the caveats did not. TEACHER REFINEMENT (Borehole -5.85, 5/5) SHOULD
+    BE ASSUMED NOT TO REPLICATE until h89's Borehole arm and/or session B's h90
+    report.
 
 open_questions:
   - Does a controlled ROI raise mean HF query quality (h84 P1)?
