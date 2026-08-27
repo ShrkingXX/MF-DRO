@@ -1,4 +1,4 @@
-"""H88: does the Borehole ROI gain survive fresh seeds? Committed BEFORE the
+"""H90: does the Borehole ROI gain survive fresh seeds? Committed BEFORE the
 treatment arm finishes, as h87's was. Same metric as everything else."""
 import sys, os, json
 import numpy as np
@@ -34,6 +34,29 @@ if __name__=="__main__":
     roi=np.array([a for _,a,_ in rows])
     print(f"    P3 (still does NOT beat MF-MES 6.40): "
           f"{'MET (still behind)' if roi.mean()>6.40 else '*** REFUTED -- investigate ***'}")
+    # --- REFINE-100 arm, bar registered in the protocol addendum before any result ---
+    rrows=[];rmiss=[]
+    for s in SEEDS:
+        a=os.path.join(R,f"{B}__REFINE-100__seed{s}.json"); c=os.path.join(R,f"{B}__NO-ROI__seed{s}.json")
+        if os.path.exists(a) and os.path.exists(c): rrows.append((s,at200(a),at200(c)))
+        else: rmiss.append(s)
+    print("\n  TEACHER REFINEMENT, third seed set")
+    if rmiss: print(f"    INCOMPLETE -- pairs pending: {rmiss}")
+    elif rrows:
+        for s,a,c in rrows: print(f"    seed {s}: REFINE {a:6.2f}  no-ROI {c:6.2f}  {a-c:+7.2f}")
+        rd=np.array([a-c for _,a,c in rrows]); rw=int((rd<0).sum())
+        print(f"    n={len(rd)}  paired mean {rd.mean():+.2f}  refinement better {rw}/{len(rd)}")
+        print(f"    record: seeds 42-46 mean -5.85 5/5 | seeds 52-56 mean -2.11 4/5")
+        p4 = rw>=3 and rd.mean()<0
+        print(f"    P4 (>=3/5 AND negative mean): {'MET' if p4 else 'FAILED'}")
+        read = "STABLE" if rd.mean()<=-1.0 and rw>=4 else ("DECAYING" if p4 else "DEAD")
+        print(f"    reading: {read}  (STABLE ~-2.1 4/5 | DECAYING ~-1.0 3/5 | else dead)")
+        print(f"    P5 (still above strongest baseline, not competitive): "
+              f"{'MET' if np.array([a for _,a,_ in rrows]).mean()>10.07 else '*** REFUTED -- investigate ***'}")
+        if not p4:
+            print("\n    *** P4 FAILED -> teacher refinement joins the ROI flip and the HF")
+            print("        floor as withdrawn. NO intervention tried this session survives")
+            print("        fresh seeds; the session's answer is uniformly negative. ***")
     if not p1:
         print("\n  *** P1 FAILED -> per the protocol's falsifier, the Borehole gain is")
         print("      WITHDRAWN, and the ROI has NO surviving regret result on any")
