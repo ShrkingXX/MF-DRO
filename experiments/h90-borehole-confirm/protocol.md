@@ -161,3 +161,43 @@ lesson, not redundancy.
 
 If compute is scarce, the arm to cut is H90's REFINE-100 -- not its ROI-Q10, and
 not H89's anything.
+
+---
+
+## ADDENDUM, registered with ZERO h90 results on disk
+
+The analysis script read only ROI-Q10 vs NO-ROI and silently ignored the
+REFINE-100 arm -- 5 of the 15 runs, and the third seed set for the only
+intervention still standing. Registering its bar now, while no h90 result exists,
+rather than choosing one after seeing the numbers.
+
+### Teacher refinement's record, and the decay in it
+
+  seeds 42-46   mean -5.85   5/5
+  seeds 52-56   mean -2.11   4/5     36% of the original effect
+  seeds 47-51   this run
+
+The effect did not merely survive its first fresh-seed test, it SHRANK by 64%.
+Two points do not establish a trend, but they do define two readings that this
+third seed set can distinguish:
+
+  STABLE   the fresh-seed value is the true one -> expect approx -2.1, 4/5
+  DECAYING each new seed set costs the claim -> expect approx -1.0, 3/5 or worse
+
+**P4.** REFINE-100 beats NO-ROI on >=3/5 with a negative paired mean.
+Registered POSITIVE, but deliberately at a LOWER bar than its 5/5 and 4/5 record
+would justify, because the decay above is the more honest prior. If the mean
+lands weaker than -1.0 or wins <=2/5, the STABLE reading is dead and refinement
+is a seed-set-dependent effect like the three already withdrawn.
+
+**P5.** REFINE-100 does not make MF-DRO competitive: its mean stays above the
+strongest Borehole baseline. Registered POSITIVE. This has now held at two seed
+sets and I expect it to hold again; it is registered because it is cheap and
+because a refutation would be the most important result of the run.
+
+### Falsifier
+
+If P4 fails, teacher refinement joins the ROI flip and the HF floor as withdrawn,
+and NO intervention tried this session survives fresh seeds. The session's answer
+to its primary question would then be uniformly negative, and the only durable
+results would be the controllability argument and the seed-dependence finding.
