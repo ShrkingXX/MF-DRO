@@ -4245,3 +4245,48 @@ set.
 
 - "MF-DRO + calibrated ROI beats the best baseline on Hartmann." WITHDRAWN.
 - "h83's PRIMARY finding no longer holds." WITHDRAWN -- it holds.
+
+### The surviving Borehole gain, stress-tested the way Hartmann's failed
+
+After the h87 withdrawal, Borehole is the only positive regret result left. It
+deserves the same scrutiny that killed the Hartmann claim.
+
+   seed   no ROI   ROI-Q10     diff
+     42    15.28     11.50    -3.78
+     43    14.77     12.27    -2.49
+     44    12.93     11.37    -1.56
+     45    16.90     11.19    -5.71
+     46    19.19     11.62    -7.57
+
+   paired mean -4.22   sd 2.43   wins 5/5   |mean|/s.e. = 3.88
+
+DROP-ONE-SEED: removing any single seed leaves the mean between -3.39 and -4.89
+and the record at 4/4. No seed carries it.
+
+CONTRAST WITH THE WITHDRAWN CLAIM. Hartmann at fresh seeds was mean -3.62 with
+sd 7.45 and 2/5 wins -- a similar mean produced by one huge win and three
+losses. Borehole is mean -4.22, sd 2.43, and every seed improves. These are
+qualitatively different results that a mean alone would not distinguish, which
+is the whole reason h83's bar required both clauses.
+
+SELECTION DOES NOT APPLY THE SAME WAY HERE. On Hartmann, three ROI settings were
+run and only q=0.10 helped, so reporting it was a best-of-three. On Borehole ALL
+THREE settings improved regret (-4.81 fixed beta, -4.22 q=0.10, -1.31 q~0.49).
+The improvement is not a property of the setting that was picked; it is a
+property of applying an ROI at all. That is a materially stronger position.
+
+THE GAP THAT REMAINS, STATED PLAINLY. Borehole has never been confirmed at fresh
+seeds. Its five seeds are the same 42-46 used everywhere else in this project.
+h87's lesson was not "Hartmann was unlucky" -- it was that a clean re-test at
+unused seeds is the only thing that settles a claim, and Borehole has not had
+one. Per h85's Amendment 2, this result is PENDING CONFIRMATION, not a finding.
+
+WHAT IT WOULD TAKE: the h87 template applied to Borehole -- q=0.10 fixed in
+advance, one arm, seeds 47-51, MF-DRO with and without the ROI at those seeds,
+analysis script committed before the treatment arm finishes. 10 runs. Not
+launched: compute is at 15/15 with h85, and a concurrent session owns the
+launcher.
+
+NOTE: Borehole's gain does NOT make MF-DRO competitive there. MF-MES is at 6.40
+against MF-DRO's 11.59. The claim is "the ROI closes 27% of the gap", not "MF-DRO
+wins".
