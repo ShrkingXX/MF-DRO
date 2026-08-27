@@ -3843,3 +3843,36 @@ boundary-reach measurements but is NOT tested here.
 
 SO THE ROI's BENEFIT IS STRONGLY BENCHMARK-DEPENDENT: -4.22, -2.05, -0.09 across
 three benchmarks, all at the same q=0.10. It is not a uniform improvement.
+
+### CORRECTION to my own framing: the Hartmann margin is far more consistent than "4/5" suggested
+
+I twice described the Hartmann flip as resting on "4/5 seed wins at n=5, a weak
+majority". The paired structure says otherwise:
+
+   seed   MF-DRO+ROI   MF-MES     diff
+     42         8.88     9.95    -1.07
+     43         0.60     1.31    -0.71
+     44         8.26     9.09    -0.82
+     45         5.88     6.79    -0.91
+     46         6.04     5.96    +0.09
+
+   mean paired diff -0.68 pts, sd 0.45, s.e. 0.20 -> 3.39 s.e. from zero
+   each method's own per-seed spread: sd 3.26 (MF-DRO+ROI), 3.39 (MF-MES)
+
+The paired difference is roughly SEVEN TIMES tighter than either method's
+marginal spread, because paired seeds share an initial design and seed difficulty
+is common-mode. Four of five differences sit in a 0.36-point band (-1.07 to
+-0.71); the fifth is +0.09, i.e. a tie rather than a loss.
+
+NO P-VALUE IS CLAIMED -- the project bars them at n=5 and 3.39 s.e. is reported
+as descriptive effect-size-relative-to-variability, not a significance test.
+
+WHAT THIS DOES AND DOES NOT ADDRESS. It addresses SEED NOISE: the margin is not
+an artifact of which five seeds were drawn. It does NOT address SELECTION: three
+ROI settings were run on Hartmann and the winner is being reported. Paired
+consistency makes a spurious -0.68 less likely, but selection over three arms is
+a separate problem that only fresh seeds at a pre-committed setting can settle.
+
+This is the third time in this experiment that looking harder at existing data
+changed a conclusion I had already written down. The other two went against the
+intervention; this one goes for it.
