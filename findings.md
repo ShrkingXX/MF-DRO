@@ -3424,3 +3424,38 @@ PENDING HUMAN DIRECTION: if the ROI improves MF-DRO, re-run all of h83's MF-DRO
 arm (4 benchmarks x 5 seeds) with the winning configuration. The Borehole
 evidence is approaching that threshold; the trigger is deliberately held until
 h84 completes and the reproduction control passes.
+
+### H84 — P1's BOREHOLE half is MET (CONFIRMATORY, 5/5 complete on that benchmark)
+
+  Borehole_8D, ROI-Q10 vs ROI-OFF, paired, all 5 seeds:
+    d(q-score)     = +0.114   wins 5/5      <- P1 bar is +0.10 on >= 4/5
+    d(rel.regret)  = -4.22pts better 5/5
+    arm means: rel regret 15.82% -> 11.59%   (MF-MES reference 6.40%)
+               queries worse than initial design 7.9% -> 3.0%
+               HF queries 94 -> 85
+
+P1 AS WRITTEN IS A CONJUNCTION over BOTH benchmarks, so its final verdict waits
+on Hartmann, which currently sits at +0.039 (2/3) and will very likely miss the
++0.10 magnitude. The two halves are reported separately rather than letting a
+conjunction collapse a decisive result on one benchmark into a single FAIL --
+this project has already logged four mis-specified conjunction bars.
+
+The honest summary is therefore: the strategy WORKS on the benchmark it was
+aimed at, and does not transfer at the same strength to the other one. That is a
+narrower claim than "the ROI fixes MF-DRO" and is the one the data supports.
+
+MY REGISTERED PREDICTION IS REFUTED on Borehole. I twice recorded that P1 looked
+unlikely to be met, reasoning from a +0.010 measurement of the ROI's effect on
+teacher-action quality. The refutation is decisive (5/5 seeds, both metrics), and
+the diagnosis of my error stands as recorded above: I measured the teacher at a
+single model state and treated it as an upper bound on an effect that operates
+through the whole training DISTRIBUTION.
+
+Closing 45% of the MF-DRO -> MF-MES gap on Borehole (15.82 -> 11.59 against
+6.40) does NOT make MF-DRO competitive there; MF-MES still wins by 5.2 points.
+The h83 headline -- MF-DRO beats no baseline -- is unchanged by this result.
+
+STILL PENDING before anything is final: Hartmann Q10 (2 seeds), Hartmann ANN
+(4 seeds), all 10 ROI-FIX2 runs (P2's negative prediction), and THE
+REPRODUCTION CONTROL (4 runs), without which arm A remains inherited from h83
+rather than verified.
