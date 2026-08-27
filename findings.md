@@ -3876,3 +3876,43 @@ a separate problem that only fresh seeds at a pre-committed setting can settle.
 This is the third time in this experiment that looking harder at existing data
 changed a conclusion I had already written down. The other two went against the
 intervention; this one goes for it.
+
+### Fixed beta is uncontrolled along THREE axes. Calibration removes all three.
+
+Realised ROI acceptance, measured in the runs themselves:
+
+  bench         arm          s42     s43     s44     s45     s46   spread
+  Hartmann_6D   ROI-FIX2    3.6%   24.9%   24.7%      --      --    6.9x
+  Hartmann_6D   ROI-Q10    10.0%   10.0%   10.0%   10.0%   10.0%    1.0x
+  Borehole_8D   ROI-FIX2   26.5%   26.3%   16.5%   21.5%   16.2%    1.6x
+  Borehole_8D   ROI-Q10    10.0%   10.0%   10.0%   10.0%   10.0%    1.0x
+
+Collecting every axis now measured, at the paper's own rule with sqrt(beta)=2:
+
+  1. ACROSS BENCHMARKS: 12.6% (Hartmann) to 100% (Borehole, Ackley) at the same
+     stage -- the ROI is vacuous on two of four benchmarks early in a run.
+  2. WITHIN A RUN, as data accumulates: 100% -> 0.4% on Borehole, a 250x swing.
+  3. ACROSS SEEDS of the SAME benchmark: 3.6% to 24.9% on Hartmann, 6.9x.
+
+Axis 3 is new and is the sharpest of the three rhetorically: two runs of the
+SAME method on the SAME benchmark, differing only in random seed, get ROIs that
+differ seven-fold in tightness. Nothing about that is a choice.
+
+Quantile calibration collapses all three to 1.0x by construction, and does so
+while solving beta_t anywhere in 0.48-3.10 to get there. The case for
+calibration does not depend on the regret numbers at all: a knob that cannot be
+set is not a knob.
+
+### CORRECTION to a meta-claim: partial arms are unreliable, not systematically rosy
+
+I wrote that "every time a partial arm has been rosier than the complete one"
+and told the human to treat any n<5 arm as an upper bound. Hartmann ROI-FIX2
+just went the other way: +6.32 pts at n=2, +0.36 pts at n=3, i.e. the partial
+arm read much WORSE than the fuller one.
+
+So the claim was an over-generalisation from three instances that happened to
+share a direction (Ackley -0.40 -> -0.09, Hartmann Q10 -2.17 -> -1.62, and the
+unpaired +0.45 artifact). The correct statement is the weaker one: partial arms
+are UNRELIABLE IN EITHER DIRECTION and should not be quoted as estimates. That
+remains a reason to wait for complete arms; it is not a reason to treat partial
+numbers as upper bounds specifically.
