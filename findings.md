@@ -4749,3 +4749,65 @@ CONTEXT THAT KEEPS IT HONEST:
 REPRODUCTION CONTROL: 3 of 4 now bit-identical (Hartmann s43, Borehole s42/s43),
 plus the 4 Borehole HF-FLOOR seeds that were bit-identical by construction. Only
 Hartmann s42 outstanding.
+
+### The HF floor does not replicate at fresh seeds — because the failure mode did not occur there
+
+READ-ONLY analysis of the concurrent session's H89 (its Hartmann arms are
+complete; the experiment is theirs and its verdict is theirs to call).
+
+  H89, Hartmann, fresh seeds 52-56:
+    seed   CONTROL   HF-FLOOR    diff
+      52      2.54       2.54   +0.00   <- floor inert
+      53      0.82       0.82   +0.00   <- floor inert
+      54      0.76       9.07   +8.30
+      55      5.78       5.45   -0.33
+      56      3.39       3.39   +0.00   <- floor inert
+    paired mean +1.60, better 1/5. Spread INCREASED: control sd 2.08 -> floor 3.17.
+
+h85 measured -1.37 pts and a spread CUT from 5.85 to 2.00 on seeds 42-46. That
+does not replicate.
+
+**WHY, and it is not "the floor is useless".** The floor overrides only after
+three consecutive low-fidelity queries. It exists to bound fidelity-head
+collapse. The two seed sets differ enormously in whether that collapse happens:
+
+  seed set     control LF% per seed        mean LF%   control HF queries
+  42-46 (h85)  94, 25, 90, 96, 94             80%      8, 24, 12, 6, 8
+  52-56 (h89)  25,  7, 53, 42, 19             29%     24, 25, 22, 23, 25
+
+On seeds 42-46 the head collapsed on FOUR of five seeds, leaving 6-12 real
+high-fidelity evaluations. On 52-56 it never collapsed: every seed took 22-25.
+There was nothing for the floor to bound, so on three seeds it never fired and
+the runs are bit-identical; on seed 54 it fired once and cost 8.30 points.
+
+### THE METHODOLOGICAL FINDING, which is bigger than the floor
+
+**The failure mode itself is seed-set-dependent.** Mean low-fidelity usage on
+Hartmann is 80% on seeds 42-46 and 29% on seeds 52-56. Any intervention that
+targets fidelity-head collapse will look strong or useless depending purely on
+which seeds it is measured on.
+
+This is the THIRD instance of one seed set's peculiarity being mistaken for a
+method property:
+  1. h84's Hartmann paired sd of 0.45 became 7.45 at fresh seeds.
+  2. "Lower tail risk" was a property of seeds 47-51, not of the methods.
+  3. Now: the collapse rate the HF floor targets is 80% on one set, 29% on another.
+
+Seeds 42-46 carry EVERY headline number in h83, h84, h85 and h86. They are
+demonstrably unusual on Hartmann in at least this respect. That does not
+invalidate those results, but it means any claim resting on them describes
+MF-DRO-on-those-instances until confirmed elsewhere -- which is precisely what
+the fresh-seed confirmations exist to check, and precisely what the HF floor has
+now failed.
+
+### Consequence for P6
+
+h85's P6 -- my NEGATIVE prediction that the floor would not improve the mean --
+was recorded as REFUTED at -1.37 pts. On fresh seeds the effect is +1.60. The
+refutation stands as a description of seeds 42-46, but "the fidelity-allocation
+story is more important than this project's measurements have indicated", the
+consequence I attached to it, is NOT supported. I should not have attached a
+general conclusion to a five-seed result.
+
+STATUS: EXPLORATORY read-only analysis of another session's in-progress
+experiment. Its Borehole arms are still running.
