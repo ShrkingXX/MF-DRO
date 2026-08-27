@@ -103,3 +103,39 @@ the mechanism predicts, and the budget-waste problem is NOT a candidate-
 distribution problem. That would redirect at the output parameterisation (an L2
 head pulled toward the interior) instead -- see the boundary-aversion correction
 in findings.md.
+
+## Amendment 3 — arm D (ROI-ANN) does not anneal. Found AFTER partial results.
+
+DISCLOSURE: found by inspecting the acceptance figures in COMPLETED runs (three
+Borehole ROI-ANN seeds), not before the fact. Reported here rather than quietly
+relabelled.
+
+The annealed schedule computes progress as `n_real_iter / T_real`, where
+`simulate_mf_trajectory` receives `T_real = config.bo_iterations`. The workers
+pass `bo_iterations=4000` as a LARGE CAP so that the COST budget is what
+terminates a run -- it is not the actual horizon. `n_real_iter` is the HF count
+(10-100). So progress never exceeds ~0.025 and
+
+    q_t = 0.50 + (0.05 - 0.50) * progress   spans only 0.4989 -> 0.4888
+
+Measured acceptance across three completed Borehole ROI-ANN runs: 0.4934,
+0.4935, 0.4934 -- flat, exactly as the arithmetic predicts.
+
+CONSEQUENCES.
+
+1. Arm D is RELABELLED. It is not "annealed q: 0.50 -> 0.05". It is a ROI at
+   CONSTANT q ~ 0.49. Its data remain valid and are reported under that label.
+2. P4 ("arm D is not worse than arm C") is no longer an annealing test. It now
+   compares a loose constant ROI (q~0.49) against a tight one (q=0.10), which is
+   a useful contrast but NOT the one registered. It will be reported as such,
+   and the annealing hypothesis is recorded as UNTESTED.
+3. The fix (progress from post-init COST over the cost budget, the real horizon)
+   is NOT being applied mid-run. Editing src/policy/mf_dro.py now would split the
+   Hartmann ROI-ANN arm across two code versions -- one seed is in flight and
+   four are queued. Same reasoning as Amendment 1's dead exp_name label: keeping
+   all 34 jobs on identical source is worth more than fixing an arm that is
+   already mislabelled either way. Annealing gets its own clean test later.
+
+WHAT THIS DOES NOT AFFECT. The annealing path fires only when both
+roi_accept_start and roi_accept_end are set, i.e. arm D alone. Arms A (ROI-OFF),
+B (ROI-FIX2) and C (ROI-Q10) never enter that branch and are untouched.
