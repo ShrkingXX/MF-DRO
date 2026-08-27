@@ -66,3 +66,46 @@ Forcing periodic high-fidelity queries was the human's proposal. I argued
 against it from h83's seed table and registered a negative prediction (h85 P6),
 which h85 is refuting. That prior is why this confirmation is being run rather
 than the result being announced.
+
+## Amendment 1 — add a Borehole REFINE-100 confirmation arm (before any h89 run)
+
+h85's Borehole teacher-refinement arm completed at 5/5 while h89 was still
+unstarted: **-5.85 pts, better on 5/5 seeds** (15.82% -> 9.96%). That is the
+largest effect any intervention has produced in this project, larger than the
+calibrated ROI's -4.22, and it too is PROVISIONAL under Amendment 2.
+
+Rather than register a separate experiment, h89 gains a second, independent
+confirmation arm. The two share nothing except the fresh-seed discipline; each
+is judged on its own bars.
+
+| | HF floor (original) | Teacher refinement (added) |
+|---|---|---|
+| benchmark | Hartmann_6D | Borehole_8D |
+| treatment | `real_hf_every=4` | `teacher_refine_samples=100` |
+| control | MF-DRO, no floor | MF-DRO, no refinement |
+| seeds | 52-56 | 52-56 |
+
+Both controls run FIRST (Lesson 21). Total 20 runs.
+
+### Predictions for the refinement arm (pre-registered)
+
+- **P5 (PRIMARY).** The paired difference is negative on >= 4/5 fresh seeds.
+  Unlike the floor arm, the MEAN is an acceptable primary here because h85's
+  Borehole effect is NOT carried by one seed -- all five improve, by 3.6 to 7.0
+  pts. A seed-count bar is therefore the right test and it is set high.
+- **P6.** The effect size is at least half of h85's, i.e. paired mean <= -2.9
+  pts. Registered because h87 showed a margin can survive in sign and collapse
+  in magnitude, and magnitude is what matters for a method claim.
+- **P7 (COST).** Wall-clock stays under 2.5x the control. h85 measured
+  1.99-2.02x in flight. P4 of h85 set 2x and refinement is at the boundary; 2.5x
+  is the outer limit at which this remains a usable default rather than a
+  curiosity.
+- **P8 (NEGATIVE).** Refinement does NOT close the gap to MF-MES on Borehole
+  (6.40%). h85 reached 9.96%, still 3.56 pts behind. Registered negative so that
+  a genuine narrowing is visible as a surprise rather than assumed.
+
+### Falsifier
+
+If P5 fails, the refinement result is withdrawn as prominently as it was
+recorded. If P5 passes but P6 fails, it is reported as a real but much smaller
+effect than h85 suggested, and h85's figure is corrected.
