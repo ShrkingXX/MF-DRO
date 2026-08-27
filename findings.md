@@ -5270,3 +5270,49 @@ failed.
 
 STATUS: CONFIRMATORY across two pre-registered experiments at independent seed
 sets. n=10, no p-values.
+
+### P4 (refinement's wall-clock cost) FAILS on one seed set and passes on the other
+
+Measured from completed runs, not projections:
+
+  seed set   control   REFINE-100    ratio
+  42-46       82.4m      170.7m      2.07x   <- FAILS the registered < 2.0x bar
+  52-56       80.1m      100.2m      1.25x   <- passes
+
+**P4 is FAILED**, since the bar applies to the intervention and one seed set
+exceeds it.
+
+TWO CORRECTIONS THIS FORCES.
+
+1. **A claim in the published report needs qualifying.** The report currently
+   states refinement's cost "came in at 1.25x the unmodified method, inside its
+   limit and cheaper than the first measurement suggested." That is the
+   fresh-seed figure only. On the seeds where the effect was originally
+   measured it is 2.07x, which fails the bar. The honest statement is that cost
+   ranges 1.25-2.07x depending on the seed set and the registered bar is not met.
+   Flagged here rather than edited directly: the other session owns that file
+   and reads findings.md.
+
+2. **My own prediction was half right for the wrong reason.** I registered "P4 is
+   therefore likely to FAIL on Borehole", reasoning that my linear projections
+   understated the true cost because MF-DRO's progress is sublinear. The
+   projection for seeds 42-46 was 2.00x and the actual is 2.07x -- correct. But
+   for seeds 52-56 the actual is 1.25x, well inside the bar. The prediction was
+   right on one seed set and wrong on the other, and my stated REASON (sublinear
+   progress inflating all costs) does not explain a 1.25x.
+
+### A FIFTH quantity that varies by seed set
+
+Running tally of things measured in this investigation that reverse, vanish or
+change materially when the seed set changes:
+
+  1. A paired standard deviation:            0.45  ->  7.45
+  2. A tail-risk ordering:                   reverses
+  3. Fidelity-head collapse incidence:        80%  ->   29%
+  4. The sign of a method comparison:        +1.37 ->  -4.40 (Hartmann)
+  5. An intervention's WALL-CLOCK COST:      2.07x ->  1.25x
+
+Item 5 is the least expected. Refinement's cost is dominated by how many rollout
+steps a run takes before exhausting its budget, and that depends on the fidelity
+mix the policy chooses -- which is itself seed-dependent. Even a compute-cost
+measurement in this project is not a stable property of the method.
