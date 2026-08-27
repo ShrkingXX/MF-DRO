@@ -56,3 +56,21 @@ If NULL fires, M stays 10 and the pool/refinement change is applied on its own.
 Hartmann only, n=5, one budget. It does not establish that pool-1000-plus-
 refinement beats the current default — that comparison is not run here, and h78
 (the n=10 replication of pool-1000 alone) was halted before completing.
+
+---
+
+## OUTCOME: ABANDONED at 13/15, verdict NEVER EVALUATED
+
+Stopped by user instruction once the configuration decision had been taken on
+other grounds. M10 seeds 42 and 46 never completed, so `analyse.py` was never
+run past its completeness gate and **none of the three locked predictions has a
+result**.
+
+What the run did establish, and it is a cost fact rather than a statistical one:
+**M10/M3 wall-time is 1.39x**, not the ~3x the premise assumed. Shrinking M
+frees far less compute than expected, which is why the pool decision could not
+be funded by it.
+
+M=3 was adopted. It is NOT supported by this experiment's PRIMARY bar, which was
+never evaluated. Anyone citing M=3 should cite the cost measurement, not a
+performance result.
