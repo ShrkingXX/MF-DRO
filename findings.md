@@ -4377,3 +4377,45 @@ narrow one already recorded: MF-DRO+ROI lost 2/5 and the flip is withdrawn.
 
 STATUS: EXPLORATORY, existing data, no new runs. Reported as a NEGATIVE result on
 a hypothesis this project raised about itself.
+
+### H85 — HF-FLOOR on Borehole is provably INERT on 4/5 seeds (CONFIRMATORY, P7)
+
+The Borehole HF-FLOOR arm is complete. Compared bit-for-bit against the control:
+
+   seed     max|dx|    |d regret|   longest LF run   verdict
+     42         inf      2.822          3            floor fired
+     43   0.000e+00      0.000          2            IDENTICAL
+     44   0.000e+00      0.000          2            IDENTICAL
+     45   0.000e+00      0.000          2            IDENTICAL
+     46   0.000e+00      0.000          2            IDENTICAL
+
+`real_hf_every=4` overrides only after THREE consecutive low-fidelity queries.
+On four of five Borehole seeds MF-DRO never queues three in a row -- its longest
+LF run is 2 -- so the override never fires and the runs are bit-identical to the
+control. On seed 42 the run reaches 3 consecutive LF, the floor fires, and the
+result is **2.82 points WORSE**.
+
+So the arm's +0.18 pt mean difference is not a small effect spread over five
+seeds. It is **zero on four seeds and one 2.82-point regression on the fifth.**
+
+P7 REGISTERED: "On Borehole, HF-FLOOR changes little either way -- it already
+runs at 11.7% LF, so a 1-in-4 floor is close to non-binding there." **CONFIRMED,
+and by a stronger mechanism than predicted**: not "close to non-binding" but
+literally inert, with bit-identical trajectories.
+
+TWO THINGS THIS SETTLES.
+
+1. The floor's implementation does not perturb a run when inactive. Four
+   bit-identical trajectories are the same guarantee the `use_roi=False` gate
+   provides -- the code path is genuinely inert when its condition is unmet.
+2. The earlier observation that "HF-FLOOR is free, and on Hartmann faster than
+   the control (0.52x)" needs splitting. On BOREHOLE it is free because it does
+   NOTHING. On HARTMANN it genuinely fires (MF-DRO runs 80-96% LF there) and the
+   0.52x speedup is real -- forcing HF burns the cost budget 8x faster, ending
+   the run in fewer iterations. Those are different phenomena and were being
+   described with one sentence.
+
+THE ARM THAT MATTERS IS STILL RUNNING. Hartmann HF-FLOOR is 1/5 complete. That
+is where the floor binds and where P5 (does it reduce across-seed spread?) and
+P6 (registered NEGATIVE: it should not improve the mean) will actually be
+tested. Nothing about Borehole's result bears on them.
