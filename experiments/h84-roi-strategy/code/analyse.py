@@ -61,31 +61,51 @@ if __name__=="__main__":
     miss=[]
     for b in BENCH:
         print(f"=== {b} ===")
-        print(f"  {'arm':10s}{'mean q-score':>13s}{'best':>7s}{'<init':>8s}{'HFq':>6s}"
-              f"{'rel.reg':>9s}{'ROI acc':>9s}{'beta_t':>8s}   per-seed mean")
-        base=None
+        # Collect per-seed values first so every arm-vs-control comparison can be
+        # made PAIRED on the seeds both arms actually have. Comparing arm means
+        # over different seed subsets is not a comparison: on Hartmann, ROI-OFF's
+        # mean is dominated by seed 44 (q-score -0.94), so an arm holding only
+        # seed 43 appears to beat it by +0.45 while being tied on the seed they
+        # share.
+        per={}
         for a in ARMS:
-            rows=[]
+            per[a]={}
             for s in SEEDS:
-                p,src=path(b,a,s)
-                if p is None: miss.append(f"{b}/{a}/s{s}"); continue
-                v=score(b,p)
-                if v: rows.append(v)
-            if not rows: print(f"  {a:10s}{'--':>13s}"); continue
-            m=np.array([r["mean"] for r in rows]); rel=np.array([r["rel"] for r in rows])
-            acc=[r["roi"].get("accept_frac") for r in rows if r["roi"].get("accept_frac") is not None]
-            bet=[r["roi"].get("beta_sqrt") for r in rows if r["roi"].get("beta_sqrt") is not None]
-            if a=="ROI-OFF": base=m
-            win=""
-            if base is not None and a!="ROI-OFF" and len(m)==len(base):
-                win=f"  wins {int((m>base).sum())}/{len(m)}"
-            print(f"  {a:10s}{m.mean():>13.3f}{np.mean([r['best'] for r in rows]):>7.3f}"
-                  f"{100*np.mean([r['frac_neg'] for r in rows]):>7.1f}%"
-                  f"{np.mean([r['n_hf'] for r in rows]):>6.0f}{rel.mean():>8.2f}%"
-                  f"{(np.mean(acc) if acc else float('nan')):>9.1%}"
-                  f"{(np.mean(bet) if bet else float('nan')):>8.2f}   "
-                  + " ".join(f"{v:.2f}" for v in m) + win)
+                p_,src=path(b,a,s)
+                if p_ is None:
+                    if a!="ROI-OFF": miss.append(f"{b}/{a}/s{s}")
+                    continue
+                v=score(b,p_)
+                if v: per[a][s]=v
+        print(f"  {'arm':10s}{'n':>3s}{'q-score':>9s}{'rel.reg':>9s}{'<init':>7s}{'HFq':>5s}"
+              f"{'acc':>7s}{'beta':>7s}   per-seed q-score (42..46)")
+        for a in ARMS:
+            r=per[a]
+            if not r: print(f"  {a:10s}{0:>3d}{'--':>9s}"); continue
+            m=np.array([r[s]["mean"] for s in sorted(r)])
+            acc=[r[s]["roi"].get("accept_frac") for s in sorted(r) if r[s]["roi"].get("accept_frac") is not None]
+            bet=[r[s]["roi"].get("beta_sqrt") for s in sorted(r) if r[s]["roi"].get("beta_sqrt") is not None]
+            ps=" ".join((f"{r[s]['mean']:6.2f}" if s in r else "     .") for s in SEEDS)
+            print(f"  {a:10s}{len(r):>3d}{m.mean():>9.3f}"
+                  f"{np.mean([r[s]['rel'] for s in sorted(r)]):>8.2f}%"
+                  f"{100*np.mean([r[s]['frac_neg'] for s in sorted(r)]):>6.1f}%"
+                  f"{np.mean([r[s]['n_hf'] for s in sorted(r)]):>5.0f}"
+                  f"{(np.mean(acc) if acc else float('nan')):>7.1%}"
+                  f"{(np.mean(bet) if bet else float('nan')):>7.2f}   {ps}")
+        # PAIRED comparisons against the control, common seeds only
+        ctl=per.get("ROI-OFF",{})
+        print(f"\n  PAIRED vs ROI-OFF (common seeds only):")
+        for a in ARMS:
+            if a=="ROI-OFF": continue
+            com=sorted(set(per.get(a,{})) & set(ctl))
+            if not com: print(f"    {a:10s} no common seeds yet"); continue
+            dq=np.array([per[a][s]["mean"]-ctl[s]["mean"] for s in com])
+            dr=np.array([per[a][s]["rel"]-ctl[s]["rel"] for s in com])
+            print(f"    {a:10s} n={len(com)}  d(q-score)={dq.mean():+.3f} "
+                  f"(wins {int((dq>0).sum())}/{len(com)})   "
+                  f"d(rel.regret)={dr.mean():+.2f}pts (better {int((dr<0).sum())}/{len(com)})"
+                  f"   seeds {com}")
         print()
     if miss: print(f"INCOMPLETE -- {len(miss)} runs missing: {miss[:10]}{' ...' if len(miss)>10 else ''}")
-    print("\nMF-MES reference (h83): Hartmann mean q-score 0.747, Borehole 0.669")
+    print("\nMF-MES reference (h83): Hartmann q-score 0.747, Borehole 0.669")
     print("PRE-REGISTERED BARS in protocol.md -- evaluated in analysis.md, not here.")
