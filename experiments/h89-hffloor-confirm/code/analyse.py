@@ -87,5 +87,28 @@ if __name__=="__main__":
         print(f"    P5 PRIMARY (negative on >=4/5): {'MET' if (d<0).sum()>=4 else 'FAILED'}")
         print(f"    P6 (>= half of h85's -5.85, i.e. <= -2.9): {'MET' if d.mean()<=-2.9 else 'FAILED'}"
               f"   [{d.mean():+.2f}]")
+        # P7 COST: wall-clock under 2.5x the control, per post-init query.
+        def rate(paths):
+            v=[]
+            for s_ in com2:
+                r=json.load(open(paths[s_])); q=[e for e in r["queries"] if not e.get("is_init")]
+                if q: v.append(r["_wall_s"]/60/len(q))
+            return float(np.mean(v)) if v else float("nan")
+        rc, rr = rate(C2), rate(R2)
+        print(f"    P7 COST (< 2.5x control wall-clock): "
+              f"{'MET' if rr/rc < 2.5 else 'FAILED'}   [{rr/rc:.2f}x, {rc:.3f} -> {rr:.3f} min/query]")
+        # P8 NEGATIVE: refinement does NOT close the gap to MF-MES on Borehole.
+        # MF-MES must be evaluated AT THESE SEEDS, not h83's -- h87 showed fresh
+        # seeds can be far harder, so comparing to h83's 6.40% would be invalid.
+        H83=os.path.join(REPO,'experiments','h83-main-comparison','results')
+        mp=[os.path.join(H83,f"Borehole_8D__MF-MES__seed{s_}.json") for s_ in com2]
+        if all(os.path.exists(x) for x in mp):
+            mes=float(np.mean([rel("Borehole_8D",x) for x in mp]))
+            print(f"    P8 NEGATIVE (does NOT close the gap to MF-MES): "
+                  f"{'MET' if f.mean()>mes else 'REFUTED'}   [refined {f.mean():.2f}% vs MF-MES {mes:.2f}%]")
+        else:
+            print(f"    P8: MF-MES not available at seeds {com2} -- CANNOT EVALUATE.")
+            print(f"        (h83 covers 42-46 only; comparing to h83's 6.40% would be")
+            print(f"         invalid, since h87 showed fresh seeds can be much harder.)")
     else:
         print("  INCOMPLETE -- no verdict.")
