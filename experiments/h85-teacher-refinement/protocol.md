@@ -206,3 +206,30 @@ withdrawal to findings.md ~50 seconds apart, producing a duplicate that had to
 be consolidated. Two sessions launching experiments independently can also
 exceed the 15-worker cap. Compute was checked before writing this note: 15
 workers, all h85, at the cap and not over.
+
+### Live verification of the HF-FLOOR mechanism (read-only, concurrent session)
+
+The pre-launch smoke test did NOT exercise the floor: at budget 40 the run was
+all-HF anyway, so "longest LF run = 0" proved only that the code did not crash.
+Checked against the live checkpoints instead, where `real_hf_every=4` guarantees
+no window of 4 real queries is all-LF, i.e. the longest run of consecutive LF
+queries must never exceed 3:
+
+  arm         bench         seeds   longest LF run   verdict
+  HF-FLOOR    Borehole_8D   42-46        1 (all)     OK, 0 violations
+
+The mechanism works. But note what is NOT yet tested:
+
+  1. THE FLOOR IS BARELY BINDING ON BOREHOLE. Its LF fraction there is 5.9-11.8%,
+     and MF-DRO's Borehole baseline was already ~12% LF -- the policy chooses
+     high fidelity there on its own. This is consistent with P7, registered
+     before launch: "On Borehole, HF-FLOOR changes little either way."
+  2. THE ARM THAT MATTERS HAS NOT STARTED. HF-FLOOR on Hartmann is still queued.
+     Hartmann is where MF-DRO runs 80-96% LF and takes only 6-12 real HF
+     evaluations -- the fidelity-head collapse the floor exists to bound. Until
+     those five runs land, the floor is verified as CORRECT but not as USEFUL.
+
+An incidental illustration from the same check: REFINE-100 on Hartmann seed 45
+is currently at 80% LF with a run of EIGHT consecutive low-fidelity queries.
+That is exactly the failure mode HF-FLOOR targets, observed live in a different
+arm.
