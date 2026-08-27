@@ -845,3 +845,60 @@ and an explicit falsification condition for the whole strategy.
 
 HUMAN DIRECTION: if ROI improves MF-DRO, re-run ALL of h83's MF-DRO arm (4
 benchmarks x 5 seeds) with the winning configuration.
+
+## 2026-08-27 (later) — H84 outcome, and what it cost to get right
+
+RESULT. The quantile-calibrated ROI improves MF-DRO's final regret on both
+benchmarks tested, decisively on one:
+
+  Borehole_8D  ROI-Q10  -4.22 pts (better 5/5)  15.82% -> 11.59%
+  Hartmann_6D  ROI-Q10  -1.62 pts (better 3/5)   7.55% ->  5.95%
+
+P1, the pre-registered PRIMARY bar (+0.10 mean query score on >= 4/5 seeds, BOTH
+benchmarks), FAILED: Borehole met it (+0.114, 5/5), Hartmann did not (+0.001,
+3/5). Reported as failed; the bar was not renegotiated.
+
+The strongest argument for the contribution is NOT the regret delta. It is that
+ROI-FIX2 -- the paper's rule at a fixed sqrt(beta)=2 -- realises 24.9%
+acceptance on Hartmann purely as a consequence of that benchmark's posterior
+scale. Nobody chose 24.9%. Measured acceptance at fixed beta swings 250x across
+benchmarks and data sizes (Borehole 100% at n_hf=10, 0.4% at n_hf=35), so a
+constant beta cannot express "tight" at all. Calibrating to a target acceptance
+turns ROI tightness into a knob, and h84 shows the knob matters: tight (q=0.10)
+beats every looser setting on both benchmarks.
+
+WHAT THIS DOES NOT DO. It does not make MF-DRO competitive. MF-MES still wins
+Borehole by 5.2 points after the improvement. The h83 headline -- MF-DRO beats
+no baseline on any benchmark -- is unchanged by h84.
+
+FOUR CORRECTIONS I HAD TO MAKE DURING THIS EXPERIMENT, all recorded in
+findings.md rather than quietly amended:
+
+  1. "An L2 head cannot reach a bound" -- WRONG. It saturates clamp on 2.02% of
+     Borehole coordinates.
+  2. "The ROI relocates a uniform draw and cannot reach a corner" -- WRONG. All
+     three boundary metrics improve monotonically as the ROI tightens. I had
+     reasoned about the sampling distribution instead of measuring the filtered
+     one.
+  3. "Regret improves monotonically with ROI tightness" -- OVERSTATED. Held at
+     n=1 on Hartmann's loose arms; at n=3 the ordering broke. What survives is
+     that tight beats loose, not a strict ordering.
+  4. My twice-registered prediction that P1 was unlikely to be met -- REFUTED on
+     Borehole 5/5. I had measured the ROI's effect on the TEACHER at one model
+     state (+0.010) and treated it as an upper bound on its effect on the POLICY,
+     which trains on the teacher's whole distribution across rollouts.
+
+The common failure mode in 1, 2 and 4: asserting a mechanism from a plausible
+argument when a cheap measurement was available the whole time.
+
+TWO PROCESS LESSONS (findings.md 21, 22):
+  21. A control that can VOID an experiment must run FIRST. h84 queued its
+      reproduction control behind all 30 treatment runs.
+  22. The PRIMARY metric must be the statistic the objective depends on. Simple
+      regret is a MAX; h84 registered the MEAN as primary, so on Hartmann the
+      bar recorded +0.000 while regret improved 1.62 points.
+
+STATUS: 22/34 done, 0 failures. Reproduction control 1/4 passed bit-identical
+(Hartmann s43, |dregret| and max|dx| both 0.000e+00); 3 running. h86 (ROI on
+Currin + Ackley, 10 runs) is written and GATED on all four controls passing.
+h85 (teacher refinement + HF floor) is written and queued behind compute.
