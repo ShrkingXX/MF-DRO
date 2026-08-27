@@ -3668,3 +3668,47 @@ both. It does not promise the best value on any single benchmark.
 STATUS: CONFIRMATORY against a control verified bit-identical 4/4. Hartmann
 ROI-FIX2 is n=2 of 5 -- its +6.32 pts is the weakest number in the table and
 three seeds are still running.
+
+### LESSON 23 — five refuted mechanism claims in one experiment, and what they share
+
+h84 produced five corrections to claims I had asserted with confidence:
+
+  1. "An L2 head cannot reach a bound."          Refuted: clamp saturates on 2.02% of coords.
+  2. "The ROI cannot reach a corner."            Refuted: all boundary metrics improve monotonically.
+  3. "Regret improves monotonically with tightness." Refuted at higher n; then
+     the weakened "tight beats loose" ALSO refuted (Borehole 21.4% beats 10.0%).
+  4. "P1 is unlikely to be met."                 Refuted 5/5 on Borehole.
+  5. "Fixed beta buys nothing on Borehole."      Refuted 5/5, and it won on regret.
+
+THE COMMON ERROR is not carelessness -- each claim rested on a real measurement.
+It is that the measurement was of the WRONG QUANTITY, or of the right quantity
+under the WRONG CONDITIONS:
+
+  (2) measured the SAMPLING distribution (uniform draws) and reasoned about the
+      FILTERED one (rejection-sampled survivors, selected for high UCB).
+  (4) measured the TEACHER at ONE model state and reasoned about the POLICY,
+      which trains on the teacher's whole distribution across every rollout and
+      iteration.
+  (5) measured acceptance at the ENDPOINTS of a run's data-size trajectory
+      (n_hf=10 and 35) and reasoned about the run, whose AVERAGE was 21.4%.
+  (1) reasoned about a loss function's pull without measuring the output it
+      actually produces.
+  (3) reasoned from n=1 and n=4 arms about an n=5 ordering.
+
+RULE: before asserting a mechanism, measure the quantity the mechanism operates
+on, under the conditions it operates in. Concretely -- the filtered distribution
+not the input one; the run average not the endpoints; the trained artifact not a
+proxy evaluated at one state; the complete arm not the partial one.
+
+A DIRECTIONAL BIAS WORTH NAMING. Four of the five (1, 2, 4, 5) erred the SAME
+way: they underestimated the intervention. My mechanism reasoning was
+systematically pessimistic about whether the ROI could work, and in every case
+the pessimism came from an argument about why a mechanism was IMPOSSIBLE rather
+than a measurement of how large it was. Only (3) erred optimistically, and that
+one came from small n rather than from an argument.
+
+This matters for how the remaining predictions should be read. h86's P3 (can
+MF-DRO+ROI-Q10 beat SF-DRO on Ackley) was registered as GENUINELY UNCERTAIN
+rather than predicted, specifically because of this record. If I had predicted
+it, the base rate above says the prediction would more likely have been "no" and
+more likely have been wrong.
