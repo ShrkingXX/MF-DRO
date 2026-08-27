@@ -70,8 +70,11 @@ current_experiment:
   why_the_h84_hartmann_number_misled: >
     The favourable paired mean at fresh seeds (-3.62) is almost entirely one
     seed where MF-MES collapses (25.25%) and MF-DRO does not (9.56%). On three
-    of the other four MF-DRO loses. Defensible reading: lower TAIL RISK, not
-    better typical performance -- a real but much weaker property, untested.
+    of the other four MF-DRO loses. A 'lower TAIL RISK' reading was offered and
+    is NOT SUPPORTED: tested across all benchmarks and both seed sets, MF-DRO
+    has the smaller worst case on only 2 of 5, and on Hartmann 42-46 and
+    Borehole it has BOTH a wider spread and a worse tail than MF-MES. The
+    pattern is a property of seeds 47-51, not of the methods.
   the_control_argument: >
     Fixed beta is uncontrolled along THREE measured axes: across benchmarks
     (12.6%-100% acceptance), within a run (250x on Borehole), and across SEEDS

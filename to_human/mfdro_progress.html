@@ -132,8 +132,14 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
   seeds still favours MF-DRO by 3.62 points &mdash; and that average is almost entirely one seed. On
   seed 49 the baseline collapses (25.25%) and MF-DRO does not (9.56%). On three of the other four,
   MF-DRO loses, by 0.74, 1.03 and 1.82. The honest description is that it wins big when the baseline
-  happens to fail and loses narrowly the rest of the time: <em>lower tail risk, not better typical
-  performance</em>. That is a real property and a much weaker claim, and it is not what was announced.</p>
+  happens to fail and loses narrowly the rest of the time.</p>
+  <p><strong>A follow-up test removed the consolation.</strong> That pattern was described as
+  &ldquo;lower tail risk rather than better typical performance&rdquo;. Checked across every benchmark
+  and both seed sets, it does not hold: MF-DRO has the smaller worst case on only two of five,
+  and on two benchmarks it has <em>both</em> a wider spread and a worse tail than the baseline. The
+  pattern belongs to the five seeds that produced it, not to the method. An earlier attempt to
+  test it by correlating the baseline&rsquo;s regret against the difference was itself invalid &mdash;
+  that correlation is negative by construction, since both terms share the baseline.</p>
   <p>This is precisely why the original comparison required both a lower average <em>and</em> a majority of
   individual seeds. The average alone would have confirmed the result.</p>
   </div>
