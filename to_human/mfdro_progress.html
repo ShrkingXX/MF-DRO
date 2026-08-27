@@ -237,6 +237,48 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
 </section>
 
 <section>
+  <p class="kicker">The strongest result &middot; n=10</p>
+  <h2>One deficit is real, one is not</h2>
+  <div class="col">
+  <p class="lede">Both weak benchmarks were re-measured against the baseline on a second, independent
+  set of five seeds. That doubles the evidence behind the table below, and it splits it in two.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Benchmark</th><th class="n">seeds</th><th class="n">MF-DRO</th><th class="n">baseline</th><th class="n">mean gap</th><th class="n">median gap</th><th class="n">baseline better</th><th>verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Hartmann 6D</td><td class="n">10</td><td class="n">5.32</td><td class="n">6.84</td><td class="n">&minus;1.52</td><td class="n">+0.22</td><td class="n">5/10</td><td class="dim">no difference</td></tr>
+      <tr><td>Borehole 8D</td><td class="n">10</td><td class="n">15.42</td><td class="n">8.24</td><td class="n lose">+7.18</td><td class="n lose">+8.30</td><td class="n lose">8/10</td><td class="lose">real deficit</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Hartmann&rsquo;s deficit is not real.</strong> Five wins of ten, median +0.22. The gap in the
+  verdict table below was a property of the five seeds it was measured on, where MF-DRO scores 7.99;
+  on the other five it scores 2.66.</p>
+  <p><strong>Borehole&rsquo;s is.</strong> The baseline wins eight of ten, and unlike Hartmann the median gap
+  is <em>larger</em> than the mean &mdash; not one bad run dragging an average. It survives the change of
+  seeds intact.</p>
+  <p>This matters for the two retractions above and for what survives them. The interventions were
+  all developed on these two benchmarks, and <strong>Borehole is where the method genuinely loses</strong>
+  &mdash; where the ROI helped most, where teacher refinement helped most (&minus;5.85 points, better on all
+  five seeds, with its mechanism check independently passing), and where the boundary explanation
+  applies. That work is aimed at something real.</p>
+  <p>But the diagnosis that opened this whole investigation was stated on <em>Hartmann</em> &mdash; &ldquo;wastes
+  20.8% of its expensive budget&rdquo; &mdash; and Hartmann is the benchmark whose deficit does not survive
+  replication. On the second seed set the same configuration wastes 4.2%.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">The finding that may outlast the rest</p>
+    <p>Five seeds cannot order two methods in this problem class. Four quantities measured during
+    this work reverse or vanish when the seed set changes: a paired standard deviation
+    (0.45 &rarr; 7.45), a tail-risk ordering, the incidence of the failure mode one intervention was
+    built to fix (80% &rarr; 29%), and now the sign of a method comparison. Two benchmarks &mdash; Currin
+    and Ackley &mdash; have still only ever been measured on the original five.</p>
+  </div>
+</section>
+
+<section>
   <p class="kicker">The verdict</p>
   <h2>MF-DRO beats no baseline</h2>
   <div class="col">
