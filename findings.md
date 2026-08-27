@@ -3179,3 +3179,48 @@ would relaunder standard BO as the contribution. Any fix must keep the
 regression head emitting x directly. That points at the output
 parameterisation: an L2 head is pulled toward the interior and clamp(0,1)
 gives it no gradient to push onto a bound.
+
+## H84 pre-result mechanism check: the ROI trades concentration against reach (EXPLORATORY)
+
+Recorded BEFORE any h84 run completed, so it cannot be a post-hoc reading of the
+results. Rollout TEACHER actions on Hartmann_6D, 12 rollouts x 8 steps, one KO
+model fit on the initial design (n_hf=6, n_lf=45), distances normalised per-dim:
+
+  arm        spread   mean d(x*)   min d(x*)   mean true f
+  ROI-OFF     0.214       0.188       0.022         1.088
+  ROI-FIX2    0.168       0.180       0.076         1.116
+  ROI-Q10     0.170       0.182       0.076         1.115
+  ROI-Q02     0.152       0.189       0.110         1.160
+
+(true optimum f = 3.322)
+
+TWO EFFECTS, IN OPPOSITE DIRECTIONS.
+
+1. The ROI works as intended on concentration: spread falls 0.214 -> 0.152 as q
+   tightens, and mean true f rises 1.088 -> 1.160. This is the mechanism h84
+   assumes -- the DT regresses onto these actions, so concentrating them should
+   concentrate its proposals.
+
+2. But the closest the teacher ever gets to x* gets STEADILY WORSE:
+   0.022 -> 0.076 -> 0.110, a 5x regression at q=0.02. The ROI is excluding the
+   neighbourhood that actually contains the optimum.
+
+This is precisely the failure the deleted implementation's comment warned about
+("an ROI that never contains anything near the optimum starves the DT of
+near-optimal training examples") -- and unlike that comment's evidence, this
+version is a like-for-like comparison at matched candidate resolution, so it is
+not the confound documented in the ROI pool bug fix.
+
+IMPLICATION FOR THE PRE-REGISTERED BARS. This is why P1 (mean query quality) and
+P3 (final regret) were registered as SEPARATE bars. The measurement above
+predicts they can split: concentration should raise the average query, while
+losing the near-x* examples should hurt the best point found. If h84 shows P1
+MET and P3 FAILED, that is the mechanism, and it is already on record here.
+
+Also note the absolute level: mean true f of teacher actions is ~1.1 against an
+optimum of 3.322 in EVERY arm. The teacher is proposing poor points regardless
+of the ROI, which bounds how much any ROI setting can buy.
+
+LIMITS: one benchmark, one KO model rather than the M=3 ensemble, and the model
+is fit on the initial design only -- later in a run the posterior sharpens and
+the ROI may track x* better. n=12 rollouts. EXPLORATORY.
