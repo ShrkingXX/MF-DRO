@@ -3411,6 +3411,31 @@ class DirectMFRegretOptimization:
                 print(f"iter {t}: cold-start HF override "
                       f"(p_pred was {self._last_p_pred:.4f})")
 
+            # REAL-QUERY HF FLOOR (h85 arm HF-FLOOR). `minimum_hf_fraction`
+            # forces high fidelity inside ROLLOUTS only -- it operates on
+            # actions_ell/tau "to ensure training diversity" and has no effect
+            # on which fidelity a REAL query uses. Measured consequence: on
+            # Hartmann three of five seeds run at 94-96% low fidelity and take
+            # only 6-8 real HF evaluations in the entire budget.
+            #
+            # This guarantees at least one HF query in every window of
+            # `real_hf_every` real queries. It is a WORST-CASE FLOOR, not a
+            # mean improver: across h83's Hartmann seeds HF count does not
+            # predict outcome (6 HF -> max score 0.933; 12 HF -> 0.648), so the
+            # justification is bounding the fidelity-head-collapse failure mode,
+            # not raising the average.
+            #
+            # Disabled by default (0), so the guard below cannot alter any
+            # existing configuration's behaviour.
+            hf_every = int(getattr(self.config, 'real_hf_every', 0) or 0)
+            if hf_every > 1 and ell_t == 0:
+                _recent = list(self.recent_ell_history)[-(hf_every - 1):]
+                if len(_recent) >= hf_every - 1 and not any(_recent):
+                    ell_t = 1
+                    print(f"iter {t}: HF floor override "
+                          f"({hf_every - 1} consecutive LF, p_pred was "
+                          f"{self._last_p_pred:.4f})")
+
             if ell_t == 1:
                 y_t = self.f_hf(x_t.unsqueeze(0)).reshape(-1)[0].item()
                 self.data_hf_x.append(x_t.double())

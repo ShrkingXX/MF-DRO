@@ -94,3 +94,60 @@ If P1 and P2 both fail, the teacher's proposal mechanism is NOT the cause of
 MF-DRO's budget waste, and the remaining candidates are the RTG/reward signal
 and the state representation -- neither of which any measurement this session
 has touched.
+
+## Amendment 1 — third arm HF-FLOOR (added before ANY h85 run)
+
+Human-proposed: force a high-fidelity query every n real queries. Added as a
+third arm rather than a separate experiment so it is measured against the same
+control and the same seeds.
+
+`real_hf_every = 4` guarantees at least one HF query in every window of 4 real
+queries. This mechanism did NOT previously exist: `minimum_hf_fraction` operates
+on `actions_ell`/`tau` inside ROLLOUTS "to ensure training diversity"
+(mf_dro.py:1589) and has no effect on real queries. Implemented at the same site
+as the existing `real_hf_warmup` cold-start override, disabled at 0 by default,
+so no existing configuration changes (the guard is `if hf_every > 1`).
+
+WHAT THE EVIDENCE SAYS, stated before running so the bar is honest. Across
+h83's Hartmann seeds, HF COUNT DOES NOT PREDICT OUTCOME:
+
+  seed   LF%   HF n   mean score   max score   rel.regret
+    42   94%      8        0.684       0.823       16.41%
+    43   25%     24        0.808       0.993        0.67%
+    44   90%     12       -0.942       0.648        7.98%
+    45   96%      6        0.560       0.933        5.28%
+    46   94%      8        0.571       0.892        7.42%
+
+Six HF queries (seed 45) reach 0.933 while twelve (seed 44) reach 0.648, and
+seed 45 beats seed 42 on regret with fewer HF evaluations. Across benchmarks the
+same: on Borehole MF-DRO already makes MORE HF queries than MF-MES (94 vs 84)
+and loses by 9.4 points; on Currin it makes more (27 vs 11) and wins. What binds
+is query QUALITY -- seed 44's average HF query lands 0.942 BELOW its own
+starting point.
+
+So HF-FLOOR is registered as a WORST-CASE FLOOR, not a mean improver. Its cost
+is real: on Hartmann each forced HF query consumes the budget of 8 LF queries
+that would otherwise inform the KO surrogate, so it can degrade the model that
+generates proposals.
+
+A NOTE ON A DISCARDED ANALYSIS. A bootstrap of E[max score] against the number
+of HF draws was run first and is NOT relied on here: resampling with replacement
+from observed values can never exceed the observed maximum, so E[max]
+asymptotes to it by construction and the test cannot detect a benefit from
+additional draws finding NEW better points. It structurally understates the case
+for this arm. The per-seed table above is assumption-free and is what the
+predictions rest on.
+
+### Predictions for HF-FLOOR (independent of P1-P4)
+
+- **P5 (VARIANCE, primary for this arm).** HF-FLOOR reduces the ACROSS-SEED
+  SPREAD of Hartmann relative regret (h83 control: 0.67%-16.41%, sd 5.79). This
+  is the failure mode the floor targets and the only thing the evidence supports
+  it improving.
+- **P6 (MEAN, registered as NOT expected).** HF-FLOOR does NOT improve mean
+  relative regret on Hartmann by >= 1 point. Registered as a negative prediction
+  because HF count does not predict outcome across seeds; if it DOES improve the
+  mean, the fidelity-allocation story is more important than this project's
+  measurements have indicated and the diagnosis needs revisiting.
+- **P7.** On Borehole, HF-FLOOR changes little either way -- it already runs at
+  11.7% LF, so a 1-in-4 floor is close to non-binding there.
