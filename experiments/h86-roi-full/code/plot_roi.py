@@ -24,7 +24,10 @@ H83=os.path.join(REPO,'experiments','h83-main-comparison','results')
 H84=os.path.join(REPO,'experiments','h84-roi-strategy','results')
 H86=os.path.join(REPO,'experiments','h86-roi-full','results')
 ROI={"Hartmann_6D":H84,"Borehole_8D":H84,"Currin_2D":H86,"Ackley_10D":H86}
-BENCH=("Currin_2D","Hartmann_6D","Borehole_8D","Ackley_10D")
+# Currin_2D omitted while its MF-DRO seeds are still running -- add it back
+# here once experiments/h86-roi-full/results/Currin_2D__ROI-Q10__seed*.json
+# is complete at 5 seeds.
+BENCH=("Hartmann_6D","Borehole_8D","Ackley_10D")
 BASE=("SF-DRO","MF-MES","MF-MI-Greedy","MF-GP-UCB")
 C={"MF-MES":"#2471A3","SF-DRO":"#E67E22","MF-MI-Greedy":"#27AE60","MF-GP-UCB":"#7D3C98"}
 DRO_OLD="#E8836F"; DRO_NEW="#8E1B0F"
@@ -47,7 +50,7 @@ def band(ax,A,color,lw,ls="-",z=2,alpha_f=0.13):
     ax.plot(G,mu,color=color,lw=lw,ls=ls,zorder=z)
     ax.fill_between(G,mu-se,mu+se,color=color,alpha=alpha_f,lw=0,zorder=z-1)
 
-fig,axes=plt.subplots(1,4,figsize=(15.5,3.6))
+fig,axes=plt.subplots(1,len(BENCH),figsize=(4.0*len(BENCH),3.6))
 for ax,b in zip(axes,BENCH):
     opt=float(get_benchmark(f"{b}_HF")["known_optimal_value"])
     lab="absolute simple regret" if abs(opt)<1e-9 else "relative regret (%)"
