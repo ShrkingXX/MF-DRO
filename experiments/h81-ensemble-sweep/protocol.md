@@ -59,18 +59,43 @@ refinement beats the current default — that comparison is not run here, and h7
 
 ---
 
-## OUTCOME: ABANDONED at 13/15, verdict NEVER EVALUATED
+## OUTCOME: COMPLETED 15/15. PRIMARY met, SECONDARY missed, decision rule NOT triggered.
 
-Stopped by user instruction once the configuration decision had been taken on
-other grounds. M10 seeds 42 and 46 never completed, so `analyse.py` was never
-run past its completeness gate and **none of the three locked predictions has a
-result**.
+The last two M10 cells landed moments before the run was stopped, so the verdict
+*was* evaluable. (An earlier version of this section said "abandoned at 13/15,
+verdict never evaluated" -- that was written from a stale count and is wrong.)
 
-What the run did establish, and it is a cost fact rather than a statistical one:
-**M10/M3 wall-time is 1.39x**, not the ~3x the premise assumed. Shrinking M
-frees far less compute than expected, which is why the pool decision could not
-be funded by it.
+| seed | M3 | M5 | M10 |
+|---|---|---|---|
+| 42 | 20.38% | **69.04%** | 12.95% |
+| 43 | 1.78% | 2.46% | 2.38% |
+| 44 | 6.81% | 8.30% | 22.67% |
+| 45 | 8.57% | 8.61% | 6.31% |
+| 46 | 9.68% | 5.52% | 7.36% |
+| **mean** | **9.45%** | **18.79%** | **10.33%** |
+| sd | 6.82 | 28.21 | 7.86 |
 
-M=3 was adopted. It is NOT supported by this experiment's PRIMARY bar, which was
-never evaluated. Anyone citing M=3 should cite the cost measurement, not a
-performance result.
+- **PRIMARY MET.** M3 vs M10: gap **-0.89 pts** (M3 slightly ahead), 2/5 wins/ties,
+  Wilcoxon p = 0.8125. The two are indistinguishable, which is what the bar asked.
+- **SECONDARY NOT MET.** Arm span **9.34 pts** against a < 3.0 bar. The three arms
+  are not "very similar" -- but that is entirely M5, whose mean is dragged by seed
+  42's 69.04% (sd 28.21).
+- **NULL did not fire.**
+- **DECISION RULE: not triggered -> "M stays 10."**
+
+### The rule was badly specified, and the record should say so
+
+The decision needed one question answered: *is M=3 safe relative to M=10?* The
+PRIMARY answers it -- yes, gap 0.89 points, p=0.81. The SECONDARY instead asked
+whether **all three** arms are similar, which a single bad M5 seed can veto even
+though M5 is irrelevant to a choice between 3 and 10. Requiring their conjunction
+let an irrelevant arm block a decision its own PRIMARY supported.
+
+**M=3 was adopted, and the pre-registered rule as written says M stays 10.** The
+honest position: the bar that tests the actual question was met; the conjunction
+that gates the decision was mis-built by me. This is the fourth mis-specified bar
+this session (h68 PRIMARY necessary-but-not-sufficient, h65 direction-only,
+h80 compound NULL, h81 irrelevant-arm conjunction).
+
+Independently established, and unaffected: **M10/M3 wall-time is 1.39x**, not the
+~3x the premise assumed.
