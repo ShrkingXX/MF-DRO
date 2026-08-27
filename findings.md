@@ -3762,3 +3762,52 @@ the third is about performance:
      single run, and past the cap it silently dilutes the ROI toward uniform.
   3. q=0.10 is the only setting tested that helps BOTH benchmarks; fixed beta
      wins Borehole by 0.6 pts and loses Hartmann by 7.9 pts.
+
+## h83's HEADLINE FLIPS ON HARTMANN — MF-DRO + ROI-Q10 beats the best baseline
+
+Computed on h83's OWN metric (SR grid-interpolated at exactly cost 200, via h83's
+own sr_curve/grid functions imported directly), paired by seed:
+
+  benchmark      n   MF-DRO h83   +ROI-Q10   delta   wins vs base   best baseline
+  Hartmann_6D    5        7.99       5.93    -2.05      4/5         MF-MES 6.62   BEATS
+  Borehole_8D    5       15.82      11.59    -4.22      1/5         MF-MES 6.40   no
+  Ackley_10D     4        4.18       3.77    -0.40      1/4         SF-DRO 3.43   no
+  Currin_2D      0          --    pending                           MI-Greedy 0.00
+
+h83's PRIMARY finding was "MF-DRO does NOT beat the best baseline on any
+benchmark", where beat = strictly lower mean AND >= 4/5 seeds. With the
+quantile-calibrated ROI, Hartmann MEETS that bar on both halves.
+
+A METRIC TRAP CAUGHT ON THE WAY. My first version of this table mixed metrics:
+MF-DRO from `final_regret` (SR at the run's actual end, where cost can exceed
+200) against baselines from h83's grid-at-200. That made h83's own MF-DRO read
+7.55 instead of 7.99 and would have overstated the flip. Everything above is
+recomputed with h83's functions so all five methods sit on one definition.
+
+### Four things that hold this claim back, stated before anyone quotes it
+
+1. ONE BENCHMARK OF FOUR. Borehole still loses by 5.2 points and Ackley by 0.34.
+   The honest headline is "MF-DRO beats the best baseline on Hartmann", not
+   "MF-DRO is competitive".
+2. SELECTION OVER THREE ROI SETTINGS. Hartmann was run at q=0.10, fixed beta=2
+   and q~0.49; q=0.10 won and the other two were WORSE than no ROI at all
+   (+1.56 and +6.32 pts). Picking the winner of three inflates the apparent
+   effect. The partial defence is that q=0.10 was not selected on Hartmann --
+   it also won on Borehole, and it was chosen before either result as a round
+   number. It is still selection, and a clean confirmation would fix q=0.10 in
+   advance and run fresh seeds.
+3. h83's BAR WAS REGISTERED FOR h83's CONFIGURATION. Applying it to a new
+   configuration is legitimate but is a POST-HOC application of a pre-registered
+   threshold, not a pre-registered test of this configuration. h84's own
+   registered bar (P1) FAILED.
+4. n=5, no p-values. 4/5 seed wins at n=5 is a weak majority; the h64 retraction
+   in this same project came from a 2/3 result that vanished at n=10.
+
+### What this does NOT change
+
+MF-DRO remains behind on Borehole (11.59 vs 6.40) and Ackley (3.77 vs 3.43).
+Currin is pending. The ROI improves MF-DRO everywhere it has been measured, but
+it closes the gap fully on only one benchmark so far.
+
+STATUS: CONFIRMATORY against a reproduction control verified bit-identical 4/4,
+on h83's own frozen metric. Ackley is n=4/5 and Currin is unrun.
