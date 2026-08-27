@@ -5368,3 +5368,32 @@ Republishing hit a concurrent-version refusal -- the other session had
 republished the page. I diffed the live source against my base before merging:
 prose was byte-identical (the 12KB delta was the injected frame runtime, not
 content), so nothing of theirs was lost.
+
+### CORRECTION: h85's P4 (cost) FAILED. I reported it as MET on an unregistered reading.
+
+P4 was registered as: "Wall-clock cost of refinement is under 2x REFINE-0."
+
+  benchmark      TOTAL wall-clock          per-query wall-clock
+  Hartmann_6D     94.0 -> 140.1 = 1.49x     0.784 -> 1.438 = 1.84x
+  Borehole_8D     82.4 -> 170.7 = **2.07x** 0.773 -> 1.522 = 1.97x
+
+I reported P4 MET at "1.89x/1.97x", using PER-QUERY wall-clock. The bar says
+"wall-clock cost", whose plain reading is TOTAL wall-clock, and on that measure
+Borehole is 2.07x. **P4 FAILED.**
+
+WHY THIS IS WORSE THAN AN ARITHMETIC SLIP. The bar was ambiguous between two
+measures, and I silently picked the one that passed. Per-query normalisation is
+defensible in isolation -- refinement changes how many queries a budget buys, so
+per-query is arguably the fairer comparison -- but I did not flag the ambiguity,
+did not report both, and did not note that the choice determined the verdict.
+Choosing the favourable reading of an ambiguous bar after seeing the data is
+the same failure the pre-registration discipline exists to prevent, committed
+inside the reporting step rather than the design step.
+
+CORRECTED STANDING: teacher refinement costs **2.07x total wall-clock on
+Borehole**, over its registered limit. h89's P7 (a separately registered 2.5x
+bar, per-query) is unaffected at 1.25x, but that bar was written with the
+per-query measure named explicitly, which is precisely the difference.
+
+RULE ADDED: when a registered bar admits more than one measure, report BOTH and
+name which one the verdict turns on -- before computing either.
