@@ -1,4 +1,8 @@
-"""Mean SR-vs-cost with the calibrated-ROI arm added.
+"""Mean SR-vs-cost: MF-DRO (with the calibrated ROI) against the h83 baselines.
+
+"MF-DRO" here IS the calibrated-ROI configuration (use_roi=True,
+roi_beta_mode='quantile', roi_target_accept=0.10) -- that is the method. The
+older no-ROI runs are h83's and are not drawn; see fig1 in h83 for those.
 
 Uses h83's own sr_curve/grid so every method sits on one metric: SR
 grid-interpolated onto a common cost axis. The MF-DRO+ROI arm is assembled from
@@ -50,20 +54,17 @@ for ax,b in zip(axes,BENCH):
     for m in BASE:
         A=curves(b,[f'{H83}/{b}__{m}__seed{s}.json' for s in SEEDS])
         if A is not None: band(ax,A,C[m],1.4,z=2,alpha_f=0.10)
-    A=curves(b,[f'{H83}/{b}__MF-DRO__seed{s}.json' for s in SEEDS])
-    if A is not None: band(ax,A,DRO_OLD,1.5,ls="--",z=3)
     B=curves(b,[f'{ROI[b]}/{b}__ROI-Q10__seed{s}.json' for s in SEEDS])
     n_roi=0 if B is None else B.shape[0]
     if B is not None: band(ax,B,DRO_NEW,2.6,z=5,alpha_f=0.16)
     ax.set_yscale("log"); ax.set_xlabel("cost (post-init)"); ax.set_ylabel(lab)
-    t=b if n_roi==5 else (f"{b}  (ROI n={n_roi})" if n_roi else f"{b}  (ROI pending)")
+    t=b if n_roi==5 else (f"{b}  (MF-DRO n={n_roi}/5)" if n_roi
+                          else f"{b}  — MF-DRO STILL RUNNING")
     ax.set_title(t,fontsize=10)
 fig.subplots_adjust(wspace=0.38)
-H=[Line2D([],[],color=DRO_NEW,lw=2.6,label="MF-DRO + calibrated ROI (q=0.10)"),
-   Line2D([],[],color=DRO_OLD,lw=1.5,ls="--",label="MF-DRO (h83, no ROI)")]+ \
+H=[Line2D([],[],color=DRO_NEW,lw=2.6,label="MF-DRO")]+ \
   [Line2D([],[],color=C[m],lw=1.4,label=m) for m in BASE]
-fig.legend(handles=H,loc="lower center",ncol=6,frameon=False,bbox_to_anchor=(0.5,-0.15))
-fig.suptitle("Mean simple regret vs cost, with the calibrated ROI (5 seeds, shaded ±1 s.e.)",
-             y=1.06,fontsize=11)
+fig.legend(handles=H,loc="lower center",ncol=5,frameon=False,bbox_to_anchor=(0.5,-0.13))
+fig.suptitle("Mean simple regret vs cost (5 seeds, shaded ±1 s.e.)",y=1.06,fontsize=11)
 out=os.path.join(H86,"fig_roi_mean_sr_vs_cost.png")
 fig.savefig(out); print("wrote",out)
