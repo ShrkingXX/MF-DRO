@@ -54,7 +54,24 @@ diagnosis:
 
 current_experiment:
   id: h84-roi-strategy
-  status: RUNNING (34 jobs, launched 2026-08-27 04:00)
+  status: RUNNING (16/34 done, 0 failures)
+  interim_result: >
+    The quantile-calibrated ROI IMPROVES MF-DRO's final regret on both benchmarks
+    tested: Borehole -4.22 pts (better 5/5, 15.82% -> 11.59%) and Hartmann -2.17
+    pts (better 3/4, 7.55% -> 5.95%). Regret improves monotonically as the ROI
+    tightens on both. It works by lifting the UPPER TAIL of the query
+    distribution, not the bulk (Hartmann d(p90) +0.031 vs d(mean) +0.000).
+    NOT final: the reproduction control has not run, so arm A is still inherited
+    from h83 rather than verified.
+  my_prediction_refuted: >
+    I registered P1 as unlikely to be met, twice, from a +0.010 measurement of
+    the ROI's effect on teacher-action quality at ONE model state. Refuted on
+    Borehole 5/5. The error: that measured the teacher, but the ROI acts on the
+    policy through the whole training DISTRIBUTION across rollouts.
+  metric_lesson: >
+    PRIMARY was set on MEAN query quality; simple regret is a MAX statistic.
+    Hartmann shows d(mean) +0.000 with d(best) +0.022 and regret -2.17pts, so the
+    mean-based bar records nothing while the method helps. See Lesson 22.
   strategy: >
     Control the ROI ACCEPTANCE RATE and solve for beta_t by bisection. Keeps the
     paper's set X_hat_{m,t} = {x | UCB >= max LCB} exactly; sets only beta_t,

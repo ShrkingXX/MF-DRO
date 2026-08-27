@@ -3509,3 +3509,37 @@ bulk of it (Hartmann d(p90) +0.031 against d(mean) +0.000).
 STILL NOT FINAL: Hartmann Q10 has 4 of 5 seeds, ROI-FIX2 (P2's negative
 prediction) is mid-flight with 0 of 10 complete, and the REPRODUCTION CONTROL
 has not run, so arm A remains inherited from h83 rather than verified.
+
+### H84 interim — regret improves MONOTONICALLY as the ROI tightens
+
+Ordering every arm by its realised ROI acceptance rate, paired against ROI-OFF:
+
+  Hartmann_6D                acceptance    d(rel.regret)    n
+    ROI-Q10                     10.0%         -2.17          4    <- best
+    ROI-FIX2 (fixed sqrt b=2)   24.9%         +2.34          1
+    ROI-ANN  (q~0.49)           49.8%         +3.82          1    <- worst
+
+  Borehole_8D
+    ROI-Q10                     10.0%         -4.22          5    <- best
+    ROI-ANN  (q~0.49)           49.3%         -1.31          5
+
+On BOTH benchmarks, regret improves monotonically as acceptance falls. The
+Borehole ordering carries n=5 in both arms and is solid; the Hartmann ordering
+rests on n=1 for the two loose arms and is directional only.
+
+This is the clearest actionable result of the experiment so far, and it is
+exactly what a FIXED beta cannot deliver. ROI-FIX2 realises 24.9% acceptance on
+Hartmann purely as a consequence of that benchmark's posterior scale -- nobody
+chose 24.9%. Calibrating to a target acceptance makes tightness a knob rather
+than an accident, and the knob turns out to matter.
+
+OPEN QUESTION RAISED, NOT ANSWERED: is q < 0.10 better still? The pre-result
+teacher measurements say there must be a turning point -- at q=0.02 the
+teacher's closest-ever approach to x* degrades from 0.022 to 0.110, i.e. the ROI
+starts excluding the optimum's neighbourhood. So the optimum for q is somewhere
+between 0.02 and 0.10 and has NOT been located. h84 does not test it.
+
+CAUTION ON THE FIX2 AND ANN NUMBERS: both are single seeds on Hartmann, and seed
+43 is the CONTROL's best seed (0.67% relative regret), so it is the hardest seed
+to beat and the least representative one to draw an ordering from. The four
+remaining FIX2 seeds per benchmark are in flight.
