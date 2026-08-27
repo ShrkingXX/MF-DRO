@@ -15,6 +15,12 @@
 #     (single samples transiently over-report by 1-2 during worker turnover)
 #   - claim what you are taking below, in a commit, before doing it
 #
+# EXPERIMENT NUMBER RANGES (slug reservations did NOT prevent collisions --
+# H88 and H89 were each created twice, by different sessions, for different
+# hypotheses). Numbers are now reserved by RANGE:
+#     session A (h85 launcher owner): h85 - h89
+#     session B (this one):           h90 and above
+#
 concurrent_sessions:
   compute_owner: >
     Whichever session holds the running launcher owns compute. As of this
@@ -24,7 +30,7 @@ concurrent_sessions:
     - h85-teacher-refinement   # owns the launcher and its analysis
     - h88-surrogate-vs-data    # has results
   claimed_by_session_B:
-    - h89-borehole-confirm     # protocol + code written, NOT launched, gated on compute
+    - h90-borehole-confirm     # LAUNCHED: NO-ROI / ROI-Q10 / REFINE-100 at seeds 47-51
     - to_human/ report and the published artifact
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:
