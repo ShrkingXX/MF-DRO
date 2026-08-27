@@ -233,3 +233,27 @@ An incidental illustration from the same check: REFINE-100 on Hartmann seed 45
 is currently at 80% LF with a run of EIGHT consecutive low-fidelity queries.
 That is exactly the failure mode HF-FLOOR targets, observed live in a different
 arm.
+
+## Mechanism check (in-flight, no performance claim)
+
+Verifying `real_hf_every=4` does what it says, from live checkpoints:
+
+  arm          bench          post-init q    HF%   longest LF run
+  HF-FLOOR     Borehole_8D             36   94.4%        1
+  REFINE-100   Borehole_8D             21   92.4%        2
+  REFINE-100   Hartmann_6D             21   49.5%       19
+
+1. **The floor binds correctly.** HF-FLOOR's longest consecutive-LF run is 1,
+   inside its guarantee of <= 3. No violations.
+2. **It is NON-BINDING on Borehole**, which already runs at ~94% high fidelity.
+   P7 registered exactly this ("close to non-binding there") and it holds. The
+   Borehole HF-FLOOR arm is therefore expected to be near-identical to the
+   control, and should be read as a null-by-construction rather than as
+   evidence the floor does nothing.
+3. **Hartmann is where it can bind.** The un-floored trace there shows a
+   **19-query consecutive low-fidelity run** -- the fidelity-head collapse the
+   floor exists to bound. Those runs had not started at the time of this check.
+
+NO PERFORMANCE CLAIM IS MADE HERE. This records only that the intervention
+fires as specified and where it can possibly matter, so that a null on Borehole
+is not later mistaken for a null on the mechanism.
