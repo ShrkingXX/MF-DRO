@@ -30,7 +30,9 @@ concurrent_sessions:
     - h85-teacher-refinement   # owns the launcher and its analysis
     - h88-surrogate-vs-data    # has results
   claimed_by_session_B:
-    - h90-borehole-confirm     # LAUNCHED: NO-ROI / ROI-Q10 / REFINE-100 at seeds 47-51
+    - h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds 47-51
+    - h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific
+    - h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)
     - to_human/ report and the published artifact
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:

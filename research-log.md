@@ -1014,3 +1014,44 @@ NOTHING from h85 is a finding yet. h89 is running: both interventions at fresh
 seeds 52-56, treatments hardcoded, controls first, falsifiers requiring
 withdrawal. That experiment exists because h84's claim carried four correct
 caveats, was announced anyway, and did not survive.
+
+## 2026-08-27 (evening) — H91/H92: the founding diagnosis was half seed noise
+
+Two five-run experiments, both pre-registered with their bars and consequences
+stated before running, settled the question the whole investigation rested on.
+
+The premise quoted in every task prompt -- "MF-DRO's mean HF query score is 0.336
+vs MF-MES's 0.747 on Hartmann, 20.8% of its HF queries land WORSE than the
+initial design" -- was measured entirely on seeds 42-46. H91 ran MF-MES on
+Hartmann at seeds 52-56; H92 ran it on Borehole. Pooling each benchmark to n=10:
+
+  benchmark      n   MF-DRO   MF-MES   paired d   median d   MES better
+  Hartmann_6D   10     5.32     6.84      -1.52      +0.22       5/10
+  Borehole_8D   10    15.42     8.24      +7.18      +8.30       8/10
+
+**Hartmann's deficit is not real.** Five of ten, median +0.22. On seeds 52-56
+MF-DRO scores 2.66 against 7.99 at 42-46, and wastes 4.2% of its budget rather
+than 20.8%.
+
+**Borehole's is.** Eight of ten, and the median gap EXCEEDS the mean, so it is
+not one bad run dragging an average. It holds at both seed sets (+9.46, +4.95).
+
+WHAT THIS MEANS FOR h84-h90. The intervention programme was aimed correctly:
+Borehole is where MF-DRO genuinely loses, where the ROI helped most (-4.22, 5/5),
+where teacher refinement helped most (-5.85, 5/5 with its mechanism bar
+independently met), and where the boundary explanation applies. But the
+DIAGNOSIS that motivated the programme was stated on the benchmark whose deficit
+does not survive replication.
+
+The corrected problem statement: on benchmarks whose optimum lies on the domain
+boundary, MF-DRO's rollout teacher cannot generate training targets there, so the
+policy never learns to propose them. Benchmark-intrinsic, which is why it
+replicated where Hartmann's seed-specific effect did not.
+
+TWO CLAIMS WITHDRAWN TODAY, both by the same route -- met their bar on five
+seeds, carried caveats, died on fresh seeds: the Hartmann ROI flip (h87, 2/5) and
+the HF floor's variance result (h89). What separated the surviving results from
+these was re-running them, not judgement about which would hold.
+
+STILL OPEN: Currin and Ackley have never been measured at a second seed set.
+H90 (Borehole ROI + refinement at seeds 47-51, 15 runs) launched 17:45.
