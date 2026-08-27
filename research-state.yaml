@@ -56,16 +56,22 @@ current_experiment:
   id: h84-roi-strategy
   status: 32/34 done, 0 failures. Reproduction control PASSED 4/4 bit-identical.
   headline: >
-    h83's PRIMARY finding -- MF-DRO beats no baseline on any benchmark -- NO
-    LONGER HOLDS ON HARTMANN. With the calibrated ROI, MF-DRO reaches 5.93% vs
-    MF-MES's 6.62% on h83's own metric and bar (lower mean AND >= 4/5 paired
-    seed wins). Borehole 15.82 -> 11.59 (still behind MF-MES 6.40) and Ackley
-    3.83 -> 3.74 (still behind SF-DRO 3.43). Currin pending.
-  paired_structure: >
-    The Hartmann margin is far tighter than 4/5 suggests: paired diffs are
-    -1.07/-0.71/-0.82/-0.91/+0.09, sd 0.45 against marginal spreads of 3.26 and
-    3.39, because paired seeds share an initial design. 3.39 s.e. from zero
-    (descriptive; no p-value claimed at n=5).
+    h83's PRIMARY finding STANDS: MF-DRO beats no baseline on any benchmark.
+    An earlier claim that the calibrated ROI overturned this on Hartmann was
+    ANNOUNCED AND THEN WITHDRAWN -- h87 re-tested it with q=0.10 fixed in
+    advance, one arm, fresh seeds 47-51, and it failed at 2/5 seeds against a
+    bar requiring 4/5. See the WITHDRAWN section in findings.md.
+  roi_effect_by_benchmark: >
+    Borehole -4.22 pts (5/5 seeds, control verified bit-identical 4/4) but still
+    behind MF-MES 6.40 vs 11.59. Hartmann: h84 showed -1.62 pts but the
+    baseline-beating claim did not replicate. Ackley -0.09 (negligible).
+    Currin +0.11, i.e. HARMED on 5/5 seeds. The ROI helps two benchmarks, does
+    nothing on one, and harms one.
+  why_the_h84_hartmann_number_misled: >
+    The favourable paired mean at fresh seeds (-3.62) is almost entirely one
+    seed where MF-MES collapses (25.25%) and MF-DRO does not (9.56%). On three
+    of the other four MF-DRO loses. Defensible reading: lower TAIL RISK, not
+    better typical performance -- a real but much weaker property, untested.
   the_control_argument: >
     Fixed beta is uncontrolled along THREE measured axes: across benchmarks
     (12.6%-100% acceptance), within a run (250x on Borehole), and across SEEDS
@@ -110,11 +116,11 @@ queued_experiments:
     covered Hartmann + Borehole at the same config and seeds. Ackley done
     (P3 FAILED, 1/5). Currin running.
   h87-hartmann-confirm: >
-    WRITTEN AND GATED on compute. Removes the Hartmann flip's one irreducible
-    weakness -- three ROI settings were run there and the winner is reported.
-    q=0.10 fixed in advance, seeds 47-51 never used, ONE arm, MF-MES re-run at
-    the same seeds. Falsifier: if it fails, the flip is withdrawn as prominently
-    as it was announced.
+    COMPLETE, 10/10, 0 failures. P1 FAILED (2/5), P3 FAILED. Falsifier fired and
+    the flip was withdrawn from findings.md, research-log.md, this file and the
+    published report. The verdict was mechanical: analyse.py was committed while
+    the treatment arm was still running, refuses verdicts below 5/5, and prints
+    the falsifier itself.
   h85-teacher-refinement: WRITTEN, queued behind compute.
 
 open_questions:

@@ -151,3 +151,27 @@ predictions rest on.
   measurements have indicated and the diagnosis needs revisiting.
 - **P7.** On Borehole, HF-FLOOR changes little either way -- it already runs at
   11.7% LF, so a 1-in-4 floor is close to non-binding there.
+
+## Amendment 2 — any positive result here requires fresh-seed confirmation BEFORE announcement
+
+Added before launch, in light of h87.
+
+h84 produced a Hartmann result that met h83's own bar at 4/5 seeds, survived
+four attached caveats, was announced in findings.md, research-state.yaml, the
+research log and a published report -- and then failed to replicate at fresh
+seeds (2/5). The caveats were all correct and none of them prevented the
+announcement.
+
+THEREFORE, for h85: **no arm's result is announced as a finding until it has
+been re-tested at seeds never used for it, with the configuration fixed in
+advance.** Positive results from these 24 runs are provisional by default and
+are to be written up as "pending confirmation", not as findings. The h87
+template applies -- one arm, fixed config, fresh seeds, analysis script
+committed before the treatment arm finishes.
+
+This does not change P1-P7. It changes what may be said about them.
+
+Corollary on seed count: h87 showed that a paired sd of 0.45 on one seed set can
+become 7.45 on another, because the two methods fail on DIFFERENT seeds. n=5 is
+not enough to characterise a paired difference in this project. Treat every
+n=5 margin here as a hypothesis.
