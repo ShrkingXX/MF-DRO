@@ -1,0 +1,89 @@
+# H88 — clean confirmation of the Borehole ROI gain at fresh seeds
+
+LOCKED BEFORE ANY RUN. Written while compute is at 15/15 with h85; not launched.
+
+## Why
+
+After h87 withdrew the Hartmann flip, **Borehole is the only positive regret
+result the ROI has left**, and it has never been tested at seeds it was not
+developed on. h87's lesson was not "Hartmann was unlucky" -- it was that a clean
+re-test at unused seeds is the only thing that settles a claim.
+
+Per h85's Amendment 2, the Borehole gain is currently PENDING CONFIRMATION, not
+a finding. This experiment is what converts it into one, or withdraws it.
+
+## The claim under test
+
+  Borehole_8D, ROI-Q10 vs no ROI, seeds 42-46, paired:
+    -3.78, -2.49, -1.56, -5.71, -7.57   mean -4.22, sd 2.43, 5/5 wins
+    drop-one-seed: mean stays -3.39 to -4.89, always 4/4
+
+Note this is a claim about the ROI IMPROVING MF-DRO, not about beating a
+baseline. MF-MES is at 6.40 on Borehole against MF-DRO's 11.59; the ROI closes
+27% of that gap and does not come close to eliminating it.
+
+## Design (the h87 template)
+
+| | |
+|---|---|
+| benchmark | Borehole_8D only |
+| arms | MF-DRO + ROI-Q10, and MF-DRO with `use_roi=False` |
+| seeds | **47, 48, 49, 50, 51** -- never used for Borehole |
+| config | q=0.10 FIXED IN ADVANCE. No other ROI setting will be run on these seeds. |
+| everything else | identical to h83/h84: M=3, pool 600, refinement off, budget 200 post-init, regression head |
+| runs | 10 |
+
+Both arms are re-run at the fresh seeds. The no-ROI arm is NOT reused from
+anywhere -- there are no h83 Borehole runs at seeds 47-51, and reusing a
+different seed set is what the whole experiment exists to avoid.
+
+ONE ROI ARM ONLY. If q=0.10 underperforms, that is the result.
+
+## Metric (frozen)
+
+h83's metric via h83's own sr_curve/grid: SR grid-interpolated at exactly cost
+200, as relative regret. The analysis script will be committed BEFORE the
+treatment arm finishes, as h87's was.
+
+## Predictions (pre-registered)
+
+**P1 (PRIMARY). The paired difference (ROI minus no-ROI) is negative on >= 4/5
+fresh seeds AND the paired mean is negative.**
+
+I expect this to HOLD, and I am on record getting exactly this call wrong once.
+For h87 I registered the same expectation for Hartmann and it failed 2/5. What
+is different, stated so it can be judged rather than trusted:
+
+  - Hartmann's gain came from ONE setting of three; the other two were neutral
+    or harmful. Borehole's gain appears at ALL THREE settings tested (-4.81
+    fixed beta, -4.22 q=0.10, -1.31 q~0.49), so it is a property of applying an
+    ROI rather than of the setting selected.
+  - Hartmann's 4/5 rested on a paired sd of 0.45 that turned out to be
+    seed-set-specific (7.45 at fresh seeds). Borehole's sd is 2.43 with every
+    seed improving and a drop-one-seed range of -3.39 to -4.89 -- the
+    robustness does not depend on the spread being small.
+  - Hartmann's margin was 0.68 pts against a comparator. Borehole's is 4.22 pts
+    against itself.
+
+**P2. The margin shrinks relative to -4.22 pts.** Even without setting-selection,
+seeds 42-46 are where the configuration was developed.
+
+**P3 (NEGATIVE). MF-DRO + ROI-Q10 still does NOT beat MF-MES on Borehole.**
+Registered as negative: the gap is 11.59 vs 6.40 and a 4-point gain does not
+close it. If this is refuted, something is wrong with the comparison.
+
+## Falsifier
+
+If P1 fails, the Borehole gain is WITHDRAWN as prominently as it was reported,
+and the ROI has **no surviving regret result on any benchmark**. What would
+remain is the controllability argument alone -- that fixed beta cannot set ROI
+tightness (12.6%-100% across benchmarks, 250x within a run, 6.9x across seeds)
+-- which is a claim about the method's parameterisation, not its performance.
+
+That outcome must be stated that plainly if it occurs.
+
+## Gate
+
+Launch when compute frees. Requires 10 slots. A concurrent session currently
+owns the launcher and is running h85; whichever session launches this must check
+`pgrep -f 'code/worker.py' | wc -l` first and stay within 15 total.
