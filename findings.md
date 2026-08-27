@@ -5128,3 +5128,38 @@ n=10. Hartmann is not, and at n=10 there is nothing to explain.
 
 STATUS: CONFIRMATORY. H91 and H92 were both pre-registered with their bars and
 their consequences stated before running. 10 runs, 0 failures.
+
+### PROCESS FAILURE: commit 7faa726's message does not match its contents
+
+`7faa726 research(results): restore the n=10 result to the report after a
+concurrent overwrite` does NOT contain the n=10 section. The section is absent
+from that commit's file and from the working tree.
+
+WHAT HAPPENED. Two sessions were writing `to_human/mfdro_progress.html`
+simultaneously. This session:
+  1. read the file and hashed it,
+  2. built the new content,
+  3. re-checked the hash (unchanged) and wrote,
+  4. ran `git add` -- and by then the OTHER session had overwritten the file,
+  5. so `git add` staged THEIR content and `git commit` recorded it under THIS
+     session's message.
+
+The read-modify-verify guard I added did not help: it protected the window
+between read and write, but the destructive overwrite happened between write and
+`git add`. Guarding the wrong interval.
+
+CONSEQUENCE. The git history now contains a commit whose message describes work
+that is not in it. This project has committed that error before (a commit
+claiming "finals only, checkpoints excluded" that contained 80 checkpoints) and
+corrected it the same way: leave the bad commit in place, record the discrepancy
+explicitly, do not rewrite history.
+
+DECISION: **this session stops editing to_human/mfdro_progress.html.** Two
+sessions rewriting one deliverable produces lost updates and false commit
+messages, and no locking discipline available here fixes it -- the race is
+between processes that cannot see each other. The other session has been
+actively restructuring that file and should own it outright.
+
+The n=10 result is safe: it is recorded in full in findings.md under "THE
+DEFINITIVE RESULT", which is where it belongs. Only its presentation in the
+report is lost, and that is the other session's to add.
