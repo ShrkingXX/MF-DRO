@@ -4071,3 +4071,38 @@ NOT fit, so the relationship is not simply proportional to headroom.
 
 STATUS: EXPLORATORY. Derived from completed runs, no new experiment. The Ackley
 exception is stated rather than dropped.
+
+### H87 seed-set observation, recorded BEFORE the result is known
+
+Registered now, with 2 of 5 pairs in, so it cannot become a post-hoc excuse.
+
+  MF-MES on Hartmann, the yardstick, on each seed set:
+    seeds 42-46 (h83/h84):  mean  6.62   sd 3.39   range  1.31 - 9.95
+    seeds 47-51 (h87):      mean  9.89   sd 9.36   range  0.37 - 25.25
+
+The fresh seed set is harder for the comparator and roughly THREE TIMES more
+variable. The first two paired differences reflect that: +1.82 and -15.69,
+against a paired sd of 0.45 on the original seeds.
+
+WHAT THIS DOES AND DOES NOT LICENCE.
+
+  It does NOT bias the paired comparison. Both methods face the same instance
+  at each seed, so instance difficulty cancels in the difference. A harder seed
+  set is not a reason h87 should fail.
+
+  It DOES mean h87 has less resolution than h84 did. On seeds 42-46, 93% of the
+  marginal variance was common-mode and vanished under pairing (sd 3.3 -> 0.45).
+  On 47-51 the two methods are diverging much more per instance, so pairing
+  removes less and n=5 buys a noisier estimate.
+
+  It is NOT AN EXCUSE. If P1 fails, the flip is withdrawn per the protocol's
+  falsifier. "The seeds were harder" will not be offered as mitigation -- it is
+  written here in advance precisely so that it cannot be produced afterwards as
+  if it were a discovery. The only legitimate follow-up to a failure is more
+  seeds, pre-registered, not a reinterpretation of these five.
+
+  It DOES qualify a claim I already made. I argued the Hartmann margin was solid
+  because the PAIRED difference was tight (sd 0.45, 3.39 s.e. from zero). That
+  tightness is now visibly a property of seeds 42-46 rather than a general
+  property of the comparison. My confidence in that argument should have been,
+  and now is, lower.
