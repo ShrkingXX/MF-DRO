@@ -5001,3 +5001,65 @@ weaker than the project's own, with the mean driven by one baseline failure.
 
 STATUS: CONFIRMATORY on registered bars, n=5, no p-values. The 5 MF-MES runs
 completed with 0 failures.
+
+## POOLED n=10: MF-DRO and MF-MES are INDISTINGUISHABLE on Hartmann
+
+Combining both independent seed sets gives the best estimate this project has of
+its own headline question on Hartmann -- double the evidence behind any single
+claim in h83-h91.
+
+   seed    set    MF-DRO   MF-MES     diff
+     42  42-46     16.41     9.95    +6.46
+     43  42-46      0.67     1.31    -0.64
+     44  42-46     10.16     9.09    +1.07
+     45  42-46      5.28     6.79    -1.51
+     46  42-46      7.42     5.96    +1.47
+     52  52-56      2.54     1.16    +1.39
+     53  52-56      0.82     7.25    -6.43
+     54  52-56      0.76    15.85   -15.09
+     55  52-56      5.78     1.57    +4.20
+     56  52-56      3.39     9.47    -6.09
+
+   n=10   paired mean -1.52   sd 6.24   MF-DRO better 5/10
+          arm means  MF-DRO 5.32 (sd 5.00)  |  MF-MES 6.84 (sd 4.65)
+          MEDIAN paired diff +0.22
+
+**Five wins out of ten. The median paired difference is +0.22, i.e. essentially
+zero and very slightly favouring MF-MES.** The mean of -1.52 is produced by two
+large MF-MES failures (-15.09 on seed 54, -6.43 on 53); it is not a description
+of typical behaviour, and the mean/median split is the same signature that
+retired the "lower tail risk" claim.
+
+h83's bar (lower mean AND >= 4/5, i.e. >= 8/10 here) is NOT MET. Neither method
+beats the other.
+
+### What this changes about h83's headline
+
+h83 reported MF-DRO at 7.99 against MF-MES's 6.62 on Hartmann and concluded
+MF-DRO beats no baseline. **The conclusion survives; the characterisation does
+not.** At n=5 it looked like a consistent 1.37-point deficit. At n=10 there is no
+deficit -- the two methods are indistinguishable on Hartmann, and h83's apparent
+gap was a property of seeds 42-46, the set on which MF-DRO happens to perform
+worst (mean 7.99 there against 2.66 at 52-56).
+
+"MF-DRO does not beat MF-MES on Hartmann" remains true. "MF-DRO is behind
+MF-MES on Hartmann" is NOT supported at n=10.
+
+### What this does not touch
+
+Borehole, where the h83 deficit is large (15.82 vs 6.36) and has never been
+tested at other seeds. The concurrent session's H89 Borehole controls are
+running; MF-MES at Borehole seeds 52-56 has NOT been run and is the obvious next
+5 cheap runs, for exactly the reason H91 was worth running on Hartmann.
+
+Currin and Ackley are untouched by this and MF-DRO loses both.
+
+### The methodological conclusion of the whole investigation
+
+Five seeds is not enough to order two methods in this problem class. Every
+headline number in h83-h90 rests on five seeds from one set, and this project
+has now found four separate quantities that reverse or vanish when the seed set
+changes: a paired standard deviation (0.45 -> 7.45), a tail-risk ordering, a
+failure-mode incidence (80% -> 29% LF), and now the sign of a method comparison.
+
+STATUS: EXPLORATORY pooling of two CONFIRMATORY experiments. No p-values.
