@@ -1,3 +1,41 @@
+# ================================================================
+# CURRENT STATE — read this before anything below (2026-08-27)
+# ================================================================
+#
+# This file is 4200+ lines of accumulated project memory. Claims appear in the
+# order they were MADE, not in order of validity. Two of them were announced and
+# later withdrawn. Before quoting anything below, check it against this block.
+#
+# NORTH STAR: SETTLED NEGATIVE. MF-DRO beats no baseline on any of the four
+#   benchmarks (h83, 100 runs, 0 failures). A claim that a calibrated ROI
+#   overturned this on Hartmann was announced and then WITHDRAWN (h87: 2/5
+#   seeds against a bar requiring 4/5).
+#
+# WHAT THE ROI ACTUALLY DOES, per benchmark, all n=5, control verified 4/4:
+#   Borehole_8D  -4.22 pts (5/5 seeds)  -- real, but still behind MF-MES
+#   Hartmann_6D  -1.62 pts (3/5)        -- does NOT beat MF-MES; flip withdrawn
+#   Ackley_10D   -0.09 pts (1/5)        -- negligible
+#   Currin_2D    +0.11 pts (0/5)        -- HARMED
+#
+# THE ONE CLEAN CONTRIBUTION: a constant beta cannot set ROI tightness. Measured
+#   acceptance varies 12.6%-100% across benchmarks, 250x within a single run,
+#   and 6.9x across SEEDS of one benchmark. Quantile-calibrated beta_t collapses
+#   all three to 1.0x. This is a controllability result and does not depend on
+#   any performance claim.
+#
+# STANDING METHOD RULES EARNED THE HARD WAY:
+#   - Lesson 21: a control that can void an experiment must run FIRST.
+#   - Lesson 22: the PRIMARY metric must be the statistic the objective depends
+#     on (simple regret is a MAX; a mean-based bar misses it).
+#   - Lesson 23: measure the quantity a mechanism operates on, under the
+#     conditions it operates in. Six mechanism claims were refuted this way.
+#   - n=5 cannot characterise a paired difference here: a paired sd of 0.45 on
+#     one seed set became 7.45 on another.
+#   - Caveats are not a substitute for confirmation. The withdrawn claim carried
+#     four correct caveats and was announced anyway.
+#
+# ================================================================
+
 # Findings — MF-DRO incumbent-freeze on Hartmann 6D
 
 > **⚠ EVERY DRO-FAMILY NUMBER PREDATING COMMIT `7bcc3b8` IS NON-COMPARABLE.**
@@ -3764,6 +3802,12 @@ the third is about performance:
      wins Borehole by 0.6 pts and loses Hartmann by 7.9 pts.
 
 ## h83's HEADLINE FLIPS ON HARTMANN — MF-DRO + ROI-Q10 beats the best baseline
+> **[WITHDRAWN 2026-08-27 — see the WITHDRAWN section at the end of this file.]**
+> This claim did NOT replicate. h87 re-tested it with q=0.10 fixed in advance, one
+> arm, fresh seeds 47-51: **2/5 seeds against a bar requiring 4/5**. h83's finding
+> that MF-DRO beats no baseline on any benchmark STANDS. Everything in this section
+> is retained as a record of what was measured and announced, not as a live result.
+
 
 Computed on h83's OWN metric (SR grid-interpolated at exactly cost 200, via h83's
 own sr_curve/grid functions imported directly), paired by seed:
