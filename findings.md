@@ -3618,3 +3618,53 @@ CONSEQUENCE: h84's results are CONFIRMED as measured against a verified control.
   Borehole_8D  ROI-Q10  d(rel.regret) = -4.22 pts (better 5/5)
   Hartmann_6D  ROI-Q10  d(rel.regret) = -1.62 pts (better 3/5)
   P1 (mean query score, +0.10 on >=4/5, BOTH benchmarks) FAILED.
+
+### H84 — P2 REFUTED, and the "tighter is better" claim does not survive either
+
+P2 (registered before any run): "Arm B [ROI-FIX2, the paper's rule at fixed
+sqrt(beta)=2] does NOT beat arm A on Borehole. The fixed-beta ROI is vacuous at
+n_hf=10 (100% acceptance) and collapsed at n_hf=35 (0.4%), so it should buy
+nothing there."
+
+REFUTED, 5/5 seeds, on both metrics:
+
+  Borehole_8D          realised acc   d(q-score)      d(rel.regret)
+    ROI-FIX2 (b=2)        21.4%      +0.077 (5/5)   -4.81 pts (5/5)   <- BEST regret
+    ROI-Q10 (q=0.10)      10.0%      +0.114 (5/5)   -4.22 pts (5/5)
+    ROI-ANN (q~0.49)      49.3%      +0.034 (4/5)   -1.31 pts (3/5)
+
+  Hartmann_6D
+    ROI-Q10               10.0%      +0.001 (3/5)   -1.62 pts (3/5)   <- only arm that helps
+    ROI-ANN               49.8%      -0.055 (1/5)   +1.56 pts (1/5)
+    ROI-FIX2 (n=2)        24.8%      -0.195 (0/2)   +6.32 pts (0/2)
+
+WHY THE PREDICTION FAILED. I measured fixed-beta acceptance OFFLINE at two
+specific data sizes (n_hf=10 and n_hf=35) and reasoned from those extremes. The
+RUN-AVERAGED acceptance is 21.4% on Borehole -- a perfectly usable value. The
+extremes are real but they average out over a run, and I predicted from the
+endpoints of a trajectory instead of its mean. Same error class as the four
+before it: reasoning from a measurement of the wrong quantity.
+
+FIFTH CORRECTION THIS EXPERIMENT. Also refuted: "tight beats loose on both
+benchmarks", which I stated one tick after already having to weaken it from
+"monotone". On Borehole 21.4% (-4.81) BEATS 10.0% (-4.22). There is no
+consistent ordering in acceptance across benchmarks.
+
+WHAT ACTUALLY SURVIVES, stated narrowly:
+
+  1. The ROI helps on Borehole at EVERY setting tested (-4.81, -4.22, -1.31,
+     all improving, 5/5 or 3/5). Borehole's gain is robust to the knob.
+  2. On Hartmann only q=0.10 helps; both looser settings HURT (+1.56, +6.32).
+  3. ROI-Q10 is therefore the ONLY setting that helps on BOTH benchmarks. That
+     is a ROBUSTNESS argument for calibration, not a peak-performance one --
+     fixed beta wins Borehole by 0.6 pts and loses Hartmann by 7.9 pts.
+
+The case for quantile calibration is now this, and it is weaker than what I
+implied earlier: a fixed beta is not harmless-but-uncontrolled, it is
+BENCHMARK-DEPENDENTLY HARMFUL. It happened to land at 21.4% on Borehole (good)
+and 24.8% on Hartmann (bad). Calibration lets you choose a value that works on
+both. It does not promise the best value on any single benchmark.
+
+STATUS: CONFIRMATORY against a control verified bit-identical 4/4. Hartmann
+ROI-FIX2 is n=2 of 5 -- its +6.32 pts is the weakest number in the table and
+three seeds are still running.
