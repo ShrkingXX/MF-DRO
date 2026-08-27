@@ -3060,3 +3060,66 @@ The issue is **linearity**: pinning rho helps exactly where `f_H` is genuinely
 linear in `f_L` and hurts where it is not. That is a sharper and more useful
 statement, and it is testable on any new benchmark by computing one R² before
 running anything.
+
+## MF-MI-Greedy: the joint additive GP, and the lambda knife-edge (EXPLORATORY)
+
+Ported the authors' actual surrogate from their MATLAB source (`mfBO/`), replacing
+a two-separate-GPs approximation. The reference model is
+
+    f_i(x) = f_M(x) + eps_i(x),   Cov(f_i(x), f_j(x')) = k_M(x,x') + [i==j, i<M] k_i(x,x')
+
+-- a shared target kernel over the POOLED data plus a block-diagonal discrepancy
+term, one Cholesky (`sqExpKernelAdditive.m`, `AdditiveGPRegression.m`). Under our
+previous approximation (gp_H on target data, gp_error on LF residuals) low-fidelity
+data could not inform the target posterior at all, and the LF noise magnitude --
+which sets the entire LF-vs-HF balance in the acquisition -- was fit to nothing.
+Hyperparameters now follow `coorLearn`: two rounds alternating `optimizeTargetKernel`
+(all fidelities, target term weighted 10x) and `optimizeNoiseKernel` (each lower
+fidelity with the target kernel frozen). `noiseFuncs{i}(x,x)` is the fitted scale_i.
+
+Two structures absent from the paper's pseudocode but load-bearing in the code:
+`isFirstEpisode` (a target-fidelity argmax win is overridden to fidelity 1 while the
+first episode is live, giving a forced LF opening phase) and a `remainBudget` that is
+FROZEN within an episode (mfBO.m:232 refreshes it only on a target query). Without
+both, the episode-termination test fires on the first step of every episode -- there
+meanAcq and costLowFidel are 0, so the left side equals episodeBestBCR exactly and the
+test reduces to `1 < sqrt(totalBudget/remainBudget)` -- and the method is 0% LF.
+
+LESSON 20: lambda is a knife-edge, and MORE low-fidelity exploration does not help
+MF-MI-Greedy on our benchmarks. The threshold has no interior stable regime: the
+first episode carries no `numLowFidel > 20` cap (later episodes do), so slightly
+below the reference's lambda = 1 the first episode never terminates and consumes the
+entire budget in LF. Measured at cost 200 (Hartmann/Currin 2 seeds, Borehole 3 seeds
+uncapped):
+
+  lambda   Hartmann regret   Currin regret   Borehole mean regret   typical LF%
+   0.80    1.87 / 2.44       3.55 / 0.00     (runaway)              37-100%
+   0.90    1.87 / 2.28       0.00 / 0.00      98.2                   10-23%
+   0.95    1.77 / 2.00       0.00 / 0.00      89.8                    3-11%
+   1.00    1.77 / 2.00       0.00 / 0.00     108.6                    1-4%
+
+At lambda = 0.80 one Hartmann seed and one Currin seed run away to 100% LF, and Currin
+regret degrades from 0.000 to 3.55. No lambda dominates: 1.00 is best-or-tied on
+Hartmann (2/2) and Currin (2/2), 0.95 is better on Borehole (2/3 seeds).
+
+DECISION: keep lambda = 1, the value the reference ships (mfBO.m:107; it carries 0.2,
+45 and 150 commented out for other applications, so it is explicitly a per-problem
+constant). The Borehole advantage for 0.95 is 2 of 3 seeds at n=3 -- too thin to
+justify deviating from the author's default, and per-benchmark tuning of a baseline
+while our own method runs fixed defaults would be inconsistent. Recorded here so the
+caveat is not buried: MF-MI-Greedy on Borehole would be somewhat stronger at 0.95.
+
+CONSEQUENCE for the main comparison: MF-MI-Greedy is near-single-fidelity by
+construction at lambda = 1 (1-4% LF). That is the author's own code's behaviour, not
+a defect we introduced, but it means the method should not be described as making
+substantial multi-fidelity use of the cheap oracle on these benchmarks.
+
+DELIBERATE DEVIATION, one squaring. `GPComputeOutputs` sets `yStd = sqrt(diag(yK))`,
+so `nextStd^2` in `acqMFMIGreedy.m` is a genuine variance; but `noiseFuncHs{i}(x,x)`
+is a kernel diagonal, already a variance, and the reference squares it again. Taken
+literally the acquisition is variance / variance^2, and at the target fidelity the
+denominator becomes (1e-4*stdY^2)^2 = 1e-8*stdY^4. We use the paper's Gaussian mutual
+information 0.5*log(1 + sigma^2/sigma_noise^2) instead.
+
+STATUS: EXPLORATORY. The lambda sweep had no locked protocol -- it was run to decide a
+baseline configuration, not to test a hypothesis. n=2-3 per cell, no p-values.
