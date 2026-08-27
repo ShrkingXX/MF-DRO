@@ -74,3 +74,33 @@ done.
 ## Gate
 
 Launch only when compute frees (h84 and h86 must finish first; <= 15 workers).
+
+## Amendment 1 — the fresh seeds are harder and much noisier. Recorded BEFORE any MF-DRO run finished.
+
+The comparator arm (MF-MES) completed first by design (Lesson 21). Its values:
+
+  h83 seeds 42-46:   9.95   1.31   9.09   6.79   5.96    mean 6.62   sd 3.39
+  h87 seeds 47-51:   0.37  10.68  25.25   7.20   5.95    mean 9.89   sd 9.36
+
+Seeds 47-51 are HARDER for MF-MES by 3.27 pts and nearly THREE TIMES as
+dispersed. Seed 49 alone (25.25%) contributes ~3 pts to the mean; seed 47 (0.37%)
+is near-perfect.
+
+CONSEQUENCE FOR INTERPRETATION, stated now so it cannot later read as an excuse:
+
+1. **The MEAN comparison at these seeds is unstable.** With sd 9.36 at n=5, a
+   single catastrophic seed moves the mean by ~3 pts. P3 (h83's full bar:
+   strictly lower mean AND >= 4/5 seeds) inherits that instability through its
+   mean half.
+2. **P1 remains the trustworthy test.** It is specified as a PAIRED difference,
+   and pairing is exactly what removes seed difficulty: on h83's seeds the
+   paired diff had sd 0.45 against marginal spreads of 3.26/3.39. The same
+   cancellation should apply here regardless of how hard seeds 47-51 are.
+3. **Do NOT compare h87's MF-DRO mean against h83's MF-MES mean.** Different
+   seeds, and these are 3.27 pts harder. Every h87 comparison is within-h87,
+   at matched seeds.
+
+NO BAR IS BEING CHANGED. P1, P2 and P3 stand exactly as registered. This
+amendment records a property of the comparator that was measurable before the
+treatment arm finished, and names which bar to weight if the two disagree --
+the paired one, for a reason that predates the result.
