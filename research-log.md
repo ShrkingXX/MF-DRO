@@ -804,3 +804,44 @@ The 4.72-point gap really is closed by pool size; the methods are not equivalent
 check. A protocol-design corollary from h79b — a control that checks only the
 endpoint cannot detect two different paths to the same endpoint, which is exactly
 what the original claim rested on.
+
+## 2026-08-27 — H84: ROI strategy for MF-DRO budget waste
+
+DIRECTION: DEEPEN. h83 established MF-DRO does not beat the best baseline
+anywhere (PRIMARY met on all four benchmarks) and diagnosed WHY: its mean HF
+query is worth 0.336 against MF-MES's 0.747 on Hartmann, with 20.8% of HF
+queries landing worse than the initial design. The DT regression head is trained
+on rollout-teacher actions drawn from `roi_candidates`, so the ROI is the lever
+that shapes the policy's proposal distribution.
+
+TWO BUGS FOUND AND FIXED FIRST (both in src/policy/mf_dro.py):
+
+1. The ROI candidate pool filtered a fixed 2000-point draw and then padded back
+   to n_roi_candidates WITH REPLACEMENT, so distinct candidates were
+   min(N, raw*accept) rather than N. Hartmann at sqrt(beta)=2: 231 distinct with
+   the ROI on vs 600 with it off. Every prior ROI-on-vs-off comparison varied
+   region AND resolution together, so "the ROI does not work" did not follow.
+   Fixed by rejection-sampling to a fixed distinct count.
+2. Latent: the teacher_refine_samples branch concatenated into `roi_candidates`,
+   a variable defined OUTSIDE the rollout loop, permanently growing the shared
+   pool every step. Now a local.
+
+The recorded reason for deleting ROI ("zero rollout steps within L2=0.2 of the
+optimum") also does not hold: the UNFILTERED pool fails it too -- the closest of
+2000 uniform points in 6-D is 0.243 from x*. That is dimensionality, not the ROI.
+
+STRATEGY: a constant beta is unusable. Measured acceptance at sqrt(beta)=2
+swings 250x on Borehole (100% at n_hf=10, 0.4% at n_hf=35) -- vacuous exactly
+when the surrogate is worst, then collapsed once data accumulates. H84 therefore
+controls the ACCEPTANCE RATE and solves for beta_t by bisection, keeping the
+paper's ROI set exactly as written and setting only the parameter the paper
+subscripts by t but never specifies. Hits q=0.10 exactly on all four benchmarks
+with beta_t spanning 0.31-12.29.
+
+Arms: ROI-OFF (h83 reuse, bit-identity gated + live reproduction control),
+ROI-FIX2, ROI-Q10, ROI-ANN. 34 runs. Four independent pre-registered
+predictions incl. one NEGATIVE about the paper's rule as literally parameterised
+and an explicit falsification condition for the whole strategy.
+
+HUMAN DIRECTION: if ROI improves MF-DRO, re-run ALL of h83's MF-DRO arm (4
+benchmarks x 5 seeds) with the winning configuration.
