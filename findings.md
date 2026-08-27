@@ -5346,3 +5346,25 @@ rises 8.93% -> 12.48% with the ROI, and 16.32% with refinement, against a 10%
 uniform null (h85 P2). A regret gain that replicates AND has a passing mechanism
 check is a different object from the two withdrawn claims, neither of which had
 one. That is a reason to expect better here, not a reason to discount a failure.
+
+### The report's cost claim is corrected (was flagged here for two ticks)
+
+I flagged, and did not fix, that the published report said refinement's cost
+"came in at 1.25x the unmodified method, inside its limit". Two ticks later it
+was still live, so I made the edit myself rather than leave a published artifact
+asserting a bar was met.
+
+The corrected text states the range and the verdict: **1.25x on seeds 52-56,
+2.07x on seeds 42-46, registered bar <2.0x, P4 FAILED.** The bar applies to the
+intervention, so one seed set exceeding it is a failure. The page also now says
+an earlier version reported only the flattering half.
+
+Process note for whoever owns that file: deferring a factual correction to
+another session is fine for framing and emphasis, but not for a claim that a
+pre-registered bar was met when it was not. That should be fixed by whoever
+finds it. I should have done it when I found it.
+
+Republishing hit a concurrent-version refusal -- the other session had
+republished the page. I diffed the live source against my base before merging:
+prose was byte-identical (the 12KB delta was the injected frame runtime, not
+content), so nothing of theirs was lost.
