@@ -3265,3 +3265,50 @@ the head -- not the region candidates are drawn from.
 
 LIMITS: one benchmark, one KO model rather than the M=3 ensemble, initial model
 state only, n=12 rollouts. EXPLORATORY.
+
+### Borehole, refined: MF-DRO is boundary-INDIFFERENT, not boundary-averse (EXPLORATORY)
+
+Per-coordinate proximity to a domain bound across all post-init queries, h83,
+5 seeds. Under uniform sampling, 10% of coordinates fall within 5% of a bound
+(5% at each end), so 10% is the null:
+
+  Borehole_8D     exactly at bound   within 5% of bound
+    MF-DRO              2.02%              8.86%      <- indistinguishable from uniform
+    MF-MES             25.58%             34.68%      <- 3.5x uniform
+    MF-GP-UCB           0.00%             27.58%      <- 2.8x uniform
+  Hartmann_6D (interior optimum)
+    MF-DRO              3.78%              9.78%      <- uniform again
+    MF-MES             11.27%             18.02%
+
+TWO CORRECTIONS TO THE EARLIER FRAMING.
+
+1. "Boundary aversion" overstates it. MF-DRO proposes near bounds at almost
+   exactly the uniform rate. It is not pushed AWAY from bounds; nothing pushes
+   it TOWARD them, while the two methods that do well on Borehole concentrate
+   there 2.8-3.5x above uniform.
+2. The head is NOT representationally blocked. `x_pred.clamp(0,1)` saturates on
+   2.02% of Borehole coordinates, so it can and does emit exact bounds. The
+   "an L2 head cannot reach a bound" mechanism I proposed is wrong as stated.
+
+WHAT THIS UNIFIES. MF-DRO's rollout teacher takes a FLAT ARGMAX over uniform
+random candidates. A uniform draw in 8-D is essentially never near a bound in
+several sensitive dimensions at once, so the teacher can almost never PROPOSE
+the boundary optimum, and the DT never sees such a training target. MF-MES
+refines its acquisition with bounded L-BFGS-B, which walks onto the bound and
+returns it exactly -- hence its 25.58% exact-bound rate, which is a signature of
+running a bounded local optimiser rather than of "wanting" boundary points.
+
+This is the SAME root cause as the teacher-refinement measurement recorded above
+(refinement +0.046 vs ROI +0.010): the teacher's proposal mechanism, not the
+region it draws from. The ROI relocates a uniform draw; it does not make the
+draw able to reach an optimum sitting in a corner. That is why the ROI is not
+expected to fix Borehole.
+
+PREDICTION, registered before h84 completes: teacher refinement should help
+DISPROPORTIONATELY on Borehole (boundary optimum) relative to Hartmann
+(interior optimum). `teacher_refine_samples` currently defaults to 0.
+
+LIMITS: EXPLORATORY, n=5, derived from existing traces with no new runs. The
+uniform null is per-coordinate and ignores that the sensitive dims must be at
+bounds SIMULTANEOUSLY, which makes the teacher's task harder than these
+marginals suggest, not easier.
