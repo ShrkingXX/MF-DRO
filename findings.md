@@ -3312,3 +3312,20 @@ LIMITS: EXPLORATORY, n=5, derived from existing traces with no new runs. The
 uniform null is per-coordinate and ignores that the sensitive dims must be at
 bounds SIMULTANEOUSLY, which makes the teacher's task harder than these
 marginals suggest, not easier.
+
+### LESSON 21 — a control that can void an experiment must run FIRST
+
+h84 queued its reproduction control (4 runs verifying that reusing h83's arm A is
+legitimate) behind all 30 treatment runs. If that control fails, every
+arm-A-relative number in the experiment is void, so its result is wanted before
+the treatments finish, not after. Ordering a job list longest-first is right for
+makespan and wrong for controls: the scheduler should place anything that can
+INVALIDATE the experiment at the front regardless of cost.
+
+Supporting evidence gathered while waiting (recorded because it is useful, not
+because it substitutes): all 33 non-comment lines deleted from mf_dro.py since
+h83's commit are inside the `use_roi=True` block or the teacher-refine branch,
+and every addition is behind a default-off guard. The bit-identity gate covers
+`simulate_mf_trajectory` only -- the real optimisation loop gained the
+`real_hf_every` block (inert at 0) and is not covered by it. Only the live
+control tests the whole path.

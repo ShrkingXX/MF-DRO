@@ -139,3 +139,34 @@ CONSEQUENCES.
 WHAT THIS DOES NOT AFFECT. The annealing path fires only when both
 roi_accept_start and roi_accept_end are set, i.e. arm D alone. Arms A (ROI-OFF),
 B (ROI-FIX2) and C (ROI-Q10) never enter that branch and are untouched.
+
+## Amendment 4 — code-inspection support for the arm-A reuse (NOT a substitute for the control)
+
+While the live reproduction control is still queued, the reuse rests on two
+things, and it is worth being precise about what each covers.
+
+1. BIT-IDENTITY GATE (run, passed twice): `use_roi=False` produces identical
+   rollout trajectories before and after both the ROI-pool fix and the
+   beta-calibration commit -- max|dx| = 0.000e+00 and identical fidelity
+   sequences on Hartmann_6D, Borehole_8D and Currin_2D. This covers
+   `simulate_mf_trajectory` ONLY.
+2. CODE INSPECTION (this amendment): diffing src/policy/mf_dro.py from h83's
+   recorded commit (3654df07) to HEAD gives 33 non-comment deleted lines, and
+   ALL 33 are inside the old `use_roi=True` ROI block or the
+   `teacher_refine_samples` branch. Nothing on the `use_roi=False` path was
+   removed. Every addition sits behind a guard that is off by default:
+   `use_roi=True`, `roi_beta_mode='quantile'`, or `real_hf_every > 1`.
+
+NEITHER IS A SUBSTITUTE FOR THE LIVE CONTROL. The gate covers rollout
+simulation, not the real optimisation loop, and the real loop DID gain code
+since h83 (the `real_hf_every` block, inert at its default of 0). Only running
+the seeds and comparing outputs tests the whole path. The analysis continues to
+print "reuse unverified" until they land, and the reuse is void if they differ.
+
+## LESSON — launcher ordering put the control last
+
+The reproduction control was queued AFTER all three treatment arms, so it is the
+last thing to run. If it fails, every arm-A comparison in this experiment is
+void -- which is information wanted at minute 10, not hour 4. A control that can
+invalidate the whole experiment belongs at the FRONT of the job list. Fixed in
+h85's launcher for future runs; recorded here rather than silently corrected.
