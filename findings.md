@@ -4943,3 +4943,61 @@ headline number in h83, h84, h85 and h86 rests on them.
 STATUS: EXPLORATORY. Derived from the concurrent session's H89 control arm,
 read-only, no new runs. Borehole's fresh controls are still running and will say
 whether the same holds there.
+
+## H91 — the MF-DRO vs MF-MES comparison REVERSES SIGN between seed sets
+
+CONFIRMATORY against bars registered before the runs.
+
+  Hartmann, seeds 52-56 (MF-DRO from H89's control arm, MF-MES run fresh):
+     seed   MF-DRO   MF-MES     diff
+       52     2.54     1.16    +1.39
+       53     0.82     7.25    -6.43
+       54     0.76    15.85   -15.09
+       55     5.78     1.57    +4.20
+       56     3.39     9.47    -6.09
+     paired mean -4.40, MF-DRO better 3/5
+
+  At seeds 42-46 the same comparison is +1.37 with MF-DRO WORSE.
+
+  P1 (MF-DRO beats MF-MES on >= 3/5): MET
+  P2 (deficit smaller than +1.37):     MET at -4.40
+
+### THE HONEST READING, WHICH IS NARROWER THAN "MF-DRO WINS"
+
+**h83's own bar is NOT met.** That bar is a strictly lower mean AND >= 4/5 seeds.
+Here MF-DRO has the lower mean (2.66 vs 7.06) but wins only 3/5. **I registered
+P1 at >= 3/5, which is WEAKER than the project's standard >= 4/5.** That was my
+choice and it flatters the result; the stricter bar the rest of this project uses
+returns NOT MET.
+
+**The mean is carried by MF-MES failing.** Seed 54 contributes -15.09 because
+MF-MES scores 15.85 there. This is precisely the "MF-DRO wins when the baseline
+fails" pattern that appeared in h87 and that I tested and RETRACTED as a general
+property. It reappears here, on a different seed set, and it should be read the
+same way: not evidence of better typical performance.
+
+**The variance ordering reverses too.**
+  seeds 42-46:  MF-DRO sd 5.85 (0.67-16.41)  |  MF-MES sd 3.39 (1.31-9.95)
+  seeds 52-56:  MF-DRO sd 2.09 (0.76- 5.78)  |  MF-MES sd 6.15 (1.16-15.85)
+On one seed set MF-DRO is the erratic method; on the other MF-MES is. Neither
+ordering is a property of the methods.
+
+### What this settles, and what it costs
+
+SETTLES: MF-DRO's Hartmann deficit is NOT a stable property. It is +1.37 on one
+seed set and -4.40 on another. The founding diagnosis -- 20.8% wasted budget,
+0.336 mean query score -- describes seeds 42-46 specifically, and on 52-56 the
+same configuration wastes 4.2% and scores 0.685.
+
+COSTS: the h84-h90 intervention programme was designed against, and tuned on,
+the seed set where MF-DRO happens to fail worst. That does not make the
+interventions wrong -- their paired comparisons are internally valid -- but it
+means their measured effect sizes are upper bounds obtained where there was the
+most to fix. The HF floor already demonstrated this concretely: -1.37 pts on
+42-46, +1.60 on 52-56.
+
+DOES NOT ESTABLISH that MF-DRO beats MF-MES. Three of five seeds, on a bar
+weaker than the project's own, with the mean driven by one baseline failure.
+
+STATUS: CONFIRMATORY on registered bars, n=5, no p-values. The 5 MF-MES runs
+completed with 0 failures.
