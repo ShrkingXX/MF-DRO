@@ -3916,3 +3916,61 @@ unpaired +0.45 artifact). The correct statement is the weaker one: partial arms
 are UNRELIABLE IN EITHER DIRECTION and should not be quoted as estimates. That
 remains a reason to wait for complete arms; it is not a reason to treat partial
 numbers as upper bounds specifically.
+
+## H84 COMPLETE — 34/34, 0 failures, control PASSED 4/4 bit-identical
+
+Final, all arms n=5, paired against ROI-OFF, on the frozen metric:
+
+  Hartmann_6D          acceptance   d(q-score)      d(rel.regret)     final
+    ROI-OFF                 --           --              --           7.55%
+    ROI-Q10 (q=0.10)      10.0%     +0.001 (3/5)   -1.62 pts (3/5)    5.93%  <- best
+    ROI-FIX2 (b=2)        12.9%     -0.094 (2/5)   -0.26 pts (2/5)    7.29%
+    ROI-ANN (q~0.49)      49.8%     -0.055 (1/5)   +1.56 pts (1/5)    9.11%
+
+  Borehole_8D
+    ROI-OFF                 --           --              --          15.82%
+    ROI-FIX2 (b=2)        21.4%     +0.077 (5/5)   -4.81 pts (5/5)   11.00%  <- best
+    ROI-Q10 (q=0.10)      10.0%     +0.114 (5/5)   -4.22 pts (5/5)   11.59%
+    ROI-ANN (q~0.49)      49.3%     +0.034 (4/5)   -1.31 pts (3/5)   14.50%
+
+### CORRECTION to a number I PUBLISHED
+
+I reported that on Hartmann the two non-Q10 settings were "worse than no ROI at
+all (+1.56 and +6.32 points)", and derived from it that "fixed beta wins Borehole
+by 0.6 pts and loses Hartmann by 7.9 pts". That +6.32 was ROI-FIX2 at n=2. At the
+complete n=5 it is **-0.26 pts**, i.e. roughly NEUTRAL, not harmful.
+
+  ROI-FIX2 on Hartmann:  +6.32 (n=2)  ->  +0.36 (n=3)  ->  -0.26 (n=5)
+
+The corrected statement: fixed beta is BEST on Borehole (-4.81 vs Q10's -4.22)
+and roughly neutral on Hartmann (-0.26, and only 2/5 seeds, against Q10's -1.62
+on 3/5). It loses to Q10 on Hartmann by 1.4 points, not 7.9.
+
+This number went into the to_human report. Fixed there too.
+
+### What survives at n=5, stated once, narrowly
+
+  1. ROI-Q10 is the only arm that improves BOTH benchmarks (-1.62, -4.22).
+  2. On Borehole every ROI setting helps; the benchmark is insensitive to the knob.
+  3. On Hartmann only Q10 clearly helps; ANN actively hurts (+1.56, 1/5).
+  4. The q=0.10 choice is therefore justified by ROBUSTNESS across benchmarks,
+     not by winning either one outright -- fixed beta wins Borehole.
+
+### The control argument, which does not depend on any of the above
+
+Fixed beta cannot SET ROI tightness. Measured acceptance at sqrt(beta)=2 varies
+12.6%-100% across benchmarks, 250x within a single Borehole run, and 6.9x across
+seeds of the same benchmark (Hartmann 3.6%-24.9%). Quantile calibration hits its
+target to 1e-4 on every run, collapsing all three to 1.0x, while solving beta_t
+anywhere in 0.48-3.10 to do it. It also bounds rejection cost at 4 passes where
+fixed beta needs 1 to 86.
+
+### Registered bars, final
+
+  P1 (mean query score +0.10, >=4/5, BOTH benchmarks): FAILED. Borehole met it
+     (+0.114, 5/5); Hartmann did not (+0.001, 3/5). The metric was mis-chosen --
+     simple regret is a MAX statistic (Lesson 22).
+  P2 (fixed beta buys nothing on Borehole): REFUTED, 5/5, and it won there.
+  P3 (annealing): UNTESTED -- arm D never annealed (T_real bug), relabelled to
+     constant q~0.49.
+  P4 (arm D not worse than arm C): arm D IS worse on both benchmarks.
