@@ -148,6 +148,34 @@ constraints:
   - num_workers x threads <= 15.
   - No p-values at n<=5. Protocol commits BEFORE result commits.
 
+completed_diagnostics:
+  h88-surrogate-vs-data: >
+    COMPLETE. Same KO GP, same 4096-point recommender, three different datasets.
+    THE LIMIT IS THE SURROGATE, NOT THE DATA. Every recommendation across all
+    three conditions and both benchmarks lands in 11.96-29.03% relative regret,
+    while the best OBSERVED points reach 0.67-19.19%. The KO global argmax is a
+    poor point regardless of what it is fit on.
+  h88_key_numbers: |
+    condition                    Hartmann   Borehole
+    A: fit on MF-DRO's queries     13.15%     22.66%
+    B: fit on MF-MES's queries     19.92%     21.42%
+    C: fit on a Sobol design       29.03%     22.64%
+    (C's own best observation:     65.51%     31.90%)
+  h88_consequences: >
+    (1) Rules out "recommend from the model instead of reporting the best
+    query" as an avenue. (2) Bounds what any data-side intervention (ROI,
+    teacher refinement, HF floor) can buy. (3) Does NOT excuse MF-DRO's query
+    quality -- simple regret depends on the best QUERY, which is where MF-DRO
+    loses. (4) Refutes "good model, bad policy" as the bulk explanation, though
+    the model does beat its own best query on 1 of 10 runs under a strong
+    recommender (0 of 20 under the live weak one).
+  h88_correction: >
+    Recommendation quality is NOT monotone in design dispersion: MF-DRO
+    (moderate) > MF-MES (concentrated) > Sobol (maximal). An earlier claim that
+    MF-DRO's dispersion produces a better global surrogate was an extrapolation
+    from two points that condition C refuted. There is an interior optimum and
+    MF-DRO happens to sit nearer it.
+
 queued_experiments:
   h86-roi-full: >
     6/10. The h83 MF-DRO rerun, scoped to Currin + Ackley because h84 already
