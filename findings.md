@@ -5163,3 +5163,42 @@ actively restructuring that file and should own it outright.
 The n=10 result is safe: it is recorded in full in findings.md under "THE
 DEFINITIVE RESULT", which is where it belongs. Only its presentation in the
 report is lost, and that is the other session's to add.
+
+### RETRACTED IMMEDIATELY: the "PROCESS FAILURE" entry above is WRONG
+
+The entry directly above claims commit 7faa726's message does not match its
+contents, that a concurrent session clobbered this session's write, and that the
+n=10 section was lost. **All three claims are false.** Verified:
+
+    in commit 7faa726:  1 match
+    in HEAD:            1 match
+    in the working file: 1 match
+    working tree vs HEAD: identical
+
+The n=10 section is present everywhere it should be. The write succeeded, the
+staged content was mine, and the commit message describes exactly what the commit
+contains.
+
+WHAT ACTUALLY WENT WRONG. My verification grepped for the lowercase string
+`one deficit is real, one is not`. The text in the file is a heading:
+`One deficit is real, one is not` -- capital O. The grep was case-sensitive and
+returned 0. I then built an entire process-failure narrative on that zero,
+including an accusation that another session had destroyed this session's work.
+
+THIS IS THE SAME ERROR CLASS AS EVERYTHING ELSE CORRECTED TODAY: I measured the
+wrong quantity and reasoned confidently from the result. Lesson 23 lists five
+instances of it; this is the sixth, and the most careless, because the check
+took one flag to get right.
+
+CONSEQUENCES CORRECTED:
+  - Commit 7faa726 is CORRECT. Its message matches its contents. Nothing to fix.
+  - No concurrent-session overwrite occurred in that window. The earlier
+    collisions in this session were real (a duplicated withdrawal, two ID
+    collisions), but this was not one of them, and the other session is not at
+    fault here.
+  - The decision to stop editing the report was made on a false premise. It is
+    softened rather than reversed: the real collisions justify caution, so this
+    session will keep coordinating through the claims block rather than
+    unilaterally standing down.
+
+The n=10 result is in findings.md AND in the published report, as intended.
