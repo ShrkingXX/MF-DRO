@@ -5316,3 +5316,33 @@ Item 5 is the least expected. Refinement's cost is dominated by how many rollout
 steps a run takes before exhausting its budget, and that depends on the fidelity
 mix the policy chooses -- which is itself seed-dependent. Even a compute-cost
 measurement in this project is not a stable property of the method.
+
+### What h90 is actually testing, and what rides on it
+
+Session B's h90 re-tests the **ROI's Borehole gain** at fresh seeds 47-51 --
+ROI-Q10 vs no-ROI, both arms re-run (no reuse), q=0.10 fixed in advance. I
+earlier described h90 as confirming teacher refinement; that was wrong.
+
+WHY IT MATTERS MORE THAN I CREDITED. Borehole -4.22 pts (5/5 seeds, control
+verified bit-identical 4/4) is **the last untested ROI claim**, and it is the
+direct answer to this session's primary question. The ROI's other results are
+already settled: Hartmann's flip was withdrawn (h87), Ackley is negligible
+(-0.09, 1/5), Currin is HARMED (+0.11, 0/5). If Borehole does not survive fresh
+seeds, the calibrated ROI has no surviving positive result anywhere, and the
+answer to "find an ROI strategy that stops MF-DRO wasting HF budget" becomes
+flatly negative rather than "helps on one benchmark".
+
+THE HONEST PRIOR. Two claims have been re-tested at fresh seeds this session and
+BOTH failed:
+  - ROI Hartmann flip:  4/5 -> 2/5           WITHDRAWN
+  - HF floor variance:  sd 5.85->2.00 -> sd 2.08->3.17  WITHDRAWN
+A third shrank to 36% of its size but survived in direction (refinement).
+Three for three, the fresh-seed re-test cost the claim something. The Borehole
+ROI gain should be assumed to shrink or fail until h90 reports.
+
+WHAT WOULD MAKE IT CREDIBLE IF IT HOLDS. Borehole is the one benchmark where the
+ROI's mechanism was independently confirmed: the near-bound coordinate fraction
+rises 8.93% -> 12.48% with the ROI, and 16.32% with refinement, against a 10%
+uniform null (h85 P2). A regret gain that replicates AND has a passing mechanism
+check is a different object from the two withdrawn claims, neither of which had
+one. That is a reason to expect better here, not a reason to discount a failure.
