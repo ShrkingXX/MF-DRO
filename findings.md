@@ -4419,3 +4419,37 @@ THE ARM THAT MATTERS IS STILL RUNNING. Hartmann HF-FLOOR is 1/5 complete. That
 is where the floor binds and where P5 (does it reduce across-seed spread?) and
 P6 (registered NEGATIVE: it should not improve the mean) will actually be
 tested. Nothing about Borehole's result bears on them.
+
+### H85 in-flight: HF-FLOOR on Borehole is null BY CONSTRUCTION, verified bit-for-bit
+
+Borehole HF-FLOOR completed 5/5. Against h83's MF-DRO (the REFINE-0 control):
+
+  seed   |d regret|    max|dx|   fidelity seq   floor fired?
+    42   2.822e+00        inf         differs   YES -- control has a 4-long LF run
+    43   0.000e+00  0.000e+00       identical   no  -- max LF run 2
+    44   0.000e+00  0.000e+00       identical   no  -- max LF run 2
+    45   0.000e+00  0.000e+00       identical   no  -- max LF run 2
+    46   0.000e+00  0.000e+00       identical   no  -- max LF run 2
+
+`real_hf_every=4` fires only when 3 consecutive low-fidelity queries occur. On
+Borehole the control's longest LF run is 2 on four of five seeds, so the floor
+NEVER FIRES and those runs are BIT-IDENTICAL to the control -- same regret, same
+queries, same fidelity sequence. Only seed 42, whose control contains a 4-long
+LF run, diverges.
+
+THREE THINGS THIS GIVES:
+
+1. **P7 confirmed exactly.** The arm is non-binding on Borehole, and "non-
+   binding" here is literal rather than approximate: four of five runs are the
+   same run. Recorded in the protocol BEFORE these results, so the Borehole null
+   cannot be read as evidence against the mechanism.
+2. **A free reproduction control.** Four Borehole seeds reproduce h83's MF-DRO
+   bit-identically through the FULL optimisation loop, on code that now contains
+   the `real_hf_every` block. Independent of the formal REFINE-0 control runs
+   still queued, this is direct evidence the h83 reuse holds for Borehole.
+3. **Where it does fire, it HURTS.** Seed 42 goes 15.28% -> 16.19%, i.e. +0.91
+   pts worse. n=1 and not a verdict, but the one observation of the floor
+   actually binding on this benchmark is negative.
+
+The informative test is Hartmann, where the control has 19-long LF runs and the
+floor must fire constantly. That arm is 2/5.
