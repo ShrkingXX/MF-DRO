@@ -4180,3 +4180,78 @@ was selection over three ROI settings. That caveat was the correct one, and the
 clean test it called for reversed the claim. Caveats are not insurance: a result
 that needs four of them to be reported responsibly is a result that should be
 confirmed before it is announced at all.
+
+# ================================================================
+# WITHDRAWN: the Hartmann flip. It did not replicate at fresh seeds.
+# ================================================================
+
+**This retraction is reported as prominently as the original claim, per h87's
+pre-registered falsifier and the precedent set by the h64 withdrawal.**
+
+h84 measured MF-DRO + calibrated ROI at 5.93% against MF-MES's 6.62% on
+Hartmann, 4/5 paired seed wins, meeting h83's own "beats the best baseline" bar.
+I announced that h83's PRIMARY finding -- MF-DRO beats no baseline on any
+benchmark -- no longer held.
+
+h87 re-tested it cleanly: q=0.10 fixed in advance, ONE arm, seeds 47-51 never
+used before, MF-MES re-run at the same seeds, analysis script written and
+committed before the treatment arm finished.
+
+   seed   MF-DRO+ROI    MF-MES     diff
+     47         2.19      0.37    +1.82
+     48         4.66     10.68    -6.01
+     49         9.56     25.25   -15.69
+     50         7.95      7.20    +0.74
+     51         6.98      5.95    +1.03
+
+   paired mean -3.62 pts, sd 7.45, wins 2/5
+
+**P1 FAILED (2/5, needed >= 4/5). P3 FAILED. The flip is withdrawn.**
+
+## What actually happened, and why the h84 result was misleading
+
+The paired MEAN is favourable (-3.62 pts) and is driven almost entirely by
+seed 49, where MF-MES fails catastrophically (25.25%) and MF-DRO+ROI does not
+(9.56%). On the other four seeds MF-DRO+ROI wins once and loses three times, by
+0.74, 1.03 and 1.82 pts.
+
+So the honest description is: **MF-DRO + ROI wins big when MF-MES happens to
+fail, and loses narrowly the rest of the time.** That is not "beats the best
+baseline"; it is lower variance in the tail, which is a different and much
+weaker claim.
+
+This is exactly why h83's bar required BOTH a lower mean AND >= 4/5 seeds. The
+mean alone here says "+3.62 points better" and would have been wrong.
+
+## Two of my own pre-registered predictions failed with it
+
+**Amendment 1's reasoning was wrong.** I argued -- before any h87 treatment run
+finished -- that pairing would cancel seed difficulty, citing h83's paired sd of
+0.45 against marginal spreads of 3.26/3.39. The paired sd here is **7.45**. The
+cancellation did not happen, because the two methods fail on DIFFERENT seeds
+rather than sharing difficulty. I named P1 as the bar to weight for a reason
+that turned out not to hold.
+
+**P1 was the one prediction I made optimistically, and it failed.** I registered
+it as EXPECTED TO HOLD, explicitly departing from the pessimism of Lesson 23 on
+the grounds that the h84 paired differences occupied a 0.36-point band and "that
+is not the signature of a noise-mined result". It was. Lesson 23 recorded four
+errors from underestimating the intervention; this is the first from
+OVERestimating it, and it came from trusting a tight band at n=5 on one seed
+set.
+
+## What survives
+
+1. **The controllability argument, untouched.** Fixed beta cannot set ROI
+   tightness across benchmarks (12.6%-100%), within a run (250x), or across
+   seeds of one benchmark (6.9x). Calibration collapses all three to 1.0x. This
+   was never a performance claim.
+2. **Borehole, unaffected.** ROI-Q10 improves it by 4.22 pts on 5/5 seeds
+   against a control verified bit-identical 4/4. That result stands; it never
+   claimed to beat MF-MES there, and it does not.
+3. **The h83 headline is RESTORED: MF-DRO beats no baseline on any benchmark.**
+
+## What is now known to be false
+
+- "MF-DRO + calibrated ROI beats the best baseline on Hartmann." WITHDRAWN.
+- "h83's PRIMARY finding no longer holds." WITHDRAWN -- it holds.
