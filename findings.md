@@ -4547,3 +4547,49 @@ reduction in spread.
 
 STATUS: CONFIRMATORY against registered bars P5 and P6, on one benchmark, with an
 unverified control and no fresh-seed replication.
+
+### H85 PROVISIONAL: the HF floor works on Hartmann, and refutes my own negative prediction
+
+Hartmann HF-FLOOR complete at 5/5 (Borehole was null-by-construction, verified
+bit-for-bit). Paired against the control:
+
+  seed  ctl HF%  flr HF%  ctl maxLF-run  flr maxLF-run   ctl reg   flr reg
+    42     5.6%    33.3%            131              3    16.41%     6.91%
+    43    75.0%    83.3%              5              3     0.67%     1.71%
+    44     9.9%    33.3%             73              3     7.98%     9.64%
+    45     3.8%    27.5%             75              3     5.28%     6.87%
+    46     5.6%    28.4%             50              3     7.42%     5.20%
+
+  mean 7.99% -> 6.62%   (paired d = -1.37 pts)
+  sd   5.85  -> 2.00    (across-seed spread cut by 66%)
+
+THE MECHANISM IS EXACTLY AS REGISTERED. MF-DRO's fidelity head collapses on
+Hartmann: the control runs 131, 73, 75 and 50-query CONSECUTIVE low-fidelity
+streaks, i.e. it stops sampling the target function almost entirely. The floor
+bounds every streak at 3 and lifts HF share from 3.8-9.9% to 27.5-33.3% on the
+four collapsed seeds.
+
+P5 (VARIANCE) MET, decisively: sd 5.85 -> 2.00.
+
+P6 IS HEADING FOR REFUTATION. I registered it NEGATIVE -- "HF-FLOOR does NOT
+improve mean relative regret on Hartmann by >= 1pt" -- on the grounds that HF
+count does not predict outcome across h83's seeds (6 HF -> 0.933 max score,
+12 HF -> 0.648). The mean improved by 1.37 pts. My reasoning confused HF COUNT
+with HF STREAK STRUCTURE: a run with 12 HF queries spread through the budget is
+not the same object as one with 12 HF queries and a 131-query LF streak, and it
+is the streak the floor removes.
+
+WHERE THE GAIN COMES FROM, stated plainly: almost entirely seed 42
+(16.41% -> 6.91%), the seed whose control has the 131-query collapse. On three
+of five seeds the floor is slightly WORSE (43, 44, 45), costing 0.6-1.7 pts.
+This is a WORST-CASE RESCUE, not a general improvement -- which is precisely
+what P5 registered and P6 failed to anticipate as a mean effect.
+
+PROVISIONAL, NOT A FINDING. Amendment 2 applies: no positive h85 result is a
+finding until re-tested at fresh seeds with the configuration fixed in advance.
+h84's Hartmann result also looked good at 4/5 and did not survive h87. The
+mean here rests on ONE seed, which is a weaker position than h84's was.
+
+CREDIT: forcing periodic HF queries was the human's proposal. I argued against
+it from the h83 seed table and registered a negative prediction. The
+variance result and the mean result are both theirs.
