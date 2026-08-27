@@ -946,3 +946,71 @@ seeds 47-51 with q=0.10 fixed in advance and one arm only, carrying a falsifier
 that withdraws the flip if it fails. Its comparator finished first (Lesson 21)
 and revealed that seeds 47-51 are 3.27 pts harder for MF-MES and three times as
 dispersed, which was recorded before any treatment run completed.
+
+## 2026-08-27 (evening) — H85 and H88 complete. The lever was never the ROI.
+
+The session's PRIMARY QUESTION was an ROI strategy to stop MF-DRO wasting HF
+budget. After four experiments the answer is that the ROI is not the lever, and
+two other things are.
+
+### H88 — the surrogate is the limit, not the data
+
+Same KO GP, same 4096-point recommender, three datasets:
+
+  fit on MF-DRO's queries   Hartmann 13.15%   Borehole 22.66%
+  fit on MF-MES's queries            19.92%            21.42%
+  fit on a Sobol design              29.03%            22.64%
+  (Sobol's own best obs              65.51%            31.90%)
+
+Every recommendation lands in 11.96-29.03% while the best OBSERVED points reach
+0.67-19.19%. The KO surrogate's global argmax is a poor point regardless of what
+it is fit on. This closes off "recommend from the model" and bounds what any
+data-side intervention can buy. It also refutes "good model, bad policy" as the
+bulk explanation -- with the correction that the model DOES beat its own best
+query on 1 of 10 runs under a strong recommender, where the live 512-point one
+showed 0 of 20.
+
+### H85 — teacher refinement is the strongest intervention measured
+
+  Borehole  REFINE-100  -5.85 pts, better 5/5   (15.82% -> 9.96%)
+  Hartmann  REFINE-100  -1.93 pts, better 3/5   ( 7.99% -> 6.05%)
+  Hartmann  HF-FLOOR    -1.37 pts, better 3/5;  sd 5.85 -> 2.00
+  Borehole  HF-FLOOR    +0.18 pts, 0/5 -- non-binding, 4 runs bit-identical
+
+Bars: P1 MET (disproportionality), P2 MET (mechanism: near-bound fraction
+8.93% -> 16.32%), P3 MET, P4 MET narrowly (1.89-1.97x wall-clock against a 2x
+bar), P5 MET (variance), P6 REFUTED, P7 confirmed literally. Reproduction
+control PASSED 4/4 bit-identical.
+
+**This is the one mechanism claim of mine that survived the session.** Measured
+before the runs, at a matched model state: the ROI moves teacher action quality
++0.010, refinement moves it +0.046. I argued the teacher's flat argmax over
+uniform random candidates was the binding constraint rather than the region
+those candidates come from. P1 and P2 both confirm it, and P2 was written so it
+could fail even if regret improved.
+
+### The scoreboard for my own predictions
+
+Seven mechanism claims made this session. SIX refuted:
+  1. An L2 head cannot reach a bound.
+  2. The ROI cannot reach a corner.
+  3. Regret improves monotonically with ROI tightness (then: tight beats loose).
+  4. h84 P1 unlikely to be met (refuted on Borehole).
+  5. h84 P2: fixed beta buys nothing on Borehole (it posted the best regret).
+  6. h85 P6: the HF floor will not improve the Hartmann mean.
+ONE survived: refinement > ROI, and for the registered reason.
+
+Four of the six refuted claims erred by UNDERESTIMATING an intervention, each
+from an argument about why a mechanism was impossible rather than a measurement
+of its size. The seventh -- the one I got right -- came from a measurement.
+
+### Standing position
+
+h83's headline STANDS: MF-DRO beats no baseline on any of four benchmarks. The
+Hartmann flip was announced and withdrawn (h87, 2/5 at fresh seeds). Refinement
+narrows Borehole from 9.42 to 3.56 pts behind MF-MES but does not close it.
+
+NOTHING from h85 is a finding yet. h89 is running: both interventions at fresh
+seeds 52-56, treatments hardcoded, controls first, falsifiers requiring
+withdrawal. That experiment exists because h84's claim carried four correct
+caveats, was announced anyway, and did not survive.
