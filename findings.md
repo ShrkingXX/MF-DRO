@@ -5063,3 +5063,68 @@ changes: a paired standard deviation (0.45 -> 7.45), a tail-risk ordering, a
 failure-mode incidence (80% -> 29% LF), and now the sign of a method comparison.
 
 STATUS: EXPLORATORY pooling of two CONFIRMATORY experiments. No p-values.
+
+# ============================================================================
+# THE DEFINITIVE RESULT: one of MF-DRO's two deficits is real, the other is not
+# ============================================================================
+
+Both benchmarks now measured against MF-MES at TWO independent seed sets, n=10
+paired each. This is double the evidence behind any claim in h83-h91.
+
+  benchmark      n   MF-DRO   MF-MES   paired d   median d   MES better
+  Hartmann_6D   10     5.32     6.84      -1.52      +0.22       5/10
+  Borehole_8D   10    15.42     8.24      +7.18      +8.30       8/10
+
+**HARTMANN: no deficit.** Five wins out of ten, median +0.22. The 1.37-point gap
+h83 reported was a property of seeds 42-46, where MF-DRO scores 7.99 against 2.66
+at 52-56. At n=10 the two methods are indistinguishable.
+
+**BOREHOLE: the deficit is REAL.** MF-MES better on 8 of 10, mean +7.18 and
+median +8.30 -- and unlike Hartmann's, the mean is NOT driven by outliers; the
+median is larger than the mean. It persists across seed sets: +9.46 at 42-46 and
++4.95 at 52-56.
+
+P1 and P2 of H92 both MET, as registered before the runs.
+
+## What this settles about the whole investigation
+
+**The h84-h90 intervention programme was aimed correctly.** Every intervention
+was developed and measured on Borehole and Hartmann. Borehole is where MF-DRO
+genuinely loses, it is where the ROI helped most (-4.22, 5/5), where teacher
+refinement helped most (-5.85, 5/5), and where the boundary mechanism explains
+why. That work targets a real weakness.
+
+**But half the founding diagnosis was seed noise.** The task premise -- "mean HF
+query score 0.336 vs MF-MES's 0.747 on HARTMANN, 20.8% of queries worse than the
+initial design" -- describes seeds 42-46 on the one benchmark where the deficit
+does not survive replication. On seeds 52-56 the same configuration scores 0.685
+and wastes 4.2%.
+
+**And the mechanism holds where it matters.** Borehole's optimum sits on the
+domain boundary in all four dimensions carrying 99.6% of its variance; MF-DRO's
+rollout teacher takes a flat argmax over uniform candidates that essentially
+never reach several bounds at once; and the four methods order identically on
+near-bound fraction and on regret (8.93/12.48/16.32/36.87% against
+15.82/11.59/9.96/6.36%). That is a benchmark-intrinsic property, which is why it
+replicated when Hartmann's seed-specific one did not.
+
+## The corrected statement of what MF-DRO's problem is
+
+NOT: "MF-DRO wastes 20.8% of its high-fidelity budget." That is one seed set on
+one benchmark.
+
+BUT: **on benchmarks whose optimum lies on the domain boundary, MF-DRO's rollout
+teacher cannot generate training targets there, so the policy never learns to
+propose them.** Borehole is such a benchmark and MF-DRO loses it by 7.2 points at
+n=10. Hartmann is not, and at n=10 there is nothing to explain.
+
+## Still open
+
+  - Currin and Ackley have never been measured at a second seed set. MF-DRO loses
+    both at 42-46; whether those deficits are real is untested. 10 cheap runs.
+  - The interventions' effect sizes were all measured on 42-46. Confirmations are
+    running (H89) or queued (H90).
+  - MF-DRO still beats no baseline on any benchmark, at any seed set tested.
+
+STATUS: CONFIRMATORY. H91 and H92 were both pre-registered with their bars and
+their consequences stated before running. 10 runs, 0 failures.
