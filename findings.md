@@ -4106,3 +4106,77 @@ WHAT THIS DOES AND DOES NOT LICENCE.
   tightness is now visibly a property of seeds 42-46 rather than a general
   property of the comparison. My confidence in that argument should have been,
   and now is, lower.
+
+## WITHDRAWN: the Hartmann flip does not survive a clean test (H87)
+
+**This retraction is reported as prominently as the original claim, per h87's
+pre-registered falsifier.**
+
+H87 re-ran Hartmann with q=0.10 FIXED IN ADVANCE, ONE arm, on seeds 47-51 that
+had never been used, with MF-MES re-run at the same seeds. Four of five pairs:
+
+   seed   MF-DRO+ROI    MF-MES     diff
+     47         2.19      0.37    +1.82
+     48         4.66     10.68    -6.01
+     49         9.56     25.25   -15.69
+     51         6.98      5.95    +1.03
+
+   MF-DRO better on 2 of 4. Seed 50 pending.
+
+**P1 FAILED, and its failure is arithmetically determined.** P1 required the
+paired difference to be negative on >= 4/5 seeds. With 2 wins from 4 and one
+seed left, the maximum reachable is 3/5. Seed 50 cannot change this.
+
+h83's own bar -- strictly lower mean AND >= 4/5 seeds -- likewise fails on the
+seed clause. **On a clean test, MF-DRO + calibrated ROI does NOT beat MF-MES on
+Hartmann.**
+
+### What is withdrawn
+
+The claim "h83's headline flips on Hartmann -- MF-DRO + ROI-Q10 beats the best
+baseline" is WITHDRAWN. It rested on seeds 42-46, where three ROI settings were
+run and the winner reported. h87 removed that selection and the result did not
+replicate on the bar that was used to announce it.
+
+h83's PRIMARY finding stands as originally reported: **MF-DRO beats no baseline
+on any benchmark.**
+
+### What must NOT be done with the remaining numbers
+
+The paired MEAN on the fresh seeds is -4.71 pts, and the arm means are 5.85
+(MF-DRO+ROI) against 10.56 (MF-MES) -- both strongly favouring MF-DRO. It would
+be easy to report those instead and call the result a success.
+
+That would be wrong, and it is exactly what the mean-vs-seeds bar exists to
+prevent. The mean is carried by two large wins (-6.01, -15.69) against two small
+losses (+1.82, +1.03); on the median seed the methods are close, and MF-DRO is
+behind on half of them. This is the same asymmetry that made h83 register BOTH
+clauses, and the same one that correctly denied MF-DRO an Ackley "win" in h83
+(lower mean, 2/5 seeds). The bar is applied identically here, against the result
+I wanted.
+
+The honest summary of the fresh-seed data: **MF-DRO+ROI has a lower mean but
+wins only half the seeds; the difference is dominated by instances where MF-MES
+fails badly (seed 49: MF-MES 25.25%).** That is a real and possibly interesting
+property -- robustness to bad instances -- but it is a DIFFERENT claim from
+"beats the best baseline", it was not pre-registered, and it would need its own
+test.
+
+### What is NOT affected
+
+  1. The Borehole gain: -4.22 pts, better on 5/5 seeds, on seeds never selected
+     over. Still stands. MF-DRO remains well behind MF-MES there (11.59 vs 6.40).
+  2. The control argument: fixed beta cannot SET ROI tightness (12.6%-100%
+     across benchmarks, 250x within a run, 6.9x across seeds), while calibration
+     hits its target to 1e-4 every run and bounds rejection cost. This never
+     depended on any regret result.
+  3. The Currin regression (+0.11, 0/5) and the Ackley null (-0.09, 1/5) are
+     unchanged.
+
+### The lesson, stated plainly
+
+I announced the flip after h84, with four caveats attached, the first of which
+was selection over three ROI settings. That caveat was the correct one, and the
+clean test it called for reversed the claim. Caveats are not insurance: a result
+that needs four of them to be reported responsibly is a result that should be
+confirmed before it is announced at all.
