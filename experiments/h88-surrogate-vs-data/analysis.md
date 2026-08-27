@@ -64,3 +64,51 @@ a better recommender on top of this surrogate is not the fix.
 Both designs came from optimisers, so neither is a neutral probe of the
 surrogate class. Condition C -- a space-filling design at matched cost -- was
 pre-registered as the follow-up if A/B proved informative. They did.
+
+## Condition C — P4 FAILED 0/5, and it corrects my reading of A/B
+
+| | A: MF-DRO data | B: MF-MES data | C: Sobol data | C's best observation |
+|---|---|---|---|---|
+| Hartmann_6D | **13.15%** | 19.92% | 29.03% | 65.51% |
+| Borehole_8D | 22.66% | 21.42% | 22.64% | 31.90% |
+
+P4 predicted a space-filling design would beat both optimisers' designs, on the
+reasoning that A/B had shown the MORE dispersed design giving the better model.
+It loses on 5/5 seeds on both benchmarks.
+
+**So recommendation quality is NOT monotone in dispersion.** The ordering is
+MF-DRO (moderate spread) > MF-MES (concentrated) > Sobol (maximal spread). Both
+extremes are bad. My A/B conclusion -- "MF-DRO's dispersion produces a better
+global surrogate" -- was an extrapolation from two points that a third point
+refutes. The corrected statement is that there is an INTERIOR optimum in design
+dispersion for global model quality, and MF-DRO happens to sit nearer it than
+MF-MES does. That is a much weaker and more accidental-sounding claim, and it is
+the one the data supports.
+
+The mechanism is visible in the last column: Sobol's best observed HF value is
+65.51% relative regret on Hartmann. A GP fit on data that never approaches the
+optimum has no information about the good region, however evenly it covers the
+domain. Coverage does not substitute for having been somewhere good.
+
+## The registered interpretation of P4's failure applies
+
+The protocol stated, before running C: "If P4 FAILS -- if a design built purely
+for coverage cannot beat two optimisers' designs -- then the limit is the
+SURROGATE at this budget, not the data, and no policy change can fix the
+recommendation gap."
+
+It failed. Every recommendation across all three conditions and both benchmarks
+lands in 11.96%-29.03%, while the best OBSERVED points reach 0.67%-19.19%. **The
+KO surrogate's global argmax is a poor point regardless of what it is fit on.**
+
+CONSEQUENCE FOR THE PROJECT: improving which points MF-DRO queries cannot close
+the recommendation gap, because the gap is not about the data. This does not
+excuse MF-DRO's query quality -- simple regret depends on the best QUERY, not on
+the recommendation, and that is where MF-DRO loses to MF-MES. But it does close
+off "recommend from the model instead of reporting the best query" as an avenue,
+and it bounds how much any data-side intervention (ROI, refinement, HF floor)
+can be expected to buy.
+
+STATUS: EXPLORATORY. n=5, two benchmarks, one surrogate class. Condition C's
+design is diagnostic only -- no optimiser could adopt it, since it never
+exploits.
