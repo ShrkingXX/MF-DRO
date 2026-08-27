@@ -98,7 +98,7 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
   &mdash; and on one benchmark of four, that fix now clears the bar the original comparison set.</p>
   <div class="chips">
     <span class="chip">h83 &middot; 100/100 runs &middot; 0 failures</span>
-    <span class="chip">calibrated ROI &middot; Hartmann flips</span>
+    <span class="chip">ROI experiment complete &middot; 34/34</span>
     <span class="chip">5 seeds &middot; cost 200 post-init</span>
   </div>
 </header>
@@ -140,9 +140,11 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
     <p class="kicker">Four reasons not to over-read this</p>
     <p><strong>One benchmark of four.</strong> Borehole still loses by 5.2 points and Ackley by 0.31.
     &ldquo;MF-DRO beats the best baseline on Hartmann&rdquo; is the claim; &ldquo;MF-DRO is competitive&rdquo; is not.</p>
-    <p><strong>Three ROI settings were tried on Hartmann and the winner reported.</strong> The other two
-    were <em>worse than no ROI at all</em> (+1.56 and +6.32 points). q=0.10 was not chosen on Hartmann
-    &mdash; it also won Borehole &mdash; but a clean confirmation would fix it in advance and run fresh seeds.</p>
+    <p><strong>Three ROI settings were tried on Hartmann and the winner reported.</strong> One of the
+    other two is actively harmful (+1.56 points, worse than no ROI); the third is roughly neutral
+    (&minus;0.26). q=0.10 was not chosen on Hartmann &mdash; it also won Borehole &mdash; but a clean
+    confirmation would fix it in advance and run fresh seeds. That confirmation is written and
+    waiting on compute.</p>
     <p><strong>The bar was registered for a different configuration.</strong> Applying the original
     comparison&rsquo;s threshold here is a post-hoc use of a pre-registered rule. The bar this experiment
     registered <em>for itself</em> failed.</p>
@@ -404,7 +406,9 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     registered bars: the primary one <em>failed</em> (it was set on mean query quality, but simple regret
     is a max statistic, so a method can improve the best query while leaving the mean flat &mdash; which
     is exactly what Hartmann does). A second, negative prediction also failed: the fixed-&beta; arm was
-    supposed to buy nothing on Borehole and instead posted the best regret there.</li>
+    supposed to buy nothing on Borehole and instead posted the <em>best</em> regret there &mdash; better
+    than the calibrated setting. Calibration&rsquo;s case rests on working across benchmarks, not on
+    winning any single one.</li>
     <li><strong>Currin&rsquo;s MF-DRO runs are still going</strong>, which is why it is missing from the table
     and figure above rather than reported at partial seed count. Three separate times in this
     experiment a partial arm read better than the completed one.</li>
