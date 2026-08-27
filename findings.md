@@ -3329,3 +3329,50 @@ and every addition is behind a default-off guard. The bit-identity gate covers
 `simulate_mf_trajectory` only -- the real optimisation loop gained the
 `real_hf_every` block (inert at 0) and is not covered by it. Only the live
 control tests the whole path.
+
+### CORRECTION — the ROI *does* move MF-DRO toward Borehole's boundary optimum
+
+Earlier this session I wrote: "a flat argmax over uniform random candidates in
+8-D essentially never proposes a point at bounds in several sensitive dims at
+once... The ROI relocates a uniform draw but does not make it able to reach a
+corner -- which is why the ROI is not expected to fix Borehole."
+
+That is WRONG, and the measurement is monotone in ROI tightness:
+
+  arm                 near-bound %   sens-dim hits %   wgt d*(min)   n
+  ROI-OFF                    8.93            17.75        0.0553     5
+  ROI-ANN (q~0.49)           9.98            19.86        0.0506     5
+  ROI-Q10 (q=0.10)          11.99            23.47        0.0460     1
+  MF-MES (reference)        36.87            63.22        0.0329     5
+
+near-bound = coords within 5% of a domain bound (uniform null 10%); sens-dim
+hits = coords within 0.05 of x* in dims 0/3/5/6, which carry 99.6% of Borehole's
+variance and are ALL at bounds; wgt d* = sensitivity-weighted min distance to x*.
+
+All three metrics improve monotonically as the ROI tightens. The mechanism is
+that the high-UCB region on Borehole IS the boundary region, so concentrating
+candidates there pulls them toward the corner. At q=0.10 the ROI closes roughly
+an eighth of the ROI-OFF -> MF-MES gap on sensitive-dim hits. Modest, but real
+and directional, and the loose arm carries n=5.
+
+WHY I GOT IT WRONG. I reasoned about a UNIFORM draw's marginal probability of
+landing near several bounds at once, which is indeed negligible in 8-D, and then
+treated the ROI as merely relocating that uniform draw. But the ROI is not a
+relocation -- it is a REJECTION filter against a posterior-derived threshold, so
+the surviving points are selected for high UCB, and on this benchmark that
+selection correlates with being at a bound. The error was reasoning about the
+sampling distribution instead of measuring the filtered one.
+
+SECOND CORRECTION OF THE DAY, same failure mode. Earlier I claimed an L2 head
+"cannot reach a bound"; measurement showed it saturates clamp on 2.02% of
+Borehole coordinates. Both times a mechanism was asserted from a plausible
+argument and refuted by a cheap measurement that was available the whole time.
+
+CONSEQUENCE FOR H84'S REGISTERED PREDICTION. I registered P1 as unlikely to be
+met, on the basis that the ROI moves the teacher by only +0.010. Borehole
+ROI-Q10's first seed shows d(q-score) = +0.102, which would MEET P1's magnitude
+bar. That is n=1 and must not be over-read -- ROI-ANN at n=5 gives +0.034 -- but
+the evidence is now MIXED rather than pointing one way, and my pre-registered
+pessimism may turn out wrong. Recorded now, before the remaining seeds land.
+
+STATUS: EXPLORATORY. Borehole only; ROI-Q10 n=1, ROI-ANN n=5.
