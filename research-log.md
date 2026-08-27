@@ -902,3 +902,47 @@ STATUS: 22/34 done, 0 failures. Reproduction control 1/4 passed bit-identical
 (Hartmann s43, |dregret| and max|dx| both 0.000e+00); 3 running. h86 (ROI on
 Currin + Ackley, 10 runs) is written and GATED on all four controls passing.
 h85 (teacher refinement + HF floor) is written and queued behind compute.
+
+## 2026-08-27 — H84 and H86 complete (44 runs, 0 failures). What the ROI actually bought.
+
+RESULT, four benchmarks, h83's own metric and bar:
+
+  benchmark      MF-DRO h83   +ROI-Q10    delta   wins vs baseline   verdict
+  Currin_2D            0.01       0.13    +0.11        0/5           HARMED
+  Hartmann_6D          7.99       5.93    -2.05        4/5           BEATS MF-MES
+  Borehole_8D         15.82      11.59    -4.22        1/5           helps, still behind
+  Ackley_10D           3.83       3.74    -0.09        1/5           negligible
+
+The ROI helps two benchmarks, does nothing on one, and HARMS one. h83's PRIMARY
+finding -- MF-DRO beats no baseline anywhere -- no longer holds on Hartmann.
+"The ROI fixes MF-DRO" over-reads by two benchmarks.
+
+REGISTERED BARS: h84 P1 FAILED, P2 REFUTED, P3 MET, P4 FAILED. h86 P1 FAILED,
+P2 MET, P3 FAILED, P4 met only technically (and the bar was badly written -- an
+absolute 1-point threshold records "no harm" on a benchmark whose regrets are
+~0.01 while the data show harm on 5/5 seeds). Six of eight registered bars
+failed or were refuted. The results that survived were mostly NOT the ones
+predicted.
+
+THE CLAIM THAT DOES NOT DEPEND ON ANY OF THIS. Fixed beta cannot set ROI
+tightness, along three measured axes: across benchmarks (12.6%-100%
+acceptance), within a single run (250x on Borehole), and across SEEDS of the
+same benchmark (6.9x on Hartmann, 3.6% to 24.9%). Calibration collapses all
+three to 1.0x while solving beta_t anywhere in 0.48-12.29. This is an argument
+about controllability, not performance, and it holds whichever benchmarks
+benefit.
+
+METHODOLOGICAL COST OF THIS PAIR OF EXPERIMENTS -- worth recording because it
+was large. Six refuted mechanism claims (Lesson 23), four of them erring by
+UNDERESTIMATING the intervention, each from an argument about why something was
+impossible rather than a measurement of its size. Two process lessons: controls
+must run FIRST (21), and the PRIMARY metric must be the statistic the objective
+depends on (22). Three corrections to numbers I had already published or
+written down, including ROI-FIX2 on Hartmann moving +6.32 (n=2) -> +0.36 (n=3)
+-> -0.26 (n=5) across three separate reports of the same arm.
+
+NEXT: h87 is running -- the clean confirmation of the Hartmann flip at fresh
+seeds 47-51 with q=0.10 fixed in advance and one arm only, carrying a falsifier
+that withdraws the flip if it fails. Its comparator finished first (Lesson 21)
+and revealed that seeds 47-51 are 3.27 pts harder for MF-MES and three times as
+dispersed, which was recorded before any treatment run completed.
