@@ -12571,3 +12571,53 @@ seeds — an axis that could not refute it. The fix is not "replicate along the
 axis the claim is about", though that is true. It is that **the available axis
 wins unless something forces the question "what is this claim actually about?"**
 Same shape as the calibration failures: the rule exists and does not fire.
+
+## h135 — The full 2x2 at n=10. The combination is the project's strongest result, and "0.11 from additive" needs correcting.
+
+CONFIRMATORY, zero compute. Borehole, seeds 42-51, paired, **rel% of |optimum|
+@cost_curve 200** via h83's frozen `sr_curve` + `grid`. Both gates verified to
+partition with `tools/check_gate.py` **before** registration.
+
+    cell        mean regret        contrast              mean     sd  effect  better
+    control          15.780        ROI  - control      -3.857  2.436    1.58    9/10
+    ROI              11.923        L1   - control      -2.211  1.778    1.24    9/10
+    L1               13.568        both - control      -5.958  2.646    2.25   10/10
+    both              9.822
+
+**P1 PASSES: the combination gives -5.958% of optimum at effect 2.25, better on
+10 of 10 seeds.** That is the strongest configuration in this project and the
+number a write-up should lead with, ahead of the ROI alone at -3.857.
+
+**P3 (no direction registered) — the combination beats each component
+separably:**
+
+    both - ROI-only   -2.101  sd 1.048  effect 2.00  10/10
+    both - L1-only    -3.747  sd 2.321  effect 1.61  10/10
+
+So this is not a case where one intervention carries the pair.
+
+### P2 verdict ADDITIVE — and the correction I registered in advance
+
+    interaction, per seed: -0.65 +1.62 +0.49 -0.33 +1.69 +3.99 -1.09 -4.02 +2.25 -2.86
+    mean +0.110   sd 2.420   |mean|/sd 0.05   -> ADDITIVE by the registered gate
+
+The gate says additive. **The honest statement is weaker, and I registered before
+looking that this would be a correction rather than a finding.**
+
+**"0.11 from additive" was quoted in this record as though it were precise. It is
+a point estimate with a standard deviation of 2.420 sitting behind it** — twenty-
+two times the estimate itself. The per-seed interactions run from -4.02 to +3.99.
+With n=10 the sem is 0.765, so what the data supports is:
+
+> **No detectable interaction.** An interaction as large as roughly +-1.5 points
+> is entirely consistent with these runs — about a quarter of the combined effect
+> of -5.958. Large interactions are excluded; modest ones are not.
+
+"The two interventions compose additively" and "we cannot detect an interaction"
+are different claims, and only the second is supported. The earlier "0.11 from
+additive" and "95% of the way to fully additive" framings should be read as the
+second from now on.
+
+This is the fourth time today a small number turned out to be small only relative
+to a spread nobody had computed — after the near-zero denominators, the
+rank-off-a-tie, and the two-seed-set "asymmetry".
