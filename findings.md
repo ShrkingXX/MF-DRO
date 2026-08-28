@@ -11326,3 +11326,75 @@ alone, and it is a property of the benchmark's cost ratio, not of MF-DRO.
 where the waste was measured and where ~12 HF queries make it noisy; Borehole is
 where the ROI works, has 94 HF queries, and is where every mechanism result in
 this project was actually obtained.
+
+## h129 P6 — FAILS, and it REFUTES the regulariser reading I floated one hour ago
+
+Ackley_10D, seeds 42-46, paired, q=0.10 (h83 control vs h86 ROI-Q10):
+
+    per-seed HF frac   42:0.930->0.930  43:0.952->0.976  44:0.952->0.909
+                       45:0.976->0.830  46:0.976->0.976
+    per-seed HF count  42:40->40  43:40->40  44:40->40  45:40->39  46:40->40
+
+    control 0.9572  ROI 0.9241  shift -0.0332  sd 0.0674  effect 0.49  2/5 down
+
+P6 required >=4/5 down and effect >=0.78. **It fails on both.**
+
+### Why this refutes rather than merely fails to support
+
+The regulariser hypothesis says the ROI pulls the fidelity mix toward the middle
+from wherever the control sits. Its magnitude form makes a clear prediction: the
+**more extreme** the control, the **larger** the movement. All three at q=0.10,
+paired, seeds 42-46:
+
+    bench          ctrl HF frac   ROI    shift     effect   dist. from 0.5
+    Ackley_10D           0.957   0.924  -0.0332     0.49        0.457
+    Borehole_8D          0.883   0.739  -0.1439     1.65        0.383
+    Hartmann_6D          0.200   0.256  +0.0561     0.78        0.300
+
+**The ordering is wrong.** Ackley's control is the most extreme and moves the
+LEAST. Borehole is less extreme and moves 4.3x further. The hypothesis predicted
+the opposite ordering, so this is a refutation of its magnitude form, not a null.
+
+I floated "the ROI is a regulariser of the fidelity mix" on the strength of two
+benchmarks whose controls happened to sit on opposite sides of 0.5. Two points
+with opposite signs will always look like a pull toward the middle. **That is the
+same shape of error as fitting a line to two points and calling it a trend** —
+the third point was available in the repository the whole time.
+
+### The mechanical reason, which was in the caveat I registered first
+
+40 HF x c_H=5.0 = 200.0, the entire post-init budget. Ackley's HF **count** is 40
+in every control run and in four of five ROI runs — the ROI moves it by one query
+across all five seeds. The HF fraction shifts only because the LF count varies
+between 1 and 3. The mix on Ackley is pinned by budget geometry, and the ROI does
+not unpin it.
+
+Note the ceiling explains why Ackley cannot move *much*, but not why Borehole
+moves *more than Hartmann*, which is the part that breaks the ordering. So the
+ceiling is a partial excuse at best; I am not going to lean on it.
+
+### Where this leaves the fidelity mechanism
+
+**It is Borehole-specific.** The ROI substantially moves the fidelity mix on
+exactly one of three benchmarks — the one where it helps. Effects: 1.65, 0.78,
+0.49. Only the first clears this project's effect-size bar of 0.5 sd by any
+margin. That is consistent with h121 (the waste and the benefit are on different
+benchmarks) and it now extends to the mechanism: **the mechanism, like the
+benefit, lives on Borehole alone.**
+
+### Registered-prediction scoreboard for h129
+
+    P1  h127 q=0.30 HF frac 0.808 +- 0.020   PENDING (h127 still running)
+    P2  h127 q=0.30 benefit 2.21%            PENDING
+    P3  h128 q=0.493 HF frac 0.839 +- 0.012  PASSES, uninformative (see below)
+    P4  Hartmann-style quality flat on Bore. FALSIFIED (quality rises, 2.66)
+    P5  quality improves on Hartmann too     FAILS (0.02) -- no dissociation
+    P6  Ackley shifts down >=4/5             FAILS (0.49, 2/5) -- refutes P5's reading
+
+Four of six locked predictions failed. **P3's pass is the one I trust least**: the
+peer supplied per-seed values giving a paired shift of -0.0529, sd 0.0492, effect
+1.08, 5/5 down, and a mean of 0.8300 inside my 0.827-0.851 band by 0.003. But the
+paired sem is 0.0220, **1.8x my band's half-width** — I stated an uncertainty
+narrower than the data supports, and a band of ~0.79-0.87 would have passed just
+as well. Recording it as consistent-but-uninformative, which is the reading my
+pre-registered caveat makes available rather than a retrofit.
