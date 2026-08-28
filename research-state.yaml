@@ -55,7 +55,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 19:20, h90 in flight
+last_updated: 2026-08-27  # 20:0x, code audit: ROI never reached a real query
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -254,7 +254,47 @@ queued_experiments:
     report. [RESOLVED: h89 confirmed it in DIRECTION (4/5) but at 36% of size --
     -2.11, not -5.85. h90 adds a THIRD seed set, 47-51.]
 
+  h94-roi-at-inference: >
+    PROTOCOL LOCKED, NOT LAUNCHED, implementation held OUT of src/ as a patch.
+    Follows from a CODE AUDIT, not an experiment: **the ROI has never been
+    applied to a real query.** use_roi=True restricts only
+    simulate_mf_trajectory's teacher pool; the real query is
+    action_head(h).clamp(0,1) at mf_dro.py:3090 and no ROI symbol appears
+    anywhere between that call and the query being issued (only fidelity
+    overrides). Every ROI number in this project is therefore a SECOND-ORDER
+    effect through a lossy imitation channel -- teacher proposes in-ROI ->
+    actions_x -> L_loc MSE -> the head's weights shift -- not the DRO paper's
+    Sec 4.2 constraint on WHERE YOU QUERY. This is the best structural
+    explanation on hand for the ROI's signature (real but small on Borehole,
+    negligible on Ackley, harmful on Currin, withdrawn on Hartmann): an
+    intervention filtered through imitation should be weak and inconsistent.
+    It fits h88's reframing -- MF-DRO builds a BETTER global surrogate than
+    MF-MES and fails to convert it into queries; the ROI aims at that
+    conversion step and then never touches it.
+    DESIGN: Borehole seeds 47-51, arms A=NO-ROI and B=ROI-Q10 REUSED from h90,
+    C=ROI-PROJECT (snap to nearest in-ROI candidate) and D=SNAP-CONTROL (snap to
+    nearest of an UNFILTERED pool) run fresh. 10 new runs.
+    **Arm D is the point of the design**: it separates quantizing the DT's
+    output onto a finite pool -- a crude relative of the EXCLUDED pool+argmax
+    mechanism -- from restricting it to the ROI. If D explains C, the honest
+    conclusion is that the excluded mechanism resurfaced, not that the ROI
+    works, and it will be reported in those words.
+    P1 (C vs D, the discriminator) is registered as GENUINELY UNCERTAIN: seven
+    of eight mechanism claims this session were refuted. P5 checks the
+    manipulation took at all (>50% of queries actually snapped) before P1/P3
+    are allowed to mean anything.
+    TWO GATES: G1 bit-identity under use_roi=False -- NOT YET PERFORMED, the
+    check exceeded 2 min because MF-DRO trains 4000 iterations before its first
+    real query, and was abandoned rather than compete for cores at the cap. No
+    H94 result may be reported before G1 passes. G2: workers <=5 and h90
+    complete (it supplies A and B).
+
 open_questions:
+  - Does the ROI applied to the QUERY (h94 C) beat the ROI applied to the
+    TEACHER (h84/h90 B)? The audit says the latter is a lossy proxy for the
+    former; no experiment has ever tested the former.
+  - Is any h94 gain attributable to the ROI, or to snapping onto a finite pool
+    (arm D)? The second would be the excluded mechanism, not a contribution.
   - Does a controlled ROI raise mean HF query quality (h84 P1)?
   - Does query quality translate to lower final regret (h84 P3, stated separately)?
   - MI-Greedy and MF-GP-UCB under-optimise on Ackley/Hartmann (beat their own

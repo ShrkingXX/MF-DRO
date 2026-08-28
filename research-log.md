@@ -1123,3 +1123,53 @@ Supporting rules now standing (findings.md Lessons 21-23):
   already-solved benchmark) and no test.
 - The RTG/reward signal and the state representation remain untouched by any
   measurement this session.
+
+## 2026-08-27 ~20:00 — CODE AUDIT: the ROI has never been applied to a real query
+
+Not an experiment. A fact about the execution path, found by reading it.
+
+`use_roi=True` restricts `simulate_mf_trajectory`'s `roi_candidates` — the pool
+the TEACHER draws demonstrations from. The real query comes from one call
+(`mf_dro.py:3090`) into `propose_mf`, which with `use_candidate_scoring=False`
+— the setting every experiment here used, because pool+argmax is excluded —
+returns `action_head(h).clamp(0.0, 1.0)`. Between that call and the query being
+issued, the only modifications are FIDELITY overrides. No ROI symbol appears in
+that path at all.
+
+So every ROI result in this project measured the ROI through an imitation
+channel: teacher proposes in-ROI → `actions_x` → `L_loc = MSE(x_pred, actions_x)`
+→ weights shift → the emitted x moves *somewhat* toward where the ROI was. DRO
+Sec 4.2 defines X_hat as a constraint on the QUERY. What was implemented is a
+constraint on the DEMONSTRATIONS.
+
+This is the best structural account I have of the ROI's signature — real but
+small on Borehole, negligible on Ackley, harmful on Currin, withdrawn on
+Hartmann. An intervention filtered through imitation should be weak and
+inconsistent across problems, which is what was measured. It also fits h88: MF-DRO
+builds a *better* global surrogate than MF-MES and fails to convert it into
+queries. The ROI targets exactly that conversion step, and then never touches it.
+
+Three things I am NOT claiming. This does not rescue any withdrawn result. It
+does not predict the SIGN of an inference-time ROI — a constraint that excludes
+the DT's preferred point can easily hurt, and Currin is already harmed by the
+training-only version. And it does not mean the imitation channel carries no
+signal; ROI-on and ROI-off runs really do differ.
+
+H94 tests the paper's version. Its arm D — snap to an UNFILTERED pool — exists
+because "enforce the ROI at inference" is one bad step from the excluded
+pool+argmax mechanism, and I would rather detect that empirically than trust my
+own argument that I avoided it.
+
+Implementation written, then deliberately REVERTED out of `src/`: a concurrent
+session has workers up and jobs still to launch, and a new worker imports
+`mf_dro.py` at process start, so a working-tree edit would reach another
+experiment's runs. It lives as a patch verified to re-apply byte-exactly. The
+bit-identity gate has NOT been run yet — it needs cores that do not exist right
+now, and no H94 result may be reported before it passes.
+
+Also this tick: **withdrew my own compute-cap alarm.** I reported 27 workers on
+15 cores and framed it as another session breaching the rule. There were 15 real
+workers; the launcher's argv carries sixteen job strings and my per-PID grep
+attributed it many times over. Load average 21.7 was consistent with 15 and I
+did not reconcile it. Session B's deviation note was accurate as written.
+`src/analysis/worker_count.sh` now counts only worker processes WITH job args.
