@@ -2115,3 +2115,38 @@ validated (h117 GATE G0, plus 414 queries across three commits from h120).
 
 The consolidated position for the primary question is in research-state.yaml
 under CONSOLIDATED POSITION.
+
+### CORRECTION to the handover note above (same session, before stopping)
+
+Two errors in what I wrote, both caught after the fact — one by the peer, one by
+my own check prompted by theirs. A handover is the worst place for an unchecked
+assertion, so both are corrected here.
+
+**1. "One added field" understates the tree.** `git diff src/` is **129
+insertions** across two files, not one line. Breakdown by origin:
+
+| change | origin | gated? |
+|---|---|---|
+| `'n_real_iter'` tag on `roi_stats` records | mine, today | **NO — h136 never ran** |
+| `loc_loss` selector | h102 | yes (h105, h109) |
+| `actions_x` variance tracking | h117 | yes |
+| `_roi_snap()` + hook, ~60 lines incl. docstring | h94 | yes |
+
+Only my one line is ungated, so the warning was right about what matters — but
+anyone running `git diff` sees 129 lines with no way to tell which are covered.
+
+**2. I told the peer the h94 hook is "dormant unless `roi_inference_mode` is set,
+which nothing does". That is FALSE.** `experiments/h94-roi-at-inference/code/worker.py`
+sets it at lines 43 and 49 — `roi_inference_mode='project'` and `'snap_control'`
+— for its two arms, whose results exist at seeds 47-51.
+
+The hook is dormant for every OTHER experiment's worker, which is what makes the
+gated patches safe for the arms we have been running. But "nothing sets it" was
+an assertion I made without grepping, in a note written for someone else to rely
+on. The accurate statement: **the h94 hook is exercised only by h94's own
+ROI-PROJECT and SNAP-CONTROL arms and is inert for every other worker in the
+repository.**
+
+**Patch NOT reverted.** Nothing will launch, so the gate condition does not
+trigger, and the peer judged silently reverting another session's uncommitted
+work more invasive than recording it. I agree. It stays, documented, ungated.
