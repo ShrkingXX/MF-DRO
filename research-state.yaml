@@ -625,6 +625,12 @@ open_questions:
   effect 1.10, reproduced independently. Since the ROI acts by reshaping that target, it has little purchase.
   Requires NO claim about region placement, which h100''s unweighted-distance instrument could not decide.'
 - 'Boundary aversion: causal test (change the output parameterisation) still not run.'
+- 'h139 P1 (REGISTERED, awaiting the per-iteration accept_frac array): does a FIXED beta''s realized acceptance
+  rise or fall across a run? P2''s behavioural crossover says RISE (tight early, loose late), against
+  my own locked P1 which predicts a fall on the analytic argument. If it rises, ROI-FIX2 -- the best arm
+  on record -- is a de facto widening schedule, i.e. the paper''s beta_t implemented by accident, and
+  h133''s treatment of it as a rung at q=0.21 is void. Cheapest decisive experiment on the board: one
+  logged FIX2 run.'
 h116_relevance_blindness:
   status: COMPLETE. Locked prediction NOT supported (gate 0.17 / 0.10, needed 1.0).
   compute: zero new runs (re-analysis of h83).
@@ -1030,67 +1036,62 @@ wall_clock_cost: 'Borehole, stored _wall_s, minutes/run: no-ROI 82.4 (h83) and 1
   favour of the baseline that also beats us on regret (8/10) and on the diagnosis''s own metric (9/10).
   Does not change the frozen metric (evaluation cost, matched at 200 post-init) but the honest contribution
   must state it.'
-
-# ===========================================================================
-# CONSOLIDATED POSITION — 2026-08-28 09:20. Read this before the appends above.
-# ===========================================================================
 PRIMARY_QUESTION_STATUS:
-  question: "An ROI strategy that stops MF-DRO wasting HF budget on low-value regions."
-  answer_so_far: >
-    PARTIAL AND NEGATIVE. Tightness is a real lever (h125) but everything the
-    ROI does, it does on Borehole; on Hartmann -- where the diagnosis was taken
-    and where the waste is largest -- it moves neither regret nor quality.
+  question: An ROI strategy that stops MF-DRO wasting HF budget on low-value regions.
+  answer_so_far: 'PARTIAL AND NEGATIVE. Tightness is a real lever (h125) but everything the ROI does,
+    it does on Borehole; on Hartmann -- where the diagnosis was taken and where the waste is largest --
+    it moves neither regret nor quality.
 
+    '
   what_is_established:
-    tightness_is_a_lever: >
-      h125: q=0.100 vs q=0.493 (5x, both realized to 3 decimals) gives Borehole
-      regret +9.018, effect 5.69, 5/5. The prior "tightness is a null axis" failed
-      because every study behind it was a 2x contrast or narrower.
-    dose_response_shape: "Flat below q=0.10; steep degradation by q=0.5. Useful region q<=0.10."
-    loose_forfeits_not_harms: >
-      h128: q=0.493 gives -1.31% vs control (effect 0.54, 3/5) against q=0.100's
+    tightness_is_a_lever: 'h125: q=0.100 vs q=0.493 (5x, both realized to 3 decimals) gives Borehole regret
+      +9.018, effect 5.69, 5/5. The prior "tightness is a null axis" failed because every study behind
+      it was a 2x contrast or narrower.
+
+      '
+    dose_response_shape: Flat below q=0.10; steep degradation by q=0.5. Useful region q<=0.10.
+    loose_forfeits_not_harms: 'h128: q=0.493 gives -1.31% vs control (effect 0.54, 3/5) against q=0.100''s
       -4.22% (1.74, 5/5). Loose forfeits ~69% of the benefit; it is NOT harmful.
-    roi_benefit_pooled: "-3.86% of optimum, effect 1.58, 9/10 seeds (n=10, pooled)."
-    composite_is_strongest: >
-      ROI+L1 -5.958%, effect 2.25, 10/10, beating each component separably.
-      Interaction NOT DETECTABLE (sd 2.420 vs estimate 0.110) -- not 'additive'.
-    boundary_waste_replicates: >
-      h117 all six predictions PASS at seeds 52-56: 10.0% of HF queries off the
-      boundary vs MF-MES 0.2%, effect 2.40. But h118 showed it does NOT predict
-      regret, so it is a real inefficiency that is not why MF-DRO loses.
-    nothing_generalises: >
-      h130 + peer h129 P6: four mechanisms (regret benefit, fidelity mix, boundary
-      mass, query quality) x four benchmarks = one positive cell each time, always
-      Borehole.
-    diagnosis_reproduces_exactly: >
-      Formula recovered from h84/analyse.py: (y - best_init_HF_y)/(-y_opt -
-      best_init_HF_y). Gives Hartmann 0.3362 / 0.7470 / 20.83% against the
-      recorded 0.336 / 0.747 / 20.8%. The deficit exists on Borehole too (gap
-      0.29-0.31 vs Hartmann's 0.41) -- so the ROI attacks a real deficit, just not
-      on the benchmark where it was diagnosed.
-    costs: >
-      ROI wall-clock ~1.2-1.7x no-ROI (NOT 1/q -- refuted; load confound is the
-      size of the effect). MF-MES runs 16-29x faster than MF-DRO and is ahead on
-      the frozen metric and on the diagnosis's own score.
 
+      '
+    roi_benefit_pooled: -3.86% of optimum, effect 1.58, 9/10 seeds (n=10, pooled).
+    composite_is_strongest: 'ROI+L1 -5.958%, effect 2.25, 10/10, beating each component separably. Interaction
+      NOT DETECTABLE (sd 2.420 vs estimate 0.110) -- not ''additive''.
+
+      '
+    boundary_waste_replicates: 'h117 all six predictions PASS at seeds 52-56: 10.0% of HF queries off
+      the boundary vs MF-MES 0.2%, effect 2.40. But h118 showed it does NOT predict regret, so it is a
+      real inefficiency that is not why MF-DRO loses.
+
+      '
+    nothing_generalises: 'h130 + peer h129 P6: four mechanisms (regret benefit, fidelity mix, boundary
+      mass, query quality) x four benchmarks = one positive cell each time, always Borehole.
+
+      '
+    diagnosis_reproduces_exactly: 'Formula recovered from h84/analyse.py: (y - best_init_HF_y)/(-y_opt
+      - best_init_HF_y). Gives Hartmann 0.3362 / 0.7470 / 20.83% against the recorded 0.336 / 0.747 /
+      20.8%. The deficit exists on Borehole too (gap 0.29-0.31 vs Hartmann''s 0.41) -- so the ROI attacks
+      a real deficit, just not on the benchmark where it was diagnosed.
+
+      '
+    costs: 'ROI wall-clock ~1.2-1.7x no-ROI (NOT 1/q -- refuted; load confound is the size of the effect).
+      MF-MES runs 16-29x faster than MF-DRO and is ahead on the frozen metric and on the diagnosis''s
+      own score.
+
+      '
   what_is_open:
-    - "h123: the paper's beta_t schedule. Registered, NO DIRECTION, sharp M1
-       ([0.25,0.30] run-mean acceptance). Never run. The one specified lever
-       nobody has pulled."
-    - "h126 (q=0.02, below the plateau) lands ~10:24; h127 (q=0.30) ~74%."
-    - "The ROI's Borehole benefit has NO identified mechanism: dispersion,
-       boundary resolution, fidelity mix and query-quality generality are all
-       ruled out or Borehole-confined."
-
+  - 'h123: the paper''s beta_t schedule. Registered, NO DIRECTION, sharp M1 ([0.25,0.30] run-mean acceptance).
+    Never run. The one specified lever nobody has pulled.'
+  - h126 (q=0.02, below the plateau) lands ~10:24; h127 (q=0.30) ~74%.
+  - 'The ROI''s Borehole benefit has NO identified mechanism: dispersion, boundary resolution, fidelity
+    mix and query-quality generality are all ruled out or Borehole-confined.'
   METRIC_RULES_THE_HARD_WAY:
-    - "State the statistic, the READ POINT, the QUANTITY, and WHICH CELLS."
-    - "cost_curve is POST-INIT for MF-DRO and CUMULATIVE for MF-MES. Cross-method
-       comparisons must use end-of-run; within-MF-DRO use @cost_curve 200."
-    - "A bar is portable only to the statistic AND benchmark scale it was
-       measured on."
-    - "A gate that cannot reach the changed line is not a gate."
-    - "A verdict NAME is part of the registration; residual categories drift
-       toward asserting the null."
-    - "Report the difference and its spread, never a ratio, when the denominator
-       is itself an effect that might be null."
-    - "When you retract a claim, find every surface it was published on."
+  - State the statistic, the READ POINT, the QUANTITY, and WHICH CELLS.
+  - cost_curve is POST-INIT for MF-DRO and CUMULATIVE for MF-MES. Cross-method comparisons must use end-of-run;
+    within-MF-DRO use @cost_curve 200.
+  - A bar is portable only to the statistic AND benchmark scale it was measured on.
+  - A gate that cannot reach the changed line is not a gate.
+  - A verdict NAME is part of the registration; residual categories drift toward asserting the null.
+  - Report the difference and its spread, never a ratio, when the denominator is itself an effect that
+    might be null.
+  - When you retract a claim, find every surface it was published on.

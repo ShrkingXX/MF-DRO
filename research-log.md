@@ -2055,3 +2055,33 @@ exists on Borehole too** (0.3130, effect 2.15) against Hartmann's 0.411 — so t
 Borehole work has been attacking a deficit that is genuinely present there, which
 had never been established. "Worse than initial design" runs 6.79% -> 2.16% ->
 0.24%.
+
+## 2026-08-28 (cont.) — h139: the best arm may already BE the paper's beta_t
+
+Noticed I held three beliefs about ROI-FIX2 that cannot all be true: the analytic
+argument (a fixed beta contracts the set as sigma shrinks, so it should loosen
+early and tighten late), h133's measurement that FIX2 does NOT stall late, and the
+wall-clock anomaly that FIX2 costs more than a tighter arm. Registered h139 before
+any data existed, naming what dies under each outcome.
+
+**P2, an indirect test on existing runs, PASSES with a clean crossover.** FIX2's
+early phase tracks the tight arm (1.019 away from Q10, 4.576 from ANN) and its
+late phase tracks the loose one (0.727 from ANN, 2.043 from Q10). **Tight early,
+loose late — a widening trajectory**, which is the opposite of my own locked P1.
+
+If the logged array confirms it, **ROI-FIX2 — the best-performing arm on record
+(-4.814 rel%, effect 4.67, 5/5) — is a de facto widening schedule: the direction
+the paper's `beta_t` subscript specifies, implemented by accident in an arm
+labelled "fixed".** One mechanism reconciles all three beliefs: tight early
+explains both the runtime and the front-loaded gain; loose late explains the
+absent stall.
+
+**Registered as a hypothesis, not a finding.** P2 is a proxy inferring acceptance
+from behaviour, and that inference holds only if acceptance drives phase
+behaviour — which h133 put in doubt. n=5, means not paired contrasts, no effect
+size claimed. The caveat was written before looking so a pass could not be quoted
+as settling P1.
+
+It also makes the peer's h123 comparator refusal right for a second reason:
+comparing an explicit schedule against FIX2 would have been schedule-vs-schedule
+with one of them mislabelled a constant.
