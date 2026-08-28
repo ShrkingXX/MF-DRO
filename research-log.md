@@ -1932,3 +1932,34 @@ a Borehole context and h111 applied it to Hartmann and Ackley. Checked rather th
 assumed: it flipped no verdict, because every cross-benchmark null also fails the
 unit-free criteria. One near-miss, my own. Rule extended — a bar is portable only
 to the statistic AND the benchmark scale it was measured on.
+
+## 2026-08-28 (cont.) — h133: the stall is a step, and pre-registration caught a second false positive
+
+Registered h133 before computing: if the late stall is over-restriction it must
+scale with tightness, and if it does not then h123's and h132's premises weaken
+before their runs are spent. Four Borehole arms with measured constant realized q
+already existed at seeds 42-46.
+
+**P1 failed on the statistic I pre-committed to.** Raw late-gain is monotone in q
+— 1.60, 3.65, 4.37, 5.19, a textbook dose-response. It is an artefact: arms ahead
+at cost 100 have less regret left to remove, and the ROI arms are ahead.
+Normalised by regret remaining at the midpoint it reads 10.51, 24.34, 22.06,
+24.45 and is not monotone. The confound was written into the protocol before the
+numbers existed, together with the rule that the normalised statistic governs.
+
+**The finding is a STEP.** The extreme pair separates (Q10 vs OFF, +13.94, effect
+1.08, 5/5); all three adjacent pairs are ties (0.81, 0.35, 0.19). q=0.10 recovers
+10.5% of the regret still available at the midpoint; everything from q=0.21 up
+recovers 22-24% and is mutually indistinguishable. So the stall belongs to the
+tightest setting, not to tightness as a graded quantity.
+
+**Two false positives today, both caught only by pre-registration**: this one and
+the dispersion instrument. Both would have produced clean monotone orderings that
+looked like results rather than artefacts. The peer's observation on the second is
+the sharper statement of the danger — the raw dispersion column was perfectly
+monotone across the three ROI arms, and only the arm one would be least likely to
+include broke it.
+
+Predictions handed to the peer before h123 launches: the ramp's shape should
+matter far less than whether it escapes q~0.10, and there should be a ceiling
+around q~0.21 above which no schedule endpoint buys anything.

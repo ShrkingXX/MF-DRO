@@ -961,7 +961,11 @@ current_direction: 'h131: the ROI is FRONT-LOADED and then STALLS. Full benefit 
   -- the head fits targets better exactly where regret stalls, the signature the training-distribution
   account requires. Correlational only; h132''s step arm is needed to separate ''distribution collapsed''
   from ''DT converged''. NEGATIVE: query dispersion is not a proxy for realized accept_frac (ranks 1,4,3,2
-  vs 1,2,3,4), so no dispersion-based ROI diagnostic is valid.'
+  vs 1,2,3,4), so no dispersion-based ROI diagnostic is valid. h133: the stall is a STEP not a gradient
+  -- q=0.10 recovers 10.5% of midpoint-available regret vs 22-24% for q=0.21/0.49/1.00, which are mutually
+  tied; extreme pair separates (effect 1.08, 5/5). Predicts a widening schedule''s SHAPE matters less
+  than escaping q~0.10, and a ceiling near q~0.21. P1''s raw form was monotone and an artefact -- second
+  false positive today caught only by pre-registration.'
 h120_amendment3_DISCHARGED_2026_08_28:
   result: 'Fresh ROI-OFF runs at Borehole seeds 44,45,46 are BIT-IDENTICAL to h83''s stored MF-DRO (137/140/137
     queries, 0 differing), across three different commits (26a9b9cd1, 15203e5cd, ee5ecafcc), all dirty=True,
