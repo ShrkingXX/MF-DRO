@@ -1017,6 +1017,49 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 </section>
 
 <section>
+  <p class="kicker">The result this investigation was for</p>
+  <h2>On the one benchmark where it really loses, the region removes 57% of the deficit</h2>
+  <div class="col">
+  <p>Ten seeds, matched to the comparison&rsquo;s own seed set for the first time. Every seed improves.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th></th><th class="n">Without the region</th><th class="n">With it</th><th class="n">Reference method</th></tr></thead>
+    <tbody>
+      <tr><td>Mean regret</td><td class="n">15.42</td><td class="n win">11.34</td><td class="n">8.24</td></tr>
+      <tr><td>Gap to the reference</td><td class="n">+7.18</td><td class="n win">+3.10</td><td class="n">&mdash;</td></tr>
+      <tr><td>Spread across seeds</td><td class="n">2.37</td><td class="n win">1.78</td><td class="n">4.68</td></tr>
+      <tr><td>Seeds improved by the region</td><td class="n" colspan="2"><strong>10 of 10</strong></td><td class="n">&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p>The improvement is <strong>1.73 times its own spread</strong> &mdash; the first threshold in this
+  work that demanded a size rather than a count of seeds, and the first to clear one. Four earlier bars
+  passed on counts alone at ratios of 0.16, 0.38, and effectively zero; this one was written after those
+  failures and states what it requires.</p>
+  <p>A second check earned more than it was asked for. The two seed sets were run months apart in
+  project-time and on <em>different code</em>, so the halves were compared to detect either seed
+  dependence or drift. They agree to <strong>0.30 points</strong>, and the older half reproduces its
+  original figure exactly &mdash; which retires a comparability assumption that had been argued rather
+  than measured.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">What it does not do</p>
+    <p><strong>It does not close the gap</strong>, and that was registered in advance as the expected
+    outcome so a real gain could not be inflated into a win. Paired seed by seed the method still loses
+    to the reference on 7 of 10, with mean and median both against it. The narrowing is from &ldquo;loses
+    by 7.18&rdquo; to &ldquo;loses by 3.10&rdquo;.</p>
+    <p><strong>And this is not the best setting.</strong> It uses the value every earlier number used,
+    which halving improves. So 57% is a floor, not a ceiling &mdash; and the better setting has not been
+    run at these seeds.</p>
+    <p>One thing worth noticing in the table: the reference method is better on average and
+    <em>far</em> less reliable, ranging from 0.83 to 15.44 across seeds against the region arm&rsquo;s
+    8.08 to 14.73.</p>
+  </div>
+</section>
+
+<section>
   <p class="kicker">Status</p>
   <h2>What is running and what is open</h2>
   <div class="col">

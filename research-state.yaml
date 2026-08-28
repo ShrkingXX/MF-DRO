@@ -85,7 +85,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-28  # 02:3x, q=0.05 supersedes q=0.10; mechanism unidentifiable; h106 finishing
+last_updated: 2026-08-28  # 03:0x, H106 COMPLETE -- 57% of the one real deficit removed, 10/10
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -379,7 +379,21 @@ queued_experiments:
     nothing. Quantizing onto a finite pool is a lottery, not a hidden source of
     the ROI's gain.
   h106-roi-closes-the-gap: >
-    RUNNING, 5 runs, Borehole ROI-Q10 at seeds 52-56. Seed-matches the ROI arm
+    **COMPLETE, 5/5, 0 failures. ALL THREE BARS MET.** Calibration gate observed
+    on every run (accept 0.0998-0.0999 vs a 0.10 target; n_distinct 600).
+      Q1 PRIMARY  ROI vs no-ROI  mean -4.08  sd 2.36  ratio 1.73  **10/10**
+      Q2 NEGATIVE gap to MF-MES 7.18 -> 3.10, **57% closed**, still behind
+      Q3 HALVES   42-46 -4.22 | 52-56 -3.93 | split 0.30
+    Q1 is the FIRST bar this session to state an effect size and meet it (four
+    earlier bars passed on counts/signs at ratios 0.16, 0.38, ~0).
+    Q3 also corroborates the REASONED code-comparability claim: the halves ran on
+    different code and agree to 0.30, and 42-46 reproduces h84's -4.22 exactly.
+    PAIRED, both statistics: MF-DRO+ROI still loses to MF-MES 3/10, mean +3.10,
+    median +3.46. The ROI TIGHTENS the arm (sd 2.37 -> 1.78) while MF-MES sits at
+    4.68 (range 0.83-15.44) -- better on average, far less reliable.
+    NOT LICENSED: generalisation beyond Borehole, or 'best setting' -- this is
+    q=0.10 and q=0.05 is separably better, so **57% is a floor, not a ceiling**.
+    (superseded RUNNING note) 5 runs, Borehole ROI-Q10 at seeds 52-56. Seed-matches the ROI arm
     to the n=10 comparison for the first time (ROI was at 42-46 and 47-51; the
     comparison uses 42-46 and 52-56). Asks whether the one intervention that
     works reduces the one deficit that is real. Q1 requires the paired mean to
