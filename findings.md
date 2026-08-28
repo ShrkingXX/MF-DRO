@@ -5420,3 +5420,38 @@ are also the edits most likely to disturb a neighbouring one.
 This audits ARITHMETIC, not interpretation. It does not revalidate any of the
 session's conclusions; those rest on the pre-registered bars and the fresh-seed
 re-tests, not on these figures being transcribed correctly.
+
+### CORRECTION (second attempt): h90's actual scope, and a reading error of my own
+
+I have described session B's h90 two ways, and both were wrong:
+
+  1. "independently confirming teacher refinement at seeds 47-51" -- partially
+     right, stated without checking.
+  2. "that was wrong; it re-tests the ROI's Borehole gain" -- a correction that
+     introduced a different error.
+
+**h90 runs THREE arms at seeds 47-51: NO-ROI, ROI-Q10, and REFINE-100** (15 runs,
+confirmed from its launcher and its protocol's Amendment 2). It tests BOTH.
+
+WHY I GOT THE "CORRECTION" WRONG. I read h90's protocol design table, which
+lists two arms, and did not read its amendments. Amendment 2 adds the third arm;
+Amendment 3 records that the overlap with my h89 is deliberate and complementary
+and should not be trimmed. I have appended amendments to my own protocols
+roughly a dozen times today -- h84 had four -- so a protocol's table being
+superseded by its amendments is a structure I created and then failed to check
+for in someone else's document.
+
+WHAT THE ACTUAL SCOPE BUYS. Teacher refinement now has THREE independent seed
+sets on Borehole:
+
+  h85  seeds 42-46   -5.85 pts (5/5)   original measurement
+  h89  seeds 52-56   -2.11 pts (4/5)   confirmed, 36% of size
+  h90  seeds 47-51   pending           session B, independent
+
+That is stronger replication evidence than anything else in this project. If
+h90 lands near -2.11, the effect size is settled across three seed sets; if it
+lands near -5.85 or near zero, the effect is real in direction but its magnitude
+is unestimable at n=5, which is itself a finding worth stating.
+
+h90 also carries the ROI's Borehole gain (-4.22), the last untested ROI claim
+and the direct answer to this session's primary question.
