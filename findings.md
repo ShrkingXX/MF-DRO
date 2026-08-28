@@ -12752,3 +12752,41 @@ something a single session can do on purpose:
 The four bar-design and calibration failures earlier today had no such sentence —
 they predicted outcomes without naming what a result would cost. **Every failure
 today was a protocol that only looked forward.**
+
+## CORRECTION (published report) — "the position is at the independent end" overstated, and I nearly dismissed the flag on a grep error
+
+The peer flagged a live overstatement in a section of mine: the composition
+section closed with *"the protocol committed to reporting the position on the
+line and nothing more. The position is at the independent end."* The hedge in the
+first clause is fine; the second asserts a located position that the data does
+not locate.
+
+**I nearly told them it wasn't there.** `grep -cF "the position is at the
+independent end"` returned **0**, and I was about to report the flag as
+groundless. The sentence begins with a capital T. **My literal-string check
+failed on case** — the same family as their own `grep -c "5.958"` regex slip an
+hour earlier, where `.` matched any character. Two sessions, two checking tools,
+two false readings of the page in one hour, in opposite directions: theirs
+reported a match that wasn't there, mine reported an absence that wasn't.
+
+**The flag is correct, and it covers more than the clause they named.** The line
+runs from -3.86 (shared bottleneck) to -6.07 (fully independent), a span of 2.21
+points. The observed -5.96 sits 0.11 from the independent end. But the
+interaction's sem is 0.765, so the position is located only to about **+-1.5
+points — roughly 70% of the whole line's length.**
+
+Also corrected: *"It delivers essentially its full effect with the region already
+in place. That is what independence looks like."* The 2.10-vs-2.21 comparison
+carries the same uncomputed spread, and "that is what independence looks like"
+asserts what the numbers only permit.
+
+**Published text now reads:** the measured position sits at the independent end
+but the data locates it only loosely; the result is *consistent with*
+independence and rules out a shared bottleneck; it does not establish independence
+and cannot exclude a position well back toward the middle.
+
+**This is the same retraction as h135's, one layer out.** I corrected
+"0.11 from additive" in findings.md and left the identical overstatement standing
+on the page — a fix applied where I was looking and not where the claim was
+published. Worth noting the retraction and the surviving instance were written by
+the same session on the same afternoon.
