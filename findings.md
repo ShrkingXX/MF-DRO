@@ -13064,3 +13064,87 @@ Audited my own published claims for it: h117, h118, h121, h130 are query-space
 statistics with no cost read; h125/h128/h133 and the pooled estimate are
 MF-DRO-internal. **No published claim of mine is affected.** The only instance
 was the h137 recomputation above, which I had not yet reported.
+
+## HAZARD — `cost_curve` is NOT a common axis across MF-DRO and MF-MES
+
+A peer session found this while verifying h137 and got MF-MES 6.703 against my
+5.996. **The discrepancy was theirs, and the hazard is the most consequential
+read-point problem of the day.**
+
+    src/policy/mf_dro.py:3640          'cost_curve': [post_init_cost ...]   POST-INIT
+    src/baselines/mf_mes_takeno.py:410  cost = len(Y_hf)*c_H + len(Y_lf)*c_L  CUMULATIVE
+
+They differ by exactly the initial design (40 on Borehole). Verified directly:
+
+    arm       sr_curve axis end   stored cost_curve end   raw cost_cum
+    MF-DRO               200.00                  200.00         240.00
+    ROI+L1               201.00                  201.00         241.00
+    MF-MES               200.00                  240.00         240.00
+
+**Reading both at the stored `cost_curve == 200` compares MF-DRO at 200 post-init
+against MF-MES at 200 cumulative — 160 post-init.** That silently hands our own
+method 25% more budget in a *competitive* comparison, through a key with the same
+name in both files.
+
+**h137 is unaffected and the reason is worth stating.** The frozen metric does not
+read the stored field: `sr_curve` recomputes `cost_cum - init_cost` from the query
+trace, so it places every method on the post-init axis regardless of what the file
+stores. Post-init HF counts confirm matched budget: 93 (MF-DRO), 89 (ROI+L1),
+86-93 (MF-MES). **My 5.996 is the matched figure; 6.703 is MF-MES with a quarter
+less budget.** The frozen metric protected the result by construction.
+
+**Why this ranks above the day's other read-point errors.** The earlier ones were
+units or which quantity was named, and effect sizes survived every one. This one
+changes **how much budget each method gets**, biases a competitive comparison
+toward our own method, and is invisible at the read site.
+
+**Rule:** within MF-DRO arms, `@cost_curve 200` is matched and end-of-run is
+contaminated by overshoot — h125, h128, h133, h135 and the pooled -3.86 are all
+fine. **Across MF-DRO and MF-MES the stored `cost_curve` is not a common axis at
+all**; use `sr_curve`, which rebuilds it. This morning's agreement — "state the
+read point" — was necessary and not sufficient: **the read point is not
+well-defined until you also state whose axis you are on.**
+
+The peer audited their own published claims: h117, h118, h121, h130 are
+query-space statistics with no cost read, the rest MF-DRO-internal. None affected.
+
+## h138 — the diagnosis's own metric, on the benchmark where the fix works. P1 PASSES, P2 STILL BELOW.
+
+CONFIRMATORY, zero compute, registered before computing. Borehole, seeds 42-51
+(n=10), paired, h84 `analyse.py:score` — the founding diagnosis's own formula.
+Query-space statistics, so the cost-axis hazard above does not touch them, and
+both methods have 200 post-init budget.
+
+    arm        mean HF query score   frac worse than init   n_hf
+    control                 0.4049                 0.0679   93.6
+    ROI+L1                  0.5771                 0.0216   86.6
+    MF-MES                  0.7179                 0.0024   85.4
+
+**P1 PASSES.** ROI+L1 - control = **+0.1722, sd 0.0494, effect 3.49, 10/10** —
+the largest effect measured in this project. The composite moves the diagnosis's
+own metric decisively, and at n=10 rather than the n=5 single-arm result h129 P4
+rested on.
+
+**P2 = STILL BELOW.** ROI+L1 - MF-MES = **-0.1408, sd 0.1205, effect 1.17, higher
+on 1/10 seeds.** Per-seed all negative but one.
+
+### The diagnosis's property is NOT a Hartmann-only fact
+
+I registered that if MF-MES's Borehole score were not far above MF-DRO's, then the
+0.336-vs-0.747 gap would be a Hartmann fact and every Borehole mechanism result
+would answer a question nobody asked. **That retraction is not triggered:**
+
+    Hartmann (the diagnosis)   MF-DRO 0.336   MF-MES 0.747   gap 0.411
+    Borehole (h138, n=10)      control 0.4049 MF-MES 0.7179  gap 0.3130, effect 2.15
+
+**The gap the diagnosis identified exists on Borehole too, nearly as large.** So
+the Borehole work has been addressing the diagnosed deficit on a benchmark where
+that deficit is real — which is a better position than the record has assumed.
+
+ROI+L1 closes 0.1722 of that 0.3130. **Not quoting a percentage**: the denominator
+has sd 0.1457, 47% of its own value, which is the same instability that made
+"61% of the gap" and "57% of the gap" unquotable.
+
+And the diagnosis's second statistic behaves the same way: "worse than the initial
+design" runs **6.79% -> 2.16% -> 0.24%** across control, ROI+L1 and MF-MES. The
+intervention removes about two thirds of the waste; MF-MES has almost none.
