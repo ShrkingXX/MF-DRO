@@ -13323,9 +13323,53 @@ costs `600/(2000q)` draws and wall-clock rises as tightness increases.
 experiment is about. Same family as the day's other errors: a number lifted from
 the wrong cell.
 
-Worth carrying into any recommendation: **the useful setting q <= 0.10 costs
-1.4-1.9x the wall-clock of no ROI at all.** That belongs beside the -3.86% gain,
-not omitted from it.
+### CORRECTION, within the hour: 1/q is REFUTED and my figures sat inside a confound
+
+The peer checked the model against every stored `_wall_s` rather than accepting
+it. I reproduce their table exactly, and it breaks the account three ways:
+
+| arm | q | n | mean min | vs h83 no-ROI |
+|---|---|---|---|---|
+| no ROI (h83) | 1.000 | 5 | 82.4 | 1.00x |
+| **no ROI (h90)** | 1.000 | 5 | **103.6** | **1.26x** |
+| ROI-ANN (h84) | 0.493 | 5 | 94.6 | 1.15x |
+| ROI-L1 (h113) | 0.100 | 10 | 101.6 | 1.23x |
+| ROI-Q10 (h84) | 0.100 | 5 | 117.4 | 1.42x |
+| **ROI-Q10 (h90)** | 0.100 | 5 | **135.0** | **1.64x** |
+| ROI-FIX2 (h84) | 0.214 | 5 | **137.4** | 1.67x |
+| ROI-Q05 (h97) | 0.050 | 5 | 142.8 | 1.73x |
+| MF-MES (h83) | — | 5 | **5.0** | **0.06x** |
+
+1. **ROI-FIX2 at q=0.214 is SLOWER (137.4) than ROI-Q10 at q=0.100 (117.4).** A
+   looser arm taking longer contradicts 1/q outright. FIX2's acceptance is a
+   run-mean OUTCOME of a fixed beta, so its cost tracks its tightest moments, not
+   its mean — my own "different objects" point, which also broke h133's ordering.
+   The per-iteration logging patch will show this directly.
+2. **The same configuration differs by 1.26x across experiments** — two no-ROI
+   arms at 82.4 and 103.6, two ROI-Q10 arms at 117.4 and 135.0. **The load
+   confound is the size of the effect**, and my quoted 1.44x and 1.63x sit
+   inside it.
+3. The DIRECTION survives: 1.15x at q=0.493 against 1.73x at q=0.050.
+
+**Defensible statement: ~1.2-1.7x, not pinnable tighter from runs collected
+under uncontrolled load.** Note the composite measures 1.23x at n=10 — the
+best-supported and most flattering cell, which is why the range is what gets
+quoted.
+
+### The number that dwarfs it: MF-MES runs in 5.0 minutes
+
+We run in 82-143. **That is 16-29x**, in favour of the baseline that also beats
+MF-DRO on the frozen metric and on the diagnosis's own query-quality score. It
+has never appeared anywhere in this record.
+
+It changes no measured result — the frozen metric is EVALUATION cost, matched at
+200 post-init, and that is the right metric for a sample-efficiency claim. But
+**a method 20x slower in wall-clock, behind on the frozen metric, and behind on
+the metric the diagnosis named is in a weaker position than "closes 6 of a
+10-point gap" conveys.** The ROI's own 1.2-1.7x is a rounding error against what
+MF-DRO pays before any ROI is switched on.
+
+That belongs beside the -3.86% gain. My original 1.4-1.9x claim does not.
 
 ## Wall-clock cost — the ROI is slower, the 1/q model does NOT hold, and the load confound is as large as the effect
 
