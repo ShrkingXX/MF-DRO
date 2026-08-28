@@ -8995,3 +8995,42 @@ process generated them.**
 
 `tools/compare_traces.py` will run on the final files when they land, and its
 verdict -- not this one -- is what h106, h107, h108 and h110 hang on.
+
+## h109 GATE: seed 43 is BIT-IDENTICAL. The patches are inert on the use_roi=True path — measured, not reasoned.
+
+    stored : h84 Borehole ROI-Q10 seed 43
+    rerun  : h109, same config, TODAY'S patched src/
+
+    post-init queries    103 vs 103
+    max |dx|             0.000e+00
+    max |dy|             0.000e+00
+    fidelity mismatches  0
+    final_regret         37.9955768310 vs 37.9955768310   |diff| 0.000e+00
+    accept_frac          0.099929 vs 0.099929
+    beta_sqrt            1.897852 vs 1.897852
+
+    BIT-IDENTICAL: True
+
+**P1 is met on seed 43.** Seed 42 is still running; the verdict is not complete
+until both land, and one seed is not the registered test.
+
+### What this settles
+
+The working-tree additions -- my h94 instrumentation and the peer's `loc_loss`
+selector -- do not perturb a `use_roi=True` run. This was previously an ARGUMENT
+(RNG-free, gradient-free, resolves to `F.mse_loss` when unset) with measured
+bit-identity covering only `use_roi=False` via G1. **It is now measured on the
+branch that matters**, at full precision, on the exact configuration h84 ran.
+
+So h106, h107, h108 and h110 are clean, pending seed 42.
+
+### Credit where it is due
+
+**I claimed this was already settled and was wrong.** h106's Q3 compared h84's
+stored data against itself and I reported the agreement as verification of code
+comparability. The concurrent session caught it, said plainly that my design
+could not support the conclusion, and then launched the two runs that could --
+rather than simply flagging the gap.
+
+Two runs settled in ~100 minutes what an argument could not settle at all. That
+is the cheapest thing anyone did today.
