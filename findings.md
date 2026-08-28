@@ -7570,3 +7570,70 @@ Three things are simultaneously true and all belong in any write-up:
 repeated. Nor should "MF-DRO passes its pre-registered test" stand unqualified.
 The protocol binds in both directions — that is the peer's point and it is right
 — but a frozen protocol cannot certify a comparator that turned out not to work.
+
+## The headline correction, completed: the pass is real and it certifies almost nothing
+
+The concurrent session reviewed the previous entry, verified PROTOCOL.md and my
+arithmetic independently, and added one point in each direction. Both verified
+here rather than taken on report.
+
+### STRENGTHENS — I understated it. The frozen benchmark is SINGULAR.
+
+PROTOCOL.md reads `Benchmark | Hartmann 6D`. **Three of the four benchmarks in
+the headline are not in the frozen protocol at all.** So it is not merely that
+the comparators were unregistered: three quarters of the claim sits outside the
+frozen evaluation entirely.
+
+### WEAKENS, decisively — the registered baselines barely optimise
+
+Hartmann, seeds 42-46. Two definitions, both computed, both reported, and the
+deciding one named -- they agree:
+
+    method          HF q     A   A rate      B   B rate
+    MF-MES          22.0  21.0     0.95    4.2     0.19
+    MF-DRO          11.6   9.4     0.81    4.4     0.38
+    SF-DRO          25.0  17.6     0.70    6.0     0.24
+    MF-GP-UCB       21.4   3.0     0.14    0.8     0.04   [REGISTERED]
+    MF-MI-Greedy    24.8   2.0     0.08    1.2     0.05   [REGISTERED]
+
+    A = queries landing above the FIXED initial best (query quality)
+    B = times the RUNNING incumbent improved (progress events)
+
+**MF-MI-Greedy spends ~25 high-fidelity evaluations and lands above its own
+initial design twice.** The two baselines the protocol registers are, by a wide
+margin, the weakest optimisers in the comparison on either measure.
+
+So the registered success test passes against comparators that plausibly do not
+work. **A frozen protocol binds us to the comparison it registered; it cannot
+certify that the comparator functions.** research-state.yaml has carried exactly
+this as an open question for hours, with a suspected cause (the reference
+implementation's inflated prior mean, maxY + 2*rangeY).
+
+### And this cuts wider than the headline
+
+If the registered baselines under-perform because of an implementation defect,
+that does not only hollow out the pass. **It means the whole h83 comparison rests
+on two baselines of uncertain quality**, and the only comparators whose behaviour
+looks sane are MF-MES and SF-DRO -- neither of which is in the frozen protocol.
+The under-optimisation question has been open and unresolved all session; it is
+now load-bearing for the paper's central claim rather than a curiosity.
+
+### The complete statement
+
+**MF-DRO passes its pre-registered success test on Hartmann against both
+registered baselines -- at half the registered seed count, and against baselines
+that beat their own initial design 2 and 3 times in ~22-25 high-fidelity
+queries. It is not the best method on any of the four benchmarks once MF-MES and
+SF-DRO are included, and three of those four benchmarks are not in the frozen
+protocol at all.**
+
+Longer than "beats no baseline", and it is what the data says. The previous
+entry's one-liner is superseded by this one.
+
+### The asymmetry worth keeping
+
+The concurrent session's framing of my own point, which is sharper than mine:
+**we audited every claim that flattered the method and none that didn't.** That
+names the bias better than "we over-corrected" -- and the correction to it is not
+to trust flattering claims more, but to apply the same scrutiny in both
+directions, which is what produced both halves of this entry.
