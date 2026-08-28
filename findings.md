@@ -8295,3 +8295,84 @@ before the addendum and carries an inline INDISTINGUISHABLE threshold of 0.5; th
 registered bar is 0.59. Both give the same verdict here (1.52 exceeds both), and
 the addendum's 0.59 is the registered one. Had the result landed between 0.5 and
 0.59 the two would have disagreed, and the registered bar would govern.
+
+# ==========================================================================
+# THE ANSWER TO THE COMMISSIONED QUESTION, as of 2026-08-28 01:00
+# ==========================================================================
+# Commission: using the DRO paper's ROI heuristic (Sec 4.2,
+# X_hat = {x | UCB(x) >= max_x' LCB(x')}), find an ROI strategy that stops
+# MF-DRO wasting HF budget on low-value regions.
+#
+# Written as a synthesis a paper draft could lift. Every claim below is
+# traceable to an experiment above; every caveat is load-bearing.
+
+## 1. The strategy: quantile-calibrated beta_t on the TEACHER's pool
+
+The paper writes beta with a SUBSCRIPT t and the implementation used a constant.
+**A constant cannot set ROI tightness.** Measured acceptance under fixed
+sqrt(beta)=2 varies **12.6%-100% across benchmarks, 250x within a single run,
+and 6.9x across seeds of one benchmark.** Bisecting beta_t to a target acceptance
+rate collapses all three to 1.0x.
+
+That is a controllability result and it is **independent of whether the ROI
+helps.** It is the cleanest contribution this investigation has, and it holds
+regardless of everything below.
+
+## 2. What it delivers, where it delivers
+
+**Borehole, three independent measurements:** h84 -4.22, h90 -3.49 (fresh
+seeds), h94 -3.86 (fresh RNG, same seeds). **Pooled n=10: -3.68, better on
+9/10.** h90 was a clean fresh-seed confirmation with bars committed 37 minutes
+before the first result existed; h94 was an accidental but genuine fresh-RNG
+replication agreeing to 0.72 pts per seed.
+
+## 3. Does it stop the waste? On one benchmark.
+
+    Borehole   mean HF query regret -4.15 (5/5); waste halved wherever waste
+               existed (3/3 non-floor seeds)
+    Hartmann   waste -0.013 (2/5, two seeds at the floor); query regret -0.001
+
+**Hartmann is the benchmark the commission's diagnosis was drawn from** (0.336
+vs 0.747, 20.8% worse than init). On that benchmark the calibrated ROI reduces
+neither waste nor query regret.
+
+## 4. The mechanism: relocation, NOT concentration
+
+The ROI moves the query cloud toward x* in the dimensions carrying the output
+variance, **while INCREASING dispersion** (+9.5% on Borehole). Relocation tracks
+the outcome 4/4 across benchmarks; dispersion ANTI-tracks it, falling 10.6% on
+Hartmann where the ROI fails.
+
+**Dispersion is neither necessary nor sufficient**, which contradicts the fix the
+commission's own diagnosis implies ("3x more dispersed" -> concentrate them).
+
+## 5. Scope, stated as plainly as the result
+
+**Every measured effect of the ROI is Borehole-specific** -- regret, relocation,
+waste reduction, and query quality all appear on exactly one of four benchmarks.
+Borehole is also MF-DRO's only real deficit at n=10 (2/10 vs MF-MES, median gap
++8.30 exceeding its mean). Whether the ROI meaningfully reduces THAT gap,
+seed-matched, is h106, running now.
+
+## 6. The paper's ROI applied to the QUERY adds nothing, for an instructive reason
+
+h94 applied X_hat where Sec 4.2 defines it -- to the query, not the teacher's
+demonstrations. It changed 0.9% of queries. **The ROI accepts 9.9% of uniform
+draws and the DT already proposes inside it 99.1% of the time** -- 10x enrichment
+over chance, without being told at inference that the ROI exists.
+
+So the constraint is already satisfied. Imitating a REGION is easier than
+imitating a POINT, and only the region is what the ROI constrains -- which also
+explains why L_loc stays high (student 19.5% of the domain diameter from the
+teacher's action) while in-ROI membership is near-total.
+
+## 7. What is NOT established, and should not be claimed
+
+  - WHY it works on Borehole and nowhere else. Two candidate gates were tested
+    and eliminated: weighted headroom (anti-correlated) and region-contains-x*
+    (untested, the logged diagnostic is unweighted and uninterpretable).
+  - That relocation CAUSES the gain. n=4 benchmarks, one positive case.
+  - That the ROI helps any method other than this one, on any benchmark other
+    than Borehole.
+  - Anything about statistical significance. n=5 or n=10, no p-values, none
+    appropriate.
