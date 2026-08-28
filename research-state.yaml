@@ -62,7 +62,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 21:0x, H95 -- dispersion is not the lever
+last_updated: 2026-08-27  # 21:2x, H96 -- relocation tracks the ROI's outcome 4/4
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -233,6 +233,35 @@ queued_experiments:
     the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
     ordering, collapse incidence, and the sign of a comparison.
 
+  h96-roi-relocation: >
+    EXPLORATORY, zero compute. **MECHANISM FOUND, WITH SEVERE LIMITS.** The ROI
+    works by RELOCATING the query cloud toward x* in the dimensions carrying the
+    variance -- not by concentrating it. Sensitivity-weighted distance, all four
+    benchmarks, ROI-Q10 vs no-ROI:
+      Borehole  WORKED -3.49      relocation PRESENT -0.0144, closer 5/5
+      Hartmann  FAILED            relocation ABSENT  +0.0070, closer 3/5
+      Ackley    -0.09 negligible  relocation ABSENT  +0.0088, closer 1/5
+      Currin    +0.11 HARMED      relocation ABSENT  -0.0007, closer 2/5
+    Relocation tracks the outcome 4/4; DISPERSION ANTI-TRACKS IT (down 10.6% on
+    Hartmann where the ROI failed, up 9.5% on Borehole where it worked), so
+    dispersion is NEITHER NECESSARY NOR SUFFICIENT. Hartmann was registered as
+    the falsifier BEFORE computing; Ackley/Currin predicted before looking
+    (absent on both: right; negative on Currin: WRONG).
+    The PRIMARY measure was named in the protocol as the sensitivity-weighted
+    distance, chosen from findings.md:3174's prior finding, before seeing
+    numbers: weighted gives 5/5 on Borehole, unweighted an ambiguous 3/5. First
+    time the h85-P4 rule (name the deciding measure in advance) changed a result.
+    LIMITS, load-bearing: **exactly ONE positive case** -- three negatives are
+    cheap agreement and one benchmark where the ROI works without relocating
+    would sink it. And it **does NOT explain HARM**: Currin got worse with
+    relocation at zero. Open question, not absorbed.
+    BOUNDS THE GAIN: on Borehole the ROI improves reach in dim 0 (81.6% of
+    variance, 0.701->0.747) and barely moves dims 3/5/6 (0.049/0.003/0.007 vs
+    MF-MES's 0.49/0.34/0.70). That is why it closes 37% of the gap and cannot
+    close more -- the residual is boundary aversion, which an ROI cannot fix
+    because it selects WHERE to look, not what the head can emit. Makes the
+    output-parameterisation experiment the highest-value next lever, with a
+    specific quantitative target for the first time.
   h95-roi-waste-mechanism: >
     EXPLORATORY, zero compute, on h90's Borehole runs. Bars registered 20:53:57
     before computing. **THE ROI IMPROVES THE AVERAGE QUERY BY DISPERSING MORE,

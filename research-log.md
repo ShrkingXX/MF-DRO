@@ -1208,3 +1208,36 @@ h94 is unaffected: it constrains the query to a plausibility region, which is
 not a dispersion argument. If anything this raises the value of its SNAP-CONTROL
 arm, since snapping to a finite pool is a concentration mechanism and now has a
 concrete reason to be viewed with suspicion rather than hope.
+
+## 2026-08-27 ~21:20 — the mechanism, and two corrections from the concurrent session
+
+The concurrent session caught two errors in how I argued h95. I had written "two
+independent measurements" for what were two statistics on the same runs, and
+more seriously I had refuted a HARTMANN-derived diagnosis using BOREHOLE data.
+Both corrected; its neither-necessary-nor-sufficient framing replaces my
+"correlate, not cause" throughout, because it is checkable per benchmark and
+does not lean on a causal word n=5 cannot support.
+
+Then I applied the same objection to my own h96 relocation account, which was
+equally Borehole-only, and registered Hartmann as its falsifier before
+computing. It survived, and extending to all four benchmarks gives relocation
+present on exactly the one where the ROI works and absent on the three where it
+does not — while dispersion moves the opposite way on the two that matter.
+
+The measurement choice decided this. The protocol named the sensitivity-weighted
+distance as the deciding measure in advance, on the strength of a prior finding
+that unweighted distance reverses the ordering on Borehole. Weighted gives 5/5;
+unweighted gives an ambiguous 3/5 and I would have concluded there is no
+relocation. That is the h85-P4 rule changing an outcome for the first time
+rather than merely being obeyed.
+
+Two limits I am keeping loud. There is exactly one positive case, so the three
+negatives are cheap and the whole structure rests on Borehole. And the account
+is silent on HARM — Currin got worse with relocation at zero, which no version
+of "relocation is the mechanism" predicts.
+
+The useful downstream consequence: on Borehole the ROI improves boundary reach
+in dim 0 and barely moves dims 3/5/6, which quantifies why it closes 37% of the
+gap and cannot close more. The residual is boundary aversion, and an ROI cannot
+fix it because it selects where to look, not what the head can emit. The
+output-parameterisation experiment now has a specific target instead of a hope.
