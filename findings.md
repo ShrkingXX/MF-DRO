@@ -6395,3 +6395,61 @@ the ROI does essentially nothing or hurts. The account predicts relocation
 should be absent on both, and on Currin possibly NEGATIVE. That is a third and
 fourth point on the table at zero compute, and unlike everything above it is a
 prediction made before looking.
+
+## The four-benchmark table: relocation is present on exactly the one benchmark where the ROI works
+
+Predicted in findings.md BEFORE running (commit f88d5de): "relocation should be
+absent on both [Ackley and Currin], and on Currin possibly NEGATIVE."
+
+    benchmark    ROI regret outcome        relocation (weighted d* to x*)
+    Borehole     WORKED   -3.49, 4/5       PRESENT   -0.0144, closer 5/5
+    Hartmann     FAILED / withdrawn        ABSENT    +0.0070, closer 3/5
+    Ackley       negligible -0.09, 1/5     ABSENT    +0.0088, closer 1/5
+    Currin       HARMED    +0.11, 0/5      ABSENT    -0.0007, closer 2/5
+
+**4/4 agreement between relocation and outcome.** The prediction was right on
+Ackley and half right on Currin: absent, yes; negative, no -- Currin's -0.0007 is
+indistinguishable from zero, and I said it might be meaningfully negative. That
+half is recorded as wrong.
+
+Sensitivity profiles, measured the same way: Ackley is UNIFORM (10.0% per dim,
+all ten), so weighted and unweighted distance nearly coincide there and the
+metric-choice caveat is inert. Currin is dim1 80.7% / dim0 19.3%.
+
+### What this does and does not license
+
+DOES: the ROI's benefit, where it occurs, is accompanied by the query cloud
+moving toward x* in the dimensions carrying the variance -- on all four
+benchmarks tested, and the three negatives were predicted before measurement on
+two of them.
+
+DOES NOT, and this is the honest limit: **there is exactly ONE positive case.**
+"Relocation present iff the ROI works" rests on a single instance of the
+positive class and three of the negative. One more benchmark where the ROI works
+without relocating would sink it. The three negatives are cheap agreement; the
+single positive is the whole load-bearing structure.
+
+DOES NOT EXPLAIN HARM. Currin is the case that breaks the tidy story: the ROI
+made regret WORSE (+0.11, 0/5) while relocation sat at zero. If relocation were
+the whole account, no relocation should mean no effect, not a negative one.
+**Something else makes the ROI actively harmful on Currin and this account is
+silent about it.** Recorded as an open question rather than absorbed into the
+narrative.
+
+### Standing on the primary question
+
+The commission was: find an ROI strategy that stops MF-DRO wasting HF budget on
+low-value regions. What can now be said, with the qualifications above:
+
+  - The quantile-calibrated ROI applied to the TEACHER improves Borehole by
+    -3.49 pts (4/5, confirmed at fresh seeds, 83% retained, 9/10 pooled).
+  - It improves the AVERAGE HF query there by -4.15 pts (5/5) and halves wasted
+    queries wherever waste exists (3/3).
+  - It does this by RELOCATING the query cloud toward x* in the sensitive
+    dimensions, NOT by concentrating it -- dispersion rises.
+  - It works on 1 of 4 benchmarks, is neutral on 2, and HARMS 1.
+  - It closes 37% of the gap to MF-MES on Borehole and cannot close more,
+    because the residual is boundary aversion in dims 3/5/6, which an ROI
+    cannot fix.
+  - h94 (the ROI applied to the QUERY, as the paper defines it) is designed,
+    implemented, bit-identity-gated and unrun.
