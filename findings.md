@@ -11538,3 +11538,64 @@ midpoint does not determine the shift, in sign or in size.**
 by all of this: I proposed the regulariser from Borehole and Hartmann alone, and
 no arrangement of two points straddling a midpoint could have failed to suggest
 it. Two further benchmarks were in the repository at the time.
+
+---
+
+## h130 — quality does not generalise either. Nothing about the ROI does.
+
+The fidelity mechanism failed to generalise this morning. Quality was the one
+that survived — measured twice on Borehole by two independent statistics, and
+the channel the founding diagnosis actually named. Its generality had never been
+tested. It fails too.
+
+Count-matched mean non-init HF y, ROI-Q10 vs h83 control, seeds 42-46, paired:
+
+| bench | delta | sd | \|m\|/sd | up | |
+|---|---|---|---|---|---|
+| **Borehole_8D** | **+17.053** | 4.811 | **3.54** | 5/5 | **SEPARATES** |
+| Hartmann_6D | -0.075 | 0.228 | 0.33 | 2/5 | no |
+| Currin_2D | -0.009 | 0.029 | 0.30 | 1/5 | no |
+| Ackley_10D | -0.301 | 0.386 | 0.78 | 1/5 | no |
+
+The three nulls all point slightly negative, but at 0.30-0.78 that is not
+separable and must not be read as harm.
+
+### Four mechanisms, four benchmarks, one cell
+
+| mechanism | Borehole | Hartmann | Currin | Ackley |
+|---|---|---|---|---|
+| regret benefit | **-4.22%, 1.74** | 0.48 | — | — |
+| fidelity mix | **1.65** | 0.78 | 0.41 | 0.49 (censored) |
+| boundary mass | **54.2% vs 14.7%** | — | — | — |
+| query quality | **+17.05, 3.54** | 0.33 | 0.30 | 0.78 |
+
+> **Every measured ROI effect is Borehole-specific.**
+
+### The mismatch, in its sharpest form
+
+The founding diagnosis measured bad HF query quality **on Hartmann**. Query
+quality is the channel it named. On Hartmann the ROI does not move it: -0.075,
+effect 0.33, 2/5.
+
+**The ROI fails to move the diagnosed quantity on the benchmark where it was
+diagnosed**, and moves it decisively on the benchmark where h121 showed the
+waste is smallest (3.2% median against Hartmann's 12.5%).
+
+h121 established that mismatch for the ROI's *benefit*. This establishes it for
+the *mechanism the diagnosis itself named*, which is a stronger claim and one
+that does not depend on any interpretation of what the ROI is really doing.
+
+### What this leaves for the primary question
+
+The honest summary is now:
+
+1. The ROI's tightness IS a real lever, and the useful region is q <= 0.10
+   (h125, effect 5.69 across a 5x range). Loosening forfeits ~69% of the
+   benefit (h128).
+2. Everything it does, it does on Borehole — benefit and all four mechanisms.
+3. On the benchmark where the diagnosis was made, it moves neither the regret
+   (0.48) nor the quality it diagnosed (0.33).
+
+So "an ROI strategy that stops MF-DRO wasting HF budget on low-value regions"
+has a tightness answer and no generality. That is a real result about the DRO
+paper's Sec 4.2 heuristic, and it is a negative one.
