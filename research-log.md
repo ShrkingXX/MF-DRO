@@ -1305,3 +1305,48 @@ dose where the dose can be measured at all.
 It also quietly removes a claim: q=0.10 was never shown to beat q≈0.21. They are
 tied on regret and on mechanism. Calibration's case is controllability across
 benchmarks, which is what it always was, and not superiority on Borehole.
+
+---
+
+## H93 — the four-benchmark headline, measured twice
+
+This entry backfills a gap: h90, h91, h92 and h97 are all logged above, and h93
+is not, despite being the experiment that changed what the project's headline
+says.
+
+The setup was that h83 concluded MF-DRO beats no baseline on any of four
+benchmarks, and only two of those four had ever been measured at a second seed
+set. Hartmann's deficit had already evaporated at n=10 and Borehole's had held.
+Currin and Ackley had never been re-measured at all, and their h83 margins were
+0.01 and 0.40 — far tighter than the 1.37 that did not survive on Hartmann. That
+made them worth checking rather than assuming, which is the whole reason the
+experiment was registered.
+
+Two design choices mattered. The comparator is each benchmark's OWN best baseline
+— MI-Greedy for Currin, SF-DRO for Ackley — not MF-MES throughout, because
+MF-MES wins neither and using it would have tested an easier question. And P2,
+the Ackley direction, was registered with **no prediction at all**. That was not
+a hedge: six mechanism predictions had been refuted by then, and Ackley's margin
+sat well inside its own per-method spread. Declining to guess turned out to be
+right — Ackley's deficit reversed sign.
+
+The result: Ackley does not replicate (−0.07, better 3/5, against +0.40).
+Currin replicates in sign (+0.01%, 1/5) and is meaningless in magnitude — 0.0155
+in the function's own units against an optimum of 13.80, with four of five runs
+finishing at exactly zero. Both methods have solved Currin.
+
+I recorded REPLICATES for Currin because that is what the rule written in advance
+says, and rewriting a scoring rule after seeing which side it lands on is the
+failure this project's discipline exists to prevent. But the honest reading is
+stated alongside it: a deficit that survives only because a solved benchmark
+cannot score lower is not evidence about the method.
+
+So the headline becomes **one substantive deficit of four, not four**, and the
+boundary-optimum explanation stops being one benchmark's excuse and becomes the
+whole account. Two things that does not license, both now on the record: h83 was
+not wrong when written — its within-experiment comparisons were sound and its
+prediction was met at n=5, and what failed is the durability of three margins
+that only a second seed set could test. And Borehole's remaining deficit is
+large, real, and untouched by anything that worked — the calibrated ROI closes
+37% of it, refinement does not close it. Narrowing where the problem lives is
+useful because it says where to aim, not because the problem shrank.
