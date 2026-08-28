@@ -8,6 +8,13 @@ h97 = importlib.util.module_from_spec(_spec); sys.modules["h97_worker"] = h97
 _spec.loader.exec_module(h97)
 RES = os.path.abspath(os.path.join(H, "..", "results"))
 h97.h90.RES = RES
+# h90's worker is Borehole-only by design ("Borehole only, by design" in its SPEC).
+# h111 runs Hartmann and Ackley, so the initial-design specs are extended with
+# h83's own values -- verified identical to experiments/h83-main-comparison/code/
+# worker.py, so the arm differs from h83's MF-DRO only in the ROI setting.
+h97.h90.SPEC = dict(h97.h90.SPEC)
+h97.h90.SPEC["Hartmann_6D"] = dict(n_hf=6,  n_lf=45)
+h97.h90.SPEC["Ackley_10D"]  = dict(n_hf=10, n_lf=30)
 if __name__ == "__main__":
     bench, arm, seed = sys.argv[1], sys.argv[2], int(sys.argv[3])
     tag = f"{bench}__{arm}__seed{seed}"
