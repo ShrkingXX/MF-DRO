@@ -7343,3 +7343,46 @@ asserted to guarantee a property is a claim like any other.** Mine shipped with
 its guarantee stated in a header comment, which made it read as established
 rather than as something to test. State what a tool checks; do not state what it
 guarantees unless the guarantee has been attacked.
+
+## FIVE ID collisions, not three — and two of them are self-collisions
+
+The concurrent session noticed my backfill produced 95 markers against 97
+experiment directories and correctly read the discrepancy as evidence rather
+than an incomplete backfill. Verified independently:
+
+    h42:  h42-fixed-rule-control            2026-08-25 00:29:53
+          h42-regression-freeze             2026-08-25 00:54:15   (+25 min)
+    h44:  h44-regression-head-conditioning  2026-08-25 01:29:51
+          h44-three-way-matched             2026-08-25 01:40:19   (+11 min)
+
+    97 directories, 95 unique numbers, 95 markers -- fully consistent.
+
+**These are a DIFFERENT failure mode from today's three, and arguably worse.**
+Today's (h88, h89, h97) were races between concurrent sessions. These two are
+minutes apart on the same day, each a protocol commit for a genuinely different
+hypothesis. Whatever the session topology was on 25 August, nothing external
+raced here on a 25-minute gap -- the number was reissued by whoever was writing,
+because nothing checked.
+
+So the git history -- **which is this project's entire pre-registration
+mechanism** -- contains two distinct protocols both called "H42" and two both
+called "H44". A reader auditing what was registered before what cannot resolve
+those IDs from the log alone. They sat there for two days and nothing flagged
+them, because nothing ever counted.
+
+The `.ids` marker scheme fixes this case too: a marker blocks reissue regardless
+of who is asking, so a session cannot collide with ITSELF either. That was not
+the case it was designed for and it covers it anyway.
+
+### Why this surfaced at all
+
+Two independent counts of the same quantity disagreed. That is the third time
+today the same instrument has worked: the dim-7 sensitivity error surfaced
+because two estimators disagreed, the worker-count false alarm died because a
+clean recount disagreed with a bad one, and the collision rate we were designing
+against turned out to be understated by 40% because a marker count disagreed
+with a directory count.
+
+**Standing note: when a fix produces a new count of something already counted,
+compare them before assuming the fix is complete.** The disagreement is the
+finding.
