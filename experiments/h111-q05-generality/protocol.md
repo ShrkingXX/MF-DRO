@@ -66,3 +66,33 @@ separable.
   - **Hartmann does not separate:** Borehole-only survives a real test rather than
     resting on an untested assumption, which is worth more than the current
     situation even though the headline does not move.
+
+---
+
+## PREMISE QUALIFIED after launch — recorded, not quietly dropped
+
+This protocol argued that retesting the non-Borehole benchmarks at q=0.05 was
+worthwhile because q=0.05 is "a setting known to be stronger", citing h97+h107
+(−1.52 and −1.57 against q=0.10, both 4/5).
+
+**That premise is now weaker than when written.** A peer session's h110 ran the
+same comparison at seeds 52-56 and got **+0.30, 2/5** — the opposite direction.
+Pooled over fifteen seeds the advantage is −0.93 at 10/15, which fails the
+separability bar registered before any of those runs. The claim "q=0.05 beats
+q=0.10" is WITHDRAWN.
+
+**What this does and does not do to h111.**
+
+  - The *motivation* is weakened: q=0.05 is not established as stronger, so
+    "retest at a stronger setting" is no longer the right description.
+  - The *question* is unaffected and still worth answering. Every non-Borehole ROI
+    arm in the tree is q=0.10, and whether a different tightness changes the
+    Borehole-only picture is a fact about the method that no experiment had
+    tested. h111 tests it either way.
+  - The *bars are untouched*. They were registered before any h111 run and are
+    not adjusted in light of this.
+
+The honest description of h111 is now: **a second tightness setting, not a better
+one.** Which makes a null result here more informative than it would have been —
+if neither setting works off Borehole, that is two settings failing, not one
+setting failing at the wrong value.
