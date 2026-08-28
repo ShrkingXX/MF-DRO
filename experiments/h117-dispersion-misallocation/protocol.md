@@ -71,3 +71,56 @@ HF queries. They are related but not the same quantity.
 - Hartmann cannot be added: MF-DRO's non-init HF counts there fall below the
   n floor in 4/5 (h83) and 3/5 (h87) seeds.
 - Ackley is definitionally excluded: uniform S1 shares make wR == uR exactly.
+
+---
+
+## AMENDMENT 1 (2026-08-28) — the effect is ONE dimension. Filed before any
+## h117 run finished; zero h117 result files existed when this was written.
+
+Further exploratory analysis of h83 (seeds 42-46 — NOT h117's seeds) shows the
+"misallocation across dimensions" framing in the parent protocol is wrong.
+Per-dimension sd ratios DRO/MES on Borehole:
+
+  dim 0 (S1 = 0.858):  18.15x
+  all seven others:    0.67 - 1.89, no consistent direction
+  weighted ratio excluding dim 0:   0.97
+  unweighted ratio excluding dim 0: 0.97
+
+The two methods are indistinguishable on seven of eight dimensions. The whole
+wR/uR effect is dim 0. "Mis-allocates dispersion across dimensions" overstates
+it and is withdrawn.
+
+### What is actually happening
+
+Borehole dim 0 is r_w in [0.05, 0.15], and its optimum is at the UPPER BOUNDARY.
+
+  MF-MES: mean z0 0.997-1.000, sd 0.001-0.013, 100% of HF queries at z0 >= 0.9.
+  MF-DRO: mean z0 0.948-0.965, sd 0.032-0.104,  84-97% at z0 >= 0.9, min 0.128.
+
+MF-MES pins to the boundary and never leaves. MF-DRO approaches it and keeps
+drifting off. The 18x is therefore partly a small-denominator artefact
+(MF-MES's sd is ~0.001) and the RATIO is not the quantity to report.
+
+The absolute quantity is: MF-DRO spends **8.9% of its HF queries** (per seed
+3.2, 14.1, 6.5, 16.5, 4.3) off the boundary; MF-MES spends 0.0%. Those queries
+are unambiguously wasted -- the BEST off-boundary y (175-208) is below the MEAN
+on-boundary y (226-238) in all five seeds, so no off-boundary query could ever
+have become the incumbent.
+
+This is the "boundary aversion" already recorded for Borehole, now localised to
+the single dimension that carries 86% of the variance and priced in HF budget.
+
+### ADDITIONAL LOCKED PREDICTION for h117 (seeds 52-56)
+
+4. MF-DRO's off-boundary fraction (z0 < 0.9, non-init HF queries) EXCEEDS
+   MF-MES's in 5/5 seeds.
+5. MF-DRO's mean off-boundary fraction >= 3%.
+6. Paired |mean|/sd >= 1.0.
+
+Gate 6 is deliberately set BELOW the h83 point estimate (1.49): with n=5 and a
+per-seed spread of 3.2-16.5% this measure cannot support a stringent magnitude
+gate, and pretending otherwise would be false precision. Predictions 4-6 test
+DIRECTION and rough SCALE, not magnitude.
+
+Predictions 1-3 in the parent protocol stand unchanged, but their INTERPRETATION
+is now "dim 0 boundary-locking failure", not "allocation across dimensions".
