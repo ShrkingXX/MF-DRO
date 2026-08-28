@@ -42,13 +42,29 @@ with `_ad = ((roi_candidates - roi_x_star) / span).abs()`:
 
     perdim_mean_abs : [float] * d    _ad.mean(dim=0)
     perdim_min_abs  : [float] * d    _ad.min(dim=0).values
+    perdim_span     : [float] * d    (_c.max(dim=0).values - _c.min(dim=0).values)
+                                     where _c = roi_candidates / span (normalized
+                                     coordinates, NOT distances to x*)
 
-Cost: 2*d floats per ROI construction. On Borehole d=8 with ~6900 constructions
+**`perdim_span` added at the concurrent session's suggestion, accepted.** The
+first two fields say where the accepted set SITS relative to x*; span says how
+WIDE it is in that dimension. Those are independent, and the difference between
+them is exactly the axis this project's most counterintuitive result turned on:
+the ROI IMPROVES regret while INCREASING dispersion (h95/h96, replicated under
+two statistics). Without span, "the ROI concentrated onto the wrong place" and
+"the ROI stayed broad" are indistinguishable in the log, and we would be unable
+to ask of the ROI's own region the question we already asked of its queries.
+
+Note the different normalization: mean/min are distances to x*, span is a width
+in coordinate space. Do not compute span from `_ad` — |x - x*| folds the
+dimension at x*, so a set straddling x* would report a falsely narrow span.
+
+Cost: 3*d floats per ROI construction. On Borehole d=8 with ~6900 constructions
 per run that is ~110k floats, so the worker must AVERAGE across constructions
 into `roi_summary` rather than store every record — same as it already does for
 the scalar fields.
 
-In the worker's `roi_summary`, add the two vectors as element-wise means.
+In the worker's `roi_summary`, add the three vectors as element-wise means.
 
 ## Keep the existing fields
 
