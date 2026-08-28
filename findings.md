@@ -13148,3 +13148,36 @@ has sd 0.1457, 47% of its own value, which is the same instability that made
 And the diagnosis's second statistic behaves the same way: "worse than the initial
 design" runs **6.79% -> 2.16% -> 0.24%** across control, ROI+L1 and MF-MES. The
 intervention removes about two thirds of the waste; MF-MES has almost none.
+
+### Audit: every cross-method comparison on the published page uses the MATCHED reading
+
+Applied the "find every surface" rule to the cost-axis hazard. All three
+MF-DRO-vs-baseline regret comparisons on the report were checked against both
+readings:
+
+| page claim | source | matched reading? |
+|---|---|---|
+| "9.82 against the strongest baseline's 6.00" | ROI-L1 42-51 vs MF-MES 42-51 | **yes** — MF-MES final 5.996 |
+| Hartmann retraction table (0.37, 10.68, 25.25, 7.20, 5.95) | h87 MF-MES 47-51 | **yes** — matches `final` to 2dp on 4 of 5 |
+| "Refined 12.91% against the strongest baseline's 10.07%" | h89 REFINE-100 **52-56** vs MF-MES 52-56 | **yes** — MF-MES final 10.07 (@200 would be 10.30) |
+
+**The published page is clean.** The peer used `final_regret` consistently for
+cross-method comparisons throughout, which is the matched-cost reading given
+MF-MES's cumulative axis. I was the only one who deviated, in a recomputation I
+had not yet published.
+
+### And I nearly filed a second false discrepancy in the process
+
+I assumed the "12.91% vs 10.07%" comparison was at seeds 47-51, computed
+REFINE-100 at 12.45% and MF-MES at 6.04/5.59, and had a three-way mismatch. The
+figures are at seeds **52-56**, where REFINE-100 is 12.91% exactly and MF-MES's
+`final` is 10.07% exactly.
+
+What resolved it was **searching for the numbers across every stored cell**
+rather than assuming which cell they came from. That is a cheap habit and it has
+now twice been the difference between a correction and a false alarm — the first
+being the 3.096 ratio that identified the peer's units this morning.
+
+**Assuming a number's provenance is itself a claim**, and it is the one neither
+of today's naming rules covers: statistic, read point, quantity, and now *which
+cells*.
