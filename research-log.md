@@ -1654,3 +1654,34 @@ benefit — dispersion and boundary resolution — are now ruled out by tests
 written before the numbers were seen. The channel is still unidentified. h117
 continues; it can confirm the inefficiency is reproducible but can no longer
 make it the explanation.
+
+## 2026-08-28 (later still) — gate passes, two peer corrections adopted
+
+**h117 GATE G0 PASSED: 83 queries, 0 differing.** The working tree, carrying the
+uncommitted h94/h102 patches, reproduces h83's stored Ackley MF-DRO seed42 trace
+bit-for-bit. The patches are inert by EXECUTION — the thing the gate was added
+for after inspection alone missed h94's NameError. h117's ten runs are cleared.
+
+Two corrections from the peer session, both accepted:
+
+1. **One tree.** I wrote a provenance condition ("must be empty-diff against
+   af5ec31b1") referring to "my working tree". We share one repo; the condition
+   could only be met by reverting patches mid-flight and breaking their h113.
+   Withdrawn. I did verify their supporting evidence rather than accept it —
+   h109's stored `code.dirty` is True with exactly today's two files — and
+   flagged the gap it leaves (same filenames is not same bytes), which G0 then
+   closed on current content.
+2. **The count.** "Five of seven separated" is now "three of five independent
+   quantities". C1-C3 are one fact under a fixed cost budget; my prose said so
+   and my headline didn't. 3/5 is materially weaker evidence than 5/7 reads as.
+
+Launched the three ROI-OFF control runs (seeds 44, 45 up; 46 queued) behind a
+launcher that polls the global worker count before each spawn rather than
+assuming an allocation, since the 15-cap is shared.
+
+Peer also disclosed unprompted that their h113 gate FAILED at seed 43
+(L_loc 0.0969 vs a registered >0.10) and that they amended it. The timing
+defence holds — written before any regret number was read — and their
+first-five-iteration L_loc (L1 0.187/0.219 vs MSE 0.058/0.052) does establish
+L1 fired. I'd still class the amended gate as exploratory-grade, since the
+statistic was chosen after seeing the failure.
