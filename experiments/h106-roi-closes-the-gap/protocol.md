@@ -68,3 +68,31 @@ against a control that does not matter for the comparison anyone cares about.
 ## Gate
 
 8 workers running (peer's h97 and h102). 5 runs takes it to 13, inside 15.
+
+## Amendment 1 — comparability with h84's 42-46 arm is REASONED, not measured
+
+h106's new runs execute today's `src/`, which carries two working-tree changes
+h84's ROI arm did not: my h94 patch and the concurrent session's `loc_loss`
+selector. Since the whole experiment rests on pooling these 5 runs with h84's,
+that difference has to be stated.
+
+Everything the tree adds that a `use_roi=True, roi_inference_mode=unset` run
+actually executes:
+
+    self.roi_inf_log = []                       attribute init
+    loc_loss=getattr(config,'loc_loss','mse')   selector, defaults to F.mse_loss
+    _last_actions_x_var = ...var(...)           pure recording from actions_x
+    _ri_mode = getattr(...); if in (...)        branch NOT taken
+    actions_x_var_per_iter.append(...)          pure recording
+
+None consumes RNG, none enters a gradient, none alters a tensor that feeds
+training. **So the runs should be equivalent — but that is an argument, not a
+measurement.** G1 measured bit-identity for `use_roi=False` only; nothing has
+measured the `use_roi=True` path, and doing so costs a full ~2h run, which would
+consume the compute this experiment needs.
+
+**Q3 is the standing check.** If the 42-46 half (h84, pre-patch code) and the
+52-56 half (today's code) disagree by more than 2 points in paired mean, code
+drift is a live candidate alongside seed-set dependence, and the two must not be
+pooled. Registered here so a Q3 failure has two named explanations rather than
+being attributed to seeds by default.
