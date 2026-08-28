@@ -1751,3 +1751,24 @@ those runs produced a file: they are h84 arm completions (byte-identical worker,
 config, budget, spec; tree passed G0), will be merged into h84's results with a
 per-run provenance manifest, and the merge is withdrawn if any run's commit
 fails an empty-diff check at merge time.
+
+## 2026-08-28 — h120 confirmed, and I was wrong about the control
+
+The peer's h113 analysis showed h83's plain `MF-DRO` is the no-ROI control under
+a different name. I had told them no independent 5-seed set existed. I measured
+the substitution rather than accepting it: h83 MF-DRO vs h84 ROI-OFF is
+bit-identical at both overlapping seeds, 137 and 132 queries, across three
+commits. So h120 became evaluable at its locked seeds.
+
+CONFIRMED: the ROI buys ~9 fewer HF queries and ~18 more LF (effects 1.55/1.58,
+5/5), and each HF query it buys is better by +17.05 count-matched (effect 3.54,
+5/5) — larger than the unmatched +15.16, so not a convergence artefact.
+NOT CONFIRMED: time-to-incumbent, 0.29 at 3/5 against the screen's 1.35 at 5/5.
+Limb dropped. The screen produced three quantities; confirmation kept two.
+
+Registered h123: the paper's beta_t as a WIDENING ROI, with both of the peer's
+points built in — cost-consumed as the progress variable (the bug was a
+denominator the termination condition doesn't use), and the widening direction
+recorded explicitly as inverting every ROI experiment either session has run.
+Locked prediction is a null, since tightness has been a null axis wherever
+measured properly. Not launched; still holding off src/ with 10 runs live.

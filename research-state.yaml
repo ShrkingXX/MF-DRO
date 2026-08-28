@@ -993,3 +993,37 @@ BUG_roi_anneal_never_annealed:
   fix_deferred: >
     Shared tree; h113/h117/h120 in flight. Editing now would add a third dirty
     file and muddy provenance of runs whose bit-identity gate just passed.
+
+h120_CONFIRMED_2026_08_28:
+  correction_to_amendment_1: >
+    "No independent 5-seed set exists" was WRONG. h83's plain MF-DRO IS the
+    no-ROI control under another name: h83 MF-DRO vs h84 ROI-OFF is bit-identical
+    at both overlapping seeds (137 and 132 queries, 0 differing, three commits).
+  verdicts: >
+    P1 PASS (HF 94.0->84.8, -9.20, effect 1.55, 5/5). P1b PASS (LF 12.6->31.0,
+    +18.40, 1.58, 5/5). P3 PASS (count-matched HF y +17.05, effect 3.54, 5/5 --
+    LARGER than the unmatched +15.16, so not a convergence artefact).
+    P2 FAIL (time-to-incumbent 0.29, 3/5; the screen had 1.35, 5/5 -- limb
+    dropped). P4 as predicted at 0.98, the weakest form of that verdict.
+  established: >
+    The ROI reallocates fidelity -- buys ~9 fewer HF queries and ~18 more LF --
+    and each HF query it buys is better. It is an account of WHAT the ROI changes,
+    not why that lowers regret; no arm manipulates the mix directly.
+
+h113_composition_peer:
+  result: "ROI -3.86, L1 -2.21, BOTH -5.96. BOTH vs ROI -2.10 (sd 1.05, 10/10)."
+  reading: >
+    L1 delivers its full standalone effect with the ROI present (-2.10 vs -2.21,
+    differ by 0.11). TWO mechanisms, not one reached two ways. First structural
+    constraint on the mechanism question. Does NOT make the method competitive:
+    9.82 vs MF-MES seed-matched 6.00.
+  bears_on_fidelity: >
+    Adding L1 moves the mix BACK (+1.9 HF, -3.5 LF) while improving regret 2.10.
+    Fidelity mix is the ROI's channel and is NOT L1's.
+  caveat_checked: >
+    Their cells are drawn per-seed-set from different experiments (explicit paths,
+    not globbing). I tested the BASE substitution (h83 MF-DRO for h90 NO-ROI) and
+    it is bit-identical. Sound.
+
+h123_betat_widening: REGISTERED, not launched. Needs the cost-progress fix;
+  holding off src/ while 10 runs are live. Locked prediction is a NULL.

@@ -10652,3 +10652,20 @@ rather than taking it: their BASE cell substitutes h83 `MF-DRO` for h90
 None of this makes the method competitive — 9.82 against MF-MES's seed-matched
 6.00 — and h121's mismatch stands: this all happens on Borehole, where the
 waste the diagnosis names is smallest.
+
+### Lesson: a label that encodes an intent stops readers checking whether it happened
+
+The ROI-ANN bug survived because `findings.md` recorded the arm as
+"ROI-ANN (q~0.49)" — the measured value sat directly beside a name asserting a
+0.50 -> 0.05 anneal, and nobody read the contradiction. The name did the
+verifying that a reader would otherwise have done.
+
+Generalising past this instance: **an arm whose name asserts its behaviour needs
+its behaviour measured and reported next to it, precisely because the name
+suppresses the question.** ROI-Q10 and ROI-Q05 are safe from this — their names
+assert a target the quantile calibration then measures — but ROI-ANN, ROI-FIX2
+and any future "ROI-WIDEN" are not, because they name an intent rather than a
+measured quantity. h123 therefore reports realized q over cost progress
+alongside its regret numbers, whatever they show.
+
+(Identified independently by both sessions; the sharper phrasing is the peer's.)
