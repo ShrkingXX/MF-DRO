@@ -115,3 +115,50 @@ WHAT I WILL DO:
 3. The locked predictions P1-P4 stand UNCHANGED and are evaluated only once the
    five seeds exist. The n=2 numbers below do not modify them and must not be
    cited as partial support.
+
+---
+
+## AMENDMENT 2 (2026-08-28) — the provenance condition was wrong. Withdrawn.
+
+Amendment 1 said the three control runs "must run on code that is empty-diff
+against h84's af5ec31b1 over src/ dro_runner.py benchmarks.py" and referred to
+"my working tree". Both are corrected, on the peer session's challenge:
+
+1. **There is ONE working tree.** Both sessions share this repository;
+   `git status` returns the same two modified files for either of us. There is
+   no my-tree/your-tree distinction and I should not have written one.
+2. **The empty-diff condition is unmeetable and unnecessary.** Meeting it would
+   require reverting the h94/h102 patches, which would break the peer's h113
+   mid-flight. And the property it was proxying for has already been MEASURED,
+   twice, on this very tree:
+     - h105: use_roi=FALSE path byte-identical across contributing commits
+       (md5 ff70f008c0ac). ROI-OFF *is* the use_roi=False path.
+     - h109: use_roi=TRUE path bit-identical to h84's stored traces, 2/2 seeds,
+       115 and 103 queries, |dregret| = 0.
+   Verified independently here rather than taken on assertion: h109's stored
+   `code.dirty` is **True** with `dirty_files` = exactly
+   `['M src/model/decisionTransformer.py', ' M src/policy/mf_dro.py']` — the
+   same two files modified now. So the PATCHED tree has already reproduced h84's
+   own traces bit-for-bit on the harder path.
+
+   Requiring an empty diff on top of two measured reproductions is stricter than
+   any other result in this project has been held to.
+
+### The residual gap, stated rather than glossed
+
+h109's `dirty_files` matches the current modification by FILENAME, not by
+CONTENT. The h94 patch has been edited since (the `len(self.iteration_log)` fix
+after its NameError), so "the same two files were dirty" is not proof that the
+same bytes were dirty.
+
+That exact gap is what h117's GATE G0 measures: Ackley_10D MF-DRO seed42 on the
+CURRENT tree against h83's stored trace. It is still running (35 min elapsed
+against a 32 min median for that arm).
+
+**Dependency stated up front: if G0 fails, it voids these three ROI-OFF runs as
+well as h117.** They are launched now anyway because the two prior reproductions
+make failure unlikely, the slots are free only while h113 drains, and a failure
+costs three runs rather than a wrong conclusion. This is a compute bet, declared
+before the fact, not a provenance claim.
+
+Predictions P1-P4 remain UNCHANGED.
