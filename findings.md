@@ -11895,3 +11895,51 @@ coherent late, consistent with less remaining to learn, but I registered no
 direction and a value that collapses from 0.91 to 0.01 within a single control run
 is a fragile statistic. `action_reward_corr` is flat (0.05). **Neither is evidence
 for P4**, as pre-committed.
+
+## NEGATIVE (instrument) — query dispersion is NOT a proxy for realized acceptance rate
+
+EXPLORATORY. I was about to offer the peer a shape check for h123's M1 gate,
+which tests the ramp's *mean* accept_frac but cannot see its *shape*. The idea:
+if a widening ROI actually widens, late queries should be more dispersed than
+early ones, and that needs no code change. **Before offering it I validated it
+against arms whose q is known and constant. It fails.**
+
+Borehole, seeds 42-46, mean pairwise distance among post-init queries, on the
+**unit cube** (`domain_min`/`domain_max`):
+
+    arm          realized q   dispersion      sd
+    ROI-Q10          0.0999       0.2728  0.0724
+    ROI-FIX2         0.2141       0.2949  0.0733
+    ROI-ANN          0.4934       0.2801  0.0880
+    ROI-OFF          1.0000       0.2766  0.0742
+
+    dispersion ranks 1,4,3,2  against q ranks 1,2,3,4  -- NOT monotone
+
+Paired against ROI-Q10: FIX2 +0.0222 (effect 1.02, 4/5) is the only separable
+contrast. ROI-ANN (+0.0074, effect 0.20) and ROI-OFF (+0.0038, effect 0.15) are
+indistinguishable from q=0.10 — **a tenfold change in acceptance rate produces no
+measurable change in query dispersion.**
+
+**So the instrument is invalid and I am not offering it.** Had I proposed it
+without validating, the peer could have adopted a gate that passes on any
+schedule shape whatever.
+
+### Two things worth keeping
+
+**First, my initial attempt was wrong in a way that would have looked right.** I
+computed dispersion in RAW x units and got 6800 with an apparently sensible
+ordering. Borehole's domain spans are `[0.1, 49900, 52530, 120, 52.9, 120, 560,
+2190]` — a raw Euclidean distance is ~entirely dimensions 1 and 2. The unit-cube
+version is the honest one and it fails. **A units error nearly manufactured a
+validated instrument out of one dimension.** Seventh of the day, and the first
+that would have produced a false positive rather than a false negative.
+
+**Second, the negative is independently informative.** The ROI's tightness does
+not express itself as query dispersion at all. That is consistent with the earlier
+finding that the ROI "works by moving the queries, not by tightening them", and it
+sharpens it: not only is relocation the mechanism, **spread is not even a
+downstream consequence** of the acceptance rate. Any future ROI diagnostic built
+on dispersion is measuring something the lever does not move.
+
+Note this does not touch the founding diagnosis's "3x more dispersed", which
+compares MF-DRO against MF-MES, not ROI against no-ROI.
