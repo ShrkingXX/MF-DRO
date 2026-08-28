@@ -8713,3 +8713,43 @@ bit-identical, |dregret| = 0 and max|dx| = 0.
 
 If P1 fails, h106, h107 and h108 are contaminated. That is the right test and it
 is two runs, which is cheaper than the argument.
+
+## Validating h109 before it reports: the control that gates my results is correctly constructed
+
+h109 will decide whether h106/h107/h108 are contaminated. A control can fail for
+the wrong reason -- a config difference rather than a patch effect -- and a false
+alarm there costs three experiments' worth of re-runs. So I checked its
+construction while it runs, rather than debating its verdict afterward.
+
+**Threat: h109's worker is a shim over h97's, which shims h90's.** Its runs
+therefore execute h90's config, while its comparator is h84's stored runs. If
+those configs differ at all, traces diverge for reasons unrelated to the patches.
+
+    h84  _build_mf_dro_config("h84", bench, arm, seed, bo_iterations=4000,
+           num_epochs=10, minimum_hf_fraction=0.25, real_hf_warmup=2,
+           cost_budget=200, initial_hf=10, initial_lf=20, dkl_threshold=9999,
+           bes_delta=0.0, rollout_length=8) ... use_candidate_scoring=False
+    h90  IDENTICAL except the first positional argument: "h90" instead of "h84"
+
+    SPEC        Borehole n_hf=10, n_lf=20 in BOTH
+    ARMS Q10    dict(use_roi=True, roi_beta_mode='quantile',
+                     roi_target_accept=0.10) in BOTH
+    h97 shim    `h90.ARMS = dict(h90.ARMS)` then ADDS Q05 -- h90's entries are
+                preserved byte-identically, so h109's "ROI-Q10" is h84's config
+    launched    Borehole_8D ROI-Q10 seeds 42 and 43 -- matches its protocol
+
+**The one difference is `exp_name`, and it is inert here.** It reaches the config
+object (dro_runner.py:482), but `grep -rn exp_name src/` finds it ONLY in
+`src/policy/dro.py` -- the SINGLE-fidelity class -- where it is used for logging
+and resume-checkpoint paths. **`mf_dro.py`, which h109 actually runs, never reads
+it.** Zero hits.
+
+### Conclusion, recorded before the verdict
+
+h109 is correctly constructed for its purpose. **If P1 fails, that is a real
+patch signal and not a config artifact** — and I will re-run h106 on clean code
+without argument, as I told the concurrent session.
+
+Recorded now specifically so this cannot be produced afterward as a reason to
+doubt an unwelcome result. Validating a control before it reports is the only
+time the validation is worth anything.
