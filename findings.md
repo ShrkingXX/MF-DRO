@@ -7554,6 +7554,19 @@ cause — the reference implementation's inflated prior mean `maxY+2*rangeY`. **
 success test passed against a comparator that is plausibly misconfigured is weak
 evidence, whatever the protocol says.**
 
+> **[CORRECTED — "misconfigured" is wrong.]** A peer session audited this against
+> the author's MATLAB reference (h103) and I verified both sources. The branch
+> condition in `mfboPreProcessParams.m:230-234` names **`MF-MI-Greedy` and
+> `GP-UCB` explicitly** in the inflated-prior arm, with the author's own comment
+> "works best for UCB". Our `additive_mfgp.py:109` matches it. **The port is
+> faithful; this is not our defect and the h83 comparison is not invalidated.**
+> The correct statement is that the two registered baselines are UCB-family
+> methods whose reference prior drives exploration and suppresses exploitation,
+> which at ~20-25 HF queries shows up as almost no improvement over the initial
+> design. Faithfully weak at this budget, not broken. The pass remains real and
+> remains uninformative about competitiveness — the conclusion stands, my reason
+> for it did not.
+
 ### The honest statement
 
 Three things are simultaneously true and all belong in any write-up:
