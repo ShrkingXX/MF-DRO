@@ -7775,3 +7775,78 @@ is what determines whether a claim gets checked before it goes out.** Where
 checking is one command, self-catching works. Where it means reading someone
 else's MATLAB or recomputing a sensitivity index three ways, it did not, for
 either of us.
+
+## H104: on Hartmann the ROI does essentially nothing. W4, not W3 — and my bar was under-specified.
+
+EXPLORATORY, zero compute, h84's Hartmann arms, seeds 42-46. W1-W4 registered
+at de2420d before computing.
+
+    WASTE FRACTION      paired mean -0.013   ROI better 2/5   (seeds 42,43 AT FLOOR
+                        in BOTH arms; of the three non-floor seeds, 2 better)
+    MEAN QUERY REGRET   paired mean -0.001   ROI better 3/5
+                        per-seed: -8.31, +2.02, -1.10, -0.54, +7.92
+    DISPERSION          paired mean -0.005   ROI better 4/5  (ROI DECREASES it)
+
+    W1 FAILED as registered.
+    W2 MET as registered -- and the bar was badly written.
+
+### W2 passed on a bar I under-specified, and the script drew the wrong conclusion
+
+h95's equivalent bars required **">= N/5 AND a negative mean"**. When I wrote
+W1/W2 I kept the count and dropped the mean condition. So W2 certifies "better on
+3 of 5 seeds" for a paired mean of **-0.001** across per-seed swings of +/-8
+points. That is not an improvement in any sense the word carries.
+
+My script then fired W3 -- "waste and/or query quality improve on Hartmann while
+regret stays failed, therefore waste and regret are SEPARABLE" -- on that hollow
+pass, because its trigger was `w1 or w2`. **The conclusion does not follow and I
+am not taking it.** W3 required an actual improvement to compare against the
+failed regret; there isn't one.
+
+I am recording W2 as MET, as registered, and simultaneously as meaningless. The
+bar is not being moved after the fact; it is being reported as the poor
+operationalisation of "improve" that it is, which is visible in the numbers the
+script itself printed.
+
+### The correct verdict is W4, and it is a clean strong negative
+
+On Hartmann the ROI does not reduce waste (mean -0.013, 2/5, two seeds with no
+waste to remove in either arm), does not improve mean query quality (-0.001), and
+*decreases* dispersion by 0.005 -- the direction that, per h95/h96, accompanies
+its FAILURES.
+
+Combined with everything else measured:
+
+    effect              Borehole        Hartmann      Ackley      Currin
+    regret              -3.49 (4/5)     failed        -0.09       saturated
+    relocation          PRESENT 5/5     absent        absent      absent
+    waste reduction     3/3 non-floor   none          --          --
+    mean query regret   -4.15 (5/5)     -0.001        --          --
+    dispersion          UP  +9.5%       DOWN -10.6%   --          --
+
+**Every measured effect of the ROI is Borehole-specific.** Not just the regret
+gain: the relocation, the waste reduction, and the query-quality improvement all
+appear on exactly one benchmark and are absent on the one the commission's own
+diagnosis was drawn from.
+
+### Third bar-design failure of the session, and they rhyme
+
+    M1 (h95)   count bar on a measure with a FLOOR that 2/5 seeds sat on
+    T2 (h98)   ordering bar over 4 items whose top two were not separable
+    W2 (h104)  count bar with NO mean condition, passed at a mean of -0.001
+
+Each passed or failed on a technicality of the bar rather than on the effect.
+**Standing rule, generalising all three: a bar must state the EFFECT SIZE it
+requires, not only the count of seeds that show it — and must say what happens
+when seeds cannot move.** h95's own M-bars had the right form and I dropped half
+of it nine hours later.
+
+### What this does to the primary question
+
+The brief asks for an ROI strategy that stops MF-DRO wasting HF budget, and
+grounds that in HARTMANN measurements. On Hartmann, the calibrated ROI reduces
+neither waste nor query regret. The waste reduction that does exist is on
+Borehole, where it accompanies a regret gain, so the two have still never been
+observed apart. **W3's question -- are waste and regret separable? -- remains
+open, because Hartmann failed to provide the waste improvement that would have
+tested it.**
