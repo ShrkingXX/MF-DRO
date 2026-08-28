@@ -6497,3 +6497,37 @@ advance.
 
 **Still failed, unchanged:** refinement's cost bar (P4 in h85) remains FAILED at
 1.25-2.07x against a <2.0x limit. Surviving on regret does not repair that.
+
+### Currin's "harm" is one seed on a benchmark both methods have solved
+
+**EXPLORATORY.** A peer session flagged as an open question that the ROI *harms*
+Currin (+0.11%) while its proposed relocation mechanism is absent there — if
+relocation were the whole account, absence should mean no effect, not a negative
+one. Checking the magnitudes rather than the percentages:
+
+      seed   ROI-Q10   no-ROI    diff %   diff (absolute)
+        42    0.0579   0.0275   +0.0304   +0.00419
+        43    0.5525   0.0000   +0.5525   +0.07624
+        44    0.0015   0.0349   -0.0334   -0.00461
+        45    0.0004   0.0000   +0.0004   +0.00006
+        46    0.0151   0.0042   +0.0109   +0.00151
+
+Currin's optimum is 13.80. The mean "harm" is **+0.0155 in absolute units** and
+**one seed (43) supplies 0.076 of it while the other four are within +/-0.005**.
+Borehole's ROI gain of -3.49% is **10.80 absolute units — roughly 700x larger
+than Currin's mean swing and 142x larger than its single worst seed.**
+
+Both methods have effectively solved Currin: four of five seeds finish within
+0.06% of the optimum, several at 0.0000. **The harm does not need a mechanism.**
+At this resolution the arms are separated by numerical noise on an already-solved
+problem, and one seed dominates the mean.
+
+This also bears on h83's headline. "MF-DRO beats no baseline on any benchmark" is
+true as stated, but Currin's contribution to it is a 0.01% margin — technically a
+loss, practically nothing. A four-benchmark sweep in which one benchmark is
+saturated should say so rather than let it count as evidence.
+
+**Caveat:** this is an argument about magnitude, not a demonstration that no
+mechanism exists. If a systematic effect operates on Currin it would be invisible
+at this scale, and the single-seed dominance means n=5 cannot separate "no effect"
+from "small effect plus one outlier".
