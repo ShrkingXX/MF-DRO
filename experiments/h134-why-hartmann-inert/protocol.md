@@ -52,3 +52,31 @@ instrument.
    whose objectives differ 100x in range.
 3. This is correlational. It can show the signature is absent, not that absence
    causes inertness.
+
+---
+
+## AMENDMENT 1 — P4, replicating the unregistered lead across independent ROI arms
+
+The h134 result carried an EXPLORATORY observation I did not register: on
+Hartmann the ROI arm's `L_loc` degrades less than the control's (-0.579 vs
+-1.003). If real it would be **the first non-null Hartmann cell in this project**,
+so it needs a test rather than a mention.
+
+Three further Hartmann ROI arms exist at seeds 42-46 and were not used above:
+h84 `ROI-FIX2`, h84 `ROI-ANN`, and h111 `ROI-Q05`. They span realized acceptance
+from ~0.05 to ~0.49 and were run for unrelated purposes.
+
+**P4 (locked, registered before looking at any of the three).** All three arms
+show *less* `L_loc` degradation than the ROI-OFF control on Hartmann — 3 of 3
+arms in the same direction — and the pooled ROI-vs-control contrast across all
+four ROI arms is separable at effect >= 0.5 with >= 4/5 seeds.
+
+**Falsified if** two or more of the three go the other way. With four arms
+spanning a 10x range of acceptance rates, a real effect of the ROI should not be
+confined to the one arm that suggested it.
+
+**Stated before looking:** this is a replication of a post-hoc observation on the
+*same seeds*, so it is not independent evidence — the seeds are shared and only
+the arms differ. It can show the observation is not an artefact of one arm; it
+cannot show it is not an artefact of these five seeds. A fresh-seed test would be
+needed for that and is not run here.
