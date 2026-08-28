@@ -11132,3 +11132,54 @@ naming the read point is what actually protects a conclusion.**
 
 Going forward, numbers here are stated as "raw @cost_curve 200" unless marked
 otherwise, and the read point is named alongside the statistic.
+
+---
+
+## h128 — a loose ROI forfeits most of the benefit but is not harmful
+
+I predicted a mis-set ROI would be WORSE than omitting it. Both locked
+predictions failed, and the reason was an error inside my own protocol.
+
+Borehole, seeds 42-46, paired, raw regret @ `cost_curve` 200:
+
+| arm | vs control (raw) | vs control (rel%) | effect | better |
+|---|---|---|---|---|
+| tight q=0.100 | **-13.077** | **-4.22%** | **1.74** | 5/5 |
+| loose q=0.493 | -4.060 | -1.31% | 0.54 | 3/5 |
+
+### The error: I mixed units inside a locked prediction
+
+My motivating arithmetic was "the ROI helps 3.5-4.2 pts, loosening costs +9.018,
+so loose should be ~5 worse than control". **Those are different units.** The
+3.5-4.2 on record is a percentage of the optimum; h125's +9.018 is raw regret.
+
+Converted consistently (Borehole optimum 309.576): tight vs control is -4.22%,
+loose vs tight is +2.91%, loose vs control is -1.31%.
+
+**And P2 was never a prediction at all.** (loose - control) = (tight - control) +
+(loose - tight) is an identity over the same three means. I registered a test of
+arithmetic and called it a composition check; the only thing it could reveal was
+my own unit error, which it did.
+
+Fifth unit/statistic mismatch logged today, and **the first I committed inside a
+locked prediction rather than caught in someone else's number**. The rule I
+proposed to the peer this morning would have caught it — I applied it to new
+results and not to a figure I was quoting from our own record.
+
+### What the numbers actually say
+
+  no ROI      baseline
+  q = 0.100   -4.22%   effect 1.74, 5/5   <- the useful setting
+  q = 0.493   -1.31%   effect 0.54, 3/5   <- no longer separable from no-ROI
+
+**Setting the ROI loosely forfeits about 69% of its benefit and drops it below
+separability — but does not make it actively harmful.** The claim for the
+primary question is "tune it or lose most of it", not "tune it or be worse off
+than without it". Narrower than I predicted, and it is the version supported.
+
+### A by-product worth having
+
+The recorded 3.5-4.2% Borehole benefit is independently confirmed here by a
+different route — h84's ROI-Q10 against h83's MF-DRO at seeds 42-46 gives
+**4.22%, effect 1.74, 5/5**. That figure has been quoted all project; this is
+the first time I have recomputed it from the raw curves myself.
