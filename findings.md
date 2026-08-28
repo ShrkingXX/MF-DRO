@@ -6141,9 +6141,14 @@ works, it did the OPPOSITE and worked anyway.
 
 Consistent with h88, which found MF-DRO's wider queries produce a BETTER global
 surrogate than MF-MES's concentration -- dispersion was never straightforwardly
-waste. Two independent measurements now say the same thing: **dispersion is a
-correlate of MF-DRO's failure, not its cause.** Any future fix justified by
-"reduce dispersion" needs to explain this result first.
+waste.
+
+[CORRECTED -- this paragraph originally read "two independent measurements now
+say the same thing". That OVERCLAIMED. Both measurements are different
+statistics computed on the SAME h90 runs (Borehole, seeds 47-51). That is
+evidence the particular statistic was not the artifact; it is NOT two datasets,
+and it must not be cited as replication. See the necessary/sufficient entry
+below for the measurement that IS independent.]
 
 The concurrent session adds a normalization warning worth keeping: on Borehole
 raw coordinate ranges span 0.1 to 52530, so an unnormalized proposal sd reads
@@ -6270,3 +6275,54 @@ is the recorded diagnostic optimum, and the sensitivity shares come from an
 earlier midpoint-freezing estimate over 3000 samples, not re-derived here. The
 account is consistent with every measurement taken so far, which is not the same
 as being the only account consistent with them.
+
+## Dispersion is NEITHER NECESSARY NOR SUFFICIENT — and my Borehole argument had the wrong benchmark
+
+CORRECTION AND SHARPENING, from the concurrent session's Hartmann measurement.
+
+### Two errors in how I argued h95
+
+**1. I called it "two independent measurements". It was not.** Both statistics
+were computed on the SAME runs -- h90, Borehole, seeds 47-51. Agreement between
+two statistics on one dataset shows the statistic was not the artifact. It is
+not replication and I wrote it as though it were. Corrected in place above.
+
+**2. Worse: I refuted a HARTMANN claim with BOREHOLE data.** The founding
+diagnosis -- mean HF query score 0.336 vs 0.747, proposals 3x more dispersed --
+was measured on Hartmann. h95 and h96 are both Borehole. I concluded "the
+founding diagnosis's implied fix points the wrong way" without measuring the
+benchmark the diagnosis came from. That is Lesson 23's exact shape again:
+the right quantity, measured under the wrong conditions.
+
+### The measurement that settles it, on BOTH benchmarks
+
+The concurrent session measured Hartmann directly (h84, seeds 42-46, same
+normalization):
+
+    benchmark   ROI outcome         dispersion effect   paired
+    Hartmann    FAILED / withdrawn  -10.6%  (DOWN)      4/5 down
+    Borehole    WORKED (-3.49)      +9.5%   (UP)        4/5 up
+
+**The sign flips, and it flips against the dispersion story.** The ROI reduced
+dispersion exactly where it did NOT help, and increased it where it DID.
+
+    NOT SUFFICIENT -- on Hartmann the ROI achieved the reduction the diagnosis
+                      prescribes, and its regret result was withdrawn anyway.
+    NOT NECESSARY  -- on Borehole it moved dispersion the wrong way and
+                      improved regret 3.49 pts, 9/10 pooled.
+
+**This framing replaces "correlate, not cause"** in everything above. It is
+better on two counts: it is checkable per benchmark, and it does not lean on a
+causal word that n=5 cannot support. The Hartmann half carries the weight,
+because it is the benchmark the diagnosis was drawn from.
+
+Limits, kept attached: n=5 per benchmark, no p-values; Hartmann's ROI-OFF arm
+reuses h83 for seeds 44-46 under a reproduction control passing at 0.000e+00;
+Hartmann's HF-only counts are 5-25 queries per run and are noisy, so the
+all-proposal column carries the claim.
+
+### What this does to H96's relocation account
+
+H96 concluded the ROI works by RELOCATING the query cloud, and it too is
+Borehole-only. The same objection applies with equal force, so it is registered
+as a prediction rather than left as an assumption -- see H96 Amendment 1.
