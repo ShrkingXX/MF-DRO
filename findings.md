@@ -6675,7 +6675,7 @@ Two consequences:
    piece of evidence. The honest form is three informative benchmarks plus one
    saturated one.
 
-## H97: boundary aversion is a SPREAD failure, not a centring failure. Neither registered mechanism was right.
+## H101 (renumbered from H97 -- ID collision): boundary aversion is a SPREAD failure, not a centring failure
 
 EXPLORATORY, zero compute, h90 Borehole runs. S1-S4 registered at 843c0cd
 before computing.
@@ -6801,13 +6801,13 @@ The three DISTINGUISHABLE levels are monotone and unanimous:
     tight (FIX2/Q10) vs ANN   paired -0.377, better 5/5
     ANN              vs OFF   paired -0.278, better 5/5
 
-So GAPSD -- h97's predictor, the head's centring in the sensitive dimensions --
+So GAPSD -- h101's predictor, the head's centring in the sensitive dimensions --
 improves monotonically as the ROI tightens from OFF to ANN to tight, and regret
 improves in the same order (0, -1.31, ~-4.5). **Centring mediates the ROI's dose
 over the range where the dose is actually resolvable at n=5.** What it does not
 do is tell FIX2 from Q10, and neither, on this evidence, does regret.
 
-T4 was not triggered: GAPSD is not flat, so h96/h97 are not merely descriptions
+T4 was not triggered: GAPSD is not flat, so h96/h101 are not merely descriptions
 of a single on/off comparison.
 
 ### Consequence for the primary question
@@ -7115,10 +7115,10 @@ Borehole's dim 0 carries 86% of the first-order variance and its incumbent
 headroom is **0.0000** -- the control arm already lands exactly on target. The
 product is zero.
 
-So **h97's prescription is WITHDRAWN, not merely suspended.** A
+So **h101's prescription (originally numbered h97) is WITHDRAWN, not merely suspended.** A
 sensitivity-weighted L_loc would place ~86% of its weight on a dimension with no
 headroom whatsoever. It would optimise hardest where nothing can be gained. The
-prescription was derived from a cloud statistic (h97) before the incumbent
+prescription was derived from a cloud statistic (h101, then h97) before the incumbent
 correction, and it does not survive it.
 
 What replaces it is NOT "weight by sensitivity x headroom" either -- H99 just
@@ -7182,7 +7182,7 @@ refuted.
 
 My protocol flagged the dimensionality confound and normalized it out. It did
 NOT flag the weighting defect, which I had documented myself and have now been
-bitten by four times (the h96 metric choice, the h97 cloud/incumbent mix-up, the
+bitten by four times (the h96 metric choice, the h101 cloud/incumbent mix-up, the
 dim-7 aggregate split, and here). Noticing it only after seeing an unwelcome
 result is exactly the pattern that lets a researcher rescue any failed
 prediction, so it is recorded as post-hoc and does not erase the registered
@@ -7209,3 +7209,67 @@ properly needs a sensitivity-weighted containment diagnostic, which does not
 exist in the logs and would cost a 5-run re-instrumentation of the Borehole ROI
 arm. Not launching it: h94 owns the compute and its result bears on whether this
 line matters at all.
+
+## ID COLLISION, third of the day: my H97 is renumbered to H101
+
+`experiments/h97-head-shrinkage` (mine) collided with
+`experiments/h97-roi-tightness` (the concurrent session's). First protocol
+commits: theirs **21:34:48**, mine **21:34:57** -- nine seconds apart.
+
+Resolved in their favour, on two grounds that both point the same way:
+
+  1. THEIRS WAS FIRST, by nine seconds.
+  2. **Theirs has five runs in flight writing into
+     `experiments/h97-roi-tightness/results/`.** Mine is a zero-compute
+     diagnostic with no results directory. Renumbering a running experiment
+     would break live workers' output paths; renumbering mine is free. This is
+     the same rule that settled the H88 and H89 collisions -- the experiment
+     with no results on disk moves.
+
+Mine becomes **H101**, not H98, because I had already used h98, h99 and h100
+before noticing. That leaves the numbering non-chronological (H101 was written
+before H98), which is ugly and is recorded here rather than hidden.
+
+### I also broke my own reservation
+
+h94's protocol states "this session holds h94-h99". I then created **h100**
+without extending it, and the concurrent session created h97 inside a range I
+had claimed. Reservations written into one session's protocol file are not
+visible to another session at the moment it picks a number -- that is the third
+time this exact failure has produced a collision today, and the fix is not a
+better reservation note.
+
+**Reservation now: this session holds h94-h96, h98-h101. The concurrent session
+holds h97 and h91-h93.** Registered here so the next number either of us picks
+can be checked against a single line rather than against two protocol files.
+
+All references in findings.md, research-state.yaml and research-log.md are
+updated. One reference at research-log.md:1313 is left untouched: it is the
+concurrent session's own entry and its "h97" correctly means h97-roi-tightness.
+
+### Experiment-ID collisions: fixed at the cause, not with another note
+
+Three collisions in one day (h88, h89, h97), all from one cause: a reservation
+written inside a session's protocol or findings file is **invisible to the other
+session at the moment it picks a number**. Any scheme based on reading a note has
+a race between reading it and creating the directory, and a peer session
+correctly observed that a better-worded note does not close that race.
+
+`mkdir` does. It is atomic and fails if the target exists, so **the directory is
+the registry and the claim is the creation**. `tools/claim_id.sh <slug>` scans
+`experiments/` for the highest hNNN, tries to create the next, and on failure —
+which is exactly the lost-race case — retries with the following number. Two
+sessions racing cannot both succeed.
+
+    tools/claim_id.sh roi-tightness    ->  experiments/h102-roi-tightness
+
+It also creates `code/` and `results/ckpt/`, which every experiment here needs.
+Self-tested: two consecutive claims return different directories.
+
+This does not need the other session to adopt it to work for me — a number I
+claim by mkdir is taken regardless of how they pick theirs. It only fully closes
+the race if both use it, but it degrades safely rather than silently.
+
+**Current allocation**, recorded for the human reader rather than as the
+mechanism: peer session holds h94-h96 and h98-h101; this session holds h91-h93
+and h97. Next free is h102.
