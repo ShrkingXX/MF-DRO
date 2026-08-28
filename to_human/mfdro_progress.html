@@ -126,6 +126,13 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
     </table>
     </div>
     <div class="col">
+    <p style="font-size:.86rem;color:var(--muted)"><strong>Corrected after publication.</strong> This
+    row previously read &ldquo;3.5 to 4.2 pts&rdquo;. That was never an interval &mdash; it was the
+    spread between two five-seed sets, quoted as though it bounded the estimate. Pooled across all ten
+    seeds the gain is <strong>3.86 points, better on 9 of 10</strong>, and the gap between the two sets
+    is under half a standard error of its own difference. The correction was recorded in the working
+    notes earlier and left standing here, which is the failure it is worth naming: a retraction has to
+    reach every surface the claim was published on, not just the one you happen to be editing.</p>
     <p style="font-size:.86rem;color:var(--muted)">Bars are effect sizes: the paired mean divided by
     its spread across five seeds, where 1.0 is the threshold used throughout this project. *Ackley's
     fidelity cell is censored &mdash; its control already spends the entire budget on high fidelity, so
@@ -263,7 +270,7 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
       <thead><tr><th>benchmark</th><th class="n">MF-DRO wasted (median)</th><th class="n">baseline</th><th class="n">does the region of interest help here?</th></tr></thead>
       <tbody>
         <tr><td>Hartmann 6D</td><td class="n lose">12.5%</td><td class="n">0.0%</td><td class="n lose">no</td></tr>
-        <tr><td>Borehole 8D</td><td class="n">3.2%</td><td class="n">0.0%</td><td class="n win">yes &mdash; 3.5 to 4.2 pts</td></tr>
+        <tr><td>Borehole 8D</td><td class="n">3.2%</td><td class="n">0.0%</td><td class="n win">yes &mdash; 3.86 pts, 9/10 seeds</td></tr>
         <tr><td>Ackley 10D</td><td class="n">2.5%</td><td class="n">0.0%</td><td class="n lose">no</td></tr>
         <tr><td>Currin 2D</td><td class="n win">0.0%</td><td class="n">0.0%</td><td class="n">&mdash;</td></tr>
       </tbody>
@@ -1142,18 +1149,26 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   <table>
     <thead><tr><th>Benchmark</th><th>Region&rsquo;s effect on regret</th><th class="n">Dispersion</th><th class="n">Relocation toward the optimum</th></tr></thead>
     <tbody>
-      <tr><td>Borehole</td><td class="win">worked, &minus;3.49</td><td class="n">+9.5% <strong>up</strong></td><td class="n win">present &minus;0.0144, 5/5</td></tr>
-      <tr><td>Hartmann</td><td>failed, withdrawn</td><td class="n">&minus;10.6% <strong>down</strong></td><td class="n">absent +0.0070, 3/5</td></tr>
+      <tr><td>Borehole</td><td class="win">worked, &minus;3.49</td><td class="n"><em>retracted &mdash; no effect</em></td><td class="n win">present &minus;0.0144, 5/5</td></tr>
+      <tr><td>Hartmann</td><td>failed, withdrawn</td><td class="n"><em>retracted &mdash; no effect</em></td><td class="n">absent +0.0070, 3/5</td></tr>
       <tr><td>Ackley</td><td>negligible, &minus;0.09</td><td class="n">&mdash;</td><td class="n">absent +0.0088, 1/5</td></tr>
       <tr><td>Currin</td><td>saturated, see below</td><td class="n">&mdash;</td><td class="n">absent &minus;0.0007, 2/5</td></tr>
     </tbody>
   </table>
   </div>
   <div class="col">
-  <p><strong>Dispersion moves the wrong way twice over.</strong> The region <em>reduced</em> dispersion
-  on the benchmark where it failed, and <em>raised</em> it on the benchmark where it worked. So
-  concentration is neither necessary for the gain nor sufficient to produce one &mdash; a claim that is
-  checkable per benchmark, rather than a causal one this sample size could not support.</p>
+  <p><strong>RETRACTED &mdash; the sign flip does not exist.</strong> This section reported that the
+  region <em>reduced</em> dispersion where it failed and <em>raised</em> it where it worked. That was an
+  artefact of averaging across dimensions without weighting them. Borehole has eight input dimensions
+  and four of them carry well under one per cent of the output between them, so an unweighted average
+  is dominated by dimensions the objective barely depends on. <strong>Measured where each objective
+  actually lives &mdash; weighted by each dimension&rsquo;s share of the output variance &mdash; the
+  region changes dispersion on neither benchmark</strong>, and neither contrast separates from zero.
+  Found independently by two sessions and reproduced by both. A later measurement points the same way:
+  a tenfold change in how tight the region is moves query dispersion not at all.</p>
+  <p>So the honest statement is not that concentration moves the wrong way. It is that
+  <strong>dispersion is not a quantity this lever moves</strong>, in either direction, and any
+  diagnostic built on it is measuring something else.</p>
   <p><strong>Relocation tracks the outcome instead.</strong> Where the region helped, it moved the query
   cloud closer to the optimum <em>in the dimensions that carry the output variance</em>, and let it
   spread out there. Excluding low-value regions is not the same operation as narrowing: what is left
@@ -1192,7 +1207,7 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
       <tr><td>Moves queries toward the optimum</td><td class="win">yes, 5 of 5</td><td>no</td></tr>
       <tr><td>Wasted queries removed</td><td class="win">3 of 3 where any existed</td><td>none</td></tr>
       <tr><td>Average query quality</td><td class="win">&minus;4.15, 5 of 5</td><td>&minus;0.001</td></tr>
-      <tr><td>Dispersion</td><td>up 9.5%</td><td>down 10.6%</td></tr>
+      <tr><td>Dispersion <em>(retracted)</em></td><td>no effect</td><td>no effect</td></tr>
     </tbody>
   </table>
   </div>
@@ -1502,9 +1517,11 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   deficit.</strong> Roughly 57&ndash;66% of it depending on setting and seed set, on ten of ten seeds at
   the well-replicated setting, at an effect nearly twice its own spread, confirmed at fresh seeds and
   again at fresh randomness.</p>
-  <p><strong>It works by moving the queries, not by tightening them.</strong> Dispersion goes
-  <em>up</em> where the region helps and down where it fails &mdash; the opposite of what the original
-  diagnosis prescribes.</p>
+  <p><strong>It works by moving the queries, not by tightening them.</strong> An earlier version of
+  this page said dispersion rises where the region helps and falls where it fails. <strong>That sign
+  flip was retracted</strong> &mdash; it came from averaging dimensions without weighting them by how
+  much the objective depends on each. Weighted, the region moves dispersion on neither benchmark. The
+  relocation half stands; the tightening half was never there to begin with.</p>
   <h3>What does not</h3>
   <p><strong>It still loses.</strong> Head to head against the strongest comparator it is behind on six
   of ten seeds even at its best setting. Removing most of a deficit is not closing it, and that was

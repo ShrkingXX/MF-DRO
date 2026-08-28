@@ -12790,3 +12790,50 @@ and cannot exclude a position well back toward the middle.
 on the page — a fix applied where I was looking and not where the claim was
 published. Worth noting the retraction and the surviving instance were written by
 the same session on the same afternoon.
+
+## AUDIT of the published report — a RETRACTED finding was live in four places
+
+Prompted by the peer catching one overstatement, I swept the whole page instead
+of patching only what they named. The independence claim was not the worst of it.
+
+**The dispersion sign flip — retracted in findings.md, still published in four
+locations.** Two prose assertions and two table cells claimed the region *raised*
+dispersion where it worked and *lowered* it where it failed:
+
+    "Dispersion moves the wrong way twice over."          (prose, section 21)
+    "Dispersion goes up where the region helps..."        (prose, section 27)
+    <tr><td>Dispersion</td><td>up 9.5%</td><td>down 10.6%</td>   (table)
+    <td>+9.5% up</td>                                     (table)
+
+findings.md records this as **corrected**: weighted by each dimension's share of
+output variance, the effect vanishes on both benchmarks and neither contrast
+separates. A peer session found it, I reproduced it independently with my own
+Sobol weights, and **today's dispersion-instrument negative points the same way**
+— a tenfold change in acceptance rate moves query dispersion not at all.
+
+All four are now corrected on the page, with the retraction visible rather than
+silently deleted, consistent with how the page handles its other corrections.
+
+### The propagation failure is the finding
+
+**Two sessions jointly retracted this claim, wrote the retraction into
+findings.md, and neither of us checked the published page.** It stayed live
+through every subsequent republish — including several of mine today, in which I
+added new sections to a page whose older sections contradicted my own record.
+
+This is the same failure as the independence overstatement one layer out, and
+larger: that one was a hedge that needed tightening, this is a claim we *know* is
+false. **findings.md is where we work; the artifact is the only thing anyone else
+reads.** A retraction that lands only in the working file is not a retraction.
+
+**Rule, and it belongs with "name the claim the result could retract":**
+
+> **When a claim is retracted, enumerate every surface it was published on and
+> fix each one.** The retraction is not complete when the correction is written;
+> it is complete when the original is gone from every place a reader could find
+> it.
+
+Two near-misses in this audit are worth recording because both were tooling, not
+judgement: the peer's `grep -c "5.958"` matched via regex `.` on a figure absent
+from the page, and my `grep -cF` missed a real sentence on **capitalisation**. I
+was seconds from replying that their flag was groundless.
