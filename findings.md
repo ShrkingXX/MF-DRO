@@ -9457,3 +9457,72 @@ visibly moves than the one the ROI visibly contradicts.
 Recorded before h113's numbers exist, so the framing correction cannot be
 mistaken for a reaction to them. **P3 still registers no threshold**, and that
 remains right regardless of which framing is correct.
+
+## CORRECTION: "the ROI works by dispersing MORE" is an artifact of an unweighted measure
+
+An hour ago I flagged the peer's L1 diagnostic for averaging over all eight
+Borehole dimensions when four carry 0.4% of the variance. **h95's dispersion
+measure does exactly the same thing**, and h95 is mine.
+
+Per-dimension std of HF query locations, Borehole, n=5 paired:
+
+    dim  share%   no-ROI     ROI      diff
+      0    85.8   0.0522   0.0494   **-0.0028**
+      6     4.3   0.0607   0.0569   **-0.0038**
+      3     4.1   0.0860   0.0975   +0.0115
+      5     4.5   0.0632   0.0709   +0.0077
+      1     0.1   0.0831   0.0945   +0.0114
+      2     0.1   0.0875   0.1051   +0.0176
+      4     0.1   0.0684   0.0715   +0.0031
+      7     1.0   0.0825   0.1210   **+0.0384**   <- largest change, 1% of variance
+
+    UNWEIGHTED (h95's)    +0.0104  sd 0.0098  ratio 1.07  higher 4/5  SEPARABLE
+    sensitivity-WEIGHTED  -0.0013  sd 0.0040  ratio 0.33  higher 2/5  NOT separable
+
+**The increase is almost entirely in dimensions that do not affect the
+objective.** In the dimension carrying 86% of the variance, dispersion goes
+DOWN. The single largest change is dim 7, which carries 1%.
+
+### What this corrects, and how far it reaches
+
+h95 concluded "the ROI improves the average query by dispersing MORE, not less",
+and h96 built "relocation, not concentration" on top of it. That specific
+phrasing is **withdrawn**: measured where the objective lives, the ROI's effect
+on dispersion is **not distinguishable from zero**.
+
+It reaches the published report, which says the ROI "works by moving the
+queries, not by tightening them" and that "dispersion goes up where it helps".
+Both rest on the unweighted number.
+
+### What survives, and it is most of the substance
+
+**"Dispersion is not the lever" survives and is arguably strengthened.** The
+founding diagnosis blamed dispersion and prescribed concentration; measured
+where it matters, the ROI changes dispersion *not at all* while improving regret
+by 4-5 points. A quantity that does not move cannot be the mechanism, which is a
+cleaner statement than "it moves the wrong way".
+
+**Relocation survives untouched.** h96 measured sensitivity-WEIGHTED distance to
+x* -- deliberately, after findings.md:3174 -- and found -0.0144 on 5/5, robust
+across three weightings. That result was already sensitivity-aware and is
+unaffected.
+
+So the corrected mechanism statement is: **the ROI moves the query cloud toward
+the optimum in the dimensions that matter, without changing how spread out it is
+there.** Relocation without concentration OR dispersion.
+
+### The lesson, which I had already written down
+
+This is the FOURTH unweighted-measure error on Borehole -- h96's metric choice
+(caught in advance), h100's containment diagnostic (caught after), the peer's
+bound-frac (caught by me an hour ago), and now h95's dispersion (mine, caught by
+turning my own critique on my own work).
+
+**Standing rule, upgraded: on Borehole, ANY per-dimension quantity averaged
+without sensitivity weights is invalid by default.** Not "check whether it
+matters" -- assume it does, because four of eight dimensions carry 0.4% of the
+variance and will dominate any unweighted average of a per-dimension statistic.
+
+Hartmann's dispersion figures (-10.6%, used in the necessary/sufficient argument)
+are the peer's and were computed the same unweighted way. They need the same
+check before that argument is quoted further.
