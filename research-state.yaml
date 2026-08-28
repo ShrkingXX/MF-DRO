@@ -1021,3 +1021,12 @@ axis_hazard: cost_curve is POST-INIT in mf_dro.py and CUMULATIVE in mf_mes_taken
   design, 40 on Borehole). Reading both at stored cost_curve==200 gives MF-MES only 160 post-init. ALWAYS
   use h83 sr_curve, which rebuilds cost_cum - init_cost from the trace. Check with tools/check_axis.py
   before any cross-method comparison.
+wall_clock_cost: 'Borehole, stored _wall_s, minutes/run: no-ROI 82.4 (h83) and 103.6 (h90) -- SAME CONFIG,
+  1.26x apart, so the machine-load confound equals the effect and no cross-experiment ratio is interpretable
+  below ~1.3x. ROI costs ~1.2-1.7x no-ROI; composite ROI+L1 measures 1.23x at n=10 (best-supported AND
+  most flattering, so quote the range). The 1/q model is REFUTED: ROI-FIX2 at q=0.214 (137.4) is slower
+  than ROI-Q10 at q=0.100 (117.4), because FIX2''s acceptance is a run-mean outcome and cost tracks its
+  tightest moments. CRITICAL FOR FRAMING: MF-MES runs in 5.0 min against MF-DRO''s 82-143 -- 16-29x, in
+  favour of the baseline that also beats us on regret (8/10) and on the diagnosis''s own metric (9/10).
+  Does not change the frozen metric (evaluation cost, matched at 200 post-init) but the honest contribution
+  must state it.'
