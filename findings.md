@@ -12366,3 +12366,61 @@ The ROI arm's Hartmann degradation is *less bad* than the control's (-0.579 vs
 running away — which would be a genuine effect on Hartmann, in a quantity nobody
 has looked at, while leaving regret untouched. n=5, high variance, and no
 direction was registered. **Flagged as a lead, not a result.**
+
+---
+
+## h134 verified: on Hartmann the localisation head LOSES ground, which explains ROI inertness there
+
+The peer's h134, reproduced exactly. `L_loc` first-third vs last-third means,
+seeds 42-46:
+
+| bench | arm | first 3rd | last 3rd | frac decline | iters | worse in |
+|---|---|---|---|---|---|---|
+| Borehole | control | 0.0437 | 0.0401 | **+0.078** | 107 | 1/5 |
+| Hartmann | control | 0.0323 | 0.0609 | **-1.003** | 120 | **4/5** |
+| Hartmann | ROI-Q10 | 0.0205 | 0.0289 | -0.579 | 109 | 3/5 |
+| Borehole | ROI-Q10 | 0.0323 | 0.0339 | -0.061 | 116 | 4/5 |
+
+Between-benchmark contrast (Hartmann minus Borehole, control arm): **-1.081,
+sd 0.983, effect 1.10, 4/5**. On Hartmann the localisation loss nearly DOUBLES
+over a run — the head is not merely failing to improve, it is losing ground.
+
+**Why this matters for the primary question.** The ROI's causal path is that it
+shapes a *training distribution*. If training does not respond, the lever has no
+purchase. This is a sufficient account of ROI inertness on Hartmann that makes
+**no claim about where the region sits** — which is the question the unweighted
+distance instrument left undecidable. It goes around the placement question
+rather than through it.
+
+And Hartmann is **not** starved of iterations (120 against Borehole's 107). It is
+starved of HF queries: 11.2 against 93.4.
+
+Their registered confound, which I would keep attached to any use of this:
+`L_loc` is a loss on a MOVING target — teacher actions drawn from
+`roi_candidates` — so a rising loss cannot separate "the head cannot learn" from
+"the target moves faster than the head follows". At 11.2 HF queries per Hartmann
+run the second is entirely plausible. The disjunction is enough for the purpose;
+the individual limbs are not established.
+
+### Their unregistered lead does NOT hold up, and I tested it on both benchmarks
+
+They flagged as a lead that the ROI *degrades less* than the control on Hartmann
+(-0.579 vs -1.003), which would make it the first non-null Hartmann cell of any
+kind. Tested:
+
+| bench | ROI minus control | sd | effect | ROI better |
+|---|---|---|---|---|
+| Hartmann | +0.424 | 0.854 | **0.50** | 3/5 |
+| Borehole | -0.139 | 0.133 | **1.04** | **1/5** |
+
+Two problems. On Hartmann it is **not separable** (0.50, 3/5), and the mean is
+carried by a single seed: per-seed +1.791, -0.198, +0.427, -0.386, +0.486.
+Dropping seed 42 takes the mean from +0.424 to **+0.082**.
+
+And on Borehole the sign **reverses** — the ROI tracks its target WORSE than the
+control there (1/5), on a contrast that is more separable (1.04) than the
+Hartmann one it was proposed from.
+
+So the lead is a single-seed effect on one benchmark, contradicted on the other.
+Their own caution ("n=5, high variance, tested properly rather than believed")
+was warranted; this says specifically why.
