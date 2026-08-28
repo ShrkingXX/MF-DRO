@@ -1863,3 +1863,38 @@ and Hartmann affords 11.6 HF queries per run against Borehole's 94.0 — so its
 headline statistics are per-run means over about twelve numbers.
 
 Report merged onto the peer's concurrent republish and updated.
+
+## 2026-08-28 (late morning) — generality closed, negatively
+
+Two results settled the day's direction.
+
+**h125** refuted my own locked null: ROI tightness IS a lever. Across a 5x
+acceptance range (q=0.100 vs q=0.493, both realized to three decimals) Borehole
+regret moves +9.018, effect 5.69, 5/5 — the largest effect in the project. The
+prior "tightness is a null axis" failed because every study behind it was a 2x
+contrast or narrower. Together they give a shape: flat below 0.10, steep
+degradation by 0.5.
+
+**h128** then failed both its predictions because I mixed units inside my own
+locked protocol — adding a rel%-of-optimum benefit to a raw-regret cost. A loose
+ROI is not harmful; it forfeits ~69% of the benefit and drops below
+separability. Fifth unit mismatch of the day and the first I committed rather
+than caught.
+
+**h130** closed generality. Fidelity had already failed to generalise (peer's
+h129 P6, verified, plus a fourth benchmark I added). Quality was the survivor —
+two independent statistics on Borehole, and the channel the founding diagnosis
+named. It fails too: Hartmann 0.33, Currin 0.30, Ackley 0.78.
+
+Four mechanisms, four benchmarks, one positive cell each time, always Borehole.
+And the sharpest form of h121's mismatch: **the ROI fails to move the diagnosed
+quantity on the benchmark where it was diagnosed.**
+
+**h120's registered invalidation condition discharged.** Its three ROI-OFF runs
+reproduced h83's MF-DRO bit-identically at seeds 44-46 — across three different
+commits, all with the tree dirty. MF-DRO == ROI-OFF now verified at 5/5 Borehole
+seeds, and h117's gate G0 extended by 414 queries as a side effect nobody
+designed for.
+
+Published the synthesis. Still in flight: h117 (last run), h126 (q=0.02),
+h127 (peer's q=0.30). None can change the generality finding — all Borehole.
