@@ -430,7 +430,11 @@ queued_experiments:
     Bars state effect sizes (R1: mean <= -3.0 AND ratio >= 0.5); R4 requires the
     paired count vs MF-MES to be printed with the mean-based percentage.
   h109-patch-repro-control: >
-    RUNNING (peer's), 2 runs, THE GATE on every post-patch result. Re-runs
+    **COMPLETE. P1 MET on 2/2 -- BIT-IDENTICAL.** seed42 115v115, seed43 103v103,
+    max|dx|=0, max|dy|=0, zero fidelity mismatches, final_regret identical to 10
+    decimals. The patches are INERT on the use_roi=True branch, MEASURED (G1 had
+    covered use_roi=False only). **h106, h107, h108 and h110 are CLEAN.**
+    (peer's), 2 runs, THE GATE on every post-patch result. Re-runs
     Borehole ROI-Q10 at seeds 42-43 on current code against h84's stored traces;
     P1 = bit-identical. **Its construction was verified here BEFORE it reports**:
     config identical to h84's except exp_name, which mf_dro.py never reads (only

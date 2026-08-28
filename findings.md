@@ -9086,3 +9086,44 @@ Ackley row was silently unresolvable and the benchmark would have reported
 Fixed with an explicit per-benchmark mapping rather than a glob — globbing across
 experiment directories returned a non-canonical run earlier today and is banned
 in this file.
+
+## h109 COMPLETE: P1 MET on 2/2. The patches are inert. h106/h107/h108/h110 are CLEAN.
+
+    seed 42   115 vs 115 post-init queries, max|dx|=0, max|dy|=0, 0 fidelity mismatches
+    seed 43   103 vs 103 post-init queries, max|dx|=0, max|dy|=0, 0 fidelity mismatches
+    BIT-IDENTICAL on both.
+
+**The gate passes.** Re-running h84's exact configuration on today's patched
+`src/` reproduces its stored traces exactly, on the `use_roi=True` branch --
+which is where a perturbation would have mattered and which G1's `use_roi=False`
+bit-identity never covered.
+
+So every post-patch result stands: **h106** (57% of the deficit removed, 10/10),
+**h107** (q=0.05 replicated at full size), **h102/h108** (the peer's), and
+**h110** (running).
+
+### The record of how this was settled
+
+    I claimed it was settled          h106's Q3 -- an IDENTITY, h84's stored
+                                      data compared against itself
+    The peer said the design could    correctly, and specifically: partial vs
+    not support the conclusion        complete, and patch confounded with seed
+    The peer launched the control     2 runs rather than a third argument
+    I verified its construction       config identical to h84's except exp_name,
+    BEFORE it reported                which mf_dro.py never reads
+    I checked the result with a       which refuses the degenerate case that
+    tool built for the purpose        produced my original error
+    Verdict                           bit-identical, 2/2
+
+**Two runs and ~100 minutes settled what three converging arguments could not.**
+Both arguments -- the peer's sandbox smoke test and my RNG-free/gradient-free
+reasoning -- turned out correct. That is exactly why spending the runs was right
+and not redundant: neither of us could know it beforehand, and the downside was
+four contaminated experiments.
+
+### The transferable rule
+
+**When an argument's failure mode would invalidate work already done, buy the
+measurement.** The cost of h109 was 2 runs. The cost of being wrong was
+re-running h106, h107, h108 and h110 -- 22 runs -- plus every conclusion drawn
+from them tonight.
