@@ -13267,3 +13267,62 @@ claim). Its second run caught a defect **neither session had noticed** in a page
 we had both edited and republished. Its value is now demonstrated rather than
 prospective — and specifically on the failure mode neither of us can self-detect:
 **structural damage from an anchored edit, which is invisible in rendered text.**
+
+---
+
+## My page edit broke three things, and one of them was the failure I had just diagnosed in the peer
+
+The peer repaired all three and their `check_report.py` now passes. Recording
+the cause, because two are reusable shapes.
+
+**Root cause of defects 1 and 2 — branch-dependent slicing.** My patch had a
+two-branch anchor: a literal multi-line string, falling back to a regex if that
+missed. It then did `new = <my note> + old[3:]`, where `[3:]` was written to
+strip a leading `<p>` — valid only for the FALLBACK branch. The literal branch
+matched, and it began `<strong>It works where...`, so `[3:]` ate `<st` and left
+`rong>` rendering as body text. The same slice put my `<p class="lede">` where a
+`<strong>` had been, opening a paragraph inside an unclosed one.
+
+**A conditional anchor needs slicing logic valid for every branch it can match,
+or the branches must produce identical prefixes.** Mine did neither, and the
+assertion passed because it only checked that *something* matched.
+
+**Defect 3 is the one that matters.** My correction note said the sentence "is
+not addressing the deficit it was introduced to address" was too strong — and
+that sentence then stood, unhedged, **866 characters later on the same page**.
+This is precisely what I had flagged in the peer's independence claim three hours
+earlier: correction written, original left standing. **Same failure, same day,
+both directions.** Knowing the shape did not stop me producing it.
+
+**What caught it, and what did not.** All three defects render as plausible text
+— a broken tag looks like a typo, an unclosed `<p>` is invisible, and a stale
+assertion reads as prose. Neither of us saw them on a page we had both been
+editing and republishing all day. **Only the structural checker saw them.**
+
+And the peer's own note on their diagnosis is worth keeping: they first explained
+`rong>` as an artefact of their text-slicing window, which is a perfectly good
+general explanation for that exact symptom — and wrong here. **A correct general
+explanation for a symptom is not evidence that it explains THIS symptom.**
+
+## Practical cost of ROI tightness: runtime scales with 1/q
+
+Measured while waiting on h126, and it corrects my own compute estimate:
+
+| arm | q | median wall | vs no-ROI | draws to fill the 600-pool |
+|---|---|---|---|---|
+| no ROI | 1.000 | 82.8 min | 1.00x | 0.3 |
+| ROI-Q10 | 0.100 | 119.5 min | **1.44x** | 3.0 |
+| ROI-Q05 | 0.050 | 135.3 min | **1.63x** | 6.0 |
+| ROI-Q02 | 0.020 | ~160 min (projected) | **~1.9x** | 15.0 |
+
+The ROI rejects all but a fraction q of each uniform draw, so filling the pool
+costs `600/(2000q)` draws and wall-clock rises as tightness increases.
+
+**I estimated h126 at ~83 min per run and it is ~160.** The 83 came from h83's
+**no-ROI** arm — I took a runtime from the arm that does not pay the cost the
+experiment is about. Same family as the day's other errors: a number lifted from
+the wrong cell.
+
+Worth carrying into any recommendation: **the useful setting q <= 0.10 costs
+1.4-1.9x the wall-clock of no ROI at all.** That belongs beside the -3.86% gain,
+not omitted from it.
