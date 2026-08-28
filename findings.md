@@ -11752,8 +11752,21 @@ effect size rising across the run is **variance reduction, not signal growth**.
 
 Two consequences:
 
-- Quoting "the ROI is worth 3.5-4.2%" at full budget **understates it by ~2x at
-  its peak**, and describes a non-monotone quantity as though it were a level.
+- The quantity is non-monotone and should not be described as a level.
+
+**GUARD, added immediately and flagged by the peer as a hazard I was creating.**
+An earlier draft of this entry said the headline "understates it by ~2x at its
+peak". **That phrasing is wrong and I withdraw it.** The frozen evaluation in
+PROTOCOL.md is final simple regret at matched cost, and matched cost here is
+post-init 200. **-4.224% IS the headline number.** -7.813% is a fact about the
+SHAPE of the run, not a better estimate of the effect.
+
+Calling the frozen value an understatement invites quoting the 1.85x more
+flattering number, with a measured mechanism attached to justify it — which is
+read-point flexibility in its most persuasive form, and precisely what neither
+of us would accept from a paper under review. The honest form is the one used
+for the Hartmann correction above: **report at the frozen point, state the shape
+separately.**
 - Any "Borehole eventually accumulates enough data for the confidence region to
   bite" story is dead. **-4.681% is already there at twelve HF queries** — which
   is Hartmann's entire post-init budget. Data volume is not what separates the
