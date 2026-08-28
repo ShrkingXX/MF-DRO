@@ -291,3 +291,53 @@ had blind spots on the same path.
 
 G3 must pass before h94 relaunches. Its result will be recorded here whichever
 way it goes.
+
+## Amendment 7 — G3 PASSED, and it changes how h94 must be read. Recorded with 0 results.
+
+    MODE project       11 real queries   snapped 11/11   accept 0.099   snap dist 0.7317
+    MODE snap_control  13 real queries   snapped 13/13   accept 1.000   snap dist 0.5400
+    Var(actions_x) logged in both (11 and 13 entries).
+
+Both code paths execute, the quantile calibration hits its 0.10 target (0.099),
+the unfiltered control accepts everything (1.000) as designed, and no ROI came
+back empty. **G3 is MET.** h94 may launch.
+
+### THE DT'S RAW PROPOSAL IS NEVER ADMISSIBLE. 11 of 11.
+
+P5 asked whether >50% of queries required snapping. The answer is 100%, and
+that is not the comfortable outcome. It means the intervention is never
+"the DT proposes, the ROI occasionally corrects". **Every single query is
+replaced**, and by a mean normalized distance of 0.73 in a cube of diameter
+2.828 -- 26% of the domain, and MORE than the student-teacher gap L_loc implies
+(0.55).
+
+So what h94 actually tests is: *the nearest in-ROI pool member to the DT's
+output*. The DT supplies a direction; the pool supplies the point. That is a
+much heavier mediation of the DT's role than "declare which points are
+admissible" suggested when I wrote the rule, and it must be stated in the
+result whichever way the numbers fall.
+
+**It is still not pool+argmax** -- no acquisition function ranks the candidates,
+and which candidate wins depends entirely on the DT's output. But the honest
+description is no longer "the DT decides and the ROI constrains"; it is "the DT
+picks a point in candidate space by proximity". If h94 shows a gain, that
+distinction is the first thing a reader will press on, and it should be
+volunteered rather than defended.
+
+### A confound in the C-vs-D comparison, named before results
+
+    ROI-PROJECT   snap distance 0.73   (pool filtered to ~10%)
+    SNAP-CONTROL  snap distance 0.54   (pool unfiltered)
+
+D snaps LESS FAR, necessarily: an unfiltered pool has more candidates near any
+given point. So C and D differ in ROI-membership AND in how far the query moves.
+D remains a valid control for "does quantizing onto a finite pool help at all",
+which is what it was built for and what the excluded-mechanism check needs. It
+is NOT a distance-matched control, and P1 therefore cannot separate "the ROI
+helps" from "moving further helps". Stating this now so it is not discovered in
+the numbers later.
+
+A distance-matched control is constructible (snap to the nearest member of an
+unfiltered pool subsampled to the same size as the surviving ROI set) and is the
+obvious follow-up if P1 comes out positive. Not run now: it would be a third arm
+chosen after seeing G3, and h94's arms were fixed in advance.
