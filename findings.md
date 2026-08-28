@@ -13003,3 +13003,64 @@ Recorded this way because the natural version of this paragraph — "the stall i
 3.588 and the gap is 3.826, so removing the stall nearly closes it" — is the
 h128 error exactly: adding quantities measured against different references
 because they carry the same unit label. **Same unit is not same quantity.**
+
+---
+
+## CROSS-METHOD HAZARD: `cost_curve` means different things for MF-DRO and MF-MES
+
+Found while verifying the peer's h137 and disagreeing with their comparator. **The
+disagreement was mine to lose.**
+
+  `src/policy/mf_dro.py:3640`  `'cost_curve': [l['post_init_cost'] ...]`
+                               with the comment "cost_curve is POST-INIT cost".
+  `src/baselines/mf_mes_takeno.py:410`  `cost = len(Y_hf)*c_H + len(Y_lf)*c_L`,
+                               initialised to the INITIAL-DESIGN cost, stopping
+                               at `cost_budget + init_cost`.
+
+**The same key holds a post-init axis for MF-DRO and a cumulative axis for
+MF-MES**, differing by exactly the initial design — 40 on Borehole (10 HF x 2 +
+20 LF x 1). Measured end-of-run cost_curve values:
+
+| arm | end cost | regret @200 | regret @end |
+|---|---|---|---|
+| MF-MES (h83) | **240.40** | 22.797 | 19.686 |
+| MF-MES (h115) | **240.60** | 18.706 | 17.298 |
+| ROI+L1 (h113) | 200.70 | 30.405 | 30.405 |
+| control (h83) | 200.60 | 48.959 | 48.959 |
+
+So:
+
+- Reading BOTH at `cost_curve == 200` compares MF-DRO at 200 post-init against
+  MF-MES at 200 cumulative = **160 post-init**. That hands MF-DRO **25% more
+  post-init budget** and violates the frozen "matched cost". **That was my
+  reading, and it is wrong for cross-method comparisons.**
+- Reading both at END OF RUN compares 200 post-init against 200 post-init, since
+  MF-MES terminates at cumulative 240. **That is matched, and it is what the peer
+  used.**
+
+### The rule this establishes
+
+- **Within MF-DRO arms** (ROI settings, control, L1, combinations): every arm
+  shares the post-init axis, so `@cost_curve 200` is matched and correct — and
+  end-of-run is contaminated by differing overshoot. Everything in h125, h128,
+  h133, h135 and the -3.86% pooled estimate is unaffected.
+- **Across MF-DRO and MF-MES**: `cost_curve` is not a common axis. Use end-of-run
+  (both stop at 200 post-init) or convert explicitly.
+
+My h137 recomputation gave MF-MES 6.703 and a gap of +3.118 against the peer's
+5.996 and +3.826. **Theirs is the matched-cost figure. Mine gave MF-DRO a quarter
+more budget than the baseline.**
+
+### Why this one is worse than the day's other read-point errors
+
+Every earlier instance was a difference in units or in which quantity was named,
+and effect sizes survived them. **This one silently changes the amount of budget
+each method gets**, so it biases a competitive comparison in the direction that
+flatters our own method — and it does so through a key that looks identical in
+both files, with a docstring in one of them asserting the meaning that only holds
+there. Nothing about the name or the code at the read site reveals it.
+
+Audited my own published claims for it: h117, h118, h121, h130 are query-space
+statistics with no cost read; h125/h128/h133 and the pooled estimate are
+MF-DRO-internal. **No published claim of mine is affected.** The only instance
+was the h137 recomputation above, which I had not yet reported.
