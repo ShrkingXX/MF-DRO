@@ -7046,3 +7046,38 @@ not with 4.** Its correction of my correction is accepted in full.
 **Never derive a per-item figure by splitting an aggregate, and never reuse a
 measurement whose known failure mode applies to the item being measured.** Both
 were available to me in this file when I did it.
+
+**Three-way convergence on the Borehole sensitivities.** A peer computed a third
+independent estimate (binned Var(E[Y|X_i])/Var(Y), 40000 samples, no midpoint
+freezing, no Saltelli). All three routes now agree on the ranking:
+
+      dim   binned S1   my Sobol   midpoint-freeze (superseded)
+        0     82.77       84.29        81.6
+        3      3.98        4.30         4.6
+        5      4.38        4.53         5.4
+        6      4.11        5.70         8.0
+        7      0.94        1.17         0.1
+
+Dim 7 is ~1% on both non-frozen estimates and belongs with dim 6, not with dim 4.
+The peer has accepted that and recorded that their 0.1% was not a measurement at
+all — it came from splitting an aggregate ("dims 1,2,4,7: 0.4% total") evenly
+into four, then used as if measured.
+
+**A limitation of my own estimate, which their third route exposes.** I
+normalised my Sobol indices to sum to 100%, so my table *cannot* show the
+interaction fraction — it silently attributes all variance to main effects. Their
+unnormalised binned estimate sums to 96.4%, putting ~3.6% in interactions. My
+caveat said first-order indices ignore interactions; my table then hid how much
+was being ignored. Report unnormalised indices, or state the sum.
+
+**The weighting choice does not disturb the conclusions.** The peer re-ran h96's
+primary result under all three weightings: -0.0144 (midpoint), -0.0127 (binned),
+-0.0140 (my Sobol), ROI closer 5/5 in every case — because all three agree dim 0
+carries 82-84% and it dominates. Only the per-dimension attribution changed.
+
+**The pair of lessons is symmetric and neither of us could have reached it
+alone.** Mine: an unweighted per-dimension table points at whichever dimension
+moved most, not whichever mattered most. Theirs: a weighted table is only as good
+as its weights. I needed their weighting to see that my largest raw gains were in
+dimensions that do not matter; they needed my independent estimate to see that
+one of their weights was fabricated from an aggregate.
