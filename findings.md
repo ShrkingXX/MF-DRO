@@ -8961,6 +8961,27 @@ zero, while reliably improving regret. Whatever L1 is doing, **it is not acting
 through the boundary channel** — and the boundary-aversion hypothesis remains
 untested by anything in this session.
 
+> **[CORRECTED — the instrument was wrong, not the effect.]** A peer session
+> measured the same runs with a *sensitivity-weighted* instrument and I verified
+> it independently to four decimals: **fraction of HF queries within 0.05 of x\*
+> in dims 0, 3, 5, 6 — the four carrying 99.6% of Borehole's output variance —
+> rises +0.0299, sd 0.0257, ratio 1.16, on 10 of 10 seeds.** That is a ratio
+> comparable to the regret gain's own (1.24).
+>
+> My `bound_frac` spreads its signal over seven dimensions including three that
+> carry 1.2% between them, and it measures proximity to *any* boundary rather
+> than to the optimum. **"L1 does not move its mechanism quantity" is false as
+> stated.** The correct statement: L1 does not make the head hug boundaries
+> generically, and it *does* move it closer to x\* in the dimensions that matter.
+>
+> This is the unweighted-distance trap in its third appearance — it reversed
+> h96's conclusion and made h100's containment diagnostic uninterpretable before
+> it reached me. I documented that trap myself this session and then built two
+> claims on an instrument subject to it.
+>
+> **Not claimed:** that the reach increase *causes* the regret gain. Correlation
+> at n=10 and ratio 1.16 is suggestive, not settled.
+
 ## h109 early read: traces bit-identical through ~98 queries. And a partial-vs-complete error I caught.
 
 NOT the verdict -- h109's final result files do not exist yet and are
@@ -9411,3 +9432,28 @@ composition question, which remains the right test and is running.
 
 Flagged to the peer, since its h113 protocol and its findings entry both rest on
 the symmetry this weakens.
+
+## H113's framing is weakened, before its results arrive
+
+h113 was registered on the claim that the two surviving interventions are
+"unexplained in the same specific way — each improves regret without moving the
+quantity its proposed mechanism operates on". **Half of that is now false.**
+
+      ROI   regret improves; dispersion moves the WRONG way (up, while the
+            founding diagnosis blamed dispersion) — genuinely counter to its story
+      L1    regret improves; sensitive-dim reach moves the RIGHT way, 10/10 —
+            consistent with its story once measured with an instrument that can
+            see it
+
+So the symmetry is not "two effects, same footprint, both unexplained". It is
+**one effect counter to its own story, and one consistent with it.**
+
+**This does not weaken the case for running h113** — composition is still the
+cheapest test of whether the two share a channel, three of four cells already
+exist, and the runs are in flight. What it changes is what a shared-bottleneck
+result would *mean*: if they share a channel, it is more likely the one L1
+visibly moves than the one the ROI visibly contradicts.
+
+Recorded before h113's numbers exist, so the framing correction cannot be
+mistaken for a reaction to them. **P3 still registers no threshold**, and that
+remains right regardless of which framing is correct.
