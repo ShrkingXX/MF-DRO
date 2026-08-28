@@ -122,7 +122,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-28  # 04:0x, best setting closes 62%; h109 (gate) + h110 running
+last_updated: 2026-08-28  # 06:0x, gate PASSED; Borehole-only survives a real test; h113 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -415,6 +415,70 @@ queued_experiments:
     best Borehole result (5.78, below MF-MES's 6.40) and one worse than doing
     nothing. Quantizing onto a finite pool is a lottery, not a hidden source of
     the ROI's gain.
+  BOREHOLE_ONLY_survives_a_real_test: >
+    **The single most important status line.** Every ROI effect is
+    Borehole-specific, and that claim has now faced a real attempt to break it
+    rather than resting on an untuned threshold. The peer's h111 ran ROI-Q05 on
+    Hartmann and Ackley, 10 runs, gate observed (accept 0.0498-0.0501):
+      Hartmann  Q05 vs no-ROI  -0.52  sd 6.32  2/5   NOT separable
+      Ackley    Q05 vs no-ROI  -0.09  sd 0.73  2/5   NOT separable
+    **TWO tightness settings spanning 2x both fail on both benchmarks**
+    (q=0.10 gave -1.62 and -0.09). So Borehole-only is a property of the
+    heuristic, NOT an artifact of an unchosen threshold.
+    BOUNDED CORRECTLY, and this corrects both sessions: Hartmann's paired sd is
+    6.32, so an effect needs |mean| >= 3.16 to resolve there at n=5. Borehole's
+    effect is 5.79, which WOULD clear that. So Hartmann **rules out a
+    Borehole-sized effect** and rules out nothing below ~3.2 points. The peer's
+    "cite neither number in either direction" is too strong; my h104 phrasing
+    ("the ROI does essentially nothing on Hartmann") was worse -- I reported an
+    unresolvable measurement as a measured zero. Detecting a 2-point Hartmann
+    effect would need ~n=40.
+  h110_RESULT_tightness_is_seed_set_dependent: >
+    **COMPLETE 5/5.** All four bars MET, and the line that matters is not a bar:
+    Q05 vs Q10 head-to-head at seed-matched n=10 is **-0.63, ratio 0.27, 6/10 --
+    NOT SEPARABLE.** Per seed set: -1.57 (42-46), -1.52 (47-51), **+0.30
+    (52-56)**. q=0.05 beat q=0.10 on two seed sets and not the third, and the
+    two that agreed did so to 0.05 -- the same shape that preceded the Hartmann
+    flip's withdrawal.
+    **WITHDRAWN: "the strategy is q=0.05".** Correct version: q=0.05 is at least
+    as good everywhere measured, better on 2 of 3 seed sets, indistinguishable
+    pooled seed-matched. Both settings work (Q05 -4.71/-5.01/-5.79; Q10 -4.08 at
+    10/10). Which target to use is OPEN.
+    R2 (66% vs 57% gap closed) passed and must NOT be leaned on -- that 9-point
+    difference IS the -0.63 head-to-head over a ~9.4-point gap, so it inherits
+    its non-separability. **A gap-closure percentage inherits the separability of
+    the difference underneath it.** R4 forced the paired count alongside: Q05
+    still LOSES to MF-MES 6/10, median +1.43.
+  h109_GATE_PASSED: >
+    **P1 MET 2/2, BIT-IDENTICAL.** seed42 115v115, seed43 103v103, max|dx|=0,
+    max|dy|=0, zero fidelity mismatches, final_regret identical to 10 decimals.
+    The working-tree patches are INERT on the use_roi=TRUE branch, MEASURED (G1
+    had covered use_roi=False only). h106/h107/h108/h110/h113 all CLEAN.
+    Transferable rule: when an argument's failure mode would invalidate work
+    already done, buy the measurement. 2 runs against a 22-run re-run.
+  h113-roi-l1-compose: >
+    RUNNING (peer's), 10 runs, Borehole ROI-Q10 + L1-LOSS at seeds 42-51. The
+    two interventions that replicated are both Borehole-only and both unexplained
+    IN THE SAME WAY -- each improves regret without moving the quantity its
+    proposed mechanism operates on (ROI raises dispersion; L1 leaves boundary
+    reach at ratio 0.25). Whether they compose is the cheapest test of whether
+    they are one phenomenon or two.
+      additive          approx -6.3   two independent mechanisms
+      shared bottleneck approx -4.1   no better than the ROI alone
+    **The additive prediction lands on top of MF-MES (8.24 on these seeds)** --
+    if additive, the combined arm ties the strongest comparator on the one
+    benchmark where MF-DRO loses. Registered as a hypothesis's prediction, not an
+    expectation; would need fresh-seed re-verification.
+    I nearly duplicated this (h114, withdrawn) AND h111 (h112, withdrawn).
+  DUPLICATION_rules_earned_tonight: >
+    Two near-duplications in two ticks, both withdrawn before launch.
+    RULE 1 (h112): grep the results tree for the arm BEFORE writing the protocol.
+    RULE 2 (h114): **rule 1 is insufficient.** It finds COMPLETED work only -- it
+    cannot see concurrent work, and it misses the same question at a different
+    parameterisation (my Q05 glob would never have matched the peer's Q10 arm).
+    **When a peer flags a question as open and worth doing, message BEFORE
+    designing.** That is the signal that actually predicts duplication, and it is
+    what the peer acted on from its side.
   BEST_SETTING_closes_62pct: >
     On seeds 42-46 -- **the only seed set carrying all four arms** (no-ROI, Q10,
     Q05, MF-MES), enabled by the peer's h107 -- seed-matched n=5:
