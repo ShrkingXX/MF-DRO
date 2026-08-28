@@ -893,3 +893,37 @@ h118_roi_boundary_waste:
     Two mechanistic candidates for the ROI's Borehole benefit are now ruled out
     by pre-registered tests: dispersion (h116) and boundary resolution (h118).
     The channel remains UNIDENTIFIED.
+
+h119_roi_channel_screen:
+  status: COMPLETE. EXPLORATORY SCREEN -- generated a hypothesis, not a result.
+  finding: >
+    5 of 7 pre-enumerated quantities separated on h90 (Borehole, seeds 47-51).
+    C1-C3 are ONE fact (fixed cost budget links them): the ROI buys 9% fewer HF
+    queries (93.2->84.6) and >2x the LF queries (14->31), 5/5 seeds. C4: converges
+    at 75% of budget vs 94%. C5: HF queries better by 0.274 init-design sd.
+    C6 -- the founding diagnosis's OWN statistic -- did NOT separate (0.62).
+  hypothesis_generated: >
+    The ROI is a FIDELITY-MIX lever, not a spatial-search lever. Consistent with
+    dispersion (h116) and boundary resolution (h118) both failing: those are
+    spatial channels.
+
+h120_roi_fidelity_reallocation:
+  status: UNRUNNABLE AS LOCKED. No verdict issued.
+  reason: >
+    h84's ROI-OFF control exists only at seeds 42-43 (ckpt AND finals agree).
+    All four locked predictions need >=4/5. I verified h84's configs, budget,
+    commit provenance and dirty flags before locking but NOT arm completeness.
+  no_independent_set_exists: >
+    Only h84 (n=2) and h90 (n=5) pair a no-ROI control with an ROI arm inside one
+    experiment. h90 GENERATED the hypothesis so cannot confirm it. h86 has
+    ROI-Q10 at 42-46 but no control. Cross-experiment pairing is banned.
+  n2_descriptive_only: >
+    P1/P1b directionally consistent (2/2). P3 count-matched quality +16.7 raw y
+    (2/2) -- close to the uncounted +16.1, so h119's C5 is NOT merely an artefact
+    of averaging over fewer queries. P2 went the WRONG way (1/2), contradicting
+    h119's C4. P4 negative control moved in both seeds, flagged in advance.
+  QUEUED_COMPUTE: >
+    Borehole_8D ROI-OFF seeds 44,45,46 under h84's exact config (~83 min each).
+    NOT launched: machine at 15/15. Must run on code empty-diff against
+    af5ec31b1 over src/ dro_runner.py benchmarks.py -- the working tree carries
+    the uncommitted h94/h102 patches, so CHECK, do not assume.
