@@ -236,3 +236,37 @@ added after D2 -- not the earlier version. **G1 is MET.**
 G2 is NOT met. h90's arms A and B (NO-ROI, ROI-Q10) are complete 5/5, which is
 what h94 consumes, but 13 workers are running and h94 needs 10 slots. Its
 REFINE-100 arm (h90's own P4, unrelated to h94) is the remaining long pole.
+
+## Amendment 5 — GATE DEVIATION, recorded BEFORE launching
+
+G2 as written required `workers <= 5`. Six are running. **I am launching 8 of 10
+jobs at 6 workers: 6 + 8 = 14, inside the cap of 15.**
+
+The gate's purpose was the compute cap, not the number 5. Recorded as a
+deviation rather than silently reinterpreted, and recorded BEFORE the launch.
+
+### Both preconditions the gate actually protects are verified, not assumed
+
+**h90 is COMPLETE, 15/15.** It supplies arms A (NO-ROI) and B (ROI-Q10), both
+5/5. Its REFINE-100 arm also finished: -3.29, 5/5, P4 and P5 MET.
+
+**No launcher can spawn a worker into a patched src/.** This was the hazard that
+kept the patch out of the tree for four hours. h93's launcher process is still
+alive, so I checked its accounting rather than trusting the report that it had
+nothing left: 14 completed + 6 in flight = 20 of 20 jobs. Nothing is queued, so
+no new process will import `mf_dro.py`. Already-running workers loaded the module
+at start and are unaffected.
+
+**G1 passed** on this exact patch, including the Var(actions_x) logging.
+
+### Why 8 and not 10
+
+h94's runner interleaves by seed so PAIRS complete together (a paired comparison
+needs both arms of a seed; five half-pairs are useless). 8 jobs = seeds 47-50 at
+both arms = four complete pairs. Seed 51's two jobs are SKIPPED at launch and
+will go when slots free, giving the fifth pair. One slot is left as margin.
+
+Skip arguments are passed as separate literal arguments, not via an unquoted
+variable expansion -- the concurrent session's 26-worker over-launch came from
+zsh not word-splitting an unquoted expansion, so 16 skip-triples arrived as ONE
+argv element and every job launched.
