@@ -971,3 +971,37 @@ h120_amendment3_DISCHARGED_2026_08_28:
     consequences above -- which is what makes it able to support them.
 
     '
+
+h123_status_2026_08_28:
+  state: REGISTERED, not launched. Blocked on peer's h127 seed 51 (unspawned).
+  prediction: >
+    NO DIRECTION REGISTERED (Amendment 2). h125 compared two CONSTANT tightness
+    settings and licenses nothing about a SCHEDULE -- tight-vs-wide is not
+    tight-then-wide. Both the original null and Amendment 1's "widening is worse"
+    are withdrawn, their grounds refuted.
+  peer_prediction_recorded_not_adopted: >
+    Peer predicts widening BEATS constant q=0.10 by recovering an eroding
+    advantage (erosion +3.588, effect 1.40, 5/5; control regret falls 5.193% vs
+    ROI 1.605% over the back half -- verified independently here). Labelled
+    exploratory and post-hoc by them; NOT adopted, so h123 adjudicates it as an
+    independent prediction.
+  design_adopted: "Report at post-init cost 25, 50, 100, 200 -- a schedule mixes regimes."
+  gate_M1_sharp: >
+    Run-mean realized accept_frac must be in [0.25, 0.30] against a configured
+    cost-weighted mean of 0.275. Replaces a vague criterion. WOULD have caught
+    ROI-ANN (configured mean 0.275, realized 0.4934 = its start value).
+    Byte-identity is structurally unavailable to a ramp; it is right for the
+    peer's h132 STEP design only.
+  M1_limitation_stated: >
+    roi_summary stores aggregates only, so M1 tests the ramp's MEAN not its
+    SHAPE. A schedule jumping straight to 0.275 would pass.
+
+read_point_guard_2026_08_28:
+  withdrawn: "'The headline 3.5-4.2% understates the benefit by ~2x at its peak.'"
+  correct: >
+    The frozen metric is matched cost 200. -4.224% IS the headline. -7.813% at
+    cost 100 is a fact about the run's SHAPE, not a better estimate. Calling the
+    frozen value an understatement invites quoting a 1.85x more flattering number
+    with a mechanism attached to justify it -- read-point flexibility in its most
+    persuasive form. Report at the frozen point, state the shape separately.
+  hazard_origin: "Peer's measurement, my phrasing. Both on the record."
