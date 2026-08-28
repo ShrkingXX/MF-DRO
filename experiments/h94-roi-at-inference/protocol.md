@@ -341,3 +341,53 @@ A distance-matched control is constructible (snap to the nearest member of an
 unfiltered pool subsampled to the same size as the surviving ROI set) and is the
 obvious follow-up if P1 comes out positive. Not run now: it would be a third arm
 chosen after seeing G3, and h94's arms were fixed in advance.
+
+## Amendment 8 — a THIRD confound, recorded with 0 results written
+
+Observed from live checkpoints, before any h94 result file exists and therefore
+before any regret number can be read. HF share of post-init queries:
+
+    arm              47    48    49    50    51    mean
+    NO-ROI (h90)   0.93  0.98  0.63  0.88  0.98   0.88
+    ROI-Q10 (h90)  0.78  0.92  0.53  0.57  0.94   0.75
+    ROI-PROJECT    0.76  0.89  0.54  0.74  0.95   0.78
+    SNAP-CONTROL   0.59  0.77  0.59  0.60  0.83   0.68
+
+**The arms differ in FIDELITY MIX, not only in where they query.** SNAP-CONTROL
+spends materially less of a matched cost budget on high fidelity than
+ROI-PROJECT does (0.68 vs 0.78), and both differ from the no-ROI control.
+
+So C and D now differ in THREE ways, only the first intended:
+
+    1. ROI membership of the admissible set   -- the intended contrast
+    2. snap distance   0.73 (C) vs 0.54 (D)   -- Amendment 7
+    3. HF share        0.78 (C) vs 0.68 (D)   -- this amendment
+
+**If C beats D, any of the three could be responsible, and P1 cannot separate
+them.** Fewer HF queries at matched cost is a plausible independent cause of
+worse regret on its own, quite apart from the ROI.
+
+### Why this was not foreseeable and is not an excuse
+
+The snap changes only x, never the fidelity. The mix shift is INDIRECT: the
+snapped location changes the state the DT conditions on, which changes what its
+fidelity head emits on subsequent steps. Nothing in the design touched fidelity
+and I did not anticipate that it would move.
+
+That is an explanation, not a defence. The intervention was checked for whether
+it fired (G3, P5) and not for what else it perturbed, and "what else did this
+move" is a question that should be asked of any intervention before its verdict
+rather than after.
+
+### Consequence for how h94 is reported
+
+P1's verdict stands as registered and will be read as registered. But the
+INTERPRETATION attached to any positive P1 is now: "C beats D, and C differs
+from D in ROI membership, snap distance and fidelity allocation." Attributing
+the difference to the ROI specifically would require an arm that matches D to C
+on distance and HF share, which does not exist and is not being added after the
+fact.
+
+A negative or null P1 is comparatively clean: if the ROI applied to the query
+does NOT beat unfiltered snapping despite also getting more HF queries, that is
+a stronger negative than the design was built to deliver.
