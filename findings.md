@@ -13573,3 +13573,70 @@ rather than assumed.
 The peer killed h126 at ~58% (mean cumulative cost 143 of 240). Its five files in
 `results/ckpt/` are **checkpoints of killed runs, not results**. `results/` is
 empty. **q=0.02 is unanswered** and nothing should read those checkpoints as data.
+
+## h129 P1 AND P2 BOTH PASS — a held-out dose predicted before the runs existed
+
+CONFIRMATORY. Registered when h127 had **zero** result files; analysis script
+committed before any landed, so seed set, control, count-vs-cost fraction and read
+point were all fixed in advance. Borehole, seeds 42-46, paired.
+
+**P1 — fidelity mix at the held-out dose q=0.30.**
+
+    per-seed  42:0.869->0.802  43:0.971->0.923  44:0.869->0.770
+              45:0.827->0.724  46:0.879->0.739
+    control 0.8829   q=0.30 0.7916   shift -0.0913   sd 0.0354   effect 2.58
+
+    predicted 0.808 +- 0.020   observed 0.7916   INSIDE
+
+**And unlike P3, this band was honestly sized.** The paired sem is 0.0158 against
+a half-width of 0.020 — ratio **0.8x**, so the interval is consistent with the
+noise rather than narrower than it. P3's was 1.8x and I recorded it as
+consistent-but-uninformative; this one is a real confirmation. Both registered
+falsifiers are excluded: 0.883 (no effect) is 5.8 sems away, 0.739 (a step rather
+than a dose-response) is 3.3 sems away.
+
+**P2 — benefit at the held-out dose**, via h83's frozen `sr_curve` + `grid`, which
+the committed script deliberately does not reimplement:
+
+    per-seed  42:-1.48  43:-1.67  44:-3.45  45:-2.75  46:-4.94
+    control 15.815   q=0.30 12.957   benefit -2.858   sd 1.415   effect 2.02   5/5
+
+    predicted 2.21%, bracket (1.31, 4.22)   observed 2.858   INSIDE
+    distance from the point prediction 0.648, against a paired sem of 0.633
+
+**The point prediction lands within ~1.0 sem of the measured value.**
+
+### The dose-response, complete, all at one read point
+
+    q = 0.100    -4.22 rel%    h84/h90
+    q = 0.300    -2.86 rel%    h127, THIS, predicted before it ran
+    q = 0.493    -1.31 rel%    h128 (peer)
+
+Monotone in q across three measured doses.
+
+### Secondary set, reported because the discipline requires every run
+
+Seeds 47-50 (4 of 5; seed 51 still running), paired against h90 `NO-ROI` — **not**
+the registered comparison:
+
+    benefit  -2.726   sd 1.533   effect 1.78   4/4    (registered set: -2.858)
+    HF frac  0.8544 -> 0.7824    shift -0.0720  effect 0.60
+
+The benefit replicates closely. **The HF fraction lands 0.006 outside P1's band —
+and that is an anchoring artefact, not a model failure.** P1's band was derived
+from a control of 0.8829; this set's control is 0.8544. Re-anchoring the same
+log-q slope on 0.8544 predicts 0.779 against an observed 0.7824. **A band does not
+transfer to a set with a different anchor**, which is the same portability lesson
+as the 0.59-regret-point bar, one level out.
+
+### What this does and does not establish
+
+**It establishes predictive accuracy at a held-out dose.** A model fitted on the
+control and q=0.10 predicted both the fidelity mix and the regret benefit at
+q=0.30, to within a standard error, before the runs existed.
+
+**It does not establish that fidelity mediation is the mechanism.** h129 P4 showed
+query quality also improves (effect 2.66, later 3.49 at n=10), and P6 showed the
+fidelity effect is Borehole-specific. **The model is predictively good on Borehole
+and mechanistically incomplete**, and both halves are true at once. A model that
+predicts a held-out point is not thereby the right account of why.
