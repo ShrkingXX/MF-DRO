@@ -6051,3 +6051,38 @@ NOTE ON MY OWN RETRACTION, which stands: my cap alarm and retraction were at
 are different events. "The cap was respected" was true for the window I
 measured and false two minutes later, and the counter fix is what would let the
 later one be seen correctly.
+
+### The ROI improves regret while making proposals MORE dispersed
+
+**EXPLORATORY.** Prompted by a peer session's observation that the student never
+converges onto the teacher. Verified their arithmetic from source first:
+`L_loc = F.mse_loss(x_pred, actions_x, reduction='none').mean(dim=-1)` — a
+per-coordinate MSE, so L2 = sqrt(L_loc*d) and their 19.5%-of-diameter figure is
+correct.
+
+h90 Borehole, seeds 47-51, both arms:
+
+      arm        L_loc    L2 as % of diameter    proposal sd (normalised)   HF-only
+      NO-ROI    0.0381          19.5%                    0.0710             0.0730
+      ROI-Q10   0.0325          18.0%                    0.0778             0.0834
+      effect     -14.6%                                   +9.5%             +14.3%
+
+**The student never lands on the teacher in either arm.** At convergence the
+predicted action sits ~18-20% of the domain diameter away from the teacher's.
+The ROI narrows that by 14.6% and it stays large.
+
+**And the ROI makes proposals MORE dispersed, not less — while improving regret
+by 3.49 points.** That cuts against the obvious reading of this project's founding
+diagnosis ("its proposals are 3x more dispersed"), which invites the fix
+"concentrate the proposals". On the one benchmark where an intervention
+demonstrably works, it did the opposite. Dispersion is not the lever, at least
+here.
+
+Two things this does NOT establish. Proposal sd is measured on the STUDENT's
+outputs, not the teacher's target distribution; `Var(actions_x)` is not logged in
+these runs, so the ratio L_loc/Var — the form that is actually comparable across
+arms, since the ROI can lower MSE merely by concentrating targets — cannot be
+formed from h90. A peer's h94 patch adds that logging. And normalisation matters:
+in raw units the proposal sd reads ~1000 and is meaningless, because Borehole's
+domain spans 0.1 to 52530 across coordinates. Both arms sit at ~0.25x the
+dispersion of a uniform draw, so both are concentrated in absolute terms.
