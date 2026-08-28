@@ -6636,3 +6636,41 @@ pulling next.
 Also: h83 itself is not wrong. Its within-experiment comparisons were sound and
 its primary prediction was met as stated at n=5. What failed is the durability of
 three of the four margins, which only a second seed set could reveal.
+
+## CAVEAT ON THE H83 HEADLINE: Currin is saturated and should not count as evidence
+
+Verified independently at the concurrent session's prompting. Currin's optimum
+is 13.7987, so relative percentages there describe absolute differences of
+almost nothing:
+
+    seed   ROI %    noROI %   diff %    diff ABSOLUTE
+      42   0.0579   0.0275   +0.0304   +0.00419
+      43   0.5525   0.0000   +0.5525   +0.07624
+      44   0.0015   0.0349   -0.0334   -0.00461
+      45   0.0004   0.0000   +0.0004   +0.00006
+      46   0.0151   0.0042   +0.0109   +0.00151
+    mean +0.1122% = +0.0155 absolute; seed 43 alone supplies 0.076
+
+Borehole's -3.49% is **10.80 absolute units -- 697x Currin's mean swing.** Four
+of five Currin seeds finish within 0.06% of the optimum, several at exactly
+0.0000. **Both methods have solved Currin.** The arms are separated by numerical
+noise with one dominant seed.
+
+Two consequences:
+
+1. **"The ROI HARMS Currin" is withdrawn as a characterisation.** The +0.11
+   figure is real arithmetic on a saturated benchmark, not a harm. The
+   four-benchmark table's negative cases read more cleanly as "relocation
+   absent, effect indistinguishable from zero". My open question "relocation
+   does not explain harm" largely dissolves -- there is little harm to explain.
+   The caveat the other session attached and I endorse: this argues MAGNITUDE,
+   not absence of mechanism. A systematic small effect would be invisible here,
+   and n=5 with one dominant seed cannot separate "no effect" from "small effect
+   plus outlier".
+
+2. **h83's headline needs this attached.** "MF-DRO beats no baseline on any of
+   four benchmarks" is TRUE as stated, but Currin contributes a ~0.01% margin on
+   a benchmark every method solves. A four-benchmark sweep with one saturated
+   benchmark should say so rather than let it count as a fourth independent
+   piece of evidence. The honest form is three informative benchmarks plus one
+   saturated one.
