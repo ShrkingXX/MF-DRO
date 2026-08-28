@@ -40,10 +40,11 @@ concurrent_sessions:
     - to_human/ report and the published artifact
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:
-    - the q < 0.10 question: h84 showed tight beats loose on Borehole but the
-      teacher measurements imply a turning point below q=0.10 (at q=0.02 the
-      closest approach to x* degrades 0.022 -> 0.110). The optimum for q lies in
-      (0.02, 0.10) and is UNLOCATED. No experiment tests it.
+    - >-
+        the q < 0.10 question: h84 showed tight beats loose on Borehole but the
+        teacher measurements imply a turning point below q=0.10 (at q=0.02 the
+        closest approach to x* degrades 0.022 -> 0.110). The optimum for q lies in
+        (0.02, 0.10) and is UNLOCATED. No experiment tests it.
     - Ackley and Currin MF-DRO deficits at a second seed set -- now CLAIMED as
       h93 by session B (registered and coded, awaiting compute).
 
@@ -159,8 +160,9 @@ current_experiment:
     distribution problem and the target becomes the output parameterisation.
 
 constraints:
-  - use_candidate_scoring=True is NOT an acceptable fix (human-directed):
-    pool+argmax is not the contribution.
+  - >-
+      use_candidate_scoring=True is NOT an acceptable fix (human-directed):
+      pool+argmax is not the contribution.
   - use_roi=False must stay bit-identical (gated at every commit).
   - MF-DRO defaults in force: M=3, n_roi_candidates=600, refinement OFF.
   - num_workers x threads <= 15.
