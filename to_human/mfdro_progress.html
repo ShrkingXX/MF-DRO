@@ -785,11 +785,26 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   reaches 12.25% against the strongest baseline&rsquo;s 6.40%. That closes <strong>37%</strong> of the
   gap (9.34 points down to 5.85), not half of it &mdash; and a prediction registered before the runs
   said the gap would not close.</p>
-  <p>One caveat that belongs next to that comparison and was missing from it: the baseline&rsquo;s 6.40%
-  was measured on the <em>development</em> seeds, while 12.25% is on the fresh ones, and this
-  investigation has already found the same benchmark to differ by up to 3.67 points between seed sets.
-  The two numbers are not strictly comparable, and settling it means re-running the baseline on seeds
-  47&ndash;51.</p>
+  <p>One caveat belonged next to that comparison and was missing from it: the baseline&rsquo;s 6.40%
+  was measured on the <em>development</em> seeds while 12.25% is on the fresh ones, and this
+  investigation has found the same benchmark to differ by up to 3.67 points between seed sets.
+  Settling it meant re-running the baseline on seeds 47&ndash;51.</p>
+  <div style="border-left:3px solid var(--met);padding:0 0 0 16px;margin:0 0 1.4em">
+  <p class="kicker" style="color:var(--met)">Settled &mdash; the baseline was re-run</p>
+  <p>Those five runs now exist. On the <em>same</em> five seeds the strongest baseline scores
+  <strong>5.59%</strong>, not 6.40%. All three arms, seed-matched at last:</p>
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:.86rem">no region 15.74
+  &nbsp;&middot;&nbsp; with region 12.25 &nbsp;&middot;&nbsp; strongest baseline 5.59</p>
+  <p>The gap goes from 10.16 points to 6.67 &mdash; <strong>34% closed, not 37%</strong>. The
+  correction is small and its size is not the reason to make it: the baseline&rsquo;s own score on
+  this benchmark <strong>ranges from 5.59 to 10.07 across seed sets</strong>, a spread wider than
+  the entire effect being measured. A comparator quoted from a different seed set is not a
+  comparator, however convenient the number.</p>
+  <p>Paired at matched seeds the picture is harsher than any average: with its region the method
+  beats the baseline on <strong>one seed of five</strong>, median 8.15 points behind. Closing a
+  third of the gap and losing four times in five are the same result described two ways, and both
+  belong.</p>
+  </div>
   </div>
 </section>
 
