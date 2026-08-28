@@ -20,19 +20,40 @@
 #     - the HF floor's variance result      (h85 sd 5.85->2.00 -> h89 sd 2.08->3.17,
 #       with the collapse/benefit correlation at -0.84, the WRONG SIGN)
 #
-# THE ONE SURVIVING INTERVENTION: teacher acquisition refinement on Borehole.
-#   h85 measured -5.85 pts (5/5). h89 at fresh seeds 52-56 gives **-2.11 pts
-#   (4/5)** -- REAL but ~36% of the original size, at 1.25x wall-clock. Per
-#   h89's registered falsifier, **-2.11 is the figure; -5.85 is superseded and
-#   any occurrence of it below is a historical record of what h85 measured, not
-#   a current claim.** It does NOT close the gap to MF-MES (12.91% vs 10.07%
-#   at matched seeds).
+# TWO SURVIVING INTERVENTIONS (this block previously said one -- h90 changed it).
 #
-# WHAT THE ROI ACTUALLY DOES, per benchmark, all n=5, control verified 4/4:
-#   Borehole_8D  -4.22 pts (5/5)  -- real, but still behind MF-MES
+#   1. THE CALIBRATED ROI ON BOREHOLE -- CONFIRMED at fresh seeds. h90 re-ran
+#      BOTH arms at seeds 47-51 with q=0.10 fixed in advance: -3.49 pts, 4/5,
+#      P1/P2/P3 all MET. Pooled over both seed sets: **n=10, mean -3.86, median
+#      -3.88, better 9/10, retaining 83% of its original size.** This is the only
+#      intervention to replicate at near-full size. It closes 37% of the gap to
+#      MF-MES (9.34 -> 5.85 pts), not half, and does not close it.
+#
+#   2. TEACHER ACQUISITION REFINEMENT on Borehole -- now THREE seed sets:
+#      -5.85 (5/5), -2.11 (4/5), -3.29 (5/5). Pooled **14/15 seeds better, set
+#      means -3.75, sd 1.91.** The "-2.11 is the figure" ruling above is
+#      SUPERSEDED: two points looked like decay, the third shows seed-set
+#      variation (within-set sd 2.14 vs between-set 1.91). It does NOT close the
+#      gap to MF-MES. **Its COST BAR IS FAILED**: 1.25x at seeds 52-56 but 2.07x
+#      at 42-46, against a registered limit of <2.0x -- the "1.25x" figure this
+#      block used to quote is one seed set only.
+#
+# WHAT THE ROI ACTUALLY DOES, per benchmark. Borehole is now n=10 (h84+h90);
+# the rest are n=5 with the control verified 4/4 bit-identical:
+#   Borehole_8D  -3.86 pts (9/10) -- CONFIRMED at fresh seeds, still behind MF-MES
 #   Hartmann_6D  -1.62 pts (3/5)  -- does NOT beat MF-MES; flip withdrawn
 #   Ackley_10D   -0.09 pts (1/5)  -- negligible
-#   Currin_2D    +0.11 pts (0/5)  -- HARMED
+#   Currin_2D    +0.11 pts (0/5)  -- NOT a harm: +0.0155 in absolute units on an
+#                                    optimum of 13.80, one seed supplying 0.076,
+#                                    4/5 seeds finishing at exactly 0.00. Both
+#                                    methods have solved Currin.
+#
+# THE DEFICIT IS ONE BENCHMARK OF FOUR, NOT FOUR (h93, all four now at two seed
+#   sets): Hartmann not real (5/10, median +0.22), Ackley not real (reverses
+#   sign, MF-DRO wins 3/5), Currin nominal only (see above), **Borehole real**
+#   (8/10, median +8.30). The boundary-optimum explanation is therefore the whole
+#   account, not one benchmark's excuse. Borehole's x* lies ON the domain
+#   boundary in 7 of 8 dimensions.
 #
 # THE ONE CLEAN CONTRIBUTION: a constant beta cannot set ROI tightness. Measured
 #   acceptance varies 12.6%-100% across benchmarks, 250x within a single run,
