@@ -11843,3 +11843,55 @@ only the worker path, and requires one-or-more digits.
 **Standing rule:** any command that inspects running processes must exclude
 itself, and any count used to claim completeness must be reconciled against the
 enumeration it summarises — done/running/MISSING by name, never a bare total.
+
+## h132 P4 HOLDS — the stall has the training-distribution signature, and it is localised to the head the ROI shapes
+
+CONFIRMATORY, zero compute, registered before computing. Borehole, seeds 42-46,
+paired, iterations past post-init cost 100 (the span where the advantage erodes):
+
+    quantity                     control      ROI      diff   effect   lower
+    L_loc_per_iter                0.0404   0.0329   -0.0075     1.42     5/5   <- P4
+    grad_coherency_per_iter       0.0101  -0.0048   -0.0148     1.11     4/5
+    action_reward_corr_per_iter   0.0207   0.0226   +0.0019     0.05     3/5
+    L_fid_per_iter                0.3547   0.3747   +0.0199     0.47     2/5
+
+**P4 predicted the ROI arm's late `L_loc` would be lower, and it is** — effect
+1.42 at 5/5, gate cleared. This is the signature the training-distribution account
+requires: late in the run the head fits its targets *better* while the run's
+regret stops improving. Targets that have stopped moving are easy to fit.
+
+### A specificity check I did not register, so labelled EXPLORATORY
+
+`L_fid` moves the **opposite** way (ROI higher, 2/5 lower). So this is not a
+global "the ROI arm's model fits better" effect — **it is confined to the
+localisation head, which is precisely the head the ROI shapes.** The fidelity head,
+which the ROI does not feed, shows nothing in the same direction.
+
+That is the specificity one would want, and it was not part of the registered
+prediction. It strengthens the reading; it is not evidence at the same grade as
+P4, and I am not going to quote it as if it were.
+
+### What this does NOT establish, as registered in advance
+
+**P4 is correlational.** Low late-run `L_loc` alongside flat regret is consistent
+with the training distribution having collapsed onto an already-learned region,
+and *equally* consistent with the DT having simply converged for reasons that have
+nothing to do with the ROI. Both predict the same numbers here.
+
+**Only h132's step arm separates them**, by removing the restriction while holding
+everything else fixed. P4's role was to test whether the required signature is
+even present — it is, so h132's premise survives and its runs are worth spending.
+Had P4 failed, h132 would have been weakened before launch, which is why it was
+registered as a limb of h132 rather than as a result in its own right.
+
+**And the direction of inference matters:** I registered a falsifier (`L_loc`
+*higher* with effect >= 0.5) that would have killed the account. It did not fire.
+That makes this a survived test, not a confirmed mechanism.
+
+### P5, reported as registered with no direction
+
+`grad_coherency` is lower in the ROI arm (effect 1.11, 4/5) — gradients less
+coherent late, consistent with less remaining to learn, but I registered no
+direction and a value that collapses from 0.91 to 0.01 within a single control run
+is a fragile statistic. `action_reward_corr` is flat (0.05). **Neither is evidence
+for P4**, as pre-committed.
