@@ -10738,3 +10738,50 @@ edits to that file**, and the artifact's version-conflict check will NOT catch i
 — it compares published versions, not the source file. The publish-side safety
 net exists; the file-side one does not. Whoever edits it should re-read it first,
 the same way a republish requires re-reading the served copy.
+
+---
+
+## The tightness ladder, MEASURED (and two corrections)
+
+`roi_summary.accept_frac` is stored in every FINAL result file (not in the
+ckpts, which is why this was not read earlier). So realized acceptance can be
+measured per run rather than inferred from an arm's name — which is exactly what
+the ROI-ANN naming lesson demands.
+
+| benchmark | arm | realized acceptance per seed | mean | beta_sqrt |
+|---|---|---|---|---|
+| Borehole | ROI-Q10 | 0.100 x5, exactly | **0.100** | 1.86 |
+| Borehole | ROI-FIX2 | 0.265, 0.263, 0.165, 0.215, 0.162 | 0.214 | 2.00 |
+| Borehole | ROI-ANN | 0.493 x5 | 0.493 | 2.81 |
+| Hartmann | ROI-Q10 | 0.100 x5, exactly | **0.100** | 2.56 |
+| Hartmann | ROI-FIX2 | 0.036, 0.249, 0.247, 0.043, 0.069 | **0.129** | 2.00 |
+| Hartmann | ROI-ANN | 0.498 x5 | 0.498 | 3.11 |
+
+### Correction 1: the recorded ROI-FIX2 acceptance was a single seed
+
+findings.md records "ROI-FIX2 realises 24.9% acceptance". At n=5 the mean is
+**0.214 on Borehole and 0.129 on Hartmann**, with a per-seed range of
+0.036-0.265 — a 7x spread. 24.9% is one seed near the top of that range and is
+not representative of the arm. (The original entry did carry a caution that the
+FIX2 numbers were single seeds; the caution was right and the number has been
+quoted since without it.)
+
+### Correction 2: the ROI-ANN bug is now confirmed by MEASUREMENT
+
+I derived arithmetically this morning that ROI-ANN's realized q should sit at
+~0.494 (Borehole) and ~0.498 (Hartmann) instead of annealing 0.50 -> 0.05.
+Measured: **0.493 and 0.498.** The derivation and the stored measurement agree
+to three decimals. The bug is not an inference.
+
+### What the ladder shows about controllability
+
+Quantile calibration hits **0.100 exactly, on every seed of both benchmarks** —
+a 6-dimensional and an 8-dimensional problem with different posteriors, same
+realized acceptance to three decimals. Constant beta does not: at a FIXED
+beta = 2.0 the same setting realizes 0.036 to 0.265 depending on seed and
+benchmark, a 7x swing.
+
+That is the controllability result, now measured across arms rather than argued:
+**beta is not a tightness knob; acceptance is, and only the quantile
+parameterisation exposes it.** It also means ROI-FIX2 is not a rung on any
+ladder — it is a floating quantity that happens to average 0.21 and 0.13.
