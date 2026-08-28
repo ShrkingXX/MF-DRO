@@ -1,51 +1,74 @@
-# H120 — analysis
+# H120 — analysis (superseding the n=2 no-verdict version)
 
-**NO VERDICT ISSUED.** The confirmatory data does not exist (Amendment 1):
-h84's ROI-OFF control was completed only at seeds 42 and 43. Every locked
-prediction requires >= 4 of 5 seeds. What follows is n=2, DESCRIPTIVE, and is
-not partial support for anything.
+Data: Borehole, seeds 42-46 (as locked). Control = h83 `MF-DRO`, ROI arm =
+h84 `ROI-Q10`. The control substitution is MEASURED bit-identical to h84's own
+`ROI-OFF` at both overlapping seeds, 137 and 132 queries, 0 differing, across
+three commits (Amendment 3). Zero new runs for this table.
 
-| | quantity | ROI-OFF | ROI-Q10 | paired | \|m\|/sd | dir |
-|---|---|---|---|---|---|---|
-| P1 | HF query count (predicted LOWER) | 96.0 | 92.0 | -4.00 | 0.94 | 2/2 |
-| P1b | LF query count (predicted HIGHER) | 8.5 | 17.0 | +8.50 | 0.92 | 2/2 |
-| P2 | time-to-incumbent (predicted LOWER) | 0.821 | 0.836 | +0.015 | 0.06 | 1/2 |
-| P3 | **count-matched** mean HF y (HIGHER) | 223.20 | 239.93 | **+16.73** | 7.96 | 2/2 |
-| — | uncounted mean HF y (confounded) | 223.87 | 239.93 | +16.05 | 10.00 | 2/2 |
-| P4 | frac HF worse than init (control) | 0.102 | 0.042 | -0.060 | 0.83 | 2/2 |
+## Verdicts on the locked predictions
 
-Per-seed HF counts: OFF [93, 99] vs Q10 [86, 98]. LF: OFF [8.5 mean; 14, 3] vs
-Q10 [29, 5]. Count-match K per seed: [86, 98].
+| | prediction | control | ROI-Q10 | paired | \|m\|/sd | dir | verdict |
+|---|---|---|---|---|---|---|---|
+| P1 | HF count LOWER | 94.0 | 84.8 | -9.20 | **1.55** | 5/5 | **PASS** |
+| P1b | LF count HIGHER | 12.6 | 31.0 | +18.40 | **1.58** | 5/5 | **PASS** |
+| P2 | time-to-incumbent LOWER | 0.855 | 0.792 | -0.063 | 0.29 | 3/5 | **FAIL** |
+| P3 | count-matched HF y HIGHER | 224.31 | 241.36 | +17.05 | **3.54** | 5/5 | **PASS** |
+| — | uncounted HF y (confounded) | 226.20 | 241.36 | +15.16 | 3.43 | 5/5 | — |
+| P4 | frac worse than init — predicted NOT to separate | 0.079 | 0.030 | -0.050 | 0.98 | 5/5 | as predicted |
 
-## What can and cannot be said
+Per-seed HF counts: control [93, 99, 93, 91, 94] vs ROI [86, 98, 81, 82, 77].
+Per-seed LF counts: control [14, 3, 14, 19, 13] vs ROI [29, 5, 39, 36, 46].
 
-- The fidelity direction (P1, P1b) is consistent with h119 in both seeds, but
-  the seed-43 gap is small (99 vs 98 HF) and two points cannot establish it.
-- **P3 is the one worth noting.** The count-matched quality gain (+16.7 in raw
-  y, over the same number of queries in both arms) is close to the uncounted
-  one (+16.1), which means h119's C5 was NOT merely an artefact of averaging
-  over fewer queries in a more converged run. That was the specific confound
-  P3 existed to remove, and at n=2 it survives removal. It still needs n=5.
-- **P2 went the WRONG way** (1/2, +0.015). h119's C4 found the ROI converging
-  substantially earlier (0.938 -> 0.748, effect 1.35, 5/5 on the h90 seeds);
-  these two h84 seeds do not reproduce that direction at all. Reported because
-  the rule is to report every result, and this one is against the hypothesis.
-- P4, the pre-registered negative control, moved in both seeds (0.102 -> 0.042).
-  It was predicted NOT to separate. At n=2 this says nothing, but it is flagged
-  now so that a later n=5 result cannot be presented as if the control had
-  always been expected to move.
+## What is confirmed
 
-## Registered compute (NOT launched)
+**The ROI reallocates fidelity.** 9.2 fewer HF queries and 18.4 more LF queries,
+5/5 seeds, at the seeds this protocol locked, against a proper control. This is
+the first confirmatory pass in this line of work.
 
-Three runs: `Borehole_8D ROI-OFF` at seeds 44, 45, 46 under h84's exact config
-(`dict(use_roi=False)`, BUDGET=200.0, n_hf=10, n_lf=20), which completes h84's
-control arm and makes P1-P4 evaluable at n=5 exactly as locked. Estimated ~83
-min each; three slots for one wall-clock hour and a half.
+**Its individual HF queries are better, and not because the run converged.**
+P3 was written specifically to remove that confound by comparing the first K
+queries with K matched within seed. The count-matched gain (+17.05) is LARGER
+than the uncounted one (+15.16), so the effect is not an artefact of averaging
+over 9% fewer queries — averaging over the matched prefix strengthens it
+slightly.
 
-Not launched: the machine is at 15/15 (10 workers on the peer's h113, 5 on
-h117). Queued for the first tick with free slots.
+## What did NOT replicate
 
-Note for whoever runs them: they must run on code that is empty-diff against
-h84's `af5ec31b1` over `src/ dro_runner.py benchmarks.py`, or the completed arm
-is not comparable to the ROI-Q10 runs already in hand. My working tree currently
-carries the uncommitted h94/h102 patches, so this must be checked, not assumed.
+**P2, time-to-incumbent, failed: effect 0.29, 3/5 seeds.** h119's screen found
+this at effect 1.35 with 5/5 on the h90 seeds (0.938 -> 0.748). At the
+independent seeds it is 0.855 -> 0.792 and not separable. The "converges
+earlier" limb of the hypothesis is **not supported** and is dropped.
+
+That is exactly what the screen was for: it generated three surviving
+quantities, and confirmation at independent seeds kept two and killed one.
+
+## P4, the negative control, behaved as predicted — narrowly
+
+P4 was pre-registered as NOT expected to separate, and it did not: effect 0.98
+against a 1.0 bar. But it is 5/5 in direction and 0.98 is a hair under the bar.
+Reported as "did not separate, as predicted" while noting that this is the
+weakest possible version of that verdict, and that a different seed set could
+easily push it over. It should not be cited as evidence that the ROI leaves the
+founding diagnosis's statistic untouched on Borehole; it is evidence that the
+effect there, if any, is smaller than the ones in P1 and P3.
+
+## Standing
+
+The fidelity-mix account is now CONFIRMED in two of its three limbs at
+independent seeds, with a measured control. It remains an account of WHAT the
+ROI changes, not of why that produces a regret gain: no arm here manipulates the
+fidelity mix directly, so causation is untested.
+
+The peer's h113 supplies a relevant constraint from the other direction: adding
+the L1 loss on top of the ROI moves the mix BACK (+1.9 HF, -3.5 LF) while
+improving regret by 2.10. So the fidelity mix is not L1's channel, and two
+interventions that both help do not share this one.
+
+## Limitations
+
+- n=5, one benchmark, no p-values.
+- Control read from h83 rather than h84 under a measured-equivalence exception.
+  Three ROI-OFF runs at seeds 44-46 are in flight and will test that
+  substitution at the three seeds where it is currently untested; a failure
+  voids this table.
+- P1 and P1b are the same fact under a fixed cost budget, not two.

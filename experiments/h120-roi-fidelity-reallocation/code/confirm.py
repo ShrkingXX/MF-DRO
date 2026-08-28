@@ -1,10 +1,11 @@
 import os
 for v in ("OMP_NUM_THREADS","MKL_NUM_THREADS","OPENBLAS_NUM_THREADS","NUMEXPR_NUM_THREADS"): os.environ[v]="1"
 import json, numpy as np
-CK="experiments/h84-roi-strategy/results/ckpt"; B="Borehole_8D"; S=[42,43]   # AMENDMENT 1: h84 ROI-OFF exists only at seeds 42-43. n=2, DESCRIPTIVE ONLY.
-OFF,ON="ROI-OFF","ROI-Q10"
+B="Borehole_8D"; S=[42,43,44,45,46]  # AMENDMENT 3: control = h83 MF-DRO (bit-identical to h84 ROI-OFF)
+CK_OFF="experiments/h83-main-comparison/results/ckpt"; CK_ON="experiments/h84-roi-strategy/results/ckpt"
+OFF,ON="MF-DRO","ROI-Q10"
 def parts(a,s):
-    d=json.load(open(f"{CK}/{B}__{a}__seed{s}.json")); Q=d["queries"]
+    d=json.load(open(f"{CK_OFF if a==OFF else CK_ON}/{B}__{a}__seed{s}.json")); Q=d["queries"]
     return (Q,[q for q in Q if q["fid"]==1 and q.get("is_init")],
               [q for q in Q if q["fid"]==1 and not q.get("is_init")],
               [q for q in Q if q["fid"]==0 and not q.get("is_init")])
@@ -14,9 +15,9 @@ def eff(d):
 def line(tag,name,a,b,lower_is_pred,gate=True):
     d=np.array(b)-np.array(a); e=eff(d)
     n=int((d<0).sum()) if lower_is_pred else int((d>0).sum())
-    ok=None  # n=2: no gate verdict is issued (Amendment 1)
+    ok=(n>=4) and (not gate or (np.isfinite(e) and e>=1.0))
     print(f"  {tag} {name:38s} OFF {np.mean(a):8.3f}  Q10 {np.mean(b):8.3f}  paired {d.mean():+8.3f}"
-          f"  sd {d.std(ddof=1):6.3f}  |m|/sd {e:6.2f}  {n}/{len(d)}  {'n=2 no verdict'}")
+          f"  sd {d.std(ddof=1):6.3f}  |m|/sd {e:6.2f}  {n}/{len(d)}  {'PASS' if ok else 'FAIL'}")
     return ok
 hf_o=[];hf_n=[];lf_o=[];lf_n=[];t_o=[];t_n=[];q_o=[];q_n=[];u_o=[];u_n=[];w_o=[];w_n=[]
 for s in S:
@@ -39,4 +40,4 @@ p2=line("P2","time-to-incumbent (predict LOWER)",t_o,t_n,True,gate=False)
 p3=line("P3","COUNT-MATCHED mean HF y (HIGHER)",q_o,q_n,False)
 line("--","uncounted mean HF y (confounded)",u_o,u_n,False,gate=False)
 p4=line("P4","frac HF worse than init (control)",w_o,w_n,True)
-print('\n  NO VERDICT ISSUED: n=2 cannot evaluate criteria requiring >=4/5 seeds (Amendment 1).')
+print(f"\n  P1 {'PASS' if p1 else 'FAIL'} | P3 {'PASS' if p3 else 'FAIL'} | P4 predicted NOT to separate -> {'SEPARATED (unexpected)' if p4 else 'did not separate (as predicted)'}")
