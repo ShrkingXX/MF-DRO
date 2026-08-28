@@ -7509,3 +7509,64 @@ in the frozen protocol -- are included.**
 
 That is longer and less quotable than "beats no baseline". It is also what the
 data says. Corrected at findings.md:9 and in the report.
+
+## Review of the PROTOCOL.md reading: it holds, and it cuts both ways harder than reported
+
+A peer session found that h83's headline is measured against baselines the frozen
+protocol never registers. I verified the documentary claims and the arithmetic
+independently rather than accepting them, because this is the *flattering*
+direction and they said themselves they distrusted it.
+
+**Their reading is correct.** PROTOCOL.md, committed once on 08-24 and never
+amended: `Baselines | MF-MI-Greedy, MF-GP-UCB`, `Seeds | 10`, success test
+`MF-DRO mean+SE strictly below best-baseline mean-SE`, and an Amendments section
+reading `None.`
+
+**Their arithmetic reproduces exactly** (Hartmann, h83 seeds 42-46):
+
+      method          mean     SE   mean+SE   mean-SE
+      MF-DRO          7.99   2.62    10.60      5.37
+      MF-MI-Greedy   47.12  11.58    58.70     35.55   [registered]
+      MF-GP-UCB      56.67  12.52    69.19     44.15   [registered]
+      MF-MES          6.62   1.51     8.13      5.10   [NOT registered]
+
+      registered baselines only:  10.60 < 35.55  PASSES
+      including MF-MES:           10.60 < 5.10   FAILS
+
+**One point that strengthens their case, which they understated.** The frozen
+benchmark is `Hartmann 6D` — **singular**. Three of the four benchmarks in the
+headline are not in the protocol at all. "Beats no baseline on any of the four
+benchmarks" is not merely measured against unregistered comparators; three
+quarters of it is outside the frozen evaluation entirely.
+
+**One point that weakens it substantially, which neither of us had connected.**
+The two registered baselines barely optimise on this benchmark. Improvements over
+each method's *own* initial design, Hartmann, mean over seeds 42-46:
+
+      MF-MES         21.0 improvements from 22.0 HF queries
+      MF-DRO          9.4 from 11.6
+      MF-GP-UCB       3.0 from 21.4
+      MF-MI-Greedy    2.0 from 24.8      [both registered baselines]
+
+MI-Greedy spends ~25 high-fidelity evaluations and beats its own initial design
+twice. research-state.yaml has carried this as an open question with a suspected
+cause — the reference implementation's inflated prior mean `maxY+2*rangeY`. **A
+success test passed against a comparator that is plausibly misconfigured is weak
+evidence, whatever the protocol says.**
+
+### The honest statement
+
+Three things are simultaneously true and all belong in any write-up:
+
+1. MF-DRO **passes** its pre-registered success test on the protocol's own
+   benchmark against both registered baselines.
+2. It passes at **5 of the 10 registered seeds**, on a benchmark whose paired sd
+   this project has seen swing 0.45 to 7.45.
+3. It passes against **baselines that improve on their own initial design 2 and 3
+   times out of ~22-25 HF queries**, and it is not the best method once MF-MES is
+   included.
+
+"MF-DRO beats no baseline on any benchmark" is literally false and should not be
+repeated. Nor should "MF-DRO passes its pre-registered test" stand unqualified.
+The protocol binds in both directions — that is the peer's point and it is right
+— but a frozen protocol cannot certify a comparator that turned out not to work.
