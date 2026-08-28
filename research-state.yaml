@@ -55,7 +55,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 20:0x, code audit: ROI never reached a real query
+last_updated: 2026-08-27  # 20:2x, h94 code locked; L_loc confirms lossy channel
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -283,11 +283,30 @@ queued_experiments:
     of eight mechanism claims this session were refuted. P5 checks the
     manipulation took at all (>50% of queries actually snapped) before P1/P3
     are allowed to mean anything.
+    L_LOC DIAGNOSTIC (EXPLORATORY, zero compute, registered before computing):
+    **D1 CONFIRMED -- the imitation channel really is lossy.** The head never
+    converges onto the teacher: L_loc falls only 0.048 -> 0.038 over a run and
+    ends 0.55 away in L2, 19.5% of the d=8 domain diameter, every query. Better
+    than a "predict the per-dim mean" baseline by AT MOST 2.2x, and less than
+    that because the teacher's MES-argmax actions concentrate. D2 REFUTED IN
+    DIRECTION (ROI-on L_loc is 22% LOWER, not larger) but CONFOUNDED -- the ROI
+    concentrates the target, which lowers MSE without better tracking; the patch
+    now logs Var(actions_x) so the ratio becomes interpretable. D3 holds: L_loc
+    is a training loss over rollout actions, NOT the gap at the real query, so
+    it supports h94's premise without establishing it. P5 still settles that.
+    CODE COMPLETE, 0 results on disk: worker.py refuses to run if src/ lacks the
+    patch (an unpatched run would write a file labelled ROI-PROJECT that is
+    really ROI-Q10); analyse.py evaluates P5 first, refuses every bar on
+    incomplete arms, and prints the pool-mechanism warning itself if D helps
+    while C fails to beat it.
     TWO GATES: G1 bit-identity under use_roi=False -- NOT YET PERFORMED, the
-    check exceeded 2 min because MF-DRO trains 4000 iterations before its first
-    real query, and was abandoned rather than compete for cores at the cap. No
-    H94 result may be reported before G1 passes. G2: workers <=5 and h90
-    complete (it supplies A and B).
+    first attempt exceeded 2 min (MF-DRO trains 4000 iterations before its first
+    real query); the second ran from two scratchpad COPIES of the tree so live
+    src/ was never touched, at a cheap config, and was KILLED at ~7 min because
+    the concurrent session went 14 -> 15 workers and made mine the 16th on a
+    15-core cap. Third attempt running under a self-limiting wrapper that aborts
+    if the count exceeds 14. No H94 result may be reported before G1 passes.
+    G2: workers <=5 and h90 complete (it supplies A and B).
 
 open_questions:
   - Does the ROI applied to the QUERY (h94 C) beat the ROI applied to the
