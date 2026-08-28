@@ -139,3 +139,65 @@ thing to report about a paper whose notation we did not follow.
 
 What h123 is NOT: a test of whether the paper is wrong. It tests one linear
 q-ramp as a behavioural analogue of `beta_t`, which section 7 already flags.
+
+---
+
+## AMENDMENT 2 (2026-08-28) — the revised direction was ALSO unfounded. Withdrawn.
+## Filed before launch; h123 still has no result files.
+
+Amendment 1 replaced the original null with P1' ("ROI-WIDEN performs WORSE than
+ROI-Q10"), justified by h125. **That inference does not hold**, and the peer
+session identified why:
+
+**h125 compared two CONSTANT tightness settings** — realized q=0.100 against
+q=0.493, each fixed for a whole run. It establishes that being *uniformly* wider
+is worse. **A schedule is neither of those things.** The contrast h125 supports
+is tight-vs-wide; the contrast h123 tests is tight-then-wide. Nothing in h125
+speaks to the second.
+
+So Amendment 1 committed the same class of error as h128: taking a number off
+our own record and applying it past the frame it was measured in. Amendment 1's
+P1' is **WITHDRAWN**. The original P1 (a null) was withdrawn earlier and is not
+reinstated — its grounds were refuted too.
+
+### REVISED PREDICTION (P1''): NO DIRECTION REGISTERED.
+
+h123 is launched with the direction genuinely open. I have no valid ground for
+either sign:
+  - h125 licenses nothing about schedules (above).
+  - The theory (GP-UCB's beta_t grows) argues for widening but governs a
+    confidence bound's validity, not an acceptance set's usefulness as a filter.
+  - The peer's erosion analysis (below) argues the other way but is post-hoc.
+
+Registering no direction is the honest state. The gate remains: separation
+requires >= 4/5 seeds and |mean|/sd >= 1.0, in whichever direction it falls.
+
+### The peer's prediction, recorded as THEIRS and not adopted
+
+They predict a widening schedule **beats** constant q=0.10 on Borehole by
+recovering part of an eroding advantage, and does **not** beat it before cost 100.
+
+Their supporting measurement, which I verified independently and reproduce
+exactly (Borehole, seeds 42-46, paired, rel% of optimum):
+
+  ROI advantage @cost 100:  -6.75, -10.59, -4.11, -8.36, -9.25
+  ROI advantage @cost 200:  -3.78,  -2.49, -1.56, -5.71, -7.57
+  erosion: mean **+3.588**, sd 2.563, effect **1.40**, eroded in **5/5** seeds
+  and between cost 100 and 200 the control's regret falls **5.193%** while the
+  ROI's falls **1.605%** — the restricted method stalls while the control keeps
+  improving.
+
+**I am deliberately NOT adopting this as my prediction.** They labelled it
+exploratory and post-hoc — it was run after seeing the curve that suggested it —
+and importing a post-hoc hypothesis into my locked protocol would launder it into
+a confirmatory one. It is recorded here so that h123's result adjudicates it as
+an independent prediction, with its provenance visible.
+
+### DESIGN CHANGE ADOPTED (this is measurement, not direction)
+
+A schedule mixes regimes, so a single read point cannot characterise it.
+**h123 will report at post-init cost 25, 50, 100 and 200**, not 200 alone. This
+is adopted from the peer's point because it is about how to measure, not about
+what to expect, and it would be needed under any hypothesis. It also lets the
+result speak to their before/after-cost-100 prediction rather than averaging
+across it.
