@@ -6819,3 +6819,40 @@ point was never established against q~0.21 -- **they are tied on both regret and
 mechanism**, and the fixed-beta arm reaches the same place with an uncontrolled
 acceptance rate that drifts 250x within a run. Calibration's case remains what
 it always was: controllability across benchmarks, not superiority on Borehole.
+
+### Per-dimension reach on Borehole: the ROI helps most where the optimum is on the boundary
+
+**EXPLORATORY.** Borehole's optimum sits on the domain boundary in **seven of
+eight dimensions** (normalised x* = [1, 0, 0.61, 1, 1, 0, 0, 1]). Measuring where
+each method's incumbent actually lands, per dimension, as 1 - |x_d - x*_d| so 1.0
+is exactly on target:
+
+      method            dim0   dim1   dim2   dim3   dim4   dim5   dim6   dim7
+      MF-DRO no-ROI    1.000  0.477  0.927  0.884  0.546  0.853  0.904  0.801
+      MF-DRO ROI       0.999  0.459  0.916  0.926  0.580  0.893  0.915  0.864
+      ROI effect      -0.001 -0.018 -0.011 +0.042 +0.033 +0.040 +0.011 +0.063
+
+**The ROI improves reach on five of eight dimensions, and its four largest gains
+are all boundary dimensions** (7, 3, 5, 4). It does not improve dim 0 because
+there is nothing to improve — both arms are already at 1.000.
+
+**Dimension 1 is where every method fails.** x*_1 = 0, the lower bound, and no
+arm gets past ~0.48. That single dimension is the clearest surviving expression
+of boundary aversion, and the ROI makes it slightly *worse* (-0.018), which is
+consistent with the ROI selecting where to look rather than changing what the
+head can emit.
+
+**Seed-matching, which I flagged to a peer and must observe myself:** the ROI vs
+no-ROI comparison above is seed-matched (both arms, seeds 47-51). Any MF-MES row
+would come from seeds 52-56 and is NOT comparable — h89 measured up to 3.67
+points of seed-set difficulty on this benchmark. I have deliberately left MF-MES
+out of the table rather than print a mismatched column.
+
+**Unreconciled with a peer's measurement.** A peer session reported the ROI
+improving dim 0 (0.701 -> 0.747) and "barely moving" dims 3/5/6
+(0.049/0.003/0.007). My dim 0 is 1.000 in both arms, and dims 3/5/6 are exactly
+where the ROI moves *most*. The scales differ by enough that we are certainly
+measuring different quantities — theirs is a sensitivity-weighted distance, mine
+is the incumbent's per-dimension coordinate — so this is a definition mismatch to
+resolve, not a contradiction to score. Raised with them rather than asserted
+either way.
