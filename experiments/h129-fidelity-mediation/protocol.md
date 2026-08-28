@@ -90,3 +90,35 @@ This is the version of the primary question that matters: the ROI demonstrably
 stops MF-DRO wasting HF budget — but "stopped wasting it" by reallocation to LF
 is a different contribution from "aimed it better", and only the second is what
 the founding diagnosis prescribed.
+
+---
+
+## AMENDMENT 2 — P5, the dissociation test (registered before measuring)
+
+P4 showed the ROI improves mean HF query score on Borehole (effect 2.66, 5/5).
+But the founding diagnosis measured waste on **Hartmann** (0.336 vs 0.747, 20.8%
+worse-than-init), and on Hartmann the ROI does **not** improve regret (q=0.10
+effect 0.58). h84 ran Hartmann seeds 42-46 with the same arms, so this is
+answerable from data that already exists.
+
+**P5.** On Hartmann, seeds 42-46, paired, ROI-Q10 vs ROI-OFF, using h84's
+`score`: mean HF query score **improves**, same direction as Borehole, with an
+effect >= 1.0 and >= 4/5 consistency.
+
+**Criteria are unit-free by construction** — effect size and seed-consistency
+only. No absolute bar is quoted, because P4 established that this project's
+registered bars are in regret points and do not port to a normalised score.
+
+**Why either outcome matters.**
+
+- **P5 holds** -> a DISSOCIATION: the ROI improves HF query quality on Hartmann
+  while leaving regret unmoved. Better queries would then be demonstrably *not
+  sufficient* for better regret, which is the unstated premise of the founding
+  diagnosis's whole argument. This is the more consequential outcome.
+- **P5 fails** -> the ROI simply does not engage on Hartmann, and the benchmark
+  asymmetry (h121) is about whether the mechanism activates at all, not about
+  what it does once active.
+
+**Pre-committed reading of a null:** if the effect lands below 1.0 I will report
+"does not engage", NOT "trend toward improvement". Recording this because I have
+a live incentive to want the dissociation — it is the more interesting result.
