@@ -164,3 +164,28 @@ rollout resolves beta ONCE on its first draw and reuses it across draws within a
 step; `_roi_snap` draws a single pool and calibrates on it. Same estimator, one
 draw instead of several -- a slightly noisier acceptance rate at the same target
 q. Noted here rather than discovered later in a diff.
+
+## Amendment 2 — a zero-compute diagnostic, registered BEFORE it is computed
+
+The audit calls the ROI's route to a real query a "lossy imitation channel".
+That is an assertion about a quantity the runs ALREADY LOG: `L_loc_per_iter`,
+the MSE between the head's emitted location and the teacher's action. Lesson 23
+says measure the quantity the mechanism operates on; this one costs nothing.
+
+EXPLORATORY (the data exists; nothing is re-run). Registered before computing:
+
+**D1.** L_loc is substantially non-zero throughout the run -- the head does NOT
+converge onto the teacher's actions. If instead L_loc goes to ~0, the channel is
+NOT lossy, the audit's central adjective is wrong, and h94's premise weakens
+sharply: a faithful imitator of an in-ROI teacher would already be querying
+in-ROI, and applying the ROI at inference would change little.
+
+**D2.** L_loc is comparable between ROI-on and ROI-off. The ROI moves WHERE the
+teacher points, not how well the head tracks it. If ROI-on has a much LARGER
+L_loc, the ROI is making the teacher harder to imitate -- which would be a
+mechanism for the ROI actively HARMING some benchmarks (Currin, +0.11).
+
+**D3.** Interpretation limit, stated in advance: L_loc is a TRAINING loss over
+rollout actions, not a measure of the gap at the real query. A small L_loc would
+not prove the real query lands in-ROI. So D1 can weaken h94's premise but cannot
+establish it, and no verdict on h94 will be drawn from this diagnostic.
