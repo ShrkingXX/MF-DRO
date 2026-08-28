@@ -10170,3 +10170,65 @@ and fails the waste gate, while an arm that moves it decisively (54.2%) gains no
 extra regret. **The channel through which the ROI helps remains unidentified**,
 and two mechanistic candidates — dispersion (h116) and boundary resolution
 (h118) — are now ruled out with pre-registered tests rather than argument.
+
+## The refinement asymmetry is real — and MF-DRO already has the machinery, switched off
+
+**EXPLORATORY**, prompted by a peer's self-correction. Verified both halves in
+source rather than on report.
+
+**MF-MES refines continuously.** `mf_mes_takeno.py:360` calls
+`minimize(fg, jac=True, method="L-BFGS-B", ...)` over a Sobol pool's top-K. A
+box-constrained quasi-Newton method **converges onto active constraints**, so its
+z0 = 1.000 with sd 0.001 on Borehole's boundary-optimum dimension is close to
+structurally guaranteed by its optimiser rather than evidence of better search.
+The peer withdrew the "MF-MES pins and never leaves" reading on exactly this
+ground and they are right to.
+
+**MF-DRO does not refine — by default.** The real query is
+`action_head(h).clamp(0,1)`, with no continuous step.
+
+**But `_refine_proposal` exists.** `mf_dro.py:3208`, gated on
+`use_gp_refinement`, default **False** in `dro_runner.py:152`. It runs Adam
+gradient ascent on EI or UCB from the DT's own proposal. **No experiment in this
+project has ever set it** — grep across every `experiments/*/code/*.py` returns
+nothing.
+
+So the asymmetry is not "MF-DRO lacks refinement". It is **"MF-DRO's refinement
+has never been switched on."**
+
+### The scope question this raises, which I am not deciding alone
+
+The standing constraint names one thing: `use_candidate_scoring=True` is not an
+acceptable fix, because pool+argmax is not the contribution. **GP refinement is a
+different mechanism** — gradient ascent *from the DT's proposal*, so the DT still
+chooses the basin and the optimiser only polishes within it — and it is the
+project's own documented ablation, not imported baseline machinery.
+
+That distinction may or may not matter. Two readings, and they lead to
+materially different work:
+
+  1. **Refinement is in scope.** The head emits a point and a local polish is
+     ordinary practice; the contribution is the policy that chooses *where*, not
+     the arithmetic that lands on the exact spot. Then the single most
+     informative untried experiment in this project is switching it on, and much
+     of MF-DRO's deficit may be downstream of its absence.
+  2. **Refinement is out of scope**, for the same reason pool+argmax is: it
+     restores performance with machinery outside the contribution, and a method
+     that needs L-BFGS to be competitive has not been shown to work.
+
+**This is the user's call, not mine and not the peer's.** I am flagging it rather
+than running it. The peer independently reached the same position — that the
+argument should be settled before such an arm runs, not after — and neither of us
+has run one.
+
+**What is unaffected either way:** MF-DRO spends 8.9% of its HF budget on Borehole
+queries that could never become the incumbent (0 of 42 exceeded the mean
+on-boundary value). That is a real, end-to-end waste measurement and it does not
+depend on the refinement question.
+
+**What it does to h113, recorded before its results:** if most of the deficit is
+the absence of refinement, then the ROI and L1 are both acting downstream of the
+operative constraint, and h113's additive prediction trailing MF-MES by 3.71
+points would be *expected* rather than disappointing. h113 remains registered and
+will report as specified — this changes how its number should be read, not
+whether it is read.
