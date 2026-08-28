@@ -33,6 +33,10 @@ concurrent_sessions:
     - h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds 47-51
     - h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific
     - h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)
+    - h93-currin-ackley-seeds  # REGISTERED + CODED, NOT LAUNCHED (gated on h90 finishing).
+                               # Closes the last gap: Currin and Ackley have never been
+                               # measured at a second seed set. If both deficits fail to
+                               # replicate, MF-DRO loses ONE benchmark of four, not four.
     - to_human/ report and the published artifact
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:
@@ -40,6 +44,8 @@ concurrent_sessions:
       teacher measurements imply a turning point below q=0.10 (at q=0.02 the
       closest approach to x* degrades 0.022 -> 0.110). The optimum for q lies in
       (0.02, 0.10) and is UNLOCATED. No experiment tests it.
+    - Ackley and Currin MF-DRO deficits at a second seed set -- now CLAIMED as
+      h93 by session B (registered and coded, awaiting compute).
 
 project: mfdro-aistats
 question: >
@@ -48,15 +54,19 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27
+last_updated: 2026-08-27  # 19:20, h90 in flight
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
   seeds, 0 failures) is the headline comparison and its PRIMARY pre-registered
   prediction -- that MF-DRO beats no baseline -- was MET on all four benchmarks.
   The project has since turned from "does it win" to "why does it lose", and
-  that diagnosis is now concrete and mechanistic. h84 is testing the first
-  candidate fix.
+  that diagnosis is now concrete and mechanistic. Three candidate fixes have been
+  tried; two (the ROI's Hartmann flip, the HF floor) were WITHDRAWN after fresh
+  seeds, and the third (teacher refinement) survived but shrank 64% and failed
+  its cost bar. h90 is re-testing the ROI's last standing regret claim (Borehole)
+  and refinement at a third seed set; if both fail, no intervention survives and
+  the answer is uniformly negative.
 
 headline_result:
   experiment: h83-main-comparison (100/100 runs, 0 failures)
@@ -201,6 +211,17 @@ queued_experiments:
     Hartmann HF-FLOOR -1.37 (3/5) with sd 5.85 -> 2.00; Borehole HF-FLOOR +0.18
     (0/5, non-binding, 4 runs bit-identical). Bars P1/P2/P3/P4/P5 MET, P6
     REFUTED. P2 was the mechanism bar (near-bound 8.93% -> 16.32%).
+  h85_P4_cost_bar: >
+    FAILED, recorded 2026-08-27 after checking completed runs rather than
+    projections. Teacher refinement's wall-clock is 1.25x the unmodified method
+    at seeds 52-56 but 2.07x at seeds 42-46, against a registered bar of <2.0x.
+    The bar applies to the intervention, so one seed set exceeding it is a
+    failure. The published report had stated only the 1.25x figure and called it
+    "inside its limit"; that was corrected on the live page (commit at 19:0x) and
+    now reads as the range 1.25-2.07x with the FAILED verdict. Wall-clock cost is
+    the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
+    ordering, collapse incidence, and the sign of a comparison.
+
   h89-hffloor-confirm: >
     RUNNING (10/20). HF FLOOR ARM COMPLETE AND ITS RESULT IS **WITHDRAWN**:
     at fresh seeds 52-56 the across-seed sd went UP (2.08 -> 3.17, P1 PRIMARY
