@@ -10258,3 +10258,69 @@ anything dispersion- or boundary-related, because neither is the channel. If it
 lands near its additive prediction, that is now the *more* informative outcome —
 two interventions composing without either acting through a channel anyone has
 been able to name.
+
+---
+
+## h119 / h120 — the ROI may be a fidelity lever, and I cannot yet confirm it
+
+### The screen (h119, EXPLORATORY, declared as such before running)
+
+With dispersion (h116) and boundary resolution (h118) both ruled out by
+pre-registered tests, I had no third mechanism to pre-register. Rather than
+invent one to dress a search as confirmatory, I declared a screen and fixed the
+candidate list — seven quantities — in a commit before computing any of them.
+
+Five separated on h90 (Borehole, NO-ROI vs ROI-Q10, seeds 47-51, paired):
+
+| | quantity | NO-ROI | ROI-Q10 | \|m\|/sd | dir |
+|---|---|---|---|---|---|
+| C1 | HF share of cost budget | 0.775 | 0.704 | 1.15 | 5/5 |
+| C2 | HF query count | 93.2 | 84.6 | 1.14 | 5/5 |
+| C3 | LF query count | 14.0 | 31.0 | 1.15 | 5/5 |
+| C4 | time-to-incumbent | 0.938 | 0.748 | 1.35 | 5/5 |
+| C5 | HF quality (init-design sd) | 3.289 | 3.563 | 12.82 | 5/5 |
+| C6 | frac HF worse than best init | 0.057 | 0.030 | 0.62 | 3/5 |
+| C7 | early/late dispersion contraction | 3.069 | 3.298 | 0.50 | 3/5 |
+
+C1-C3 are ONE fact, not three: a fixed cost budget with HF=2 and LF=1 links
+them mechanically. The fact is that **the ROI buys less high fidelity** — 9%
+fewer HF queries, redirected into more than twice as many LF ones.
+
+Note C6. That is the founding diagnosis's own statistic — the fraction of HF
+queries landing worse than the initial design — and **it did not separate**.
+
+The hypothesis: the ROI is a fidelity-mix lever, not a spatial-search lever.
+That sits well with h116 and h118 having failed, since both tested spatial
+channels.
+
+### The confirmation could not be run (h120)
+
+h84 holds ROI-OFF and ROI-Q10 at seeds 42-46, disjoint from the screen's 47-51.
+I checked its arm configs (byte-identical to h90's), budget, benchmark spec,
+commit provenance (all post-date the pool-resolution fix) and dirty flags — and
+did not check that the control arm was complete. **It is not: ROI-OFF exists
+only at seeds 42 and 43.** All four locked predictions require >= 4/5 seeds.
+
+**No verdict issued.** Not a pass, not a fail — the data is absent.
+
+There is no independent 5-seed set anywhere in this repository. Only h84 (n=2)
+and h90 (n=5) pair a control against an ROI arm inside one experiment, and h90
+is what generated the hypothesis. Confirmation needs three new runs.
+
+At n=2, descriptively: the fidelity direction holds 2/2; the count-matched
+quality gain (+16.7 raw y) is close to the uncounted one (+16.1), so h119's C5
+is not merely an artefact of averaging over fewer queries in a more converged
+run — which was the specific confound worth worrying about. But **C4 did not
+reproduce**: time-to-incumbent went the wrong way in these two seeds.
+
+### Standing
+
+Three mechanisms have now been examined for the ROI's Borehole benefit.
+Dispersion: ruled out. Boundary resolution: ruled out. Fidelity reallocation:
+**unconfirmed, and blocked on three runs**, with one of its five supporting
+quantities already failing to reproduce at the two seeds available.
+
+**Lesson: check that an arm is COMPLETE before locking a protocol against it.**
+I verified five properties of h84 and not the one that mattered. Config,
+provenance and cleanliness checks all passed on an arm that was missing 60% of
+its runs.
