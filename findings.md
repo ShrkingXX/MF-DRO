@@ -12837,3 +12837,46 @@ Two near-misses in this audit are worth recording because both were tooling, not
 judgement: the peer's `grep -c "5.958"` matched via regex `.` on a figure absent
 from the page, and my `grep -cF` missed a real sentence on **capitalisation**. I
 was seconds from replying that their flag was groundless.
+
+---
+
+## h117 — the boundary waste REPLICATES. All six locked predictions pass.
+
+Seeds 52-56, which played no part in generating the h116 exploratory finding.
+Analysis script committed at `2309876` and P4's verdict boundary at `ba724fe`,
+both before seed56 finished. No seeds excluded by the n>=15 floor.
+
+| seed | wR/uR | MF-DRO off-boundary | MF-MES off-boundary |
+|---|---|---|---|
+| 52 | 2.276 | 14.6% | 1.1% |
+| 53 | 1.750 | 13.1% | 0.0% |
+| 54 | 3.580 | 4.1% | 0.0% |
+| 55 | 2.413 | 7.1% | 0.0% |
+| 56 | 2.499 | 11.2% | 0.0% |
+
+P1 **4/5** · P2 **3.48** · P3 **5/5** · P4 **5/5** · P5 **10.0%** · P6 **2.40** — all pass.
+
+**Replication quality, stated rather than glossed.** The effect is smaller at the
+confirmatory seeds than the exploratory ones: wR/uR mean **3.67 -> 2.50**, and P1
+passes 4/5 rather than 5/5 because seed 53 lands at 1.750, under the 2.0 bar. The
+wasted-budget fraction reproduces closely (8.9% -> 10.0%). Both are consistent
+with the exploratory estimate having been the high end of its own sampling
+distribution — the expected direction, and the reason confirmatory seeds exist.
+
+### What it establishes, against what was already taken away
+
+ESTABLISHED: MF-DRO reproducibly fails to reach a boundary optimum in Borehole's
+dominant dimension and pays for it — **10.0% of HF queries against MF-MES's
+0.2%**, at independent seeds, on a pre-registered test.
+
+ALREADY EXCLUDED, both before this ran:
+- **Amendment 2**: MF-MES refines with box-constrained L-BFGS-B, so its ~0% rate
+  is largely its optimiser. Licenses nothing about the DT.
+- **h118**: the waste does not predict regret (ROI-Q10 and REFINE-100 differ 2.8x
+  in waste, same final value; r = -0.26 over 15 runs).
+
+So this is a clean confirmatory pass on a quantity **already shown not to
+matter**. That is still worth having: "the inefficiency was a seed artefact" and
+"the inefficiency is real but irrelevant" are different states of knowledge, and
+only the second is now supported. It is also the clearest case in this project
+of a replication succeeding without rescuing the hypothesis it came from.

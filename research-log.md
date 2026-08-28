@@ -1998,3 +1998,26 @@ caught in advance. `tools/check_gate.py` now verifies pass/falsifier **partition
 the outcome space (self-tested against both real gaps), and `--calibrated-by`
 implements the peer's rule that a bar carries the command computing its
 calibrating value, so misapplying it becomes a diff rather than a judgement call.
+
+## 2026-08-28 (late morning) — h117 completes; logging patch applied and gated
+
+h117 finished 10/10. **All six locked predictions pass** at seeds 52-56: the
+boundary waste replicates (10.0% of HF queries off-boundary against MF-MES's
+0.2%, effect 2.40, 5/5), with the effect smaller than at the exploratory seeds
+(wR/uR 3.67 -> 2.50) as expected. h118 had already shown the waste does not
+predict regret, so this confirms a real inefficiency that is not the reason
+MF-DRO loses.
+
+Patched `mf_dro.py` with a single additive field tagging each `roi_stats` record
+with its real-loop iteration. Since the records already carry `beta_sqrt`, one
+tag makes both acceptance and beta recoverable per iteration — closing M1's shape
+blind spot and the peer's FIX2-as-implicit-schedule question together.
+
+**Did not reuse GATE G0 for it.** G0 and h120's 414-query extension both ran
+use_roi=False arms, and the patched line is inside `if roi_stats is not None:` —
+neither could reach it. Registered h136 instead: Ackley ROI-Q10 seed42, which
+enters the branch 2580 times, against h86's stored trace.
+
+Also found the served-copy wrapper back in the shared report file and stripped
+it; content was byte-identical to the peer's live version, which had already
+absorbed my pooled-estimate correction.
