@@ -8855,3 +8855,41 @@ roughly **60% of that deficit** (62% at 42-46; 57% for the weaker setting at a
 different n=10 set), on 10/10 seeds pooled across two independent seed sets, with
 the effect 1.8x its own spread. It does not close the gap, and everything
 measured remains Borehole-specific.
+
+## Does the ROI rescue bad runs or lift all of them? Mostly the latter, with a mild tilt.
+
+EXPLORATORY, zero compute, h106's n=10 Borehole arms. **Compared as ORDER
+STATISTICS, not as corr(no-ROI, gain)** -- that correlation is corr(X, X-Y),
+positive by construction, and this project already discarded a tail-risk claim
+built on exactly that form. The concurrent session flagged the same trap
+independently earlier tonight.
+
+    quantile     no-ROI      ROI   improvement
+    worst        19.19    14.73        4.46
+    75th         16.71    12.09        4.62
+    median       15.73    11.43        4.30
+    25th         14.90    11.18        3.72
+    best         10.52     8.08        2.44
+
+    worst-case improves 4.46, best-case 2.44 -- a ratio of 1.83x
+    arm spread 2.37 -> 1.78 (25% tighter); range 10.52-19.19 -> 8.08-14.73
+
+**The ROI lifts the whole distribution.** Every quantile improves by between 3.7
+and 4.6 points except the best run, which improves 2.4. That is a mean shift
+with a mild gradient, not a tail-risk fix.
+
+### This tempers a framing I used
+
+I described h106 as the ROI "tightening the arm", citing sd 2.37 -> 1.78, in
+findings.md, the report, and a message to the concurrent session. The 25%
+tightening is real, but it is a BYPRODUCT of the gradient above -- the worst run
+gaining 1.83x what the best run gains -- rather than a targeted reduction of bad
+outcomes. "Improves every run, the bad ones somewhat more" is the accurate
+description; "tightens the arm" invites reading it as variance control, which
+would be the same overreach as the withdrawn tail-risk claim it superficially
+resembles.
+
+Worth stating because the distinction matters for what the method is FOR: a
+uniform lift is a better result than a tail fix for a practitioner who cares
+about expected performance, and a worse one for a practitioner who cares about
+worst case. The data supports the first reading.
