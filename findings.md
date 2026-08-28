@@ -11398,3 +11398,57 @@ paired sem is 0.0220, **1.8x my band's half-width** — I stated an uncertainty
 narrower than the data supports, and a band of ~0.79-0.87 would have passed just
 as well. Recording it as consistent-but-uninformative, which is the reading my
 pre-registered caveat makes available rather than a retrofit.
+
+---
+
+## The fidelity mechanism is Borehole-specific; the quality mechanism is not
+
+The peer refuted their own "ROI regularises the fidelity mix toward the middle"
+hypothesis, and the refutation qualifies **my** confirmed h120 result. I verified
+it independently and added a benchmark they had not used.
+
+ROI-Q10 vs h83 control, seeds 42-46, paired, post-init HF **count** fraction:
+
+| bench | c_H | max HF affordable | control HF per seed | at ceiling? | shift | effect |
+|---|---|---|---|---|---|---|
+| Ackley_10D | 5.0 | 40.0 | 40, 40, 40, 40, 40 | **YES** | -0.033 | 0.49 |
+| Currin_2D | 3.0 | 66.7 | 31, 40, 22, 21, 22 | no | -0.030 | 0.41 |
+| **Borehole_8D** | 2.0 | 100.0 | 93, 99, 93, 91, 94 | no | **-0.144** | **1.65** |
+| Hartmann_6D | 8.0 | 25.0 | 8, 24, 12, 6, 8 | no | +0.056 | 0.78 |
+
+**Only Borehole clears 1.0, by 2x over the next.** So h120's confirmed "the ROI
+reallocates fidelity" is a **Borehole result** and I have scoped it in its
+analysis.
+
+**Two things I added to the peer's three-benchmark version.**
+
+*Currin is a fourth, uncensored point* and it agrees (0.41).
+
+*Ackley's cell is censored and should not count either way.* Its control spends
+40 HF x c_H = 5.0 = exactly the 200 budget, in all five seeds with zero
+variance. The fraction cannot rise there, so the measure is one-sided. The peer
+flagged the ceiling honestly but still let Ackley carry weight as the "most
+extreme control that moved least"; on a censored cell that comparison is not
+available.
+
+**And headroom does not rescue a mechanical account.** Ranked by HF queries
+affordable (25, 40, 67, 100) the effects run 0.78, 0.49, 0.41, 1.65. Ranked by
+how close each control sits to its ceiling (100%, 94%, 46%, 40%) they run 0.49,
+1.65, 0.78, 0.41. Neither is monotone. Borehole is simply the outlier.
+
+### The mechanism that does survive
+
+| mechanism | measure | effect | scope |
+|---|---|---|---|
+| **query quality** | h120 P3, count-matched mean HF y | **+17.05, 3.54, 5/5** | Borehole, but two independent statistics |
+| **query quality** | peer h129 P4, diagnosis's own score | **2.66, 5/5** | same |
+| fidelity mix | HF count fraction | 1.65 Borehole; 0.78, 0.49, 0.41 elsewhere | **Borehole only** |
+
+Quality survives across two independent statistics and was the channel the
+founding diagnosis actually named. Fidelity does not survive across benchmarks.
+
+That is a real narrowing: h121 showed the ROI's *benefit* lives on one
+benchmark, and now its *fidelity mechanism* does too. What has not narrowed is
+query quality — and h120's P3 was specifically built to survive the confound
+that would have explained it away (count-matching), which it did, with the
+matched gain larger than the unmatched.
