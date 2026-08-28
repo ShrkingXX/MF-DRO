@@ -30,6 +30,12 @@ Converted consistently (Borehole optimum 309.576):
 So the "3.5-4.2 pts" on record is confirmed by an independent route: measured
 here at 4.22% with effect 1.74 in 5/5 seeds.
 
+**CORRECTION (peer's refinement, accepted).** "Never a real prediction"
+overstates it. The identity governs the MEANS only; per-seed sign counts and
+effect sizes are not recoverable from it, so "3/5 better, effect 0.54" was real
+information about the paired structure. What was empty was the COMPOSITION
+CLAIM, not the test.
+
 **And P2 was never a real prediction.** (loose - control) = (tight - control) +
 (loose - tight) is an arithmetic identity over the same three means. I registered
 a test of an identity and called it a composition check. It could only ever
