@@ -208,3 +208,38 @@ is checked at merge time, per run, and the check is recorded in the manifest.
 
 I am declaring this BEFORE seeing any of these runs so that the exception cannot
 be shaped by what they show.
+
+---
+
+## AMENDMENT 3 (2026-08-28) — the control DOES exist. Filed before computing
+## any statistic on it.
+
+Amendment 1 declared h120 unrunnable because h84's ROI-OFF stops at seed 43, and
+asserted that "there is NO independent 5-seed set anywhere in this repository".
+That was wrong, and the peer session's h113 analysis showed why: h83's plain
+`MF-DRO` arm IS the no-ROI control, under a different name.
+
+MEASURED, not assumed. At the two seeds where both exist:
+
+  h83 `Borehole_8D__MF-DRO__seed42` (commit 3654df07c) vs
+  h84 `Borehole_8D__ROI-OFF__seed42` (commit be7109f81)  -> 137 queries, 0 differing
+  h83 seed43 (3654df07c) vs h84 seed43 (2c1b1fe9c)       -> 132 queries, 0 differing
+
+**Bit-identical across three different commits.** `MF-DRO` and `ROI-OFF` are the
+same arm; the ROI-OFF label was added when h84 needed an explicit control name.
+
+CONSEQUENCE: P1-P4 are evaluable NOW at the seeds this protocol locked (42-46),
+using h83's MF-DRO as the control arm and h84's ROI-Q10 as the ROI arm. The
+predictions are UNCHANGED and the seed set is UNCHANGED; only the file path the
+control is read from changes, and that substitution is measured rather than
+argued.
+
+This is the same declared exception as the arm-completion amendment above, on
+the same grounds and with the same invalidation condition.
+
+BUILT-IN CHECK ALREADY RUNNING. The three ROI-OFF runs launched earlier (seeds
+44, 45, 46) will, when they land, provide h84's OWN control at exactly the seeds
+where the substitution is currently untested. If they do NOT reproduce h83's
+MF-DRO bit-identically at those seeds, this amendment is withdrawn and the
+result computed under it is void. That check was not designed for this purpose
+and is the better for it.
