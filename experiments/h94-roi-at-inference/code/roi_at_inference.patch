@@ -1,5 +1,5 @@
 --- /private/tmp/claude-501/-Users-yurucui-Desktop-DRO-Code-DRO-aistats-submission/f1fe2a10-d321-4899-91f7-cc8e934aaae0/scratchpad/mf_dro.py.bak	2026-08-27 20:01:37
-+++ /private/tmp/claude-501/-Users-yurucui-Desktop-DRO-Code-DRO-aistats-submission/f1fe2a10-d321-4899-91f7-cc8e934aaae0/scratchpad/mf_dro.h94.py	2026-08-27 20:04:46
++++ /private/tmp/claude-501/-Users-yurucui-Desktop-DRO-Code-DRO-aistats-submission/f1fe2a10-d321-4899-91f7-cc8e934aaae0/scratchpad/patchwork.py	2026-08-27 20:21:09
 @@ -2121,6 +2121,8 @@
          # that failure visible instead of silent.
          self.use_roi = getattr(config, 'use_roi', False)
@@ -9,7 +9,30 @@
          _kx = getattr(config, 'known_optimal_x', None)
          self._roi_x_star = (torch.as_tensor(_kx, dtype=bounds.dtype)
                              if _kx is not None else None)
-@@ -3165,6 +3167,11 @@
+@@ -2864,6 +2866,22 @@
+                       f"lambda_fid*L_fid={self.dt.lambda_fid * L_fid_d.item():.6f}",
+                       flush=True)
+ 
++        # H94/D2: the per-dimension variance of the teacher's actions -- the
++        # "predict the per-dim mean" baseline, in the SAME per-element units as
++        # L_loc. L_loc/var is then the fraction of the teacher's action variance
++        # the head fails to explain; >=1 means no better than predicting the
++        # mean. Without this, comparing L_loc across ROI arms is uninterpretable
++        # (the ROI concentrates actions_x, which lowers MSE on its own -- see
++        # findings.md, D2 refuted-but-confounded). PURE RECORDING: no RNG, no
++        # effect on any tensor that feeds training.
++        try:
++            if actions_x is not None:
++                _ax = actions_x.detach().float().reshape(-1, actions_x.shape[-1])
++                self._last_actions_x_var = float(_ax.var(dim=0, unbiased=False).mean())
++            else:
++                self._last_actions_x_var = float('nan')
++        except Exception:
++            self._last_actions_x_var = float('nan')
+         L_loc_final = L_fid_final = 0.0
+         for epoch in range(self.config.num_epochs):
+             self.dt_optimizer.zero_grad()
+@@ -3165,6 +3183,11 @@
          # [0.05,0.15], r in [0,1] instead of [100,50000]). See
          # REVISION_LOG.md.
          x_t = self.bounds[0] + (self.bounds[1] - self.bounds[0]) * x_t.double()
@@ -21,11 +44,10 @@
  
          # Semi-amortized GP-refinement ablation (see _refine_proposal's own
          # docstring): warm-starts gradient ascent on EI from the DT's
-@@ -3176,7 +3183,82 @@
-             x_t = self._refine_proposal(x_t, ell_t)
+@@ -3177,6 +3200,81 @@
  
          return x_t, ell_t
-+
+ 
 +    def _roi_snap(self, x_raw, mode, t):
 +        """H94: apply the DRO paper's ROI to the REAL QUERY, not to the teacher.
 +
@@ -94,7 +116,7 @@
 +            adm = cand[keep]
 +        else:
 +            adm = cand
- 
++
 +        dn = ((adm - x_raw.reshape(1, -1)) / span).norm(dim=1)
 +        j = int(dn.argmin())
 +        rec['snapped'] = True; rec['dist'] = float(dn[j])
@@ -104,3 +126,15 @@
      def _refine_proposal(self, x_init, ell_t):
          """
          Warm-start gradient ascent on an acquisition function (of the HF
+@@ -3340,6 +3438,11 @@
+             else:
+                 L_loc, L_fid, fid_mean, fid_std = self._train_dt(batch)
+                 self._last_train_stats = (L_loc, L_fid, fid_mean, fid_std)
++            # H94/D2 companion to L_loc_per_iter (pure recording).
++            if not hasattr(self, 'actions_x_var_per_iter'):
++                self.actions_x_var_per_iter = []
++            self.actions_x_var_per_iter.append(
++                float(getattr(self, '_last_actions_x_var', float('nan'))))
+             if _snap_at is not None and t == _snap_at and self._dt_snapshot is None:
+                 import copy as _copy
+                 self._dt_snapshot = _copy.deepcopy(self.dt)
