@@ -1685,3 +1685,28 @@ defence holds — written before any regret number was read — and their
 first-five-iteration L_loc (L1 0.187/0.219 vs MSE 0.058/0.052) does establish
 L1 fired. I'd still class the amended gate as exploratory-grade, since the
 statistic was chosen after seeing the failure.
+
+## 2026-08-28 — h121: the framing has a mismatch in it
+
+Checked the founding diagnosis on its own terms. Its 20.8% reproduces EXACTLY —
+the mean of [0.0, 0.0, 75.0, 16.7, 12.5]% across Hartmann seeds 42-46. But the
+per-seed HF counts are 8, 24, 12, 6, 8: two seeds waste nothing, the 75% seed is
+9 of 12 queries, the median is 12.5%, and dropping seed 44 gives 7.3%.
+
+Then the part that matters. Waste by benchmark (MF-DRO median): Hartmann 12.5%,
+Borehole 3.2%, Ackley 2.5%, Currin 0.0%. Every ROI benefit in this project is
+Borehole-only, and h111 showed it fails on Hartmann and Ackley at two tightness
+settings spanning 2x. **The ROI works where the waste is smallest and fails
+where it is largest.** It is not addressing the diagnosis it was introduced to
+address.
+
+P3 missed its gate (3/5, needed 4/5 — two seeds tie at exactly 0.0% and a tie is
+not an exceedance). Recorded rather than rounded up.
+
+Also recorded: the diagnosis's "0.336 vs 0.747" score does NOT reproduce under my
+normalisation (11.844 vs 15.276 on the same runs). The ordering reproduces; the
+normalisation behind the original pair is not recoverable from what is written
+down. Flagged as a definition mismatch, not a claimed error.
+
+Launched all three h120 ROI-OFF control runs (seeds 44, 45, 46) behind the
+slot-polling launcher. h117's four Borehole arms are 42 min into ~83.
