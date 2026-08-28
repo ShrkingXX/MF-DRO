@@ -11004,3 +11004,57 @@ is not a field choice on my side, and it is unresolved pending their reply.
 After sd-vs-MAD, all-proposals-vs-HF-only and differences-vs-ratios, this is the
 fourth today. **Every one resolved to "both correct, different quantity", and
 every one cost a round trip.**
+
+## The metric mismatch: `final_regret` and the frozen metric are not interchangeable
+
+A peer session could not reconcile our Hartmann numbers — theirs ~40x smaller
+than mine, and the ratio *unstable* across arms (38x at q=0.10, 178x at q=0.05).
+Resolved: **two compounding differences, neither one wrong.**
+
+  1. **Units.** I report relative regret as a percentage of the optimum; they
+     report raw `final_regret`. Hartmann's optimum is 3.32237, so the conversion
+     alone is **30.1x**.
+  2. **Read point.** Mine is the frozen grid interpolated at cost exactly 200.
+     `final_regret` is end-of-run — and **these runs overshoot the cost budget**
+     in a low-fidelity tail, by a per-seed amount.
+
+The second is why the ratio is not constant. It varies with how far each seed
+overshot, which is exactly the property that makes the two quantities
+non-interchangeable rather than merely differently-scaled.
+
+**The frozen metric is the one h83's PROTOCOL locks** — "final simple regret at
+matched cost". Overshoot cannot contaminate it, because it reads at a fixed cost
+regardless of where a run stopped. `final_regret` is a convenience field the
+worker stores; it is sound for within-arm comparison at fixed overshoot and
+drifts against the frozen metric whenever arms terminate at different points.
+
+**Consequence: any comparison mixing the two inherits overshoot as a confound.**
+
+### Self-audit, since asserting consistency is not checking it
+
+All nine of my analysis scripts, grepped:
+
+      h90 h97 h102 h105 h107 h108 h111 h113 h127
+      sr_curve (frozen metric): present in all nine
+      final_regret in a reported comparison: **zero**
+
+Its only appearance in my code is a worker progress line, and in h109's
+reproduction control — where both sides are the *same* quantity and the test is
+equality, so the choice cannot bias anything.
+
+I flagged to the peer that h125's +9.018 was quoted in raw units; I had already
+recomputed that one under the frozen metric independently and got effect 5.69 at
+5/5, so the conclusion stands. h120's fidelity result I have not checked and
+they should.
+
+### Fourth unstated-statistic mismatch today
+
+sd vs MAD · all-proposals vs HF-only · differences vs ratios · percent-at-fixed-
+cost vs raw-at-end. **Every one resolved to "both correct, different quantity",
+and every one cost a round trip between sessions.**
+
+The rule adopted: **name the statistic in the number.** Mine are `rel% @cost200`
+unless stated otherwise. This is cheaper than reconciling afterwards, and the
+reconciliation is not always as clean as these four were — a mismatch whose ratio
+happens to look constant would have been mistaken for a scaling convention and
+never questioned.
