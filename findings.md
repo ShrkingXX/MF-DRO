@@ -6,8 +6,15 @@
 # order they were MADE, not in order of validity. Two of them were announced and
 # later withdrawn. Before quoting anything below, check it against this block.
 #
-# NORTH STAR: SETTLED NEGATIVE. MF-DRO beats no baseline on any of the four
-#   benchmarks (h83, 100 runs, 0 failures). TWO fixes were announced and then
+# NORTH STAR: MIXED, AND THE OLD WORDING WAS WRONG. **MF-DRO PASSES its
+#   pre-registered success test on Hartmann** against both baselines PROTOCOL.md
+#   names (mean+SE 10.60 < best-baseline mean-SE 35.55) -- at 5 seeds, where the
+#   protocol registers 10. It is NOT the best method on any of the four
+#   benchmarks once MF-MES and SF-DRO are included, and neither is in the frozen
+#   protocol. The former wording, "MF-DRO beats no baseline on any of the four
+#   benchmarks", is FALSE on the protocol's own definition and is superseded --
+#   see "THE HEADLINE IS WRONG AS WORDED" below. Any occurrence of it later in
+#   this file predates that correction. TWO fixes were announced and then
 #   WITHDRAWN after failing at fresh seeds:
 #     - the calibrated ROI's Hartmann flip  (h84 4/5 -> h87 2/5)
 #     - the HF floor's variance result      (h85 sd 5.85->2.00 -> h89 sd 2.08->3.17,
@@ -7429,3 +7436,76 @@ rests on the git log proving what was planned before results existed. An
 ambiguous ID does not weaken one experiment; it weakens the mechanism. And the
 two quiet ones sat unflagged for two days, while the three noisy ones were caught
 within minutes — the failure that announces itself is not the dangerous one.
+
+## THE HEADLINE IS WRONG AS WORDED, and it understates the pre-registered result
+
+CONFIRMATORY re-check of the project's central claim, recomputed from h83's own
+traces. This is the sentence that would open the paper's abstract.
+
+    findings.md:9 -- "MF-DRO beats no baseline on any of the four benchmarks"
+
+**That is false, on the frozen protocol's own definition of "baseline".**
+
+### PROTOCOL.md names two baselines, and its Amendments section reads "None."
+
+    | Baselines    | MF-MI-Greedy, MF-GP-UCB |
+    | Success test | MF-DRO mean+SE strictly below best-baseline mean-SE |
+
+MF-MES and SF-DRO were added to the comparison LATER and were never amended into
+the frozen protocol. Against the two baselines it actually registers:
+
+    benchmark     vs MI-Greedy   vs GP-UCB
+    Hartmann        WIN            WIN
+    Ackley          WIN            WIN
+    Borehole        WIN            loss
+    Currin          loss           WIN
+
+### The registered success test PASSES on the protocol's own benchmark
+
+Hartmann 6D, h83's per-seed values:
+
+    MF-DRO         mean  7.99   SE  2.62   mean+SE  10.60
+    MF-MI-Greedy   mean 47.12   SE 11.58   mean-SE  35.55   <- best registered baseline
+    MF-GP-UCB      mean 56.67   SE 12.52   mean-SE  44.16
+
+    10.60 < 35.55   ->  **PASSED**, by a factor of more than three.
+
+Add MF-MES, which the protocol does not name, and the same test FAILS
+(MF-MES mean-SE = 5.11 against MF-DRO's 10.60).
+
+**Both facts are true. Only the second has ever been in the headline.**
+
+### This is goalpost-moving, in the direction that flatters no one
+
+Adding MF-MES was good science -- it is a stronger and more current comparator,
+and a paper that omitted it would deserve the reviewer it got. But a protocol
+frozen before the work binds in BOTH directions. Reporting "beats no baseline"
+as the settled north star, when the registered test passed decisively and a
+later-added comparator is what defeats it, states the result as worse than the
+pre-registration says it is.
+
+The project has been scrupulous about not letting itself off the hook. It has
+been careless about the mirror image: not letting itself ON the hook by quietly
+raising the bar and then reporting failure against the raised bar as if it were
+the registered one.
+
+### A DEVIATION that cuts the other way, and must travel with the above
+
+**PROTOCOL.md registers 10 seeds. h83 ran 5.** So the success test above is
+computed on half the registered sample, and n=5 is a sample size this project
+has repeatedly shown cannot characterise a paired difference here -- a paired sd
+of 0.45 on one seed set became 7.45 on another. The pass is real but it is not
+the registered test either.
+
+h77 is the only Hartmann experiment near n=10 (8 seeds) and it is MF-DRO-only,
+with no baseline arms, so it cannot supply the comparison.
+
+### The accurate headline, in one sentence
+
+**MF-DRO passes its pre-registered success test on Hartmann against both
+registered baselines, at half the registered seed count; it is not the best
+method on any of the four benchmarks once MF-MES and SF-DRO -- neither of them
+in the frozen protocol -- are included.**
+
+That is longer and less quotable than "beats no baseline". It is also what the
+data says. Corrected at findings.md:9 and in the report.
