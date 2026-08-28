@@ -1625,3 +1625,32 @@ diagnosis and refuted h116's own "blind" framing.
 Launched h117 to replicate it on fresh seeds 52-56, with a blocking bit-identity
 gate because the working tree carries two uncommitted patches that are inert
 only by inspection. 15 workers total (10 peer h113 + 5 mine), at cap, not over.
+
+## 2026-08-28 (later) — h118, and a line of work closing
+
+Pursued the primary question directly: does the ROI reduce the wasted HF budget
+h116 found? There was a clean mechanism to test — the teacher's 600 candidates
+are uniform draws filtered by the ROI, so tightening it packs the same points
+into a smaller volume. Resolution amplifier.
+
+**It failed its gate: effect 0.62 against a bar of 1.0 (0.76 at the declared
+second cut-off), 4/5 seeds.** Second pre-registered gate miss in two experiments.
+
+A third arm in the same experiment showed why. REFINE-100 clamps 100 local
+Gaussians to the box, and clamping deposits mass exactly on the boundary; it
+reaches the boundary on 54.2% of HF queries against the control's 14.7%, with
+non-overlapping per-seed ranges, and cuts waste at effect 1.90, 5/5. *A filter
+cannot create probability mass the proposal distribution never had* — which also
+covers MF-MES's box-constrained L-BFGS-B.
+
+Then the result that closes the line: ROI-Q10 and REFINE-100 reach the SAME
+final value (271.64 vs 271.03) while differing 2.8x in wasted budget. The
+inefficiency is real, reproducibly fixable, and buys nothing. I recorded that
+against my own three commits from this morning, and corrected the published
+report, whose lead section had been built on the opposite assumption.
+
+Net for the primary question: two mechanistic candidates for the ROI's Borehole
+benefit — dispersion and boundary resolution — are now ruled out by tests
+written before the numbers were seen. The channel is still unidentified. h117
+continues; it can confirm the inefficiency is reproducible but can no longer
+make it the explanation.
