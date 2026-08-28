@@ -12970,3 +12970,36 @@ Both instruments today failed their first self-test in the same way — the peer
 reconciliation tool counted its own output, and this one flagged its own
 retraction. That is now two for two, and it is a reason to run a new instrument
 against known-good input before trusting a failure it reports.
+
+## The remaining gap and the stall are comparable in size — stated as a magnitude comparison, NOT a projection
+
+h137 leaves ROI+L1 **+3.826 rel%** behind MF-MES. The h131 stall measured the
+ROI's advantage eroding **+3.588 rel%** between cost 100 and 200. These are the
+same units (rel% of |optimum|) and the same read-point family, and they are close.
+
+**It is tempting to conclude that a schedule which removes the stall would close
+the remaining gap. I am not making that claim, and the reasons are specific:**
+
+1. **Different references.** The 3.826 is ROI+L1 measured against MF-MES. The
+   3.588 is the ROI's advantage measured against *its own control's trajectory*.
+   Removing a stall does not transfer one-for-one into a gap against a third arm.
+2. **Different arms.** The erosion was measured on ROI q=0.10 alone; the gap is
+   for ROI+L1. Nothing establishes the composite stalls by the same amount.
+3. **Different seed sets in part.** The erosion is seeds 42-46; the gap is 42-51.
+4. **h133 says recovery is bounded and is a different quantity again.** Escaping
+   q~0.10 buys 13.94 percentage points *of the regret still available at the
+   midpoint*, which for the ROI arm's 13.196 midpoint regret is about **1.84
+   rel%** — not 3.588. Two plausible "what the schedule recovers" numbers differ
+   by a factor of two, which is precisely why the arithmetic should not be done
+   casually.
+
+**What is defensible:** the quantity a schedule might recover and the quantity
+still separating the best configuration from the strongest baseline are of the
+**same order**, roughly 2-4 rel%. That makes h123 and h132 competitively
+relevant rather than merely mechanistic, and it is a reason to prioritise them.
+It is not a prediction that they close the gap.
+
+Recorded this way because the natural version of this paragraph — "the stall is
+3.588 and the gap is 3.826, so removing the stall nearly closes it" — is the
+h128 error exactly: adding quantities measured against different references
+because they carry the same unit label. **Same unit is not same quantity.**

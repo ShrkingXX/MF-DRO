@@ -1007,3 +1007,8 @@ read_point_guard_2026_08_28:
 
     '
   hazard_origin: Peer's measurement, my phrasing. Both on the record.
+competitive_position: 'h137 (Borehole, seeds 42-51, paired, rel% @cost_curve 200): control 15.780, ROI+L1
+  9.822, MF-MES 5.996. ROI+L1 - MF-MES = +3.826, sd 5.438, effect 0.70, better 2/10. Registered gate returns
+  TIED but that means NOT SEPARABLE -- do not report as parity; the mean and 8/10 seeds both say behind.
+  The interventions move MF-DRO from 1/10 to 2/10 against MF-MES and close ~6 of a ~10-point gap. Real
+  progress, NOT a competitive win. Do not quote ''61% of the gap'': that denominator has sd 6.507.'
