@@ -1868,6 +1868,49 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+<section>
+  <p class="kicker">The answer &middot; best configuration on record</p>
+  <h2>Two changes, each modest, and together the strongest result here</h2>
+  <div class="col">
+  <p>All four combinations of the two interventions have now been run on ten seeds each, and read at the
+  agreed measurement point. The region of interest restricts where the model is trained to look; the
+  loss change alters how its position error is penalised. Neither was designed with the other in mind.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Configuration</th><th>Regret remaining</th><th>Improvement</th><th>Consistency</th><th>Seeds improved</th></tr></thead>
+    <tbody>
+      <tr><td>Neither</td><td>15.78%</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Loss change only</td><td>13.57%</td><td>&minus;2.21</td><td>1.24</td><td>9 of 10</td></tr>
+      <tr><td>Region only</td><td>11.92%</td><td>&minus;3.86</td><td>1.58</td><td>9 of 10</td></tr>
+      <tr><td><strong>Both</strong></td><td class="win"><strong>9.82%</strong></td><td class="win"><strong>&minus;5.96</strong></td><td class="win"><strong>2.25</strong></td><td class="win"><strong>10 of 10</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>The pair improves on every seed, and it beats each of its own components by a clear
+  margin</strong> &mdash; better than the region alone on 10 of 10 seeds, and better than the loss
+  change alone on 10 of 10. Neither one is carrying the result.</p>
+  <p>This is the best configuration this investigation has found, and it is the number the work should
+  be summarised by. Everything else on this page &mdash; where it works, where it does not, when the
+  benefit arrives and when it stops &mdash; describes the region&rsquo;s contribution to it.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">A phrase from our own notes, withdrawn</p>
+    <p>This record has said the two changes are &ldquo;0.11 from additive&rdquo; and &ldquo;95% of the
+    way to fully additive&rdquo;. The interaction term does average 0.11 &mdash; but the spread behind
+    that average is <strong>2.42</strong>, twenty&ndash;two times the estimate, with individual seeds
+    running from &minus;4.0 to +4.0. What the data actually supports is <strong>&ldquo;no interaction
+    we can detect&rdquo;</strong>: one as large as a quarter of the combined effect would be entirely
+    consistent with these runs. Large interactions are ruled out; modest ones are not, and
+    &ldquo;additive&rdquo; claims a precision we do not have. <strong>This is the fourth time today a
+    number looked reassuringly small only because nobody had computed what it should be compared
+    against</strong> &mdash; and every one of the four was a number that supported a conclusion we
+    already held. That is the pattern, rather than any particular arithmetic slip: a figure that
+    confirms does not get a second look.</p>
+  </div>
+</section>
+
 <footer>
   <div class="col">
   <p>All figures regenerated from the 100 h83 runs. Simple regret is recomputed from each run&rsquo;s
