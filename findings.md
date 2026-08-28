@@ -8376,3 +8376,48 @@ teacher's action) while in-ROI membership is near-total.
     than Borehole.
   - Anything about statistical significance. n=5 or n=10, no p-values, none
     appropriate.
+
+## AMENDMENT to the synthesis above: q=0.10 is NOT the right tightness. q=0.05 is.
+
+The peer's h97 landed after the synthesis was written and supersedes its §1 and
+§2. Verified here independently with explicit paths:
+
+    Q05 vs no-ROI   mean -5.01  sd 1.95  |mean|/sd 2.56  better 5/5
+    Q10 vs no-ROI   mean -3.49  sd 2.66  |mean|/sd 1.31  better 4/5
+    Q05 vs Q10      mean -1.52  sd 1.21  |mean|/sd 1.26  better 4/5
+
+**All three are separable** -- every mean exceeds its own spread. That is worth
+saying out loud given that four of my bars today passed at ratios of 0.16, 0.38,
+and effectively 0. The peer's G3 gate also OBSERVED the manipulation
+(accept_frac 0.0499-0.0500 against a 0.05 target on all five seeds) rather than
+reading it back from config, which is the check my h94 smoke test failed to be.
+
+### Corrected §1 and §2 of the synthesis
+
+  §1  The strategy is quantile-calibrated beta_t on the teacher's pool at
+      **q = 0.05**, not 0.10. The controllability result is unchanged and does
+      not depend on q.
+  §2  The best measured Borehole effect is **-5.01, sd 1.95, 5/5 (q=0.05)**.
+      The -3.68 pooled n=10 figure is for q=0.10 and remains the most
+      REPLICATED number (three independent measurements) but not the best one.
+
+**"Every ROI number in this project uses an unoptimised setting"** is the fair
+summary, and q=0.10 was never chosen by measurement -- it was the first
+calibrated value tried.
+
+### What this does and does NOT do to h106, running now
+
+h106 runs **q=0.10** at seeds 52-56, and that is still correct for its stated
+purpose: h84 already has q=0.10 at 42-46, so 5 runs complete a seed-matched n=10
+arm against the comparison's own seed set (42-46 + 52-56). The equivalent for
+q=0.05 would cost **10** runs, since q=0.05 exists only at 47-51.
+
+So h106 answers "does the thrice-measured setting close the real gap,
+seed-matched" -- a well-posed question -- while no longer testing the BEST
+setting. Recorded now, before its results, so the limitation is not discovered
+afterward: **a null Q1 from h106 would not license "the ROI does not close the
+gap", only "q=0.10 does not."**
+
+Neither figure comes close to MF-MES's 8.24 at the matched n=10 seeds
+(q=0.05 sits at 10.74 on its own seed set), so Q2 -- registered NEGATIVE, that
+the ROI does not close the gap -- is expected to hold at either setting.
