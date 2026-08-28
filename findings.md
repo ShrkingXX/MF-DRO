@@ -8478,3 +8478,49 @@ when the ROI cannot fill 600) begins to dominate, at which point the arm is
 secretly less tight than its target. **h97's own G3 form is the right gate:
 require the OBSERVED accept_frac in [0.018, 0.022] AND `n_draws` to stay below
 the cap, so a starved ROI is detected rather than silently reinterpreted.**
+
+## Why no mechanism for the ROI can be identified from these four benchmarks
+
+A structural limitation, worth stating once and precisely, because it explains
+why two candidate mechanisms were eliminated today and a third would fare no
+better.
+
+    benchmark    max var share   x* on boundary   MF-DRO deficit    ROI effect
+    Borehole_8D      0.83           7 of 8        REAL (2/10)       WORKS -3.68
+    Currin_2D        0.81           1 of 2        nil (saturated)   none
+    Hartmann_6D      0.35           0 of 6        tie  (5/10)       none
+    Ackley_10D       0.10           0 of 10       tie  (5/10)       none
+
+**There is exactly one positive case, so every property unique to Borehole
+"explains" the pattern equally well.** Borehole is simultaneously the most
+concentrated non-saturated benchmark, the only one whose optimum sits on the
+boundary in almost every dimension, and the only one where MF-DRO has a real
+deficit. Those three co-occur perfectly with the ROI working, and nothing in
+this data separates them.
+
+This is why h99 (headroom) and h100 (containment) were eliminated so cleanly:
+any proposed gate has to *fail* on three benchmarks and *hold* on one, and
+several unrelated quantities do that by construction. **Passing that test is
+close to free; it is not evidence.** Currin looked like the one benchmark that
+could discriminate — concentrated like Borehole but with the ROI doing nothing —
+until it turned out to be saturated, which removes it as a test of anything.
+
+### What would actually settle it, since more benchmarks of this kind will not
+
+Adding a fifth standard benchmark buys little: it will vary all these properties
+at once, like the four already here. The design that discriminates is a
+**synthetic family varying ONE property with the others held fixed** — most
+naturally concentration, since it is a free parameter of a constructed
+objective. Something like a d-dimensional quadratic with variance shares set
+explicitly (0.9 / 0.5 / 0.2 / uniform), the optimum's boundary status fixed
+across the family, and the initial-design difficulty matched so every member has
+a comparable deficit.
+
+Then "the ROI helps iff variance is concentrated" becomes a claim with four
+points that differ in one thing, rather than one point that differs in
+everything.
+
+**Registered as the design, not as a result.** It has not been run, it is not
+cheap (a new benchmark family plus arms), and it is the honest answer to "why
+does this only work on Borehole" — which is currently unanswerable rather than
+merely unanswered.
