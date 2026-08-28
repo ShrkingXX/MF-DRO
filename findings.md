@@ -5488,3 +5488,35 @@ claim, not that it contains no contradicting one elsewhere. Historical sections
 in findings.md and research-log.md legitimately preserve superseded figures as
 the record of what was measured; the CURRENT STATE banner and the in-place
 SUPERSEDED markers are what keep those from being read as live.
+
+### A compute-cap breach, and the shell bug that caused it
+
+Reporting a failure of my own process, per the standing rule that every run and
+gate miss gets reported.
+
+**What happened.** Launching a deliberately partial H93 batch onto H90's freed
+cores, I passed 16 skip-triples to the launcher as an unquoted `$SKIP`. **zsh
+does not word-split unquoted parameter expansions** (bash does). All 16 arrived
+as ONE argv element, matched no job, and the launcher started all 20 jobs with
+its own `max_workers=15` pool. Worker count hit **26 against a cap of 15**.
+
+**Detection and recovery.** The post-launch count I had already written into the
+same command caught it within 45 seconds. Killed the launcher and its workers by
+path-specific pattern; verified H90's 11 workers untouched and still running.
+Total back to 11, then relaunched correctly with `${=SKIP}` and a pre-flight
+assertion that the split yields exactly 16 args. Now 15/15.
+
+**What is contaminated.** Nothing in correctness terms -- workers are
+single-threaded and deterministic given seed, so oversubscription only slows
+things. But **H90 wall-clock for that ~50-second window is inflated**, and I have
+been quoting H90 cost ratios. Any cost figure derived from these runs carries
+that caveat; regret figures do not.
+
+**Kept.** Five Currin MF-MI-Greedy runs completed during the breach (0.5 min
+each). They are valid -- deterministic given seed -- so Currin's baseline arm is
+finished and will not be re-run. Wall-clock from them is not used for anything.
+
+**Lesson worth keeping.** The pre-launch check I ran (two worker counts) could
+not catch this, because the breach happened at launch, not before it. The check
+that caught it was the POST-launch count in the same command. Both are needed;
+only the second is load-bearing.
