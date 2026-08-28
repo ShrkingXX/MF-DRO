@@ -10593,3 +10593,62 @@ back slightly** (+1.9 HF, −3.5 LF) while *improving* regret by a further 2.10.
 So L1's contribution does not act through the fidelity mix — if anything it works
 against the shift the ROI produces. Their hypothesis remains live for the ROI and
 is not supported for L1.
+
+---
+
+## h120 CONFIRMED — the ROI reallocates fidelity (and one limb died)
+
+The screen's hypothesis has been tested at the seeds it was locked against, with
+a proper control, and two of its three limbs survive.
+
+**First: the control existed all along.** h120 was declared unrunnable because
+h84's ROI-OFF stops at seed 43, and I asserted no independent 5-seed set existed
+anywhere. Wrong. h83's plain `MF-DRO` IS the no-ROI control under another name,
+and I measured it rather than assuming: h83 `MF-DRO` vs h84 `ROI-OFF` is
+**bit-identical at both overlapping seeds** — 137 and 132 queries, 0 differing,
+across three different commits. The `ROI-OFF` label was added when h84 needed an
+explicit control name.
+
+| | prediction | control | ROI-Q10 | paired | \|m\|/sd | dir | verdict |
+|---|---|---|---|---|---|---|---|
+| P1 | HF count LOWER | 94.0 | 84.8 | −9.20 | **1.55** | 5/5 | **PASS** |
+| P1b | LF count HIGHER | 12.6 | 31.0 | +18.40 | **1.58** | 5/5 | **PASS** |
+| P2 | converges earlier | 0.855 | 0.792 | −0.063 | 0.29 | 3/5 | **FAIL** |
+| P3 | count-matched HF y HIGHER | 224.31 | 241.36 | +17.05 | **3.54** | 5/5 | **PASS** |
+| P4 | frac worse (predicted null) | 0.079 | 0.030 | −0.050 | 0.98 | 5/5 | as predicted |
+
+**Confirmed: the ROI buys less high fidelity** — 9.2 fewer HF queries, 18.4 more
+LF, 5/5 seeds — **and each HF query it does buy is better.** P3 was written to
+kill the obvious confound (a more converged run has a better average) by matching
+counts within seed, and the matched gain (+17.05) is LARGER than the unmatched
+(+15.16). The effect is not convergence.
+
+**Not confirmed: "converges earlier".** The screen had it at effect 1.35, 5/5
+(0.938 → 0.748). At independent seeds it is 0.29, 3/5. Dropped. This is what a
+screen is for — three quantities survived it, confirmation kept two and killed
+one.
+
+P4 behaved as predicted at 0.98 against a 1.0 bar, which is the weakest possible
+form of that verdict and is recorded as such.
+
+### The composition constraint (peer's h113, 10/10 seeds)
+
+ROI alone −3.86, L1 alone −2.21, both −5.96. Adding L1 on top of the ROI buys
+−2.10 where L1 alone buys −2.21: **L1 delivers its full standalone effect with
+the ROI already present.** Two mechanisms, not one reached two ways — the first
+structural constraint on the mechanism question, given h111 showed benchmarks
+cannot constrain it and h116/h118 closed the two most plausible channels.
+
+Their fidelity counts also bear on my hypothesis: adding L1 moves the mix BACK
+(+1.9 HF, −3.5 LF) while improving regret 2.10. **The fidelity mix is not L1's
+channel**, and the two interventions do not share it.
+
+I checked a load-bearing assumption in their cross-experiment construction
+rather than taking it: their BASE cell substitutes h83 `MF-DRO` for h90
+`NO-ROI`, and the bit-identity above validates exactly that substitution.
+
+### Still true, and still the uncomfortable part
+
+None of this makes the method competitive — 9.82 against MF-MES's seed-matched
+6.00 — and h121's mismatch stands: this all happens on Borehole, where the
+waste the diagnosis names is smallest.
