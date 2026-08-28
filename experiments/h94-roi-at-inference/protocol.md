@@ -218,3 +218,21 @@ support a thrashing diagnosis, and Darwin's load average counts states that
 inflate it relative to the Linux reading I would instinctively apply. Recorded
 because it is unusual, NOT flagged as a problem: I raised one alarm today by
 over-reading a load-adjacent number and will not do it twice.
+
+## Amendment 4 — G1 PASSED
+
+Third attempt, run from two scratchpad copies of the tree (HEAD vs patched) so
+live `src/` was never touched, under a wrapper that aborts if the worker count
+exceeds 14. Compute was at 14, so one diagnostic slot sat exactly at the cap.
+
+    use_roi=False, Borehole seed 47, identical config
+    HEAD:    13 real iterations
+    patched: 13 real iterations
+    fidelity/x/y traces: BIT-IDENTICAL (exact float repr comparison)
+
+The patch tested is the CURRENT one, including the `Var(actions_x)` logging
+added after D2 -- not the earlier version. **G1 is MET.**
+
+G2 is NOT met. h90's arms A and B (NO-ROI, ROI-Q10) are complete 5/5, which is
+what h94 consumes, but 13 workers are running and h94 needs 10 slots. Its
+REFINE-100 arm (h90's own P4, unrelated to h94) is the remaining long pole.

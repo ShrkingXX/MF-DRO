@@ -62,7 +62,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 20:2x, h94 code locked; L_loc confirms lossy channel
+last_updated: 2026-08-27  # 20:3x, H90 P1 MET -- first surviving confirmation
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -233,6 +233,23 @@ queued_experiments:
     the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
     ordering, collapse incidence, and the sign of a comparison.
 
+  h90-borehole-confirm: >
+    **ROI ARM COMPLETE, P1 MET.** The Borehole ROI gain SURVIVES fresh seeds
+    47-51: paired mean **-3.49**, sd 2.66, ROI better **4/5** (-6.05, -1.87,
+    -3.97, -5.77, +0.22), against -4.22 and 5/5 on the development seeds --
+    83% retention. Combined n=10: -3.85, 9/10. Drop-one-seed mean stays negative
+    in all five. P2 MET (margin shrank, as predicted). P3 MET (still does NOT
+    beat MF-MES: 12.25 vs 6.40).
+    THE FIRST INTERVENTION THIS SESSION TO PASS A CLEAN FRESH-SEED CONFIRMATION.
+    Pre-registration verified by timestamp, not asserted: bars committed
+    18:54:17, earliest result of any arm 19:31:10, earliest treatment result
+    19:54:20. Amendment 4 changed control flow only; bar expressions
+    byte-identical across the diff.
+    NORTH STAR UNCHANGED -- MF-DRO still beats no baseline; the gain closes about
+    a quarter of the MF-MES gap and is Borehole-only (Hartmann -1.62 3/5 flip
+    withdrawn, Ackley -0.09 1/5, Currin +0.11 0/5 HARMED).
+    REFINE-100 arm still running -- h90's P4, the third seed set for teacher
+    refinement.
   h89-hffloor-confirm: >
     COMPLETE, 25 runs, 0 failures. TWO VERDICTS.
     (a) HF FLOOR: **WITHDRAWN**. At fresh seeds 52-56 the across-seed sd went UP
