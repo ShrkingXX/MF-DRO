@@ -12621,3 +12621,50 @@ second from now on.
 This is the fourth time today a small number turned out to be small only relative
 to a spread nobody had computed — after the near-zero denominators, the
 rank-off-a-tie, and the two-seed-set "asymmetry".
+
+---
+
+## h135 verified: the combination is the project's strongest result, and "additive" is retracted
+
+The peer's full 2x2 at n=10, reproduced here exactly — all four cells, all five
+contrasts, and the per-seed interaction values. Borehole, seeds 42-51, rel% of
+optimum @`cost_curve` 200.
+
+| cell | mean regret | | contrast | mean | sd | effect | better |
+|---|---|---|---|---|---|---|---|
+| control | 15.780% | | ROI - control | -3.857 | 2.436 | 1.58 | 9/10 |
+| ROI | 11.923% | | L1 - control | -2.211 | 1.778 | 1.24 | 9/10 |
+| L1 | 13.568% | | **both - control** | **-5.958** | 2.646 | **2.25** | **10/10** |
+| both | 9.822% | | both - ROI | -2.101 | 1.048 | 2.00 | 10/10 |
+| | | | both - L1 | -3.747 | 2.321 | 1.61 | 10/10 |
+
+**-5.958% of optimum at effect 2.25 in 10 of 10 seeds is the strongest result in
+this project**, and it beats each component separably — neither the ROI nor the
+L1 loss carries the pair. That is the number a write-up should lead with, not
+the ROI alone.
+
+### "0.11 from additive" is RETRACTED
+
+Interaction per seed: -0.65, +1.62, +0.49, -0.33, +1.69, +3.99, -1.09, -4.02,
++2.25, -2.86. **Mean +0.110, sd 2.420** — twenty-two times the estimate — and
+sem 0.765, so interactions of roughly +/-1.5 points are entirely consistent.
+That is **a quarter of the combined effect**.
+
+The defensible claim is **"we cannot detect an interaction"**, not "they compose
+additively", and certainly not "95% of the way to fully additive" — which dresses
+a point estimate as a precision. The peer registered this possibility before
+looking and retracted on their own gate.
+
+### The pattern behind four of today's errors
+
+This is the fourth time today a small number turned out to be small only relative
+to a spread nobody had computed — after the near-zero-denominator ratios, the
+rank-order read off a 0.006 tie, and the two-seed-set asymmetry (which I then
+compounded by using the sem of the pooled mean instead of the sem of the
+difference).
+
+**The peer's diagnosis is the sharp one: it is not that we compute spreads
+wrongly. It is that when a number SUPPORTS the conclusion we already hold, we do
+not compute a spread at all.** Every instance today was a number that looked like
+confirmation — additive composition, a tidy dose-response, a clean asymmetry.
+None of the four was checked against its own noise until someone went looking.
