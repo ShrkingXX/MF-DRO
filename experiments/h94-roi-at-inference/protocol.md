@@ -121,3 +121,46 @@ slots and the cap is 15. Launch only when a corrected count
 h91-h93 belong to the concurrent session. This session reserved h90+; to avoid a
 third ID collision this experiment takes h94 and the reservation is narrowed
 here: **this session holds h94-h99.**
+
+## Amendment 1 — implementation written, held OUT of src/ as a patch, and UNVERIFIED
+
+The inference-time ROI is implemented (`code/roi_at_inference.patch`, applies to
+`src/policy/mf_dro.py`): a `_roi_snap` method plus a two-line hook immediately
+after the [0,1]^d -> raw rescale. `roi_inference_mode` defaults to None, so the
+hook is a no-op for every existing configuration.
+
+### Why it is NOT in src/
+
+A concurrent session has 15 workers running (h90, h93) and MORE JOBS STILL TO
+LAUNCH. A newly launched worker imports `src/policy/mf_dro.py` at process start,
+so an edit sitting in the working tree would be picked up by runs belonging to
+somebody else's experiment. Already-running processes are unaffected (the module
+is loaded once), but the not-yet-launched ones are not.
+
+The edit is a no-op by inspection -- `getattr(config,'roi_inference_mode',None)`
+returns None, the branch is skipped, no RNG is consumed. **That reasoning is
+exactly the kind this session has been repeatedly wrong about, and the cost of
+reverting is zero.** src/ is restored to HEAD; the change lives as a patch that
+has been verified to re-apply byte-exactly.
+
+### TWO GATES, both required before any H94 run
+
+**G1 -- BIT-IDENTITY, not yet performed.** A `use_roi=False` run on identical
+seed must produce an identical x/fidelity/y trace with and without the patch.
+The check was written and launched; it exceeded a 2-minute limit because a
+MF-DRO run trains for bo_iterations=4000 before its first real query, and it was
+abandoned rather than left competing for cores at the cap. **No H94 result may
+be reported before G1 passes.** If G1 fails, the patch is wrong and H94 does not
+run at all.
+
+**G2 -- COMPUTE.** `sh src/analysis/worker_count.sh` <= 5, and h90 complete
+(it supplies arms A and B).
+
+### Recorded as a deviation from my own plan
+
+The protocol above says the ROI test at inference reuses the rollout's
+quantile-calibrated beta. It does, with one difference worth stating: the
+rollout resolves beta ONCE on its first draw and reuses it across draws within a
+step; `_roi_snap` draws a single pool and calibrates on it. Same estimator, one
+draw instead of several -- a slightly noisier acceptance rate at the same target
+q. Noted here rather than discovered later in a diff.
