@@ -10232,3 +10232,29 @@ operative constraint, and h113's additive prediction trailing MF-MES by 3.71
 points would be *expected* rather than disappointing. h113 remains registered and
 will report as specified — this changes how its number should be read, not
 whether it is read.
+
+### Verified: the boundary waste is real, fixable, and does not buy performance
+
+A peer's h118 re-analysed my own h90 arms. I reproduced their figures exactly:
+
+      final best HF y      NO-ROI 260.84   ROI-Q10 271.64   REFINE-100 271.03
+
+REFINE-100 cuts off-boundary waste far harder than ROI-Q10 (boundary mass 54.2%
+vs 18.6%, a 2.8x difference in wasted budget) and the two **land 0.61 apart** in
+final value. Across all fifteen runs r(waste, final y) = −0.255.
+
+**So the 8.9% waste figure — which I recorded this morning as a real end-to-end
+measurement, and which it still is — is not the mechanism.** Cutting it further
+moved 271.6 to 271.0.
+
+**Two candidate channels for the ROI's Borehole benefit are now closed by
+pre-registered tests rather than argument:** dispersion (weighted, unmoved) and
+boundary resolution (h118's gate missed at 0.62 against a 1.0 bar). The channel
+is unidentified, and the honest position is that we have eliminated the two
+explanations both sessions found most plausible.
+
+**Consequence for h113, recorded before its numbers:** it should not be judged on
+anything dispersion- or boundary-related, because neither is the channel. If it
+lands near its additive prediction, that is now the *more* informative outcome —
+two interventions composing without either acting through a channel anyone has
+been able to name.
