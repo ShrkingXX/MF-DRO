@@ -8000,3 +8000,77 @@ against both registered baselines, at the registered seed count**, by 6x —
 against baselines that h103 established are a faithful port of the reference's
 deliberate UCB prior and are genuinely weak at this budget. It is tied with
 MF-MES on Hartmann and behind it on Borehole. Every clause is load-bearing.
+
+## H94 COMPLETE: 10/10, 0 failures. Every bar MET, and the experiment did not test what it was built to test.
+
+    P5  FAILED   max snapped_frac 0.009 against a bar of >0.5
+    P1  MET      C-D  mean -0.66  sd 4.03  4/5     |mean|/sd = 0.16
+    P2  MET      C-A  mean -3.86  sd 2.45  5/5     |mean|/sd = 1.58
+    P3  MET      |C-A| 3.86 > |B-A| 3.49
+    P4  MET      C mean 11.88, still behind MF-MES's 6.40 (cross-seed-set caveat stands)
+
+### P5 governs everything else, as registered
+
+ROI-PROJECT snapped 0.9% of its queries. The protocol's own text: C is then
+"nearly identical to B by construction and P1/P3 are uninformative regardless of
+how they come out". **P1 and P3 are INCONCLUSIVE. I am not reading them as
+support for anything**, and the three MET verdicts below are reported because
+the discipline says report every bar, not because they mean what they say.
+
+### P1 and P3 are hollow on their own numbers, independently of P5
+
+    P1  C - D   mean -0.66  sd 4.03   ->  0.16 sd.  Not separable from zero.
+    C - B       mean -0.37  sd 0.98   ->  0.38 sd.  Not separable.
+
+P3's claim is "the query constraint beats the imitation channel", computed as
+|C-A| > |B-A| = 3.86 > 3.49. **But C and B are the same configuration** -- a
+0.9% intervention apart -- so P3 compares an arm against itself and the 0.37-point
+gap is a third of its own spread. A bar that passes on that is measuring run-to-
+run variation.
+
+**Fourth bar-design failure of the session.** P1 required "≥4/5 AND a negative
+mean" -- h95's form, which I adopted deliberately after W2 -- and it STILL passes
+at a mean one sixth of its own standard deviation. Count plus sign is not enough
+either. The rule needs to be: **a bar must require the effect to be large
+relative to its own spread**, and none of my four attempts this session stated
+that.
+
+### What h94 actually delivered, which is worth having
+
+**An independent replication of the teacher-side ROI effect.** Because C is B in
+all but 0.9% of queries, and was run separately with a different RNG stream at
+the same seeds:
+
+    h90 ROI-Q10      mean -3.49  sd 2.66  better 4/5
+    h94 ROI-PROJECT  mean -3.86  sd 2.45  better 5/5
+    POOLED n=10      mean -3.68  sd 2.42  better 9/10
+
+    per-seed agreement: +0.11, -1.91, +0.74, -0.45, -0.37   mean |diff| 0.72 pts
+
+Two independent runs of the same configuration, same seeds, different RNG, agree
+to 0.72 points per seed and land within 0.37 of each other in the mean. **This is
+the first true replication of the ROI's Borehole effect** -- h90 was a fresh-seed
+confirmation, this is a fresh-RNG one, and together they give n=10 at 9/10.
+
+### And a real characterisation of SNAP-CONTROL, which did fire
+
+D snapped 100% by design and is interpretable on its own terms:
+
+    D - A   mean -3.20  sd 5.75  better 3/5
+    arm spread: NO-ROI sd 2.67 | ROI-Q10 1.28 | ROI-PROJECT 0.51 | SNAP-CONTROL 3.98
+
+Unfiltered snapping produces **the same mean benefit as the ROI and three times
+the spread.** It gave both the best single Borehole result in this project
+(seed 47, 5.78 -- lower than MF-MES's 6.40) and a result worse than doing nothing
+(seed 49, 16.06). It is a lottery, not a method.
+
+That is the answer to the excluded-mechanism question h94 was really policing:
+quantizing onto a finite pool is not a hidden source of the ROI's gain. It buys
+the same average at much worse reliability.
+
+### The one number I will not read
+
+ROI-PROJECT's across-seed spread is 0.51 against ROI-Q10's 1.28 -- two runs of
+the same configuration differing 2.5x in reliability. At n=5 the sampling error
+on a standard deviation is enormous, and I have been caught three times today
+reading structure into small-sample spread. Recorded, not interpreted.
