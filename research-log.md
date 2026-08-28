@@ -1546,3 +1546,55 @@ method genuinely loses, the calibrated region removes 57% of the deficit at the
 well-replicated setting, on every one of ten seeds. The better setting closes
 62% on the seeds where every arm exists. The run testing whether that holds at
 the full seed-matched sample is finishing now.
+
+---
+
+## H109, H111, H115 — three experiments that mostly said "no", and were worth it
+
+None of these produced a positive result. Logging them together because the case
+for running them is clearer in aggregate than singly, and because two of the
+three changed a conclusion that had already been published.
+
+**H109 bought a fact that two arguments could not.** Two independent lines said
+the working-tree patches were inert on the ROI path — my sandbox smoke test and a
+peer's reading of the diff. Both were right. That is exactly why spending two runs
+was correct rather than redundant: we could not have known they were right
+beforehand, and three experiments' results rested on it. The runs came back
+bit-identical to h84's stored traces, 115 and 103 post-init queries, |dregret| = 0.
+
+**H111 closed the investigation's most-repeated limitation.** "The ROI only works
+on Borehole" had been said by both sessions for hours and rested entirely on
+q=0.10 arms. Two settings spanning a 2x range now fail on both benchmarks where a
+difference could be resolved. The limitation survives a real test instead of an
+assumption — and the hoped-for outcome, that a better setting would make the
+mechanism identifiable from more than one benchmark, did not happen.
+
+Its Hartmann arm also produced something more useful than its verdict: sd 6.32
+across five seeds, spanning −9.52 to +8.02. **Hartmann cannot resolve an ROI
+effect of any plausible size at n=5.** Both its q=0.10 and q=0.05 numbers should
+therefore be dropped from arguments in either direction — including from my own
+protocol's reasoning, which had treated the q=0.10 figure as evidence of a weak
+effect rather than of an unresolvable one.
+
+**H115 was a comparator fill that refuted the arithmetic that motivated it.**
+Borehole MF-MES had never been run at seeds 47-51 — half of h113's design. Five
+runs later: MF-MES scores 5.59 there, not the 8.24 available from a different
+pairing. Even perfect additivity now leaves the combined arm 3.71 points behind.
+The reading that h113 might tie the strongest comparator was an artefact of
+quoting a comparator from seeds h113 does not use.
+
+That is the seed-matching error's third appearance in one night, and **the first
+that neither session could have caught by reasoning.** The missing cell had to be
+run. It is the strongest argument I have for filling comparators rather than
+quoting the nearest available number, and it cost five cheap runs.
+
+**What connects them.** Each replaced an assumption with a measurement, and in
+two cases the measurement contradicted what careful reasoning had concluded. The
+pattern across tonight is that our arguments have been right more often than not
+— and the two times they were not, only running something revealed it.
+
+H113 is in flight: whether the two surviving interventions compose. Its reading is
+already bounded in advance by H115 — it cannot show the method reaching MF-MES on
+Borehole — and by the weighted-dispersion work, which rules out dispersion as the
+shared channel if it comes out shared. Both bounds were established before the
+numbers, which is the only time such bounds are worth anything.
