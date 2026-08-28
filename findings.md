@@ -12880,3 +12880,68 @@ matter**. That is still worth having: "the inefficiency was a seed artefact" and
 "the inefficiency is real but irrelevant" are different states of knowledge, and
 only the second is now supported. It is also the clearest case in this project
 of a replication succeeding without rescuing the hypothesis it came from.
+
+## h137 — The best configuration does NOT overtake MF-MES. And my gate returned the flattering label.
+
+CONFIRMATORY, zero compute. Borehole, seeds 42-51, paired, rel% of |optimum|
+@cost_curve 200.
+
+    control   15.780
+    ROI+L1     9.822
+    MF-MES     5.996
+
+    d = (ROI+L1) - MF-MES, per seed:
+      42:+7.36  43:+5.05  44:-4.99  45:+8.55  46:+1.07
+      47:+9.20  48:+0.91  49:-4.35  50:+9.97  51:+5.47
+      mean +3.826   sd 5.438   effect 0.70   ROI+L1 better 2/10
+
+**Registered verdict: TIED.** My three-way gate required effect >= 1.0 for either
+directional verdict, and 0.70 misses it.
+
+**I am not reporting that as parity, and the gate is wrong here.** The point
+estimate says ROI+L1 is 3.83 points of optimum *worse*, and it is better on **2
+of 10 seeds**. Both the mean and the seed count are unambiguous; only the
+variance-scaled statistic is not, because sd is 5.438. "TIED" in this gate means
+"not separable", and I wrote a label that reads as "equal".
+
+**The correct summary: ROI+L1 does not overtake MF-MES, and nothing here suggests
+it comes close.** Calling this a tie would be the single most flattering reading
+available, produced by a threshold I set myself.
+
+**This is exactly the asymmetric risk I registered before running.** The protocol
+says: *"STILL BEHIND retracts nothing and confirms my expectation — which is
+exactly the outcome I should scrutinise hardest."* I got something adjacent: a
+verdict more flattering than my expectation, arriving through a gate rather than
+through the data. The pre-registration did its job by making the discrepancy
+visible instead of letting me adopt the label.
+
+**Gate-design lesson, and it is new:** `check_gate.py` confirmed my three verdicts
+partition the outcome space, and they do. **Partitioning is not sufficient — a
+residual category can be labelled misleadingly.** "TIED" should have been named
+NOT SEPARABLE. A verdict name is part of the registration and can bias a reading
+even when the thresholds are sound.
+
+### P2 — gap closure, reported with spreads and no bare percentage
+
+    control-to-MF-MES gap    mean +9.784   sd 6.507
+    closed by ROI+L1         mean +5.958   sd 2.646
+    remaining                mean +3.826   sd 5.438
+
+The naive ratio is 61% of the gap. **The protocol forbade quoting that**, and the
+reason shows here: the denominator has sd 6.507 — two thirds of its own value. A
+percentage-of-gap is a ratio whose denominator is an estimate with more spread
+than the numerator, which is the near-zero-denominator family in its slower form.
+Report the three quantities, not the fraction.
+
+For reference the unimproved control loses to MF-MES by +9.784, effect 1.50,
+better on 1/10. **So the interventions move MF-DRO from 1/10 to 2/10 against
+MF-MES** while closing roughly 6 of ~10 points. Real progress; not a competitive
+win.
+
+### What this RETRACTS: nothing. Which is the part to be careful about.
+
+The three claims I named as at risk — the report's "It beats no baseline here",
+my framing of this as a mechanism study rather than a competitive result, and the
+state file's headline — **all survive.** That is the outcome that demanded the
+most scrutiny and it is the one I got, so the scrutiny went into the gate label
+above rather than into the claims.
