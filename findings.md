@@ -5892,3 +5892,54 @@ This is the ROI applied to the TEACHER -- the imitation-channel version the code
 audit describes. h94 asks whether applying it to the QUERY does better. H90's
 result stands regardless of how h94 comes out, and h94's P3 now has a concrete
 number to beat: |B-A| = 3.49.
+
+## CORRECTION to the published report: a variance claim built from two different statistics
+
+The concurrent session and I independently wrote up H90 within minutes of each
+other, into the SAME report file. Its section was committed first and is the one
+that survives (it is better -- it computed a variance analysis I had not). While
+merging my section away I checked its numbers, and two do not reproduce.
+
+CLAIMED: "The spread across seeds falls by 60% (2.37 to 0.96)... the worst seed
+improves by 5.40 points, the best by 1.51."
+
+MEASURED, from the five values in the section's own table:
+
+    sd (ddof=1)          2.666 -> 1.276    52%
+    sd (ddof=0)          2.384 -> 1.141    52%
+    mean abs deviation   1.997 -> 0.963    52%
+    median abs dev       1.930 -> 0.840    56%
+    IQR                  3.080 -> 1.550    50%
+    range                6.830 -> 3.250    52%
+    SEM                  1.192 -> 0.571    52%
+
+**Every consistent measure gives 52%.** The published pair is not one statistic:
+2.37 is the no-ROI arm's standard deviation (ddof=0, 2.384) and 0.96 is the ROI
+arm's MEAN ABSOLUTE DEVIATION (0.963). Comparing an sd to a MAD manufactured the
+extra eight points of drop. No subset of the five seeds, at either ddof,
+reproduces the published pair -- so it is not a partial-arm artifact either.
+
+The worst/best figures are also wrong, and one is wrong in SIGN: the worst
+no-ROI seed (50) improves by **5.77**, and the best (51) does not improve at
+all -- it gets **0.22 WORSE**. The published "best by 1.51" describes an
+improvement that did not happen.
+
+**The qualitative conclusion survives and is slightly strengthened**: the gain
+really is concentrated in the bad runs, and the best run gains nothing. Only the
+numbers were wrong. Corrected in place on the page, with the correction stated
+on the page rather than silently patched.
+
+Also corrected there: "the gap is roughly halved" -> the ROI closes **37%** of
+the gap to MF-MES (9.34 pts -> 5.85). And a caveat neither of us had attached to
+that comparison: MF-MES's 6.40 is from seeds 42-46 while 12.25 is from 47-51,
+and h89 measured up to 3.67 pts of difficulty difference between seed sets on
+this benchmark. The two are not strictly comparable without re-running MF-MES at
+47-51.
+
+### The standing lesson this is an instance of
+
+Lesson 22 said the PRIMARY metric must be the statistic the objective depends
+on. This is its sibling: **when two numbers are compared, they must be the same
+statistic.** An sd against a MAD looks like a stronger result than either would
+alone, and nothing in the sentence signals that two different quantities are
+being differenced.

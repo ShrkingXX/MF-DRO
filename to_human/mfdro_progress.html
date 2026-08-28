@@ -474,6 +474,7 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+
 <section>
   <p class="kicker">The strategy</p>
   <h2>Calibrate the acceptance rate, solve for &beta;</h2>
@@ -640,18 +641,49 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   benchmark, the region-of-interest rule the paper itself defines &mdash; with its threshold
   recalibrated at every iteration instead of held at a constant &mdash; measurably stops the method
   wasting its expensive budget.</p>
+  <h3>Why this one held, and it was decided in advance</h3>
+  <p>The protocol gave a reason, before the runs, for expecting Borehole to hold where Hartmann failed.
+  Hartmann&rsquo;s gain came from <em>one</em> region setting out of three &mdash; the other two were
+  neutral or harmful. Borehole&rsquo;s appeared at <em>all three</em> settings tested, which makes it a
+  property of applying a region at all rather than of the setting that happened to get picked. That
+  distinction predicted both outcomes correctly.</p>
+  <p>The pre-registration is checkable rather than asserted. The scoring thresholds were committed at
+  18:54; the first result of any arm landed at 19:31 and the first treated run at 19:54 &mdash; 37 and
+  60 minutes later. A later amendment reorganised the script&rsquo;s control flow, and the threshold
+  expressions are byte-identical across that change.</p>
+  <p><strong>It is also Borehole-only.</strong> The same region rule is negligible on Ackley, was
+  withdrawn on Hartmann, and actively <em>harms</em> Currin. One benchmark improving is a finding about
+  that benchmark until something explains why the other three do not.</p>
   <h3>The gain is in the bad runs, not the typical one</h3>
   <p>This part was not predicted in advance and is reported as such. The spread across seeds falls by
-  <strong>60%</strong> (2.37 to 0.96). The improvement is concentrated where the method was worst:
-  the <em>worst</em> seed improves by 5.40 points, the <em>best</em> by 1.51. That is what removing
-  bad outcomes looks like, rather than lifting the average &mdash; which is what the stated goal
+  <strong>52%</strong> (standard deviation 2.67 to 1.28). Every other measure of spread &mdash; mean
+  absolute deviation, interquartile range, range, standard error &mdash; gives 52% as well.</p>
+  <p>The improvement is concentrated where the method was worst, and more sharply than a summary
+  statistic conveys: the <em>worst</em> seed improves by <strong>5.77</strong> points, while the
+  <em>best</em> seed does not improve at all &mdash; it gets <strong>0.22 worse</strong>. That is what
+  removing bad outcomes looks like, rather than lifting the average, which is what the stated goal
   predicts.</p>
+  <div class="callout">
+    <p class="kicker">Correction, same day</p>
+    <p>This paragraph first read &ldquo;60% (2.37 to 0.96)&rdquo; with the worst seed improving 5.40 and the
+    best 1.51. Those numbers do not reproduce from the five values in the table above. The 2.37 is the
+    no-region arm&rsquo;s standard deviation; the 0.96 is the region arm&rsquo;s <em>mean absolute
+    deviation</em> &mdash; two different statistics compared against each other, which manufactured the
+    extra eight points of drop. The corrected figures are above. The conclusion is unchanged and in fact
+    slightly stronger, since the best seed does not improve at all.</p>
+  </div>
   <p>An earlier claim of lower tail risk was discarded during this investigation for comparing a
   method against a difference computed from it, which is negative by construction. This measurement
   is each arm&rsquo;s own spread across seeds, which is the form that test has to take.</p>
   <p><strong>It still does not make the method competitive.</strong> With the region of interest it
-  reaches 12.25% against the strongest baseline&rsquo;s 6.40%. The gap is roughly halved, not closed
-  &mdash; and a prediction registered before the runs said exactly that.</p>
+  reaches 12.25% against the strongest baseline&rsquo;s 6.40%. That closes <strong>37%</strong> of the
+  gap (9.34 points down to 5.85), not half of it &mdash; and a prediction registered before the runs
+  said the gap would not close.</p>
+  <p>One caveat that belongs next to that comparison and was missing from it: the baseline&rsquo;s 6.40%
+  was measured on the <em>development</em> seeds, while 12.25% is on the fresh ones, and this
+  investigation has already found the same benchmark to differ by up to 3.67 points between seed sets.
+  The two numbers are not strictly comparable, and settling it means re-running the baseline on seeds
+  47&ndash;51.</p>
   </div>
 </section>
 
