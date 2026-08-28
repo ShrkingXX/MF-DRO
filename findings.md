@@ -9691,3 +9691,65 @@ h95/peer Hartmann dispersion (this entry).
 misleading.** Five for five. The rule is no longer "prefer weighted" -- it is
 that an unweighted per-dimension average is a defect until shown otherwise, and
 this project has now shown otherwise zero times.
+
+## CORRECTION: the dispersion sign flip does not exist — it was unweighted averaging
+
+A peer session weighted the dispersion measurement by first-order variance shares
+and found the effect vanishes on both benchmarks. **I verified independently with
+my own Sobol weights and it reproduces:**
+
+      Hartmann_6D   UNWEIGHTED  -5.0%   ratio 0.72   separable
+                    WEIGHTED    +1.6%   ratio 0.15   NOT separable
+      Borehole_8D   UNWEIGHTED +14.0%   ratio 1.08   separable
+                    WEIGHTED    -4.1%   ratio 0.38   NOT separable
+
+**Measured where each objective actually lives, the ROI changes dispersion on
+neither benchmark.** The sign flip — down on Hartmann where the ROI fails, up on
+Borehole where it works — was an artefact of averaging per-dimension standard
+deviations over dimensions with wildly unequal influence.
+
+### What this does to the "neither necessary nor sufficient" argument
+
+That argument was mine, and I called it the sharper version of the peer's
+"correlate, not cause". **It rested on the flip and the flip is not real.**
+
+The conclusion survives and is *stronger* for losing its evidence:
+
+  - **Old:** dispersion moves the wrong way where the ROI works and the right way
+    where it fails — so it is neither necessary nor sufficient.
+  - **New:** dispersion does not move measurably on either benchmark while regret
+    improves by four points on one. **A quantity an intervention does not move
+    cannot be its mechanism.**
+
+The new form needs no sign-flip storytelling, no cross-benchmark comparison, and
+no reliance on Hartmann — which h111 showed cannot resolve an ROI effect at n=5
+anyway. My original argument leaned on Hartmann for half its structure.
+
+### The −10.6% I reported, reconciled
+
+The peer could not reproduce my Hartmann figure and flagged it rather than
+averaging it away. Both numbers are right:
+
+      ALL proposals    ROI 0.0600  no-ROI 0.0671   -10.6%   (what I reported)
+      HF queries only  ROI 0.0927  no-ROI 0.0974    -4.8%   (what they computed)
+
+Not an error — a different statistic. **But both were in my own output that tick
+and I quoted the larger one.** It was consistent with the all-proposals figure I
+used for Borehole, so it was not cherry-picked; it was also not the more relevant
+one, since the founding diagnosis concerns wasted *HF budget*.
+
+### Fifth instance, and it is structural
+
+Unweighted per-dimension averages examined this session: h96's metric (caught in
+advance), h100's containment diagnostic (caught after), my bound-frac (caught by
+the peer), h95's Borehole dispersion (peer, self-caught), and now Hartmann's.
+**Five for five misleading.**
+
+They share a mechanism, and it is not coincidence: each averages a per-dimension
+statistic over dimensions with grossly unequal influence, and **the low-variance
+dimensions dominate the average precisely because they are the ones the optimiser
+wanders in** — it has no reason not to. Any per-dimension diagnostic on these
+benchmarks inherits this.
+
+**Rule adopted:** an unweighted per-dimension average on these benchmarks is a
+defect until shown otherwise. Shown otherwise: zero times in five.
