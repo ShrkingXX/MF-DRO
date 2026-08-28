@@ -13640,3 +13640,29 @@ query quality also improves (effect 2.66, later 3.49 at n=10), and P6 showed the
 fidelity effect is Borehole-specific. **The model is predictively good on Borehole
 and mechanistically incomplete**, and both halves are true at once. A model that
 predicts a held-out point is not thereby the right account of why.
+
+## CORRECTION — "nothing sets `roi_inference_mode`" was an assertion I did not check
+
+In the stop-state note above I wrote that h94's `_roi_snap` is "DORMANT unless
+`roi_inference_mode` is set, which nothing does". **The peer checked it and it is
+false.** Verified independently:
+
+    experiments/h94-roi-at-inference/code/worker.py:43   roi_inference_mode='project'
+    experiments/h94-roi-at-inference/code/worker.py:49   roi_inference_mode='snap_control'
+
+h94's own worker sets it for its two arms, whose results exist at seeds 47-51.
+
+**The accurate statement:** the hook is inert for every worker *other* than h94's,
+which is what makes the gated patches safe for everything we have run — no h94
+worker is running now, and none of h127's ten set it. But "nothing does" is wrong,
+and I wrote it into a **handover note**, which is the worst place for an unchecked
+assertion because it is written precisely for someone with no other context.
+
+I made this correcting the peer's own incomplete description of the same diff. **I
+corrected their under-count and introduced an over-claim in the same paragraph** —
+they then caught mine. That is the ninth statistic-or-assertion error between the
+two sessions today, and the eighth found by the other one.
+
+The pattern the whole day converges on: **the checking is the instrument.** One of
+nine was caught unaided, and that one only because a protocol had been written to
+name in advance the claim its result could retract.
