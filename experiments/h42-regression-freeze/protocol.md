@@ -1,3 +1,11 @@
+> **ID DISAMBIGUATION (added 2026-08-27).** The id `H42` names TWO distinct
+> protocols in this tree. This file is `h42-regression-freeze` (this one has 3 result files).
+> The other is `h42-fixed-rule-control` — "is "not frozen" caused by the pipeline, not the DT?" (no results -- registered and abandoned).
+> They were registered minutes apart by the same session, which reissued the
+> number because nothing checked. Any bare reference to "H42" elsewhere is
+> ambiguous and must be resolved by content. Numbers are now claimed via
+> `tools/claim_id.sh`, which blocks reissue.
+
 # H42 — does the REGRESSION head freeze the incumbent on Hartmann 6D?
 
 Focused replacement for H40 (stopped). Single question, single arm.

@@ -1,3 +1,11 @@
+> **ID DISAMBIGUATION (added 2026-08-27).** The id `H44` names TWO distinct
+> protocols in this tree. This file is `h44-three-way-matched` (this one has NO results -- it was registered and abandoned).
+> The other is `h44-regression-head-conditioning` — "is the DT still input-inactive under the REGRESSION head?" (1 result file).
+> They were registered minutes apart by the same session, which reissued the
+> number because nothing checked. Any bare reference to "H44" elsewhere is
+> ambiguous and must be resolved by content. Numbers are now claimed via
+> `tools/claim_id.sh`, which blocks reissue.
+
 # H44 — does the DT alone (no pool, no argmax) match its teacher?
 
 ## The question

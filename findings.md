@@ -7401,3 +7401,31 @@ with a directory count.
 **Standing note: when a fix produces a new count of something already counted,
 compare them before assuming the fix is complete.** The disagreement is the
 finding.
+
+**The h42/h44 collisions damaged the pre-registration record, and that is now
+repaired.** A peer established these were not races — 25 and 11 minutes apart,
+one session reissuing a number against itself because nothing checked. The harm
+is specific: git history is this project's entire pre-registration mechanism, and
+it contained two distinct protocols named H42 and two named H44.
+
+The concrete instance, found by grepping the protocols rather than assuming there
+was one: `h44-regression-head-conditioning/protocol.md` cites *"H42 showed the
+regression head does not freeze: 0/3, 50/50 distinct proposals"*. Two files
+answer to H42, so the citation was unresolvable as written.
+
+**It resolves by content.** The cited claim is about whether the regression head
+freezes, and quotes 0/3 — matching `h42-regression-freeze`, the only H42 with
+results (3 files). `h42-fixed-rule-control` has none; it was registered and
+abandoned. Same for `h44-three-way-matched` (0 results) against
+`h44-regression-head-conditioning` (1).
+
+All four protocols now carry an ID-disambiguation header naming their sibling and
+which is which, and the cross-reference is annotated with how it was resolved.
+Original text untouched — the point is to make the record readable, not to
+rewrite what was registered.
+
+**Why this was worth the time.** Everything else in this project's discipline
+rests on the git log proving what was planned before results existed. An
+ambiguous ID does not weaken one experiment; it weakens the mechanism. And the
+two quiet ones sat unflagged for two days, while the three noisy ones were caught
+within minutes — the failure that announces itself is not the dangerous one.

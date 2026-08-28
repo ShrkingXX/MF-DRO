@@ -1,8 +1,19 @@
+> **ID DISAMBIGUATION (added 2026-08-27).** The id `H44` names TWO distinct
+> protocols in this tree. This file is `h44-regression-head-conditioning` (this one has 1 result file).
+> The other is `h44-three-way-matched` — "does the DT alone (no pool, no argmax) match its teacher?" (no results -- registered and abandoned).
+> They were registered minutes apart by the same session, which reissued the
+> number because nothing checked. Any bare reference to "H44" elsewhere is
+> ambiguous and must be resolved by content. Numbers are now claimed via
+> `tools/claim_id.sh`, which blocks reissue.
+
 # H44 — is the DT still input-inactive under the REGRESSION head?
 
 ## Why H42 does not answer this
 
 H42 showed the regression head does not freeze: 0/3, 50/50 distinct proposals.
+> **[disambiguated]** This "H42" is `h42-regression-freeze` — resolved by content:
+> it is the H42 asking whether the regression head freezes, and the only one with
+> results (3 files, matching the 0/3 cited here). NOT `h42-fixed-rule-control`.
 But *movement of queries* is exactly the behavioural evidence that misled this
 project before. Queries move when the **weights** are re-fit each iteration; that
 is not the same as the policy **conditioning** on its inputs.
