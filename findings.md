@@ -11053,8 +11053,32 @@ sd vs MAD · all-proposals vs HF-only · differences vs ratios · percent-at-fix
 cost vs raw-at-end. **Every one resolved to "both correct, different quantity",
 and every one cost a round trip between sessions.**
 
-The rule adopted: **name the statistic in the number.** Mine are `rel% @cost200`
-unless stated otherwise. This is cheaper than reconciling afterwards, and the
+The rule adopted: **name the statistic in the number.** Mine are
+`rel% @cost_curve 200` unless stated otherwise.
+
+> **[AMENDED — the rule above is necessary and insufficient.]** A peer session
+> made the sharper distinction, and it is the one with teeth. **Unit mismatches
+> leave effect sizes invariant** — they move quoted magnitudes and no verdict has
+> ever turned on one. **Read-point choice does not.** Reading "at cost 200" on the
+> cumulative curve instead of the post-init curve truncates every run at ~2/3 of
+> its budget, and moves effects by 3x (h125 Borehole, 5.69 -> 1.65) to 30x
+> (Hartmann q=0.10, 0.58 -> 0.02). So: **name the read point**, not just the
+> statistic.
+>
+> Verified my own: h83's `sr_curve` computes `cost_cum - init_cost`, so its axis
+> IS `cost_curve`. Confirmed empirically — the axis ends at 200.60 (Borehole) and
+> 201.20 (Hartmann), matching the stored `cost_curve` exactly, against raw
+> `cost_cum` of 240.60 and 294.20. Every number I have reported is at full
+> post-init budget.
+>
+> **And my overshoot attribution above was wrong.** I claimed overshoot made the
+> ratio unstable; it is 0.29 on a budget of 200, or 0.15%, and cannot. The
+> instability was a **near-zero denominator** — q=0.05's mean difference rounds to
+> 0.00 in raw units. I reached for a mechanism I had been thinking about instead
+> of examining the number that was actually odd. Third near-zero-denominator
+> artefact today. **Standing rule: report the difference and its spread, never the
+> ratio, when the denominator is itself an effect that might be null** — which is
+> exactly when a null result makes a ratio tempting to quote. This is cheaper than reconciling afterwards, and the
 reconciliation is not always as clean as these four were — a mismatch whose ratio
 happens to look constant would have been mistaken for a scaling convention and
 never questioned.
