@@ -82,3 +82,34 @@ P2 (pre-committed reading of the alternatives, so neither can be spun after):
   nothing about generality.
 - Comparator drawn from another experiment under the stated exception.
 - One point below the plateau. A null bounds q=0.02, not the whole region.
+
+---
+
+## LAUNCH INCIDENT (2026-08-28) — reported as required, before any h126 result.
+
+The first launch attempt was made against a worker whose `ROI-Q02` arm **did not
+exist**. The patch that was supposed to add it asserted an anchor string with
+three leading spaces; the file uses one. The assertion fired and refused the
+edit — correctly — but I started the launcher in the same command block without
+checking that it had succeeded, and 4 jobs were spawned for an arm the worker
+could not resolve.
+
+Consequence: none to the record. No result file was written, no checkpoint was
+created, the jobs could only have died on the ARMS lookup, and the processes
+were killed within ~60s. Cost was a few worker-seconds. Nothing entered any
+analysis.
+
+This is the SECOND time this pattern has occurred in this project. h94 launched
+8/8 runs that died on a `NameError` because the ON path had never been executed;
+gate G3 ("execute the ON path before launch") was added afterwards. I then did
+not apply G3 to my own launch.
+
+CORRECTIVE ACTION, applied before relaunch: the worker module is imported and
+its `ARMS` dict inspected directly — `ROI-Q02` present and exactly
+`{'use_roi': True, 'roi_beta_mode': 'quantile', 'roi_target_accept': 0.02}`,
+with `ROI-Q10` and `ROI-OFF` asserted unchanged and BUDGET/SPEC intact. That
+check passed before the relaunch below.
+
+Lesson worth keeping separate from the incident: **a patch that refuses is only
+a safety net if something checks whether it refused.** The assertion did its job
+and I ignored its result by putting the launch in the same block.
