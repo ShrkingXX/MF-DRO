@@ -6197,3 +6197,76 @@ small (5-25 queries per run), so its HF-only column is noisy; the all-proposal
 column is the one carrying the claim. And the peer's replication and mine are two
 statistics on ONE dataset, not two datasets — the Hartmann measurement here is
 the first genuinely separate one.
+
+## H96: the ROI RELOCATES the query cloud. Mechanism found, and it bounds the gain.
+
+EXPLORATORY, zero compute, h90's Borehole runs. Bars registered at f38eb29
+before any number was computed, including which measure decides.
+
+    WEIGHTED distance to x*, mean over HF queries      <- PRIMARY
+      0.0985->0.0824  0.1043->0.0835  0.0987->0.0835  0.1016->0.0943  0.0867->0.0740
+      paired mean -0.0144, ROI closer 5/5                        R1 MET
+
+    WEIGHTED distance, BEST single query   -0.0098, closer 4/5
+    UNWEIGHTED distance                    -0.0279, closer 3/5   (ambiguous)
+
+    NEAR-BOUNDARY FRACTION, four sensitive dims (within 0.05 of x*)
+      dim 0 (81.6% of variance)  0.701 -> 0.747   +0.046
+      dim 3 ( 4.6%)              0.020 -> 0.049   +0.029
+      dim 5 ( 5.4%)              0.002 -> 0.003   +0.001
+      dim 6 ( 8.0%)              0.002 -> 0.007   +0.005
+      4/4 dims up                                                 R3 MET
+
+### The mechanism, stated plainly
+
+**The ROI moves the query cloud closer to the optimum in the dimensions that
+matter, while spreading it out.** Weighted distance falls on 5/5 seeds; boundary
+reach improves in all four sensitive dimensions; dispersion RISES (h95, +0.010,
+4/5, independently replicated).
+
+Relocation and concentration are different operations, and only the second one
+narrows. The ROI excludes low-value regions; the surviving mass spreads over
+what is left, which is nearer the optimum and evidently not a point. That is a
+coherent account of every measurement now on the table: better final regret
+(-3.49), better mean query regret (-4.15), less waste where waste exists, and
+MORE dispersion.
+
+### The pre-registered metric choice is what made this readable
+
+R2 was registered in advance as "the unweighted measure need not fall, and a
+divergence is EXPECTED". It diverged exactly as registered:
+
+    weighted    5/5 closer, every seed          -> unambiguous
+    unweighted  3/5 closer, two seeds worse     -> would read as "no effect"
+
+**Had I used the logged metric, I would have concluded there is no relocation.**
+The weighted measure was chosen because findings.md:3174 had already established
+that unweighted distance REVERSES the true ordering on Borehole -- chosen from
+prior work, before seeing either number, with the deciding measure named in the
+protocol. This is the h85-P4 rule doing its job for the first time.
+
+### The same mechanism BOUNDS the gain, and that is the useful part
+
+Dim 0 carries 81.6% of the variance and the ROI moves reach there 0.701 -> 0.747.
+But dims 3, 5 and 6 -- 18.0% of the variance between them -- sit at **0.049,
+0.003, 0.007** after the ROI, against **MF-MES's 49%, 34%, 70%**.
+
+So the ROI helps in the dimension MF-DRO was already largely reaching, and
+barely moves the three it essentially never reaches. **That is a quantitative
+account of why the ROI closes only 37% of the gap to MF-MES and cannot close
+more.** The residual is boundary aversion in dims 3/5/6, which an ROI cannot fix
+because the ROI selects WHERE to look, not what the head is able to emit.
+
+This makes the previously-flagged causal experiment the highest-value next step:
+change the head's output parameterisation so boundary coordinates are reachable,
+then re-measure Borehole. findings.md has listed that as untested since the
+boundary-aversion correction; it now has a specific quantitative target
+(dims 3/5/6 reach, currently 0.049/0.003/0.007) rather than a general hope.
+
+### Limits
+
+n=5, one benchmark, EXPLORATORY, correlation-plus-mechanism not causation. x*
+is the recorded diagnostic optimum, and the sensitivity shares come from an
+earlier midpoint-freezing estimate over 3000 samples, not re-derived here. The
+account is consistent with every measurement taken so far, which is not the same
+as being the only account consistent with them.
