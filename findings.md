@@ -8590,3 +8590,70 @@ something about training the head under L1 helps on Borehole.
   2. **Changing the loss changes training globally.** The protocol recorded this
      before results: a regret change cannot be attributed to boundary behaviour
      without P1 passing, and P1 did not.
+
+## H106 COMPLETE: the ROI closes 57% of the one real deficit. 10/10 seeds. All three bars MET.
+
+5/5 runs, 0 failures. Seed-matched n=10 against the comparison's own seed set,
+explicit source path per cell, calibration gate observed on every run
+(accept_frac 0.0998-0.0999 against a 0.10 target; n_distinct 600, confirming the
+pool-resolution fix).
+
+    seed    ROI   no-ROI  MF-MES    ROI-noROI
+      42  11.50   15.28    1.36        -3.78
+      43  12.27   14.77    6.30        -2.49
+      44  11.37   12.93   15.44        -1.56
+      45  11.19   16.90    0.83        -5.71
+      46  11.62   19.19    8.09        -7.57
+      52   9.23   10.52   11.99        -1.29
+      53   8.08   15.33   11.66        -7.26
+      54  11.17   16.13    6.43        -4.96
+      55  14.73   16.13   11.42        -1.41
+      56  12.25   16.99    8.85        -4.74
+
+    Q1 PRIMARY  mean -4.08  sd 2.36  ratio 1.73  better **10/10**   MET
+    Q2 NEGATIVE gap 7.18 -> 3.10, **57% closed**, still behind        MET
+    Q3 HALVES   42-46 -4.22 | 52-56 -3.93 | split **0.30**            MET
+
+### Q1 is the first bar this session to state an effect size AND meet it
+
+Four bars today passed on counts and signs at ratios of 0.16, 0.38 and
+effectively zero. Q1 required a negative mean AND |mean| >= 0.5 sd. It came in
+at **1.73**, with every one of ten seeds improving. This is the strongest and
+best-specified ROI result in the project.
+
+### Q3 also settles something it was not primarily asked to settle
+
+The halves agree to **0.30 points** (-4.22 at 42-46 versus -3.93 at 52-56), and
+the 42-46 figure reproduces h84's -4.22 exactly. Q3 existed to detect seed-set
+dependence OR code drift, since h84's arm predates the working-tree patches and
+comparability was REASONED, not measured. **That reasoning is now empirically
+corroborated**: had the h94 patch or the loc_loss selector perturbed a
+use_roi=True run, a 0.30-point split across different code is not what it would
+look like.
+
+### Both statistics, because mean-only reporting is the asymmetry named earlier
+
+    ROI vs no-ROI      mean -4.08  median -4.26  ratio 1.73  better 10/10
+    no-ROI vs MF-MES   mean +7.18  median +8.30  ratio 1.18  better  2/10
+    ROI vs MF-MES      mean +3.10  median +3.46  ratio 0.60  better  3/10
+
+**MF-DRO+ROI still loses to MF-MES**: 3/10 paired, mean and median both
+positive. The 57% is a mean-of-means figure and the paired picture agrees in
+direction. The gap narrows from "loses 8/10 by 7.18" to "loses 7/10 by 3.10".
+
+Worth noting the ROI also TIGHTENS the arm: no-ROI sd 2.37 -> ROI sd 1.78, while
+MF-MES sits at 4.68 with a range of 0.83-15.44. MF-MES is better on average and
+far less reliable.
+
+### What this does and does not license
+
+DOES: **on the one benchmark where MF-DRO has a real deficit, the calibrated ROI
+removes 57% of it, on 10 of 10 seeds, at an effect 1.73x its own spread.** That
+is the strongest form of the answer to the commissioned question this project
+has.
+
+DOES NOT: close the gap (Q2 registered negative and MET). Generalise beyond
+Borehole -- every ROI effect measured remains Borehole-specific. Or represent the
+best available setting: **this is q=0.10, and q=0.05 is separably better
+(-5.01 vs -3.49 on shared seeds). The 57% is a floor, not a ceiling**, and the
+q=0.05 equivalent at these seeds is 10 runs that have not been made.
