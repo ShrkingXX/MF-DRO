@@ -8893,3 +8893,70 @@ Worth stating because the distinction matters for what the method is FOR: a
 uniform lift is a better result than a tail fix for a practitioner who cares
 about expected performance, and a worse one for a practitioner who cares about
 worst case. The data supports the first reading.
+
+## H108: the L1 gain replicates — and my second mechanism prediction failed too, for a sharper reason
+
+**CONFIRMATORY.** G3 gate passed on measurement (L_loc 0.1104–0.1442 against
+MSE's 0.033–0.038). Two registered predictions, opposite outcomes.
+
+      seed   L1 reg   MSE reg    diff   L1 bnd%   MSE bnd%
+        42    13.15     15.28   -2.13      7.01       3.60
+        43    12.22     14.77   -2.54      1.92       6.02
+        44    11.53     12.93   -1.40      6.91       6.14
+        45    15.42     16.90   -1.48      2.02       4.68
+        46    15.03     19.19   -4.16      6.26       5.21
+
+      regret     -2.34, 5/5   (h102: -2.08, 4/5)   **P1 REPLICATES**
+      bound frac -0.31, 2/5   (h102: -0.81, 4/5)   **P2 FAILED**
+
+**Pooled over two seed sets, n=10:**
+
+      regret:     mean -2.21, sd 1.78, median -1.80, better 9/10, |mean|/sd = 1.24
+      bound frac: mean -0.56, sd 2.21, median -1.00, lower  6/10, |mean|/sd = 0.25
+
+**Regret clears both bars. Boundary fraction clears neither.**
+
+### The regret result is real and still unexplained
+
+Training the location head under L1 improves Borehole by **2.21 points, 9 of 10
+seeds**, across two independent seed sets, clearing the 0.59 separability bar and
+the 0.5-sd effect-size bar. That is the second effect this session to replicate
+at full size, after the ROI tightness result.
+
+**No mechanism is claimed.** Both mechanism predictions about it have now failed.
+
+### P2 was the test I set for my own reasoning, and it failed
+
+h102's P1 failed because I predicted the boundary direction from an *assumed*
+shape for the teacher's target distribution. h108's P2 predicted the same
+quantity from the **measurement h102 produced** — and it failed too: 2/5, against
+h102's 4/5.
+
+I registered in advance that if this also failed, "predicting from measurement is
+not sufficient either, and I should say so." **It failed, and I am saying so.**
+
+**But the reason is more useful than the rule it breaks.** h102's boundary
+measurement was **−0.81 points at 4/5 — and I never tested it against a
+separability bar.** I applied the 0.59 bar to h102's *regret* and not to its
+*mechanism metric*. Pooled, the boundary effect is −0.56 at 6/10 with
+|mean|/sd = 0.25: **indistinguishable from zero.** I predicted from a
+measurement that was itself noise.
+
+So the corrected lesson is not "measure rather than assume". It is:
+
+> **A measurement is only a basis for prediction once it has cleared the same
+> separability bar a result would have to clear.** Lesson 23 says to measure the
+> quantity a mechanism operates on. It does not say the measurement must itself
+> be separable — and an unseparated measurement is exactly as misleading as an
+> assumption, while looking like evidence.
+
+This is the ninth refuted mechanism prediction here, and the first whose failure
+identified a gap in the rule that was supposed to prevent it.
+
+### What this settles about boundary aversion
+
+Nothing, and that is now firmly established rather than merely unclaimed. Across
+ten seeds the L1 loss moves boundary-reaching by an amount indistinguishable from
+zero, while reliably improving regret. Whatever L1 is doing, **it is not acting
+through the boundary channel** — and the boundary-aversion hypothesis remains
+untested by anything in this session.
