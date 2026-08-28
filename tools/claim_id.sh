@@ -7,31 +7,37 @@
 #   other session at the moment it picks a number. Any scheme based on reading a
 #   note has a race between "read the note" and "create the directory".
 #
-#   `mkdir` does not. It is atomic and it fails if the directory exists, so the
-#   directory IS the registry and the claim IS the creation. Two sessions racing
-#   for the same number cannot both succeed; the loser retries and gets the next.
+#   `mkdir` does not. It is atomic and fails if the target exists.
 #
-# USAGE
-#   tools/claim_id.sh roi-tightness   -> creates experiments/h102-roi-tightness
-#                                        and prints the path
-#   Then write protocol.md into it BEFORE running anything, as usual.
+# WHY THE CLAIM IS ON THE NUMBER, NOT ON "hNNN-slug"
+#   The first version of this script claimed `experiments/hNNN-$SLUG`. That does
+#   NOT close the race, because mkdir only fails on an EXACT name match: two
+#   sessions racing for h102 with different slugs both succeed and both get 102.
+#   Verified by direct reproduction -- h91-alpha and h91-beta were both created.
+#   And different slugs is precisely the real case: every collision we have had
+#   was two sessions naming DIFFERENT experiments with the same number.
+#
+#   So the lock is a slug-independent marker under experiments/.ids/hNNN. The
+#   experiment directory is created only after that marker is won.
 set -e
 [ -n "$1" ] || { echo "usage: $0 <slug>   (e.g. roi-tightness)" >&2; exit 2; }
 SLUG="$1"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 EXP="$ROOT/experiments"
-# Highest existing hNNN, from directory names only -- no file needs reading.
-N=$(ls "$EXP" 2>/dev/null | sed -n 's/^h\([0-9][0-9]*\)-.*/\1/p' | sort -n | tail -1)
-N=${N:-0}
+IDS="$EXP/.ids"
+mkdir -p "$IDS"
+# Highest number already taken, from BOTH materialised experiments and pending
+# claim markers -- so a number claimed but not yet populated is never reused.
+A=$(ls "$EXP" 2>/dev/null | sed -n 's/^h\([0-9][0-9]*\)-.*/\1/p' | sort -n | tail -1)
+B=$(ls "$IDS" 2>/dev/null | sed -n 's/^h\([0-9][0-9]*\)$/\1/p'   | sort -n | tail -1)
+N=$(printf '%s\n%s\n' "${A:-0}" "${B:-0}" | sort -n | tail -1)
 i=$((N + 1))
-# Race-safe: mkdir fails if another session claimed it between our scan and now.
 while [ $i -lt 1000 ]; do
-  if mkdir "$EXP/h$i-$SLUG" 2>/dev/null; then
+  if mkdir "$IDS/h$i" 2>/dev/null; then      # <- the atomic claim, slug-independent
     mkdir -p "$EXP/h$i-$SLUG/code" "$EXP/h$i-$SLUG/results/ckpt"
     echo "experiments/h$i-$SLUG"
     exit 0
   fi
-  # Either this number exists under a different slug, or we lost the race.
-  i=$((i + 1))
+  i=$((i + 1))                                # lost the race, or number in use
 done
 echo "no free id below 1000" >&2; exit 1

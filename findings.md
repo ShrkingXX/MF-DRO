@@ -7273,3 +7273,40 @@ the race if both use it, but it degrades safely rather than silently.
 **Current allocation**, recorded for the human reader rather than as the
 mechanism: peer session holds h94-h96 and h98-h101; this session holds h91-h93
 and h97. Next free is h102.
+
+## The ID-claiming script had the same bug it was written to fix
+
+The concurrent session built `tools/claim_id.sh` to end the ID collisions by
+making the claim atomic: `mkdir` fails if the directory exists, so the directory
+is the registry. The reasoning is right and it is a much better answer than my
+reservation line, which was a note only I was guaranteed to read.
+
+**But v1 claimed `experiments/hNNN-$SLUG`, and mkdir only fails on an EXACT name
+match.** Two sessions racing for the same number with DIFFERENT slugs both
+succeed. Reproduced directly:
+
+    session A claimed: experiments/h91-alpha
+    session B attempt: experiments/h91-beta   mkdir SUCCEEDED
+    -> h91 claimed twice
+
+**Different slugs is not an edge case -- it is the only case that has ever
+happened.** All three collisions today (h88, h89, h97) were two sessions naming
+DIFFERENT experiments with the same number. The script closed the case that
+never occurs and left the one that always does.
+
+FIXED: the atomic claim is now a slug-independent marker, `experiments/.ids/hNNN`,
+won before the experiment directory is created. The scan takes the max over both
+materialised experiments and pending markers, so a number claimed but not yet
+populated is never reissued. Backfilled markers for all 95 existing experiments.
+Re-running the identical race now yields h91 and h92.
+
+Remaining limit, and it is inherent: a session that bypasses the script can
+still collide. The script cannot bind a non-user. That matches the "degrades
+safely" property its author claimed -- but the stronger claim in its header,
+that two sessions racing for a number "cannot both succeed", was false as
+written and is now true.
+
+**This is the fourth time today a verification tool was itself the thing that
+needed verifying** (the worker counter, the h94 OFF-path gate, the unweighted
+ROI containment diagnostic, and now the ID claimer). A tool asserted to
+guarantee a property is a claim like any other.
