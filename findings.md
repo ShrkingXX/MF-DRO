@@ -6583,3 +6583,56 @@ labelled ROI-PROJECT that were really ROI-Q10.
 The worker's `_require_patch()` guard I was pleased with checks that
 `_roi_snap` EXISTS. It cannot check that it RUNS. An existence check on a
 function is not a test of the code path that calls it.
+
+## H93 COMPLETE: h83's four-benchmark headline does not hold at a second seed set
+
+**CONFIRMATORY.** Bars registered before any run; P2 registered explicitly with
+**no direction predicted**, which was the right call.
+
+      === Currin_2D (vs MI-Greedy) ===        === Ackley_10D (vs SF-DRO) ===
+      52   0.00 vs 0.00   +0.00               52   3.23 vs 3.71   -0.48
+      53   0.05 vs 0.00   +0.05               53   2.94 vs 4.22   -1.27
+      54   0.00 vs 0.00   +0.00               54   4.21 vs 3.54   +0.68
+      55   0.00 vs 0.00   +0.00               55   2.82 vs 3.05   -0.23
+      56   0.00 vs 0.00   -0.00               56   3.89 vs 2.91   +0.98
+      mean +0.01%, better 1/5                 mean -0.07, better 3/5
+      -> deficit REPLICATES (nominally)       -> deficit does NOT replicate
+
+      P1 (Currin: MF-DRO does not beat MI-Greedy)  MET
+      P2 (Ackley: no direction predicted)          deficit does NOT replicate
+      P3 (at least one deficit fails to replicate) MET
+
+### The headline restated
+
+h83 concluded that MF-DRO beats no baseline on any of four benchmarks. With every
+benchmark now measured at two independent seed sets:
+
+      Hartmann_6D   NOT real        5/10, median +0.22
+      Borehole_8D   REAL            8/10, median +8.30
+      Ackley_10D    NOT real        reverses sign, 3/5 in MF-DRO's favour
+      Currin_2D     nominal only    +0.01%, and see below
+
+**Currin counts as a deficit only in sign.** Its mean gap is 0.0155 in absolute
+units against an optimum of 13.80, four of five seeds finish at exactly 0.00, and
+Borehole's ROI gain alone is 700x larger. Both methods have solved that benchmark.
+The registered rule scores it REPLICATES and I am recording that as the verdict
+rather than overriding it after the fact — but a deficit that survives only
+because a saturated benchmark cannot go lower is not evidence about the method.
+
+**So MF-DRO has ONE substantive deficit of four, not four.** That is a materially
+different claim from h83's, and it was the reason this experiment was registered.
+The corrected problem statement — MF-DRO loses on benchmarks whose optimum lies on
+the domain boundary — stops being one benchmark's explanation and becomes the
+whole account.
+
+### What this does not license
+
+Borehole's deficit is large, real, and unexplained by anything the interventions
+fixed: the calibrated ROI closes 37% of it and teacher refinement does not close
+it either. "One deficit instead of four" is not "the method is fine". It narrows
+where the problem is, which is what makes the boundary-aversion lever worth
+pulling next.
+
+Also: h83 itself is not wrong. Its within-experiment comparisons were sound and
+its primary prediction was met as stated at n=5. What failed is the durability of
+three of the four margins, which only a second seed set could reveal.
