@@ -13424,3 +13424,63 @@ version of the contribution has to say so.
 
 The ROI's own 1.2-1.7x is a rounding error against the 16-29x that MF-DRO pays
 before any ROI is switched on.
+
+## h139 P2 PASSES — FIX2 behaves tight early and loose late. My own P1 is now likely wrong.
+
+CONFIRMATORY, zero compute, registered before computing. Borehole, seeds 42-46,
+regret reduction in rel% of |optimum| via h83's frozen `sr_curve` + `grid`.
+(Early window is post-init cost **5 -> 100**, not 0 -> 100: the grid is NaN at 0
+before any post-init query lands.)
+
+    arm         early 5->100   late 100->200
+    ROI-Q10           27.369           1.605
+    ROI-FIX2          26.350           3.648
+    ROI-ANN           21.774           4.375
+
+    EARLY  |FIX2-Q10| = 1.019  vs  |FIX2-ANN| = 4.576   -> Q10-like (TIGHT)
+    LATE   |FIX2-ANN| = 0.727  vs  |FIX2-Q10| = 2.043   -> ANN-like (LOOSE)
+
+**P2 PASSES: the crossover is clean in both phases.** FIX2 tracks the tight arm
+early and the loose arm late.
+
+### This points AGAINST my own locked P1, before P1 can be run
+
+h139 P1 predicts FIX2's acceptance **declines** across the run, on the analytic
+argument that a fixed beta contracts the accepted set as sigma shrinks. **P2's
+behavioural crossover implies the opposite** — tight early, loose late, i.e. a
+**widening** trajectory.
+
+So my registered retraction fires in the direction I did not predict. Per the
+protocol: if the acceptance rises, **the analytic argument is wrong, and h133's
+treatment of FIX2 as "a rung at q=0.21" is void.**
+
+**But P2 cannot settle P1, and I registered exactly that before looking.** It is a
+proxy — it infers a hidden acceptance trajectory from behaviour, and the inference
+holds only if acceptance is what drives phase behaviour, which h133 put in doubt
+when it found the stall is a step rather than a gradient. n=5, three arms, means
+rather than paired contrasts, and **no effect size is claimed.** P1's logged array
+is the only thing that settles it.
+
+### What this would mean if P1 confirms it
+
+**ROI-FIX2 — the best-performing arm on record (h133: -4.814 rel%, effect 4.67,
+5/5; the largest effect-size in this project) — would be a de facto WIDENING
+schedule.** That is the direction the DRO paper's `beta_t` subscript specifies,
+already implemented, by accident, in an arm labelled "fixed".
+
+It would also reconcile all three of my conflicting beliefs at once:
+
+    tight early   -> expensive (explains the 137.4 min wall-clock anomaly)
+    tight early   -> captures the front-loaded benefit (h131)
+    loose late    -> no stall (explains h133's 24.34% late recovery)
+
+Three independent measurements, one mechanism. **That is the strongest structural
+story this project has produced** — and it rests on a proxy until the logged array
+exists, so it is recorded as a hypothesis with a registered direct test, not as a
+finding.
+
+**And it makes the h123 comparator question live on evidence.** I proposed
+switching h123's primary comparator to FIX2 and the peer correctly refused it as
+result-shaped. If FIX2 is itself a schedule, the objection was right for a second
+and better reason: **h123 would have been comparing a schedule against a
+schedule** while calling one of them a constant.
