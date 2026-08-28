@@ -56,3 +56,40 @@ This does not require h136 to pass — h136 gates whether the logging perturbs a
 run, which must be settled before any *result* from the logged arm is used. But
 the trajectory question needs a fresh FIX2 run either way, which is not scheduled
 and is not competing for slots today.
+
+---
+
+## AMENDMENT 1 — P2, an INDIRECT test available now, on existing data
+
+P1 needs a fresh logged run. But the reconciliation "FIX2 is tight early and
+loose late" makes a **behavioural** prediction testable from runs already on disk,
+because behaviour is what the acceptance rate is supposed to drive.
+
+**P2 (CROSSOVER, locked before computing).** Borehole, seeds 42-46, paired,
+regret reduction in rel% of |optimum| via h83's frozen `sr_curve` + `grid`:
+
+- **Early phase** (post-init cost 0 -> 100): FIX2 sits closer to ROI-Q10 than to
+  ROI-ANN, i.e. `|FIX2 - Q10| < |FIX2 - ANN|`.
+- **Late phase** (post-init cost 100 -> 200): FIX2 sits closer to ROI-ANN than to
+  ROI-Q10, i.e. `|FIX2 - ANN| < |FIX2 - Q10|`.
+
+**P2 PASSES only if BOTH hold** — a crossover. Either one alone is not evidence,
+because an arm intermediate in both phases would satisfy one by chance.
+
+**FALSIFIED if the crossover runs the other way** (Q10-like late and ANN-like
+early), which would support the analytic argument instead.
+**NOT INFORMATIVE if neither ordering crosses** — FIX2 simply intermediate
+throughout. Named explicitly so it cannot be read as support; this is the residual
+category and it is named for the evidential state, per h137's TIED lesson.
+
+## The weakness, stated before looking
+
+**This is a proxy.** It infers a hidden acceptance trajectory from observable
+behaviour, and the inference only holds if acceptance is what drives phase
+behaviour — which is the very thing h133 put in doubt when it found the stall is a
+step rather than a gradient. **A P2 pass is suggestive of the reconciliation and
+does not establish it**; only P1's logged array can. n=5, three arms, and the
+comparison is of means rather than a paired contrast, so no effect size is
+claimed.
+
+Recording that now so a pass cannot later be quoted as if it settled P1.
