@@ -1025,26 +1025,36 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     above and teacher refinement, whose third independent seed set came in at &minus;3.29 with all five
     seeds improving &mdash; beating both readings that had been registered for it in advance. Its
     <em>cost</em> bar remains failed at 1.25&ndash;2.07&times;; surviving on regret does not repair that.</li>
-    <li><strong>The next experiment is now running</strong> &mdash; ten runs applying the region to the
-    query rather than to the teacher, the version the paper actually defines. It failed on its first
-    launch: eight jobs, eight crashes, a variable referenced outside the scope it lives in. The
-    bit-identity check that had passed beforehand was <em>structurally unable</em> to catch it, because
-    with the feature switched off the new code never executes. A gate on the off path is not a gate on
-    the on path; that is now a standing rule, added after the failure rather than backdated.</li>
-    <li><strong>One thing about it is already known and unwelcome.</strong> The model&rsquo;s raw proposal
-    is never inside the region &mdash; every query gets replaced, by more than the distance separating
-    the student from its teacher. So the experiment tests &ldquo;the nearest admissible point to the
-    model&rsquo;s output&rdquo;: the model supplies a direction, a candidate set supplies the point. That is
-    still not the excluded select-from-a-pool mechanism, since no acquisition ranks the candidates, but
-    it is not &ldquo;the model decides and the region constrains&rdquo; either, and it is recorded before any
-    result rather than defended after one.</li>
-    <li><strong>Its primary prediction is registered as genuinely uncertain</strong>, which is a change of
-    posture rather than a hedge. Eight mechanism claims have been registered in this investigation and
-    seven were refuted. The one that held was the only one derived from a measurement taken before the
-    claim was made.</li>
-    <li><strong>Two baselines under-optimise</strong> on Ackley and Hartmann &mdash; MI-Greedy and MF-GP-UCB beat their
-    own initial design between 0.8 and 3.0 times out of 20&ndash;40 high-fidelity queries. Cause unresolved;
-    the leading candidate is the reference implementation&rsquo;s deliberately inflated prior mean.</li>
+    <li><strong>The query-side experiment finished, 10 of 10, and did not test what it was built
+    to test.</strong> Its manipulation check failed: the model&rsquo;s own proposal was already inside
+    the region <em>99.1% of the time</em>, so constraining it changed 0.9% of queries. The check existed
+    for exactly this and is the reason the regret numbers beneath it are not being read as a verdict.</li>
+    <li><strong>Correcting something this page said earlier.</strong> It reported that the
+    model&rsquo;s raw proposal is <em>never</em> admissible &mdash; every query replaced &mdash; and drew
+    a conclusion from it. That came from a rehearsal run trained for a fraction of the real schedule.
+    Properly trained, the opposite holds. The region admits about a tenth of the space and the model
+    lands inside it nearly always: <strong>a tenfold enrichment over chance, without ever being told at
+    query time that the region exists.</strong></li>
+    <li><strong>That inverts what the audit implied.</strong> Applying the region to the query cannot
+    help much &mdash; not because the constraint is lost in translation, but because it is
+    <em>already satisfied</em>. Imitating a region is easier than imitating a point, and only the
+    region is what the rule constrains. The experiment delivered something else instead: an independent
+    re-run of the region result at the same seeds with different randomness, agreeing to 0.72 points
+    per seed, which makes it the first true replication rather than a fresh-seed confirmation.</li>
+    <li><strong>The setting was never tuned, and a tighter one is better.</strong> Every region number
+    in this work used the first calibrated value tried. Halving it improves the result and the
+    improvement is larger than its own spread &mdash; unlike four bars this session that passed on seed
+    counts alone. A loose region, admitting half the space, is indistinguishable from no region at all.</li>
+    <li><strong>Running now:</strong> the region at the seeds that would make it directly comparable to
+    the one benchmark where this method genuinely loses. It tests the well-replicated setting rather
+    than the better one, which is the right trade for five runs instead of ten &mdash; but it means a
+    null result would say &ldquo;this setting does not close the gap&rdquo;, not &ldquo;the region does
+    not&rdquo;. Recorded before the runs finish.</li>
+    <li><strong>Why two baselines barely optimise &mdash; answered.</strong> They improve on their own
+    starting design 2 and 3 times in ~22&ndash;25 expensive evaluations. A line-by-line audit against the
+    original authors&rsquo; MATLAB shows both are faithfully ported, including a deliberately inflated
+    prior the authors note suits a different acquisition. They are weak at this budget, not broken by
+    us &mdash; so the comparison stands and only the registered test&rsquo;s pass is hollowed out.</li>
     <li><strong>The boundary finding has no causal test.</strong> Changing the head&rsquo;s output parameterisation and
     re-measuring Borehole is the experiment that would settle it.</li>
   </ul>
