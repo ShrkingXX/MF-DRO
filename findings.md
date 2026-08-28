@@ -9577,3 +9577,59 @@ set is not a comparator.**
   - It **cannot** show MF-DRO reaching MF-MES on Borehole. Neither outcome of
     h113 gets there, and that is known *before* the results, so no reading of
     them can drift toward it.
+
+## The "57% of the gap" headline is the wrong summary. The stable number is the absolute effect.
+
+The peer ran h115, filling Borehole MF-MES at seeds 47-51 -- a cell nobody had
+run. Verified here. **MF-MES's own Borehole score varies 4.48 points across seed
+sets, which is larger than the ROI's entire effect:**
+
+    42-46   MF-MES  6.40  sd 5.94
+    47-51   MF-MES  5.59  sd 4.82     <- newly run
+    52-56   MF-MES 10.07  sd 2.39
+
+### What that does to my headline number
+
+    seeds            no-ROI    ROI   MF-MES   gap before   after   CLOSED
+    42-46             15.82  11.59     6.40         9.41    5.19     45%
+    47-51             15.74  12.25     5.59        10.16    6.67     34%
+    52-56             15.02  11.09    10.07         4.95    1.02     79%
+    n=10 42-46+52-56  15.42  11.34     8.24         7.18    3.10   **57%**
+    n=10 42-46+47-51  15.78  11.92     6.00         9.78    5.93     39%
+    n=10 47-51+52-56  15.38  11.67     7.83         7.55    3.84     49%
+
+**The 57% I reported is one of three equally valid n=10 pairings giving 57%, 39%
+and 49%.** Single seed sets range 34% to 79%.
+
+### And the reason is the denominator, not the effect
+
+    MF-DRO no-ROI across the 3 sets   15.82  15.74  15.02   range 0.80
+    MF-DRO + ROI                      11.59  12.25  11.09   range 1.16
+    **ROI absolute effect**            4.23   3.49   3.93   **range 0.74, sd 0.37**
+    MF-MES                             6.40   5.59  10.07   range 4.48
+    gap = denominator                  9.41  10.16   4.95   range 5.21
+
+**MF-DRO's arms are stable and MF-MES is not.** The ROI's absolute effect varies
+by 0.74 points across three independent seed sets -- the most reproducible
+quantity in this project. The gap it is divided by varies by 5.21.
+
+**A percentage inherits the instability of its denominator.** Dividing an
+effect with sd 0.37 by a quantity with range 5.21 manufactures a headline that
+swings 34-79% while the underlying result barely moves.
+
+### The correction
+
+**"The ROI removes 57% of the deficit" is withdrawn as a headline.** It is true
+of one seed pairing and is not a property of the method.
+
+**The defensible statement: the calibrated ROI improves Borehole regret by 3.5-4.2
+points, consistently across three independent seed sets (sd 0.37), on 9 or 10 of
+every 10 seeds tested.** That is the stable, reportable result. Any comparison to
+MF-MES must name its seed set and carry MF-MES's own 4.48-point spread.
+
+This also retires the "additive would tie MF-MES" arithmetic I sent the peer: on
+h113's seeds MF-MES is 6.00, not 8.24, so even perfect additivity leaves the
+combined arm 3.71 points behind. **That reading came from pairing against MF-MES
+at seeds h113 does not use** -- the seed-matching hazard, third appearance
+tonight, and the first that neither session could have caught by reasoning
+because the missing cell had to be run.
