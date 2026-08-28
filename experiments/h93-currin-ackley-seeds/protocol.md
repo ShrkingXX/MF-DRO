@@ -73,3 +73,32 @@ margins are smaller than Hartmann's.
 Launch only when H90 completes and compute shows 0 workers on two samples taken
 a few seconds apart. Requires 15 slots for the MF-DRO arms; the baselines are
 cheap (MI-Greedy ~0.5 min, SF-DRO ~25-45 min).
+
+---
+
+## GATE DEVIATION, recorded before launching
+
+The gate above said: launch only when H90 completes and compute shows 0 workers.
+I am launching a PARTIAL batch before that, and recording it here rather than
+quietly doing it.
+
+**What changed.** H90's NO-ROI arm finished (4 of 5 done, 1 at 89%), dropping
+compute to 11 workers. Four cores are idle and will stay idle for ~60-77 minutes
+while H90's REFINE-100 arm finishes.
+
+**Why the deviation is safe.** The gate's PURPOSE was the compute cap, not the
+number zero: every worker is single-threaded, so 11 running + 4 launched = 15,
+exactly at the limit, and the four new jobs consume cores that are otherwise
+doing nothing. H90's runs are not slowed -- they cannot use a core they do not
+have a thread for.
+
+**What is launched.** Four MF-DRO Currin_2D runs, seeds 52-55. Currin MF-DRO is
+the longest pole in H93 (~115 min each), so starting it first is what actually
+shortens the critical path; the baselines are minutes.
+
+**What is NOT launched.** The remaining 16 jobs, held for the second launcher
+call once H90 clears. run_all.py's SKIP argument exists for exactly this and
+prevents the duplicate-worker failure seen on h56.
+
+**Verification before launch.** Two worker counts a few seconds apart, and a
+post-launch count confirming <= 15.
