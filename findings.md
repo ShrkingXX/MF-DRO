@@ -8238,3 +8238,60 @@ built to check for it.
 not discouraged.** Any cross-experiment table must name its source path per cell.
 The table above does. Both of today's instances of this hazard were caught by
 someone recognising a familiar number, which is not a control.
+
+## H97: q=0.10 was NOT the right tightness — q=0.05 is better, and every ROI number in this project uses an unoptimised setting
+
+**CONFIRMATORY.** Bars registered before any run; the separability bar was fixed
+in a locked addendum with 0/5 results on disk.
+
+      G3 GATE: accept_frac = 0.0499-0.0500 against a 0.05 target, all five seeds.
+      The manipulation is OBSERVED, not read back from config.
+
+      seed     Q05     Q10   no-ROI   Q05-noROI   Q05-Q10
+        47   12.09   11.56    17.60       -5.51     +0.54
+        48   11.62   13.79    15.67       -4.04     -2.17
+        49    8.97   10.54    14.52       -5.55     -1.58
+        50   11.29   13.11    18.88       -7.59     -1.82
+        51    9.71   12.27    12.05       -2.34     -2.56
+
+      Q05 vs no-ROI:  mean -5.01, sd 1.95, better 5/5   (Q10 was -3.49, 4/5)
+      Q05 vs Q10   :  mean -1.52, sd 1.21, Q05 better 4/5
+
+      P1 MET.  P3 MET (10.74% vs MF-MES 6.40%, still not competitive).
+      P2 registered with NO direction -> **Q05 BEATS Q10.**
+
+**It clears the registered separability bar.** |−1.52| > 0.59 and 4/5 in one
+direction — the bar was deliberately set at the level two settings 2.1x apart
+(FIX2 vs Q10) had *failed* to clear, so this is an ordering the existing data
+could not have produced by noise.
+
+### What this changes
+
+**q=0.10 was the first calibrated value tried and was never optimised.** It has
+carried every ROI result this project reports. Halving it improves Borehole by a
+further 1.52 points and takes the arm from 4/5 to **5/5 against no-ROI**, with
+the effect growing from −3.49 to **−5.01**.
+
+So the ROI's Borehole gain is larger than reported, and the tightness question
+that `research-state.yaml` has carried as "UNLOCATED, no experiment tests it" now
+has a direction: **the optimum lies below 0.10.** The teacher measurement showing
+q=0.02 degrades reach still stands, so the turning point is bracketed in
+**(0.02, 0.05]** — narrower than the (0.02, 0.10) it was.
+
+**It does not make the method competitive.** 10.74% against MF-MES's 6.40%, and
+P3 registered that in advance.
+
+### Two process notes
+
+**My own output filter hid the verdict.** I ran the analysis through
+`grep -v "optimum"` to suppress benchmark banner noise, and P2's message contains
+the phrase "the optimum is BELOW 0.10" — so the one line that answered the
+experiment's actual question was filtered out, and the first read of this result
+looked like P2 had not printed. Same class as the case-sensitive grep earlier
+today: **the display filter, not the analysis, was wrong.**
+
+**A threshold discrepancy, stated rather than buried.** `analyse.py` was written
+before the addendum and carries an inline INDISTINGUISHABLE threshold of 0.5; the
+registered bar is 0.59. Both give the same verdict here (1.52 exceeds both), and
+the addendum's 0.59 is the registered one. Had the result landed between 0.5 and
+0.59 the two would have disagreed, and the registered bar would govern.
