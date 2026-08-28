@@ -62,7 +62,25 @@ concurrent_sessions:
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:
     - >-
-        [REPLICATED 2026-08-28 by h107] q=0.05's advantage over q=0.10 SURVIVES a
+        [CLOSED 2026-08-28 by h111] "the ROI works only on Borehole" is a fact
+        about the ROI, NOT about q=0.10. Two tightness settings spanning a 2x
+        range now fail on both non-Borehole benchmarks where a difference could
+        be resolved: Hartmann Q05 -0.52 (2/5, sd 6.32) and Ackley -0.09 (2/5),
+        neither clearing the 0.59 bar, against q=0.10's -1.62 (3/5) and -0.09
+        (1/5). NOTE Hartmann is UNRESOLVABLE at n=5 (range -9.52 to +8.02), so
+        neither its q=0.10 nor its q=0.05 number is evidence in either direction.
+        The mechanism remains constrained by exactly one benchmark.
+    - >-
+        [RUNNING 2026-08-28] h113: do the two surviving interventions COMPOSE?
+        The calibrated ROI (-4.08, 10/10) and the L1 location loss (-2.21, 9/10)
+        are the only two replicated effects, both Borehole-only, and both
+        unexplained the SAME way -- each improves regret without moving the
+        quantity its proposed mechanism operates on. Additive would be ~-6.3;
+        a shared bottleneck ~-4.1. 10 runs at BOTH seed sets. P2 registered with
+        no direction; P3 registers NO threshold and is descriptive only.
+    - >-
+        [WITHDRAWN 2026-08-28 by h110 -- see the correction in findings.md]
+        q=0.05's advantage over q=0.10 SURVIVES a
         second seed set: -1.57 at 4/5 (seeds 42-46) against h97's -1.52 at 4/5
         (47-51) -- the two sets agree to 0.05 pts, 103% retention. Pooled n=10:
         vs no-ROI -5.40 at 10/10; vs Q10 -1.54 at 8/10, |mean|/sd 0.88, clearing
