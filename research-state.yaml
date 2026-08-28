@@ -94,11 +94,13 @@ status: 'NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 
   halving the gap to MF-MES on Borehole without closing it. h90''s refinement arm is still running.
 
   '
-headline_result: 'Borehole ROI q=0.10 vs no-ROI, rel% @cost_curve 200, paired, POOLED n=10 across both
-  seed sets: mean -3.857, sd 2.436, effect 1.58, better 9/10. Substituted set (42-46) -4.224/1.74/5-of-5;
-  clean set (47-51) -3.489/1.31/4-of-5; the two differ by 0.46 sem, i.e. they agree. Substitution verified
-  bit-identical at 5/5 (h120 Amendment 3), so pooling is legitimate. Do NOT quote ''3.5-4.2%'' -- that
-  is a two-set spread, not an interval.'
+headline_result: 'BEST CONFIGURATION (h135, Borehole, seeds 42-51, n=10, paired, rel% @cost_curve 200):
+  ROI q=0.10 + L1 localisation loss = -5.958% of optimum, effect 2.25, better on 10/10 seeds. Beats each
+  component separably (both-ROI -2.101 effect 2.00 10/10; both-L1 -3.747 effect 1.61 10/10). Components:
+  ROI alone -3.857 (1.58, 9/10), L1 alone -2.211 (1.24, 9/10). INTERACTION NOT DETECTABLE (+0.110, sd
+  2.420, |mean|/sd 0.05) -- say ''no detectable interaction'', NOT ''additive'': an interaction of +-1.5
+  points, a quarter of the combined effect, is consistent with these runs. Do NOT quote ''0.11 from additive''
+  or ''95% of the way to fully additive''.'
 diagnosis:
   summary: 'MF-DRO finds a competitive BEST point but wastes far more budget getting there. Scoring each
     post-init HF query (y-best_init)/(y_opt-best_init):
