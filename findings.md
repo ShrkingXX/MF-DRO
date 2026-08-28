@@ -11994,3 +11994,59 @@ result speaks only to the second.
 M1 ships as written: run-mean realized acceptance in [0.25, 0.30], with the
 shape blind spot **documented and unfixed**. A documented blind spot beats a
 gate that silently passes, which is what the dispersion check would have been.
+
+## h133 — P1 FAILS on the statistic I pre-committed to. The stall is a STEP, not a gradient.
+
+CONFIRMATORY, zero compute. Borehole, seeds 42-46, paired, late-gain
+@cost_curve 100->200, four arms with measured constant realized q.
+
+    arm         realized q   regret@100   RAW late-gain   NORMALISED %
+    ROI-Q10         0.0999       13.196           1.605          10.51
+    ROI-FIX2        0.2141       14.649           3.648          24.34
+    ROI-ANN         0.4934       18.878           4.375          22.06
+    ROI-OFF         1.0000       21.008           5.193          24.45
+
+    P1 monotone in q?   RAW  [1.60, 3.65, 4.37, 5.19]  ->  TRUE
+                        NORM [10.51, 24.34, 22.06, 24.45] -> FALSE
+
+**The raw statistic is a textbook four-point dose-response. It is an artefact,
+and the protocol said so before the numbers existed.** Arms that are ahead at cost
+100 have less regret left to remove, and the ROI arms *are* ahead — so raw
+late-gain is mechanically depressed for exactly the arms P1 predicted would be
+depressed. Normalising by regret remaining at cost 100 removes it, and P1 fails.
+**Registered in advance that the normalised statistic governs, so it governs.**
+
+Had I not written that down four minutes before running this, I would have
+published a clean monotone dose-response. That is the second false positive today
+that only the pre-registration caught — the first was the dispersion instrument.
+
+### P2 guard: the extreme pair separates, every adjacent pair is a tie
+
+    EXTREME   Q10 vs OFF  : +13.94  sd 12.91  effect 1.08  5/5   SEPARABLE
+    adjacent  Q10 vs FIX2 : +13.83          effect 0.81  4/5   TIE
+    adjacent  FIX2 vs ANN :  -2.28          effect 0.35  3/5   TIE
+    adjacent  ANN vs OFF  :  +2.39          effect 0.19  3/5   TIE
+
+**So the finding is a step, not a slope.** q=0.10 recovers 10.51% of the regret
+still available at the midpoint; q=0.21, q=0.49 and q=1.00 recover 24.34%, 22.06%
+and 24.45% and are mutually indistinguishable. **The stall is a property of the
+tightest setting, not a graded consequence of tightness.**
+
+Note the whole ordering rests on one separable contrast whose adjacent steps are
+all ties — precisely the T2 failure mode, caught this time because P2 was
+registered as a gate rather than trusted as a habit.
+
+### What this does to h123 and h132
+
+- **The stall is confirmed real** at q=0.10 against no ROI: 13.94 points of
+  remaining regret, effect 1.08, 5/5. h132's premise survives.
+- **But it is not graded**, so the *shape* of a widening schedule should matter
+  much less than whether it escapes q~0.10 at all. h123's ramp (0.05 -> 0.50) has
+  the right shape; this predicts a step would do about as well, which is h132.
+- **And it predicts a ceiling**: no schedule should beat q~0.21 late, because
+  everything from 0.21 upward is already tied. A schedule that ends near 0.5 buys
+  nothing over one that ends near 0.2.
+
+Stated as predictions, not conclusions — h133 is correlational across arms that
+differ in more than their late behaviour, since each arm's tightness applied for
+the whole run.
