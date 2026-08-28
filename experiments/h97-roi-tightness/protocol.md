@@ -70,3 +70,36 @@ void regardless of what the regret says.
   - **Indistinguishable:** the gain is robust to tightness over 2x, which is a
     more useful claim than a tuned optimum — it says the mechanism is the region,
     not the threshold.
+
+---
+
+## Gate-validity check, done while the runs were in flight
+
+A gate that reads back its own input proves nothing, so I verified that
+`accept_frac` is a measurement and not an echo of the configured target before
+trusting it as G3's criterion.
+
+In `src/policy/mf_dro.py` the recorded value is
+
+    _acc = (_n_acc / _n_seen) if _n_seen else 0.0
+
+— the empirical acceptance rate over actual rejection-sampling draws. The
+configured value is stored *separately* in the same record, as `target_accept`.
+They are distinct fields, so a mis-applied config cannot make the two agree by
+construction.
+
+**Consequence: the gate does what it claims.** If the ARMS entry failed to apply,
+`cfg.roi_target_accept` would fall back to its 0.10 default, the measured
+acceptance would come out near 0.10, and the gate would reject the runs — which
+is exactly the failure mode it was written for.
+
+Confirmed empirically on h90's already-complete ROI arm, where the same field
+reads 0.0998-0.1000 against a 0.10 target: the measurement tracks the target to
+within 0.0002 when the config does apply.
+
+**Known limit.** `roi_summary` aggregates `accept_frac` but not `target_accept`,
+so the completed files support "the measured rate is 0.05" and not the stronger
+"the measured rate equals the recorded target". The former is sufficient here
+because the target is fixed by the arm definition and verified in the shim, but
+carrying `target_accept` into the summary would be the better design and is worth
+doing in any future arm.
