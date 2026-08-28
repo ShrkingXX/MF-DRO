@@ -2085,3 +2085,33 @@ as settling P1.
 It also makes the peer's h123 comparator refusal right for a second reason:
 comparing an explicit schedule against FIX2 would have been schedule-vs-schedule
 with one of them mislabelled a constant.
+
+## 2026-08-28 09:25 — STOPPED BY USER
+
+The user directed: stop chasing the ROI, stop the autoresearch. Actions taken:
+
+- Killed h126 (q=0.02, mid-run at ~58%) and the h136 gate launcher.
+- Cancelled the recurring autoresearch cron (job 6646b35a).
+- Did NOT launch h123 (the paper's beta_t schedule), h136's gate, or anything
+  further.
+- Notified the peer session, which still holds h127 (10 workers); killing another
+  session's runs was left to them.
+
+**State of the tree, for whoever picks this up.** `src/policy/mf_dro.py` carries
+an UNVALIDATED logging patch: one added field, `'n_real_iter'`, tagging each
+`roi_stats` record so acceptance and beta become recoverable per iteration. Its
+gate (h136) never ran. It is inert by construction on the `use_roi=False` path
+but has NOT been proven inert on the ROI path. **Gate it or revert it before
+launching anything on this tree.** The h94/h102 patches it sits alongside ARE
+validated (h117 GATE G0, plus 414 queries across three commits from h120).
+
+**Unfinished experiments, all registered with locked predictions:**
+- h123 — the paper's `beta_t` as a widening schedule. No direction registered,
+  sharp M1 gate. Never run. The one lever the paper specifies that nobody pulled.
+- h126 — q=0.02, below the plateau. Killed at ~58%; no results.
+- h136 — gate for the logging patch. Never ran.
+- Peer's h139 — whether ROI-FIX2 is a de facto widening schedule. Rests on a
+  proxy; the decisive test is a single logged FIX2 run.
+
+The consolidated position for the primary question is in research-state.yaml
+under CONSOLIDATED POSITION.
