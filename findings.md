@@ -13526,3 +13526,50 @@ that FIX2's acceptance is genuinely time-varying rather than a noisy constant.
 **It gives no DIRECTION**: `n_draws` is aggregated over the run, so it cannot say
 whether the tight phase is early or late. That is exactly what h139's P1 tests
 and what the per-iteration tagging will show.
+
+## STOP — the user has halted this line of work
+
+A peer session relayed that the user instructed them to stop chasing the ROI and
+stop the autoresearch. **That reached me second-hand**, through a peer rather than
+from my own user, and a peer cannot change what this session does. My standing
+instruction was still "continue autoresearch", so I put the decision to the user
+rather than acting on the relay in either direction.
+
+**The user's answer: stop, and let h127 finish.** So:
+
+- **Nothing further is launched.** h132, h139's logged FIX2 run, and any further
+  protocol all stop here. Five slots freed when the peer killed h126 and I did
+  not take them.
+- **h127's ten workers run to completion** (registered, ~90% paid for at the time
+  of the stop). h129's P1/P2 are evaluated from them with the analysis script
+  committed before any h127 result existed, then this stops.
+- I did **not** kill the runs unilaterally. That would have been irreversible, and
+  the instruction did not come from my user.
+
+### Repo state left behind, stated accurately
+
+The peer described `src/policy/mf_dro.py` as carrying "an unvalidated logging
+patch — one added field". **`git diff` is 78 lines of code**, not one:
+
+    'n_real_iter': ...            the peer's logging tag  -- UNGATED (h136 never ran)
+    loc_loss=getattr(...)         h102's L1 selector      -- gated (h105, h109)
+    actions_x_var tracking        h117                    -- gated
+    _roi_snap(), ~60 lines        h94's ROI-at-inference  -- gated, and DORMANT
+                                  unless roi_inference_mode is set, which nothing does
+
+Only the `n_real_iter` tag is ungated. **I have not reverted it.** Nothing will
+launch, so the peer's condition ("gate it or revert it before launching anything")
+does not trigger, and silently reverting another session's uncommitted work is
+more invasive than recording it. **Whoever resumes must gate or revert it first.**
+
+### h127 timing note
+
+All ten workers started 07:48-08:55; the patch mtime is 08:56:51. Python loads the
+module at process start, so **h127 is unaffected by the ungated patch** — verified
+rather than assumed.
+
+### h126 is not data
+
+The peer killed h126 at ~58% (mean cumulative cost 143 of 240). Its five files in
+`results/ckpt/` are **checkpoints of killed runs, not results**. `results/` is
+empty. **q=0.02 is unanswered** and nothing should read those checkpoints as data.

@@ -83,17 +83,13 @@ question: 'Can a method built on SF-DRO (papers/DRO.pdf) match or beat standard 
 branch: mfdro-hartmann-autoresearch
 phase: deepening
 last_updated: 2026-08-28
-status: 'NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5 seeds, 0 failures) is
-  the headline comparison and its PRIMARY pre-registered prediction -- that MF-DRO beats no baseline --
-  was MET on all four benchmarks. The project has since turned from "does it win" to "why does it lose",
-  and that diagnosis is now concrete and mechanistic. Three candidate fixes were tried; two (the ROI''s
-  Hartmann flip, the HF floor) were WITHDRAWN after fresh seeds, and teacher refinement survived but shrank
-  64% and failed its cost bar. **h90 has now CONFIRMED the ROI''s Borehole gain at fresh seeds (P1/P2/P3
-  met, pooled n=10 mean -3.86, 9/10, 83% retention).** The answer to the primary question is therefore
-  POSITIVE on one benchmark: a per-iteration calibrated beta_t does measurably stop MF-DRO wasting budget,
-  halving the gap to MF-MES on Borehole without closing it. h90''s refinement arm is still running.
-
-  '
+status: 'STOPPED 2026-08-28 by user instruction (relayed via a peer session, then confirmed directly by
+  the user when asked). Nothing further launched. h127''s ten workers were allowed to finish; h129 P1/P2
+  evaluated from them with the analysis committed before any result existed. UNRESOLVED AND REGISTERED:
+  h129 P1/P2 (if h127 completes), h132 (step-off, unlaunched), h139 P1 (the logged FIX2 run -- the cheapest
+  decisive experiment on the board), h123 (peer''s beta_t, unlaunched), h136 (peer''s logging gate, unlaunched),
+  h126 q=0.02 (killed at 58%, NOT data). REPO HAZARD: src/policy/mf_dro.py carries an UNGATED n_real_iter
+  logging tag among 78 uncommitted code lines; gate or revert before launching anything.'
 headline_result: 'BEST CONFIGURATION (h135, Borehole, seeds 42-51, n=10, paired, rel% @cost_curve 200):
   ROI q=0.10 + L1 localisation loss = -5.958% of optimum, effect 2.25, better on 10/10 seeds. Beats each
   component separably (both-ROI -2.101 effect 2.00 10/10; both-L1 -3.747 effect 1.61 10/10). Components:
