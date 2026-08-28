@@ -254,7 +254,7 @@ queued_experiments:
     gate the ROI and is nearly ANTI-correlated -- Hartmann 0.1852 (ROI FAILED),
     Ackley 0.0496, **Borehole 0.0185 (ROI WORKED)**, Currin 0.0124. P2 registered
     as risky, failed as expected. P1/P3 MET.
-    P3 KILLS h97's PRESCRIPTION OUTRIGHT: Borehole's dim 0 carries 86% of
+    P3 KILLS h101's PRESCRIPTION OUTRIGHT: Borehole's dim 0 carries 86% of
     first-order variance and has incumbent headroom **0.0000**, so a
     sensitivity-weighted L_loc would put 86% of its weight where nothing can be
     gained. WITHDRAWN, not suspended -- it was derived from a cloud statistic
@@ -275,7 +275,7 @@ queued_experiments:
     NET: h96's four-benchmark relocation pattern is REAL and UNEXPLAINED.
   h98-roi-dose-response: >
     EXPLORATORY, zero compute, h84's four Borehole arms. **CENTRING MEDIATES THE
-    ROI DOSE over the three resolvable levels.** GAPSD (h97's predictor):
+    ROI DOSE over the three resolvable levels.** GAPSD (h101's predictor):
     OFF 2.29 -> ANN 2.02 -> FIX2 1.64 / Q10 1.66, against regret 0 / -1.31 /
     -4.81 / -4.22. Tight-vs-ANN paired -0.377 (5/5), ANN-vs-OFF -0.278 (5/5).
     T1 MET, T2 MET, T3 FAILED, T4 not triggered.
@@ -289,7 +289,7 @@ queued_experiments:
     CONSEQUENCE: q=0.10 was never established as better than q~0.21 -- tied on
     regret AND mechanism. Calibration's case stays controllability across
     benchmarks, not superiority on Borehole.
-  h97-head-shrinkage: >
+  h101-head-shrinkage: >   # renumbered from h97, ID collision
     EXPLORATORY, zero compute, h90 Borehole. **BOUNDARY AVERSION IS A SPREAD
     FAILURE, NOT A CENTRING FAILURE.** S2 FAILED and the failure is the finding:
     the head relocates its centre toward the CORRECT bound in all four sensitive
@@ -477,7 +477,22 @@ open_questions:
     (arm D)? The second would be the excluded mechanism, not a contribution.
   - Does a controlled ROI raise mean HF query quality (h84 P1)?
   - Does query quality translate to lower final regret (h84 P3, stated separately)?
-  - MI-Greedy and MF-GP-UCB under-optimise on Ackley/Hartmann (beat their own
-    initial design 0.8-3.0 times out of 20-40 HF queries). Cause unresolved;
-    candidate is the reference's inflated prior mean maxY+2*rangeY.
+  # CLOSED by h103 (source audit). Kept, struck through, rather than deleted.
+  # - MI-Greedy and MF-GP-UCB under-optimise on Ackley/Hartmann (beat their own
+  #   initial design 0.8-3.0 times out of 20-40 HF queries). Cause unresolved;
+  #   candidate is the reference's inflated prior mean maxY+2*rangeY.
+  - "ANSWERED (h103): the under-optimisation is FAITHFUL, not a defect. Both
+    registered baselines are UCB-family, and mfboPreProcessParams.m:229-239 puts
+    MF-GP-UCB, Illus-MF-GP-UCB, GP-UCB and MF-MI-Greedy in the inflated-prior
+    branch (maxY + 2*rangeY) with the author's own comment 'works best for UCB'.
+    Our unconditional form is correct because both methods we implement fall in
+    that branch. The prior drives exploration and suppresses exploitation, which
+    at ~20-25 HF queries reads as almost no improvement over the initial design.
+    NOT our bug -- the h83 comparison stands, and only the frozen protocol's
+    PASS is hollowed out. What remains open is a LITERATURE question, not a code
+    one: whether the reference's own budget regime makes that prior reasonable
+    there. It changes no number here, only how charitably the baselines should
+    be described."
+  - "Boundary aversion: causal test (change the output parameterisation) not run."
+    # (duplicate of the line below; both were present before h103's edit)
   - "Boundary aversion: causal test (change the output parameterisation) not run."

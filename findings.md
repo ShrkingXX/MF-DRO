@@ -7711,3 +7711,40 @@ I corrected a false claim by making an unfair one. The claim that the project
 had been careless in one direction was true of the banner and false of h83, and
 I did not separate them before writing it down. **Check whose claim it is before
 characterising the motive behind it.**
+
+## The pattern behind today's three near-misses, and what actually caught them
+
+The concurrent session named this and it is worth recording as a finding about
+method rather than about MF-DRO.
+
+Three times today I reasoned confidently from PART of the available evidence:
+
+    1. sd-vs-MAD          found a statistic matching 0.96, stopped, and never
+                          enumerated the ten-seed sample where the real answer was
+    2. the dim-7 split    took an AGGREGATE ("dims 1,2,4,7: 0.4% total") and
+                          divided it evenly into per-dimension figures I then
+                          used as measurements
+    3. the MI-Greedy port read two lines of MATLAB that say "inflated for UCB,
+                          normal for the rest" and nearly published a porting bug
+                          that would have invalidated the entire h83 comparison
+
+The concurrent session had its own: an unweighted per-dimension table that
+pointed at the dimensions which moved most rather than the ones that mattered,
+a claim-script guarantee asserted in a header comment, and "the pass is against
+a comparator that is plausibly misconfigured" -- which implies OUR defect and is
+wrong.
+
+**Neither of us caught our own instances.** I caught its dim-7 framing and its
+"misconfigured"; it caught my sd-vs-MAD and my invented split. In every case the
+person who made the error had all the evidence needed to detect it and did not,
+and the person who caught it was reading the same sources independently.
+
+So the mechanism that worked was **a second reader with independent access to
+the source** -- not more care, not a longer checklist. That is a claim about
+what to build into the process, and it is the one methodological finding of
+today I would actually carry to another project.
+
+The one variable that separated a near-miss from a published error was **whether
+verification happened before or after the claim went out.** Nothing about the
+reasoning differed; case 3 was as confident as cases 1 and 2 and reads, in
+retrospect, exactly as plausible.
