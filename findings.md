@@ -9927,3 +9927,83 @@ That is the third apparent disagreement tonight caused by unstated statistic
 choice — after sd-versus-MAD and all-proposals-versus-HF-only. **Every one
 resolved to "both correct, different quantity", and every one cost a round trip.**
 Naming the statistic in the number is cheaper than reconciling it afterwards.
+
+---
+
+## h116 — the DT is not shown per-dimension relevance, but that is not why it disperses badly
+
+### Three verified code facts
+
+1. The KO surrogate DOES learn per-dimension lengthscales:
+   `src/models/ko_gp.py:312` — `RBFKernel(ard_num_dims=self.d)`.
+   (`src/model/exactGP.py` is isotropic but is a legacy single-fidelity module
+   the KO path never touches. I nearly filed the opposite claim from that file
+   alone; the grep that would have supported it returned empty.)
+2. `src/policy/mf_dro.py:251` — `lengthscale.mean().item()`. The ARD vector is
+   collapsed to its mean before entering the DT state.
+3. That is the ONLY point at which lengthscales enter the pipeline. The
+   per-dimension relevance the surrogate estimates is discarded everywhere.
+
+So the policy genuinely has no per-dimension relevance signal. That motivated
+a pre-registered test, and the test failed.
+
+### The locked prediction FAILED (gate missed)
+
+Predicted: MF-DRO's HF-query dispersion profile is uncorrelated with S1 share
+while MF-MES's is negative; paired |mean|/sd >= 1.0.
+
+Borehole, unit cube, n=5 paired seeds:
+- SD profile:  rho DRO +0.024 (sd 0.41), rho MES -0.357 (sd 0.19), effect **0.17**
+- MAD profile: rho DRO -0.571 (sd 0.24), rho MES -0.524 (sd 0.22), effect **0.10**
+
+The SD medians match the prediction; the paired test does not, and the MAD
+variant reverses the sign. Both declared in advance, both far under the gate.
+**Reported as a gate miss.** Hartmann lost 4/5 seeds to a sample-size floor.
+
+### A methodological error I made and caught
+
+The first run of h116 gave rho = -0.405 (sd 0.02) for BOTH methods —
+suspiciously stable. Cause: stored `x` is in RAW units on Borehole (box widths
+up to 5.25e4) while Hartmann is already the unit cube. The "dispersion
+profile" was mostly reading the fixed domain box, a constant shared by every
+method and seed. Amendment 1 normalises to the unit cube; the original numbers
+are retained as SUPERSEDED.
+
+**Lesson: a statistic over stored coordinates must state its coordinate
+scale.** Nothing in the pipeline guarantees benchmarks share one.
+
+### EXPLORATORY: the excess dispersion is mis-ALLOCATED, not merely larger
+
+Spearman ranks dimensions and so cannot see magnitude. On the same data:
+
+| bench | weighted DRO/MES | unweighted DRO/MES | per-seed wR/uR | effect |
+|---|---|---|---|---|
+| Borehole_8D | **3.96** | **1.06** | 2.95, 3.22, 2.96, 3.67, 5.53 | **4.84** |
+| Currin_2D | 2.84 | 1.65 | 1.48, 1.92 (n=2) | 2.83 |
+| Ackley_10D | 3.00 | 3.00 | 1.00 x5 | 0.30 (DEFINITIONAL) |
+
+On Borehole the two methods spread their HF queries by the same TOTAL amount
+(1.06x). MF-DRO's is ~4x larger weighted by variance share. Its excess spread
+is in the dimensions that carry the objective's variance, and it is tighter
+than MF-MES in the ones that do not.
+
+Ackley's exact 1.00 is definitional (uniform S1 shares force wR == uR); it is
+a code check, not evidence.
+
+**This changes the wording of the founding diagnosis.** "3x more dispersed" is
+right in the weighted sense and wrong as a picture of scattering everywhere:
+unweighted the two are equal on Borehole. And "blind to relevance" — h116's own
+hypothesis — is the wrong description. MF-DRO's allocation is not random with
+respect to relevance; it is systematically the inverse of MF-MES's. The
+accurate statement is that it **fails to localise along the dimensions that
+determine the objective**.
+
+Registered as h117 (Borehole seeds 52-56, both methods, fresh) because the
+measure was chosen after the pre-registered one failed. Until h117 reports,
+this is one seed set and must not be built on.
+
+### Consequence
+
+The ARD-weighted-`L_loc` intervention that the three code facts suggested is
+**not supported by any passing test**. It rests on the exploratory result
+above. Not launched.
