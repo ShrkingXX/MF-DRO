@@ -12050,3 +12050,70 @@ registered as a gate rather than trusted as a habit.
 Stated as predictions, not conclusions — h133 is correlational across arms that
 differ in more than their late behaviour, since each arm's tightness applied for
 the whole run.
+
+---
+
+## h133 verified: the late-gain dose-response is an artefact, and the stall is a STEP
+
+The peer's second false positive of the day, caught by their own pre-registration.
+I verified both halves independently.
+
+Borehole, seeds 42-46, paired, regret at post-init cost 100 and 200:
+
+| arm | realized q | regret@100 | regret@200 | RAW late-gain | NORMALISED % |
+|---|---|---|---|---|---|
+| ROI-Q10 | 0.100 | 40.851 | 35.882 | **4.969** | **10.51** |
+| ROI-FIX2 | 0.214 | 44.808 | 34.057 | **10.750** | 23.28 |
+| ROI-ANN | 0.493 | 58.154 | 44.900 | **13.254** | 21.77 |
+| ROI-OFF | 1.000 | 65.037 | 48.959 | **16.077** | 24.45 |
+
+**The raw column is a perfect four-point dose-response in q — 4.97, 10.75,
+13.25, 16.08 — and it is an artefact.** Arms ahead at the midpoint have less
+regret left to remove, and the ROI arms are ahead. Normalising by regret
+remaining gives 10.51, 23.28, 21.77, 24.45: **not monotone.**
+
+That is the same shape as the dispersion instrument an hour earlier: **the
+artefact does not look like an artefact, it looks like the result.** Two
+publishable-looking monotone orderings in one afternoon, both killed by a
+registered statistic rather than by noticing.
+
+### The stall is a STEP, not a gradient
+
+Their P2 guard, on normalised late-gain, verified here:
+
+| contrast | difference | effect | seeds | verdict |
+|---|---|---|---|---|
+| **EXTREME** Q10 vs OFF | +13.94 | **1.08** | 5/5 | **SEPARABLE** |
+| adjacent Q10 vs FIX2 | +12.77 | 0.75 | 4/5 | TIE |
+| adjacent FIX2 vs ANN | -1.51 | 0.34 | 3/5 | TIE |
+| adjacent ANN vs OFF | +2.67 | 0.22 | 3/5 | TIE |
+
+One separable contrast, three tied adjacent steps. **Escaping q~0.10 is the
+whole effect**; 0.21, 0.49 and 1.0 are mutually indistinguishable.
+
+### What it predicts for h123, as predictions and not conclusions
+
+1. The stall premise survives: real at q=0.10 against no ROI, 13.94 points of
+   remaining regret, effect 1.08, 5/5.
+2. **The ramp's shape should matter much less than expected.** If everything
+   above ~0.21 is tied, a ramp ending at 0.50 buys nothing over one ending at
+   0.20 — so h123 (ramp) and h132 (step) become a shape-vs-step comparison
+   rather than two attempts at the same question.
+3. **There should be a ceiling.** If h123 shows a gain that scales with the
+   ramp's endpoint, this analysis is wrong.
+
+Their own caveat, which I would apply equally to my h123: h133 is correlational
+across arms whose tightness applied for the WHOLE run, not just late. It cannot
+separate late-tightness from whole-run tightness. Only h123 and h132 can.
+
+### My own eighth statistic slip, caught before sending
+
+I first computed their P2 contrasts on **regret@100** rather than on normalised
+late-gain, and got effects 3.13 / 0.28 / 1.61 / 1.43 against their 1.08 / 0.81 /
+0.35 / 0.19. I would have reported a serious mismatch. I caught it only by
+noticing that their absolute figures were exactly 1/3.096 of mine — the ratio of
+Borehole's optimum to 100 — which identified their scale and, from there, that I
+had computed a different quantity entirely.
+
+Eighth naming incident today. The tell that saved it was a suspiciously exact
+ratio, not vigilance.
