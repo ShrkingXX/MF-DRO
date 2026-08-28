@@ -11275,3 +11275,54 @@ Statistic identified before reporting, per today's rule: their control value
 0.8829 matches the COUNT fraction exactly and not the COST fraction (0.9372).
 Naming which fraction was the difference between answering their question and
 sending a plausible wrong number.
+
+## h129 P5 — FAILS as registered, and the fidelity lever REVERSES SIGN between benchmarks
+
+**P5 predicted the ROI improves HF query quality on Hartmann too. It does not.**
+Hartmann, seeds 42-46, paired, h84's `score`:
+
+    quantity                  control   q=0.10     diff   effect   dir
+    mean HF query score         0.336    0.338   +0.001     0.02   3/5 up
+    final regret rel%           7.553    5.933   -1.620     0.48   2/5
+    HF query COUNT             11.600   13.200   +1.600     0.82   4/5 up
+    frac worse than init        0.208    0.196   -0.013     0.30   1/5
+
+Effect 0.02 is as null as this project has measured. Per the pre-committed
+reading in the protocol, this is **"the ROI does not engage on Hartmann"**, not
+"a trend toward improvement". No dissociation: the ROI does not improve Hartmann
+query quality while leaving regret unmoved — it improves neither.
+
+**The founding diagnosis reproduces exactly.** Its two headline numbers were
+0.336 mean HF query score and 20.8% worse-than-init. The control column here is
+**0.336** and **0.208**. Independent confirmation that h84's `score` is the
+diagnosis's formula and that the control arm is the arm it described.
+
+### The finding that matters more than the gate
+
+    bench          ctrl HF frac   q=0.10    shift  effect       dir   n_post
+    Borehole_8D          0.8829   0.7390  -0.1439    1.65  5/5 down    106.6
+    Hartmann_6D          0.1996   0.2557  +0.0561    0.78    4/5 up    120.0
+
+**The ROI lowers Borehole's HF fraction and raises Hartmann's.** The h129
+mediation model was fit entirely on Borehole and takes the shift as negative; on
+Hartmann it is positive. Any statement of the form "the ROI shifts budget from HF
+to LF" is a Borehole statement, not a property of the ROI.
+
+**Unifying reading (n=2 benchmarks — suggestive, not established):** the control
+sits at 0.883 on one and 0.200 on the other, and the ROI moves *both toward the
+middle*. That would make the ROI a **regulariser of the fidelity mix** rather than
+a lever with a fixed direction. Two points with controls on opposite sides cannot
+establish this; it needs a third benchmark whose control sits somewhere new.
+
+### Structural context that reframes the founding diagnosis
+
+Hartmann affords **11.6 HF queries per run**; Borehole affords **94.0** — an
+eight-fold difference at matched cost. The diagnosis's headline statistics
+(0.336, 20.8%) are therefore per-run means over about twelve numbers. That is
+consistent with the earlier finding that both headline numbers turn on seed 44
+alone, and it is a property of the benchmark's cost ratio, not of MF-DRO.
+
+**This is the cleanest statement of the benchmark asymmetry so far:** Hartmann is
+where the waste was measured and where ~12 HF queries make it noisy; Borehole is
+where the ROI works, has 94 HF queries, and is where every mechanism result in
+this project was actually obtained.
