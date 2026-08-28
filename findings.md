@@ -6531,3 +6531,55 @@ saturated should say so rather than let it count as evidence.
 mechanism exists. If a systematic effect operates on Currin it would be invisible
 at this scale, and the single-seed dominance means n=5 cannot separate "no effect"
 from "small effect plus one outlier".
+
+## H94 LAUNCH FAILED: 8 runs, 8 crashes, 0 results. A NameError my gate could not see.
+
+Reported because the discipline says report every run including failures.
+
+    8 jobs launched (Borehole seeds 47-50, ROI-PROJECT and SNAP-CONTROL)
+    8 FAILs, 0 results written, ~45 seconds of compute wasted
+    NameError: name 't' is not defined
+      mf_dro.py:3190 in _propose_next_query -> self._roi_snap(x_t, _ri_mode, t)
+
+### The bug
+
+I placed the inference hook inside `_propose_next_query`, passing `t` as the
+iteration index. **`t` is `run()`'s loop variable.** `_propose_next_query` is
+CALLED BY `run()`; it does not share its frame. I picked `t` because I had read
+the region around the cold-start override (`if t < real_hf_warmup`), which lives
+in `run()`, and carried the name across a method boundary without checking.
+
+Fixed to `len(self.iteration_log)` -- the count of completed real iterations,
+which is genuinely in scope and is the same quantity.
+
+### Why G1 passed and this still shipped, which is the part worth keeping
+
+G1 was the bit-identity gate: `use_roi=False` traces identical with and without
+the patch. It passed, correctly, and it was **structurally incapable of catching
+this**. With `roi_inference_mode=None` the hook short-circuits at the `if` and
+`_roi_snap` is never called. G1 exercised the OFF path and proved the OFF path
+unchanged -- which is exactly what it was designed to prove.
+
+**Nothing tested the ON path before 8 jobs were launched.** The protocol's P5
+("did the manipulation intervene?") was supposed to catch a dead flag, but it
+only reports at the END of a full run -- 2+ hours in, and it would have reported
+nothing at all here, because there is no result file to read P5 from.
+
+I caught this in ~45 seconds only because I ran an unregistered smoke test on
+the ON path before letting the runs proceed, on the reasoning that discovering a
+dead flag after 16 core-hours would be wasteful. That instinct was right and it
+should have been a GATE, not an instinct.
+
+### G3, added to h94 and standing for any future flag-gated change
+
+**A gate that verifies the OFF path is not a gate on the ON path. Before
+launching a run whose treatment is controlled by a new flag, the flag must be
+switched ON and the code path executed end-to-end at minimal scale.**
+
+Cost of the check: ~90 seconds. Cost of skipping it: 8 crashed jobs, and had the
+failure been silent rather than a NameError, 16 core-hours producing files
+labelled ROI-PROJECT that were really ROI-Q10.
+
+The worker's `_require_patch()` guard I was pleased with checks that
+`_roi_snap` EXISTS. It cannot check that it RUNS. An existence check on a
+function is not a test of the code path that calls it.
