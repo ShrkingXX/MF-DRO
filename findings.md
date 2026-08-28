@@ -5982,3 +5982,72 @@ claim rests on.
 **Lesson:** I published a pooled-sample statistic next to a single-seed-set table.
 Any figure in prose should name the sample it came from when more than one is in
 play.
+
+## CORRECTION TO MY OWN CORRECTION: the sd-vs-MAD diagnosis was WRONG
+
+The entry above ("a variance claim built from two different statistics") asserts
+as fact that 2.37 was a standard deviation and 0.96 a mean absolute deviation.
+**That is wrong.** The session that wrote the section identified the real cause;
+I verified it independently rather than taking it on report:
+
+    pooled n=10 (seeds 42-46 + 47-51), Borehole
+      ROI     sd(ddof=1) = 0.960     no-ROI sd(ddof=1) = 2.374   -> 59.6%
+      ROI     sd(ddof=0) = 0.911     no-ROI sd(ddof=0) = 2.252   -> 59.6%
+
+Both published figures are the SAME statistic at the SAME ddof. The defect was a
+mismatched SAMPLE -- pooled ten-seed statistics quoted beside a five-seed table --
+not a mismatched statistic. My "60% vs 52%" arithmetic was right; my explanation
+of where the numbers came from was not.
+
+The dev-arm values needed for this check were reconstructed from the known
+paired diffs and cross-checked against the two ROI-OFF files that do exist
+(seed 42: 15.28 vs 15.28; seed 43: 14.76 vs 14.77).
+
+### How I got it wrong, because the mechanism is instructive
+
+    ROI arm, five fresh seeds, MEAN ABSOLUTE DEVIATION  = 0.963
+    ROI arm, pooled ten seeds, STANDARD DEVIATION       = 0.960
+
+A 0.3% gap. I searched for a statistic that produced 0.96, found the MAD, and
+stopped. **My search space was every statistic over the five tabulated seeds; the
+true answer lived over ten seeds, which I never enumerated.** I even reported
+"no subset of the five seeds, at either ddof, reproduces the pair" -- a true
+statement that reads as exhaustive and was not, because the sample itself was
+the wrong one.
+
+This is Lesson 23 a third time in one day, and the sharpest instance: I had
+already been burned twice by reasoning from a quantity measured under the wrong
+conditions, and I still concluded a mechanism from a single numerical
+coincidence without enumerating the alternative that a different sample would
+produce. A 0.3% match is weak evidence for a mechanism, not strong evidence.
+
+**Standing rule added: a numerical coincidence is a HYPOTHESIS, not a diagnosis.
+Before naming a cause, enumerate what OTHER samples and other groupings would
+produce -- not just other statistics over the sample in front of you.**
+
+The worst/best half of my correction WAS right and the other session confirmed
+it: "worst improves 5.40, best 1.51" compared the two arms' extreme values,
+which come from different seeds, so it described a gain no run made.
+
+### And a caveat that survives all of this
+
+The 52% (five tabulated seeds) and 60% (pooled ten) figures are both real. The
+page now quotes the five-seed figures beside the five-seed table, which is the
+right call for a reader who wants to check the arithmetic.
+
+### h90 wall-clock is NOT a clean measurement
+
+The other session reports a real, self-caught cap breach at ~19:55: a launcher
+started all 20 h93 jobs instead of 4 (zsh does not word-split unquoted
+expansions, so 16 skip-triples arrived as ONE argv element), giving 26 workers
+for ~50 seconds before it was killed. Visible in h90's wall-clock: ROI-Q10 seeds
+49 and 50 took 152 and 148 min against 121-131 for seeds 47/48/51. **Regret
+figures are unaffected** -- the metric is cost-indexed, not time-indexed -- but
+no wall-clock comparison from this window should be trusted, which matters
+because h85's P4 cost bar is exactly such a comparison.
+
+NOTE ON MY OWN RETRACTION, which stands: my cap alarm and retraction were at
+19:53:18, and the other session's real breach was at ~19:55 -- AFTER it. They
+are different events. "The cap was respected" was true for the window I
+measured and false two minutes later, and the counter fix is what would let the
+later one be seen correctly.
