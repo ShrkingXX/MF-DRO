@@ -428,6 +428,53 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 </section>
 
 <section>
+  <p class="kicker">Code audit &middot; the deeper confound</p>
+  <h2>The ROI has never been applied to a real query</h2>
+  <div class="col">
+  <p>This is not an experimental result. It is a fact about the execution path, found by reading it,
+  and it reframes every ROI number on this page.</p>
+  <p>Turning the ROI on restricts the candidate pool that the <em>teacher</em> draws its demonstrations
+  from, inside the rollout simulation that generates training data. The real query is a different code
+  path entirely. It comes from one call, and with the candidate-scoring head off &mdash; the setting every
+  experiment here used, because pool-and-argmax is excluded as a fix &mdash; that call returns:</p>
+  <pre><code>x_t = self.action_head(h).clamp(0.0, 1.0)</code></pre>
+  <p>Between that line and the query being issued, the only modifications are to <em>fidelity</em> &mdash; a
+  cold-start override and the high-fidelity floor. No ROI symbol appears anywhere in the path.</p>
+  <p>So the ROI reaches a real query only by imitation: the teacher proposes inside the region, those
+  proposals become the regression target, the head&rsquo;s weights shift, and the emitted point drifts
+  <em>somewhat</em> toward where the region was. The DRO paper defines the region as a constraint on
+  <strong>where you query</strong>. What was implemented is a constraint on <strong>where the teacher
+  demonstrates</strong>.</p>
+  <p>That is the best structural account available for the ROI&rsquo;s signature &mdash; real but small on
+  Borehole, negligible on Ackley, actively harmful on Currin, withdrawn on Hartmann. An intervention
+  filtered through a lossy imitation channel should be weak and inconsistent across problems, which is
+  exactly what was measured. It also fits the surrogate experiment: MF-DRO builds a <em>better</em> global
+  model than the method that beats it, and fails to convert it into queries. The ROI aims at that
+  conversion step, and then never touches it.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">Three things this does not mean</p>
+    <p><strong>It does not rescue anything.</strong> Both withdrawn results stay withdrawn.
+    <strong>It does not predict the sign.</strong> A constraint that excludes the model&rsquo;s preferred
+    point can easily hurt &mdash; Currin is already harmed by the training-only version.
+    <strong>It does not mean the imitation channel is inert.</strong> ROI-on and ROI-off runs really do
+    differ; the question is how much, not whether.</p>
+  </div>
+  <div class="col">
+  <h3>The trap, named before walking toward it</h3>
+  <p>&ldquo;Enforce the region at inference&rdquo; is one bad step from drawing candidates, keeping the ones
+  inside, and picking the best by acquisition score &mdash; which is the pool-and-argmax mechanism that is
+  excluded, because it would erase the contribution. The rule adopted: the region may say which points
+  are <em>admissible</em> and may never rank them. If the model&rsquo;s own output is admissible it is queried
+  untouched; otherwise it is replaced by the nearest admissible point, by distance to that output. No
+  acquisition function is evaluated.</p>
+  <p>That argument is not self-certifying, so the next experiment includes a control that snaps to an
+  <em>unfiltered</em> pool. If the control explains the effect, then quantizing onto a finite pool did the
+  work and the excluded mechanism resurfaced &mdash; and that is what will be reported, in those words.</p>
+  </div>
+</section>
+
+<section>
   <p class="kicker">The strategy</p>
   <h2>Calibrate the acceptance rate, solve for &beta;</h2>
   <div class="col">
@@ -569,25 +616,35 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   <h2>What is running and what is open</h2>
   <div class="col">
   <ul>
-    <li><strong>The ROI experiment is nearly done</strong> &mdash; 31 of 34 runs, no failures. Its own
-    registered bars: the primary one <em>failed</em> (it was set on mean query quality, but simple regret
-    is a max statistic, so a method can improve the best query while leaving the mean flat &mdash; which
-    is exactly what Hartmann does). A second, negative prediction also failed: the fixed-&beta; arm was
-    supposed to buy nothing on Borehole and instead posted the <em>best</em> regret there &mdash; better
-    than the calibrated setting. Calibration&rsquo;s case rests on working across benchmarks, not on
-    winning any single one.</li>
-    <li><strong>Currin&rsquo;s MF-DRO runs are still going</strong>, which is why it is missing from the table
-    and figure above rather than reported at partial seed count. Three separate times in this
-    experiment a partial arm read better than the completed one.</li>
-    <li><strong>The reproduction control has not run yet.</strong> Arm A reuses earlier runs under a bit-identity
-    gate, but the live re-runs that would confirm the reuse are still queued. Until they land those
-    numbers are inherited, not verified, and the analysis says so rather than trusting them silently.</li>
+    <li><strong>The Borehole confirmation is in flight</strong> &mdash; three of five seed pairs complete.
+    It is the last untested claim the ROI has: a 4.22-point gain measured on the seeds the setting was
+    developed on. At three pairs it is running weaker and is not unanimous, but the analysis script
+    refuses to print a verdict below five and no verdict is being read here. The same run supplies
+    teacher refinement with a <em>third</em> independent seed set.</li>
+    <li><strong>The next experiment is written and deliberately not launched.</strong> It applies the
+    region of interest to the query rather than to the teacher &mdash; the version the paper actually
+    defines. Its implementation is held outside the source tree as a patch, because another session has
+    workers running and jobs still to launch, and a newly started worker would import an edited file
+    mid-experiment. Its bit-identity check has <em>not</em> been run; no result from it may be reported
+    until that passes.</li>
+    <li><strong>Its primary prediction is registered as genuinely uncertain</strong>, which is a change of
+    posture rather than a hedge. Eight mechanism claims have been registered in this investigation and
+    seven were refuted. The one that held was the only one derived from a measurement taken before the
+    claim was made.</li>
     <li><strong>Two baselines under-optimise</strong> on Ackley and Hartmann &mdash; MI-Greedy and MF-GP-UCB beat their
     own initial design between 0.8 and 3.0 times out of 20&ndash;40 high-fidelity queries. Cause unresolved;
     the leading candidate is the reference implementation&rsquo;s deliberately inflated prior mean.</li>
     <li><strong>The boundary finding has no causal test.</strong> Changing the head&rsquo;s output parameterisation and
     re-measuring Borehole is the experiment that would settle it.</li>
   </ul>
+  </div>
+  <div class="callout">
+    <p class="kicker">A correction to this page&rsquo;s own record-keeping</p>
+    <p>Earlier today I reported that a concurrent session had breached the compute limit &mdash; 27 workers
+    on 15 cores. It had not. There were fifteen. The launcher process carries every queued job name in
+    its arguments, and the script I wrote to count workers attributed that one process many times over.
+    The load average was consistent with fifteen and I did not reconcile it before reporting. The
+    counter has been fixed to exclude launchers.</p>
   </div>
 </section>
 
