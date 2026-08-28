@@ -76,7 +76,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 22:5x, H99/H100 -- two candidate gates eliminated; h94 running
+last_updated: 2026-08-28  # 00:0x, H104 -- EVERY ROI effect is Borehole-specific; h94 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -289,6 +289,40 @@ queued_experiments:
     CONSEQUENCE: q=0.10 was never established as better than q~0.21 -- tied on
     regret AND mechanism. Calibration's case stays controllability across
     benchmarks, not superiority on Borehole.
+  h104-hartmann-waste: >
+    EXPLORATORY, zero compute, h84's Hartmann arms. **EVERY MEASURED EFFECT OF
+    THE ROI IS BOREHOLE-SPECIFIC.** The commission's diagnosis is Hartmann-based
+    but every waste measurement was on Borehole, the one benchmark where the ROI
+    also improves regret -- so 'reduces waste' and 'improves regret' had never
+    been observed apart. Hartmann separates them and the answer is neither:
+    waste mean -0.013 (2/5, seeds 42/43 at the floor in BOTH arms), mean query
+    regret -0.001, dispersion DOWN 0.005 (the direction accompanying failures).
+      effect            Borehole       Hartmann
+      regret            -3.49 (4/5)    failed/withdrawn
+      relocation        PRESENT 5/5    absent
+      waste reduction   3/3 non-floor  none
+      mean query regret -4.15 (5/5)    -0.001
+      dispersion        UP +9.5%       DOWN -10.6%
+    W1 FAILED. **W2 MET AS REGISTERED AND MEANINGLESS** -- h95's bars required
+    '>=N/5 AND negative mean'; I kept the count and dropped the mean, so W2
+    certifies 3/5 wins at a paired mean of -0.001 across +/-8 swings. The script
+    then fired W3 (waste and regret are separable) on that hollow pass; the
+    conclusion is NOT taken, and W3's question stays OPEN because Hartmann did
+    not supply the improvement that would have tested it.
+    THIRD bar-design failure of the session, all rhyming: M1 count-on-a-floored-
+    measure, T2 ordering-without-separability, W2 count-without-effect-size.
+    Standing rule: a bar must state the EFFECT SIZE it requires, not only the
+    seed count, and must say what happens when seeds cannot move.
+  h103-baseline-sanity: >
+    Source audit vs the authors' MATLAB. The two REGISTERED baselines are
+    FAITHFULLY PORTED, not broken: mfboPreProcessParams.m:229-239 puts
+    MF-GP-UCB, Illus-MF-GP-UCB, GP-UCB and MF-MI-Greedy in the inflated-prior
+    branch (maxY+2*rangeY, author's comment 'works best for UCB'), so our
+    unconditional form is correct for both methods we implement. NOT our bug --
+    h83 stands; only the frozen protocol's PASS is hollowed out. Nearly
+    published the opposite: two lines of that MATLAB read alone imply MI-Greedy
+    should get meanY, and the branch four lines above names it explicitly.
+    CLOSES the 'baselines under-optimise, cause unresolved' open question.
   h101-head-shrinkage: >   # renumbered from h97, ID collision
     EXPLORATORY, zero compute, h90 Borehole. **BOUNDARY AVERSION IS A SPREAD
     FAILURE, NOT A CENTRING FAILURE.** S2 FAILED and the failure is the finding:

@@ -1256,7 +1256,7 @@ by more than the student–teacher gap. So h94 tests "the nearest in-ROI pool
 member to the DT's output". Not pool+argmax, but not "the DT decides and the ROI
 constrains" either.
 
-Then h97, on existing data. h96 had left the residual gap as "boundary aversion,
+Then h101 (numbered h97 when written), on existing data. h96 had left the residual gap as "boundary aversion,
 which an ROI structurally cannot fix", and I wanted to know which mechanism that
 was before spending compute on a fix. I framed it as two options and both were
 wrong. The head does NOT fail to find the boundary — it moves its centre toward
@@ -1279,7 +1279,7 @@ more dispersion arriving alongside better regret.
 ## 2026-08-27 ~22:15 — the dose, and a bar that passed on noise
 
 h84 had run three ROI tightness settings on Borehole and their regret outcomes
-were already known, so the mediation claim from h96/h97 could be tested against
+were already known, so the mediation claim from h96/h101 could be tested against
 a four-level dose instead of a single on/off contrast. Registered first, because
 the interesting feature was that regret is NOT monotone in tightness — the
 fixed-beta arm is looser than q=0.10 and scores better — so if centring mediates
@@ -1388,3 +1388,33 @@ exactly zero on it and works.
 So two candidate gates are gone and the pattern stands unexplained. That is
 where h94 matters: it tests the region as a constraint on the query rather than
 on the demonstrations, which is a different mechanism entirely.
+
+## 2026-08-28 ~00:10 — every effect the ROI has is on one benchmark
+
+The brief that opened this investigation grounds its diagnosis in Hartmann
+numbers, and every waste measurement I had made was on Borehole — which is also
+the only benchmark where the ROI improves regret. So the two things had never
+been seen apart, and I could not tell whether "the ROI reduces waste" and "the
+ROI improves regret" were two descriptions of one phenomenon or two phenomena.
+
+Hartmann separates them, because the regret result there failed and was
+withdrawn. The answer turned out to be neither: on Hartmann the ROI reduces no
+waste, improves query quality by −0.001, and moves dispersion *down* — the
+direction that accompanies its failures elsewhere.
+
+So the picture is now uniform. Regret, relocation, waste reduction, query
+quality: all four appear on Borehole and none appear on Hartmann. Whatever the
+region of interest is doing, it does it in one place.
+
+The tick also produced my third badly-written bar of the session, and the three
+rhyme in a way worth naming. h95's bar demanded a seed count *and* an effect
+size; when I wrote today's I kept the count and dropped the size, so it passed at
+a paired mean of −0.001 — and my own script drew a real conclusion from that
+pass. I declined the conclusion, recorded the bar as met-as-registered and
+meaningless, and wrote the general rule: a bar has to say how big an effect it
+requires, not just how many seeds must show it, and what happens when a seed has
+nowhere to move.
+
+That is now three bars this session that turned on their own construction rather
+than on the effect they were testing. It is a cheaper failure than a wrong
+result, but only because someone reads the number underneath the verdict.
