@@ -10450,3 +10450,83 @@ This does not overturn the diagnosis. It calibrates it, and it explains why
 interventions targeting the *average* wasted query have had so little purchase:
 on four seeds of five there is much less average waste to remove than the
 headline implies.
+
+---
+
+## BUG — the ROI's annealing schedule never annealed
+
+Found while checking whether the paper's `beta_t` subscript had ever been tested.
+It has not, and the arm that was supposed to test it did not do what it says.
+
+### The arm
+
+h84 registered `ROI-ANN` = `dict(use_roi=True, roi_beta_mode='quantile',
+roi_accept_start=0.50, roi_accept_end=0.05)` — acceptance annealing from 50%
+down to 5% over the run, described in `mf_dro.py:1263` as "loose early
+(explore), tight late (exploit) -- the t-dependence the paper's beta_t notation
+implies."
+
+### The defect
+
+`mf_dro.py:1266-1268`:
+
+```
+_prog = min(max(float(n_real_iter) / max(float(T_real), 1.0), 0.0), 1.0)
+_q = start + (end - start) * _prog
+```
+
+with (`mf_dro.py:2482-2483`) `n_real_iter = len(self.data_hf_y)` and
+`T_real = self.config.bo_iterations`.
+
+Every ROI experiment passes **`bo_iterations=4000`** (verified in h84's and
+h90's workers). But these runs terminate on a **cost budget of 200**, not on an
+iteration count. They accumulate ~104 HF observations on Borehole and ~18 on
+Hartmann. So `_prog` never exceeds 0.026:
+
+| benchmark | configured | realized q start -> end | total movement |
+|---|---|---|---|
+| Borehole_8D | 0.50 -> 0.05 | 0.4989 -> 0.4883 | **1.1 points** |
+| Hartmann_6D | 0.50 -> 0.05 | 0.4993 -> 0.4980 | **0.13 points** |
+
+**ROI-ANN is a constant-q arm at q ~ 0.49.** On Hartmann it is constant to
+three decimal places.
+
+### Independent corroboration
+
+findings.md already records the ROI-ANN arm as "**ROI-ANN (q~0.49)**" — someone
+measured its realized acceptance and wrote down 0.49 without the configured
+0.50->0.05 being questioned. The arithmetic above reproduces that number to two
+decimals. The observation and the defect have been sitting next to each other.
+
+### What this voids
+
+Every statement in this project about an "annealed" or "scheduled" ROI. They
+describe a **loose constant ROI at q ~ 0.49**, which is a legitimate arm but a
+completely different one — and notably the loosest ROI ever run here, against
+ROI-Q10's 0.10 and ROI-Q05's 0.05.
+
+More importantly: **the paper's `beta_t` schedule has never been tested.** The
+standing question — the paper writes `beta_t` with a subscript while the
+implementation uses a constant — is still entirely open. The one arm that
+claimed to address it did not.
+
+### And the fix is not just "use the right denominator"
+
+Acceptance is monotone INCREASING in beta (`mf_dro.py:1258`, and the bisection
+depends on it). The paper's `beta_t` follows GP-UCB, where beta_t **GROWS** with
+t. Growing beta lifts every UCB and lowers max(LCB), so the acceptance set gets
+**LARGER** over time.
+
+So a faithful `beta_t` schedule makes the ROI **WIDEN** as the run proceeds —
+the opposite of ROI-ANN's intended 0.50->0.05 tightening, and the opposite of
+this project's whole q=0.10 / q=0.05 tightening programme. That is not a bug in
+ROI-ANN's intent; it means the intent itself was the reverse of what the paper's
+notation implies.
+
+### Not fixed yet, deliberately
+
+`src/policy/mf_dro.py` is the shared working tree and h113 (3 runs), h117 (4)
+and h120 (3) are in flight. Python imports at process start so running workers
+are unaffected, but editing now would add a third modified file to the tree and
+muddy the provenance of runs whose bit-identity gate just passed. The fix and
+the schedule experiment are registered; the edit waits for the runs to land.

@@ -954,3 +954,29 @@ h121_diagnosis_waste_audit:
     Four mechanisms examined for the ROI's Borehole benefit. Dispersion: ruled
     out. Boundary resolution: ruled out. Fidelity mix: unconfirmed, 3 runs in
     flight. And the deficit it was meant to fix is on a different benchmark.
+
+BUG_roi_anneal_never_annealed:
+  found: 2026-08-28
+  defect: >
+    mf_dro.py:1266 computes _prog = n_real_iter / T_real with T_real =
+    config.bo_iterations = 4000 (h84 and h90 workers both). Runs terminate on a
+    COST budget of 200, reaching ~104 HF observations on Borehole and ~18 on
+    Hartmann, so _prog never exceeds 0.026 and the annealed q barely moves.
+  realized: >
+    Borehole q 0.4989 -> 0.4883 (moved 1.1 pts of a configured 45). Hartmann
+    0.4993 -> 0.4980 (moved 0.13 pts). ROI-ANN is a CONSTANT-q~0.49 arm.
+  corroboration: >
+    findings.md already recorded the arm as "ROI-ANN (q~0.49)" -- the realized
+    value was measured and written down without the configured 0.50->0.05 being
+    questioned. The arithmetic reproduces it to two decimals.
+  voids: >
+    Every claim about an "annealed"/"scheduled" ROI. They describe the LOOSEST
+    constant ROI ever run here (q~0.49 vs Q10's 0.10 and Q05's 0.05).
+  STILL_OPEN: >
+    The paper's beta_t schedule has NEVER been tested. And since acceptance is
+    monotone INCREASING in beta while GP-UCB's beta_t GROWS with t, a faithful
+    beta_t makes the ROI WIDEN over time -- the reverse of ROI-ANN's intended
+    tightening and the reverse of this project's q=0.10/q=0.05 programme.
+  fix_deferred: >
+    Shared tree; h113/h117/h120 in flight. Editing now would add a third dirty
+    file and muddy provenance of runs whose bit-identity gate just passed.
