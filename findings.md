@@ -7871,3 +7871,64 @@ Borehole, where it accompanies a regret gain, so the two have still never been
 observed apart. **W3's question -- are waste and regret separable? -- remains
 open, because Hartmann failed to provide the waste improvement that would have
 tested it.**
+
+## H94: P5 FAILED, C and D are INCONCLUSIVE — and Amendment 7's headline claim is WITHDRAWN
+
+    ROI-PROJECT snapped_frac:  0.0086  0.0094  0.0085  0.0000   (4 runs complete)
+    mean ROI acceptance rate:  0.0991  0.0991  0.0992  0.0992
+    SNAP-CONTROL snapped_frac: 1.0000  1.0000                   (by design)
+
+**P5 required >0.5 of real queries to require snapping. The measured value is
+~0.009.** Per the protocol's own registered wording, C is then "nearly identical
+to B by construction and P1/P3 are uninformative regardless of how they come
+out". **C and D are INCONCLUSIVE, not negative.** P5 was registered precisely to
+catch this and it did.
+
+### WITHDRAWN: "the DT's raw proposal is NEVER admissible"
+
+Amendment 7 recorded, from the G3 smoke test, that the DT's proposal was snapped
+**11 of 11 times**, and I drew a substantial interpretive conclusion from it:
+that h94 was really testing "the nearest in-ROI pool member to the DT's output",
+that the DT merely supplied a direction, and that this had to be volunteered
+rather than defended. I put that in the protocol and told the concurrent session.
+
+**It is false in the real regime.** The smoke test ran `bo_iterations=60,
+num_epochs=1` -- a barely-trained DT. The real runs train at `bo_iterations=4000,
+num_epochs=10`, and a properly trained DT lands inside the ROI **99.1% of the
+time**.
+
+Same failure class as the day's others: I generalised from a cheap proxy to the
+real regime without checking the proxy was representative on the axis that
+mattered. The smoke test was built to answer "does the code path execute", which
+it answered correctly. I then read a second, much stronger claim off it.
+
+### The finding that replaces it, and it inverts the audit's implication
+
+The ROI accepts **9.9%** of uniform draws. The DT's own proposals land inside it
+**99.1%** of the time -- a **10x enrichment over chance**.
+
+The code audit established that the ROI never reaches the real query, and I took
+that to mean the ROI's influence was lost in a lossy imitation channel. **The
+enrichment says the channel works far better than that framing implied.** The DT,
+trained only on in-ROI teacher demonstrations, independently proposes points the
+ROI would admit almost always -- without ever being told the ROI exists at
+inference.
+
+So applying the ROI to the query cannot help much, not because the constraint is
+weak, but because **the constraint is already satisfied.** That is a different
+and more interesting answer to the primary question than "the imitation channel
+is lossy", and it is the opposite of what h94 was designed expecting.
+
+It also sits oddly beside L_loc, which showed the student ending 0.55 away in L2
+from the teacher's action -- 19.5% of the domain diameter. Both are true: the
+student does not reproduce the teacher's specific point, yet lands in the same
+admissible region. **Imitating a region is easier than imitating a point**, and
+only the first is what the ROI actually constrains.
+
+### What remains readable from h94
+
+The regret numbers exist and will be computed, but P1 and P3 carry the
+protocol's own "uninformative" label and the three confounds of Amendments 7-8.
+SNAP-CONTROL remains interpretable on its own terms -- it snapped 100% by design
+and is a real intervention -- so "does quantizing onto an unfiltered pool hurt?"
+is answerable even though "does the ROI at inference help?" is not.
