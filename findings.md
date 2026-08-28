@@ -10724,3 +10724,17 @@ property, prescribed a lever nobody has pulled, and the things that do help act
 elsewhere.** That is a more useful result than a confirmed mechanism would have
 been at this level of confidence, because it says precisely where the next
 experiment should not go.
+
+### Operational note: `to_human/mfdro_progress.html` is shared, like `src/`
+
+Made the same error twice in one session. After being corrected that there is
+one working tree, not two, I then warned the peer to "check your own copy" of the
+report file. There is no own copy. Both sessions write
+`to_human/mfdro_progress.html` in the same repo, and the peer added their h113
+section to it directly at 07:19 while I was treating the file as mine.
+
+Consequence worth remembering: **two sessions can silently overwrite each other's
+edits to that file**, and the artifact's version-conflict check will NOT catch it
+— it compares published versions, not the source file. The publish-side safety
+net exists; the file-side one does not. Whoever edits it should re-read it first,
+the same way a republish requires re-reading the served copy.
