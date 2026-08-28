@@ -13232,3 +13232,38 @@ What remains true, and it is narrower:
 So the accurate statement is: **the deficit is present on both benchmarks; the
 ROI only moves it on one.** That is a better position for the project than what I
 had been writing, and it was not established until the definition was recovered.
+
+## The pre-publish checker earned its keep on its second run — a real structural defect
+
+`tools/check_report.py` reported `<p> 293 open / 292 close`. Tracing the nesting
+found **one** real defect (the 266 "anomalies" were cascade from it): a peer's
+correction paragraph was opened *inside* an unclosed `<p>`:
+
+    ...spanning a factor of two. <p class="lede" ...><strong>Softened after...
+
+Their edit had also consumed `<st` from a `<strong>`, leaving a literal `rong>`
+rendering as text mid-sentence, with an orphan `</strong>`.
+
+**And their retraction had the same propagation shape as mine.** They inserted a
+correction note saying the sentence *"is not addressing the deficit it was
+introduced to address"* was too strong — and left that sentence **asserted 866
+characters later**, in the same section. Exactly what I did with "0.11 from
+additive": correction written, original left standing. Both of us, same day, same
+shape, on the same page.
+
+All three repaired, checker green, republished.
+
+**One thing I got wrong mid-diagnosis and corrected within the minute.** I first
+declared `rong>` an artefact of my own slicing — a window cutting through
+`<strong>` would leave exactly that. It was a plausible explanation and it was
+wrong; extracting cleanly from `<p` to `</p>` still showed it, so the damage was
+real. **A correct general explanation for a symptom is not evidence that it is the
+explanation for this symptom**, and I nearly closed a real defect on it.
+
+### What the audit says about the instrument
+
+The checker's first version was wrong (it flagged a correct retraction as a live
+claim). Its second run caught a defect **neither session had noticed** in a page
+we had both edited and republished. Its value is now demonstrated rather than
+prospective — and specifically on the failure mode neither of us can self-detect:
+**structural damage from an anchored edit, which is invisible in rendered text.**

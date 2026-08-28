@@ -278,10 +278,22 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
     <div class="col">
     <p class="lede">The waste is a Hartmann phenomenon. Every benefit the region of interest has ever
     demonstrated is a Borehole phenomenon &mdash; and an earlier experiment showed it fails on Hartmann
-    and Ackley at two tightness settings spanning a factor of two. <strong>It works where the waste is
+    and Ackley at two tightness settings spanning a factor of two.</p>
+    <p class="lede" style="border-left:3px solid var(--flag);padding-left:1em"><strong>Softened after
+    the founding metric's formula was recovered.</strong> The sentence that followed here said the
+    heuristic &ldquo;is not addressing the deficit it was introduced to address&rdquo;. That is too
+    strong. The diagnosis's own query-quality score can now be recomputed &mdash; it reproduces the
+    original figures exactly &mdash; and the deficit it measures is present on <em>both</em>
+    benchmarks: a gap of 0.41 on Hartmann and 0.29&ndash;0.31 on Borehole. What is concentrated on
+    Hartmann is the cruder <em>waste</em> statistic in the table above, 20.8% against Borehole's 7.9%
+    at matched seeds. So the accurate statement is narrower and better for the method: <strong>the
+    deficit exists on both benchmarks, and the heuristic moves it on one of them.</strong> It still
+    does not move it on the benchmark where the diagnosis was taken.</p>
+    <p><strong>It works where the waste is
     smallest and fails where it is largest.</strong></p>
-    <p>So the heuristic is not addressing the deficit it was introduced to address. That is a negative
-    result about the framing of the question rather than about the method: the region of interest does
+    <p>That is a negative result about where the lever reaches, rather than about the framing of the
+    question: the deficit the diagnosis names is present on both benchmarks, and this heuristic moves
+    it on the one where it is smaller. The region of interest does
     something real and reproducible on Borehole &mdash; a 3.5 to 4.2 point gain in nine or ten of every
     ten seeds, still the most reproducible number in this project. But &ldquo;it stops the optimiser
     wasting budget on low-value regions&rdquo; is not what it is doing, because on the benchmark where
@@ -1929,6 +1941,89 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     against</strong> &mdash; and every one of the four was a number that supported a conclusion we
     already held. That is the pattern, rather than any particular arithmetic slip: a figure that
     confirms does not get a second look.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">The competitive picture &middot; ten seeds</p>
+  <h2>It closes most of the gap to the strongest baseline, and does not catch it</h2>
+  <div class="col">
+  <p>Every comparison on this page so far has been against the method&rsquo;s own untouched version.
+  That is the right way to measure whether a change does anything, and the wrong way to know whether the
+  result matters. The comparison against the strongest baseline had never been run at ten seeds.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Configuration</th><th class="n">Regret remaining</th><th>Against the baseline</th><th>Seeds ahead of it</th></tr></thead>
+    <tbody>
+      <tr><td>Untouched method</td><td class="n">15.78%</td><td>&minus;9.78 behind</td><td>1 of 10</td></tr>
+      <tr><td>Both interventions</td><td class="n">9.82%</td><td>&minus;3.83 behind</td><td>2 of 10</td></tr>
+      <tr><td>Strongest baseline</td><td class="n win">6.00%</td><td>&mdash;</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Roughly six of the ten points separating the two methods are removed, and the remaining
+  four are not.</strong> Ahead on two seeds of ten rather than one. That is real progress and it is not
+  a competitive win, and both halves of that sentence are load-bearing.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">A verdict my own threshold got wrong</p>
+    <p>The registered test returned <strong>TIED</strong> for that comparison, because the spread across
+    seeds is wide enough that the difference is not statistically separable. But the average says nearly
+    four points behind and eight of ten seeds say behind. <strong>&ldquo;Tied&rdquo; was the wrong word
+    for &ldquo;not separable&rdquo;</strong> &mdash; and it happens to be the single most flattering
+    reading available, produced by a threshold I chose myself. The gate-checking tool confirmed the
+    verdicts covered every possible outcome, and they did; what it cannot check is whether a category is
+    <em>named</em> for the evidence it represents. A concurrent session found the identical defect in
+    their own work within the hour: a predicted null reported as &ldquo;CONFIRMED&rdquo;, which reads as
+    established equality. Residual categories drift toward asserting the null unless someone names them
+    deliberately.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Closing the loop &middot; the diagnosis&rsquo;s own metric</p>
+  <h2>The deficit is real on this benchmark too &mdash; which had never been checked</h2>
+  <div class="col">
+  <p>This investigation was set going by one number: the method scores 0.336 on the quality of its
+  expensive queries against the baseline&rsquo;s 0.747. That was measured on Hartmann. Every fix that
+  works, works on Borehole. So an uncomfortable possibility has been open the whole time &mdash; that
+  the Borehole work was answering a question nobody had asked, because the deficit might not exist
+  there.</p>
+  <p>It does. Measured with the founding formula, ten seeds:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Arm</th><th class="n">Query quality</th><th class="n">Landing worse than the start</th></tr></thead>
+    <tbody>
+      <tr><td>Untouched method</td><td class="n">0.405</td><td class="n">6.79%</td></tr>
+      <tr><td>Both interventions</td><td class="n">0.577</td><td class="n">2.16%</td></tr>
+      <tr><td>Strongest baseline</td><td class="n win">0.718</td><td class="n win">0.24%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>The gap the diagnosis names is 0.41 on Hartmann and 0.31 here</strong> &mdash; nearly as
+  large. The interventions move it by 0.172 on <strong>ten seeds out of ten</strong>, the largest and
+  most consistent effect measured anywhere in this project, and still finish below the baseline on nine
+  of ten.</p>
+  <p>So the work has been attacking the real diagnosed deficit on a benchmark where that deficit is
+  genuinely present. That was assumed rather than established until now, and it was assumed in the
+  pessimistic direction: a concurrent session had published that the heuristic &ldquo;is not addressing
+  the deficit it was introduced to address&rdquo;, and has withdrawn it. The narrower true statement is
+  that the deficit exists on both benchmarks and the heuristic moves it on one.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">A measurement error that would have flattered us</p>
+    <p>The two methods do not record their spending the same way. One logs cost <em>after</em> the
+    initial design, the other logs it <em>including</em> the initial design &mdash; under an identically
+    named field, in different files. Comparing them at the same recorded number would have given our own
+    method a quarter more budget than the baseline, invisibly, in exactly the comparison above.
+    <strong>The frozen evaluation was immune by construction</strong>: it rebuilds the spending axis from
+    each run&rsquo;s own query log rather than trusting the recorded field, so both methods were always
+    measured at the same budget. Every other measurement mix-up on this page was about units, and
+    conclusions survived them all. This one would have changed who won.</p>
   </div>
 </section>
 
