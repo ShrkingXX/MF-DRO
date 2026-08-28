@@ -928,3 +928,29 @@ h120_roi_fidelity_reallocation:
     NOT launched: machine at 15/15. Must run on code empty-diff against
     af5ec31b1 over src/ dro_runner.py benchmarks.py -- the working tree carries
     the uncommitted h94/h102 patches, so CHECK, do not assume.
+
+h121_diagnosis_waste_audit:
+  status: COMPLETE. P1 PASS, P2 PASS, P3 FAIL (3/5, needed 4/5).
+  compute: zero new runs (h83 re-analysis).
+  headline_reproduces_exactly: >
+    Hartmann MF-DRO waste per seed [0.0, 0.0, 75.0, 16.7, 12.5]%, MEAN 20.83%.
+    The recorded 20.8% is the mean and reproduces to 2 s.f.
+  headline_is_fragile: >
+    n_HF per seed = 8, 24, 12, 6, 8. Two of five seeds waste NOTHING. The 75%
+    seed is 9/12 queries; the 16.7% seed is 1/6. Median 12.5%. Dropping seed 44
+    gives 7.3%. Always quote mean AND median AND sample sizes.
+  THE_MISMATCH: >
+    Waste by benchmark (MF-DRO median): Hartmann 12.5%, Borehole 3.2%,
+    Ackley 2.5%, Currin 0.0%. Every demonstrated ROI benefit is Borehole-only
+    (h111: fails on Hartmann and Ackley at two tightness settings spanning 2x).
+    THE ROI WORKS WHERE THE WASTE IS SMALLEST AND FAILS WHERE IT IS LARGEST.
+    It is not addressing the diagnosis it was introduced to address.
+  score_statistic_did_not_reproduce: >
+    Recorded 0.336 vs 0.747; my normalisation gives 11.844 vs 15.276 on the same
+    runs. Definition mismatch, NOT a claimed discrepancy -- the ordering
+    reproduces. The normalisation behind 0.336/0.747 is not recoverable from
+    what is written down.
+  standing: >
+    Four mechanisms examined for the ROI's Borehole benefit. Dispersion: ruled
+    out. Boundary resolution: ruled out. Fidelity mix: unconfirmed, 3 runs in
+    flight. And the deficit it was meant to fix is on a different benchmark.

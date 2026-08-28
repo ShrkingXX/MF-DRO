@@ -10330,3 +10330,76 @@ quantities already failing to reproduce at the two seeds available.
 I verified five properties of h84 and not the one that mattered. Config,
 provenance and cleanliness checks all passed on an arm that was missing 60% of
 its runs.
+
+---
+
+## h121 — the waste and the ROI's benefit are on different benchmarks
+
+This is the most consequential thing found today, and it is about the framing of
+the investigation rather than about any intervention in it.
+
+### The founding number reproduces exactly, and is more fragile than it reads
+
+Hartmann, MF-DRO, h83 seeds 42-46, fraction of non-init HF queries below the
+best initial-design HF point:
+
+| seed | 42 | 43 | 44 | 45 | 46 |
+|---|---|---|---|---|---|
+| n_HF | 8 | 24 | 12 | 6 | 8 |
+| waste | 0.0% | 0.0% | **75.0%** | 16.7% | 12.5% |
+
+**Mean = 20.83%.** The recorded headline is 20.8%, so the number on record is
+the mean, and it reproduces to two significant figures. (P1 PASS.)
+
+But: two of five seeds waste NOTHING, the 75% seed is 9 of 12 queries, the
+16.7% seed is 1 of 6, and the median is **12.5%**. Dropping seed 44 gives 7.3%.
+The figure that launched this entire line of work is a mean over five fractions
+computed on as few as six queries each.
+
+That does not retract the diagnosis — MF-DRO does waste queries on Hartmann and
+MF-MES's median is 0.0% on every benchmark. It means the number should be quoted
+as "20.8% mean, 12.5% median, 6-24 queries per seed", never bare.
+
+### Where the waste actually lives
+
+| benchmark | MF-DRO waste (median) | MF-MES |
+|---|---|---|
+| **Hartmann_6D** | **12.5%** | 0.0% |
+| Borehole_8D | 3.2% | 0.0% |
+| Ackley_10D | 2.5% | 0.0% |
+| Currin_2D | 0.0% | 0.0% |
+
+### The mismatch
+
+The waste is a **Hartmann** phenomenon. Every demonstrated ROI benefit is a
+**Borehole** phenomenon — the 3.5-4.2 pt gain is Borehole-only, and h111 showed
+it fails on Hartmann and Ackley at two tightness settings spanning 2x.
+
+> **The ROI works where the waste is smallest and fails where it is largest.**
+
+So the ROI is not addressing the diagnosis it was introduced to address. This is
+a negative answer to the primary question's *framing*, not to the ROI: the ROI
+does something real and reproducible on Borehole. But "stops MF-DRO wasting HF
+budget on low-value regions" is not what it does, because on the benchmark where
+that waste is large it has no measurable effect.
+
+Together with h116 (dispersion, gate missed), h118 (boundary resolution, gate
+missed) and h119/h120 (fidelity mix, unconfirmed), the position is: **the ROI's
+one reproducible effect has no identified mechanism, and the deficit it was
+meant to fix is on a different benchmark from the one where it works.**
+
+### Also recorded: a statistic that did not reproduce
+
+The diagnosis records "mean HF query score 0.336 vs 0.747". Under my
+normalisation — (mean non-init HF y − mean init HF y)/sd(init HF y) — the same
+runs give 11.844 vs 15.276. Different scale, so the recorded figures use a
+different normalisation that is not recoverable from what is written down. The
+ORDERING reproduces (MF-DRO worse). Flagged as a definition mismatch, not a
+claimed error; anyone quoting 0.336/0.747 must state the normalisation.
+
+### P3 gate miss, reported
+
+MF-DRO's Hartmann waste exceeds MF-MES's in **3 of 5** seeds against a required
+4 — two seeds are tied at exactly 0.0%. The paired mean is +15.6 points, so
+MF-DRO is clearly worse on average, but a tie is not an exceedance and the gate
+is recorded as missed rather than rounded up.
