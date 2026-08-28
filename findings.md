@@ -10530,3 +10530,66 @@ and h120 (3) are in flight. Python imports at process start so running workers
 are unaffected, but editing now would add a third modified file to the tree and
 muddy the provenance of runs whose bit-identity gate just passed. The fix and
 the schedule experiment are registered; the edit waits for the runs to land.
+
+## H113 COMPLETE: the two interventions compose — 95% of the way to fully additive
+
+**CONFIRMATORY**, 10/10, both seed sets, doubled gate passed on measurement
+(accept_frac 0.0998–0.1000; first-five L_loc 0.1405–0.2186 against MSE arms'
+0.05–0.06).
+
+      arm            effect vs base    better
+      ROI alone           -3.86         9/10
+      L1 alone            -2.21         9/10
+      **BOTH**            **-5.96**    **10/10**
+      BOTH vs ROI alone   -2.10, sd 1.05, **10/10**
+
+      P1 (BOTH beats base)            MET
+      P2 (no direction registered)    BOTH BEATS ROI ALONE by 2.10, clearing the bar
+
+### P3, reported as position rather than named
+
+      additive prediction   -6.07   (ROI -3.86 + L1 -2.21)
+      shared bottleneck     -3.86   (no better than the ROI alone)
+      MEASURED              -5.96
+
+**0.11 from additive, 2.10 from shared — 95% of the way along that line.** The
+protocol registered no threshold for P3 and forbade naming a midpoint, and this
+is not a midpoint: it sits on the additive end.
+
+The cleanest statement of the same fact avoids the interval entirely:
+**adding L1 on top of the ROI buys −2.10, and L1 on its own buys −2.21.** The two
+differ by 0.11. **L1 delivers essentially its full standalone effect when the ROI
+is already present**, which is what independence means operationally.
+
+### What this settles, and what it does not
+
+**Settles:** the ROI and the L1 loss are **two mechanisms, not one reached two
+ways.** A shared bottleneck would have put the combination at −3.86; it is at
+−5.96, and BOTH beats ROI alone on all ten seeds with sd 1.05.
+
+That was the question h113 registered, and it is the first structural constraint
+on the mechanism question this project has obtained — which matters because h111
+showed the mechanism cannot be constrained by adding benchmarks, and h116/h118
+closed dispersion and boundary resolution as candidate channels.
+
+**Does not settle what either channel is.** Both remain unidentified. Composition
+tells us there are two of them; it does not name either.
+
+**Does not make MF-DRO competitive.** −5.96 from a base of 15.78 lands at 9.82
+against MF-MES's **seed-matched** 6.00 (h115). Still 3.82 behind, and h115
+established before these results that even perfect additivity could not close it.
+
+### The peer's fidelity hypothesis: not the channel for L1
+
+Reported because they registered it in advance and asked for it:
+
+      post-init queries     HF      LF
+      base                 93.6    13.3
+      ROI                  84.7    31.0
+      BOTH                 86.6    27.5
+
+The ROI shifts the mix substantially (−8.9 HF, +17.7 LF). **Adding L1 moves it
+back slightly** (+1.9 HF, −3.5 LF) while *improving* regret by a further 2.10.
+So L1's contribution does not act through the fidelity mix — if anything it works
+against the shift the ROI produces. Their hypothesis remains live for the ROI and
+is not supported for L1.
