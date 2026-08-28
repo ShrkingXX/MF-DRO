@@ -64,3 +64,29 @@ figure is never quoted at its face precision later.
 
 P1 is the primary. Reported whatever it shows, including if h127's remaining
 seeds change the mean. n=5-6, no p-values.
+
+---
+
+## AMENDMENT (registered before measuring; h127 still has 0 results)
+
+**P4 — quality or quantity?** The founding diagnosis says MF-DRO "wastes HF
+budget on low-value regions", and h84's P1 ("does a controlled ROI raise mean HF
+query quality?") has been open in research-state.yaml since. The mediation model
+above implies a specific and somewhat deflating answer.
+
+If the ROI works by spending LESS on HF rather than spending it BETTER, then on
+Borehole seeds 42-46, comparing ROI q=0.10 against control using the founding
+diagnosis's own score formula (h83 `analyse.py:score`):
+
+  - HF query COUNT falls (already implied by the 0.144 fidelity shift), and
+  - mean HF query SCORE is roughly UNCHANGED — |paired mean| below the 0.59
+    separability bar, or at least an effect far smaller than the count change.
+
+**Falsified if** mean HF query score rises with an effect comparable to the
+fidelity shift's 1.65. That would mean the ROI does improve targeting, the
+diagnosis's prescription was right, and my "acts elsewhere" conclusion is wrong.
+
+This is the version of the primary question that matters: the ROI demonstrably
+stops MF-DRO wasting HF budget — but "stopped wasting it" by reallocation to LF
+is a different contribution from "aimed it better", and only the second is what
+the founding diagnosis prescribed.
