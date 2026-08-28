@@ -8421,3 +8421,60 @@ gap", only "q=0.10 does not."**
 Neither figure comes close to MF-MES's 8.24 at the matched n=10 seeds
 (q=0.05 sits at 10.74 on its own seed set), so Q2 -- registered NEGATIVE, that
 the ROI does not close the gap -- is expected to hold at either setting.
+
+## The tightness dose, reassembled with h97's q=0.05 — and a correction to h98
+
+EXPLORATORY, zero compute, explicit paths, Borehole. Paired against each seed
+set's OWN control. **Separable = |paired mean| exceeds its own paired sd**, the
+criterion four of my bars today lacked.
+
+    seeds 42-46                       paired    sd   ratio  wins
+      ROI-ANN   (accept 0.49)         -1.31   2.44   0.54   3/5   not separable
+      ROI-FIX2  (accept ~0.21 MEAN)   -4.81   1.03   4.67   5/5   SEPARABLE
+      ROI-Q10   (accept 0.10)         -4.22   2.43   1.74   5/5   SEPARABLE
+    seeds 47-51
+      ROI-Q10   (accept 0.10)         -3.49   2.66   1.31   4/5   SEPARABLE
+      ROI-Q05   (accept 0.05)         -5.01   1.95   2.56   5/5   SEPARABLE
+
+    within-seed-set head-to-heads -- the ONLY valid tightness comparisons:
+      FIX2(0.21) vs Q10(0.10) @42-46  -0.59   1.71   0.35   3/5   NOT separable
+      Q05(0.05)  vs Q10(0.10) @47-51  -1.52   1.21   1.26   4/5   SEPARABLE
+
+### Correction to h98: FIX2 is not a dose point
+
+h98 treated ROI-FIX2 as the "accept 0.21" level of a four-level dose and built
+its ordering test on that. **FIX2 is the FIXED-beta arm.** Its acceptance is not
+a setting — it DRIFTS, by 250x within a single run on this benchmark, and 0.21
+is merely the average of that drift. Comparing it to calibrated arms as though
+it were a tightness level compares a schedule against a set point.
+
+Removing it leaves the calibrated arms, and among those the dose IS monotone:
+
+    accept 0.49  ->  -1.31   not separable   (a loose ROI does nothing)
+    accept 0.10  ->  -3.49   separable
+    accept 0.05  ->  -5.01   separable, and separably better than 0.10
+
+h98's conclusion ("centring mediates the dose over the three resolvable levels")
+survives, but one of its three levels was not a level. Its already-recorded
+finding that the top two arms were tied is now explained rather than merely
+observed: FIX2 and Q10 were never two tightness settings.
+
+### What this says about the primary question
+
+"How much ROI do you want" has a defensible answer on Borehole for the first
+time: **tight matters, and tighter is better down to at least 0.05.** A 0.49
+acceptance rate is indistinguishable from no ROI at all. That is the dose
+curve the calibrated-beta_t machinery was built to make askable, and it could
+not have been asked with a constant beta, whose acceptance is not a controllable
+quantity.
+
+### Registered prediction, for whenever compute frees
+
+**q = 0.02 beats q = 0.05 on Borehole at seeds 47-51, paired, with |mean| >= 0.5
+sd.** Registered POSITIVE and with a stated effect size. The monotonicity above
+is the basis; the risk is that a very tight ROI starves the teacher of
+candidates and the pool-filling fallback (which tops up from an unfiltered draw
+when the ROI cannot fill 600) begins to dominate, at which point the arm is
+secretly less tight than its target. **h97's own G3 form is the right gate:
+require the OBSERVED accept_frac in [0.018, 0.022] AND `n_draws` to stay below
+the cap, so a starved ROI is detected rather than silently reinterpreted.**
