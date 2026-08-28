@@ -1241,3 +1241,37 @@ in dim 0 and barely moves dims 3/5/6, which quantifies why it closes 37% of the
 gap and cannot close more. The residual is boundary aversion, and an ROI cannot
 fix it because it selects where to look, not what the head can emit. The
 output-parameterisation experiment now has a specific target instead of a hope.
+
+## 2026-08-27 ~21:55 — h94 running; and boundary aversion turns out to be a spread problem
+
+h94 launched, but only after failing. Eight jobs, eight crashes, a NameError:
+I put the inference hook in `_propose_next_query` and passed `t`, which is
+`run()`'s loop variable. The bit-identity gate passed and could not have caught
+it — with the flag off, the hook short-circuits and the new code never runs. A
+gate on the OFF path is not a gate on the ON path, which is now G3.
+
+G3 then told me something that changes how h94 must be read, and I recorded it
+before any result: the DT's raw proposal is never admissible — 11 of 11 snapped,
+by more than the student–teacher gap. So h94 tests "the nearest in-ROI pool
+member to the DT's output". Not pool+argmax, but not "the DT decides and the ROI
+constrains" either.
+
+Then h97, on existing data. h96 had left the residual gap as "boundary aversion,
+which an ROI structurally cannot fix", and I wanted to know which mechanism that
+was before spending compute on a fix. I framed it as two options and both were
+wrong. The head does NOT fail to find the boundary — it moves its centre toward
+the correct bound in every sensitive dimension and sits at the middle in the
+irrelevant ones. What it cannot do is span the last fifth of the domain, because
+its output cloud is three to six times tighter than uniform. Reach follows
+gap/sd almost exactly across the four dimensions.
+
+That is the second time today my hypothesis space excluded the answer — the
+first was diagnosing a published statistic as an sd-vs-MAD mix when it was a
+pooled-sample mismatch. The rule I wrote then was about numerical coincidences;
+it belongs to hypothesis design too.
+
+It also cheapens the next experiment considerably. h96's framing implied an
+architecture rewrite. The head is already 83-98% of the way, so the levers are
+to sharpen centring (a sensitivity-weighted L_loc, one flag) or to widen the
+output — and widening is no longer obviously wrong, because h95 and h96 showed
+more dispersion arriving alongside better regret.

@@ -76,7 +76,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 21:2x, H96 -- relocation tracks the ROI's outcome 4/4
+last_updated: 2026-08-27  # 21:5x, H97 -- boundary aversion is a SPREAD failure; h94 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -247,6 +247,25 @@ queued_experiments:
     the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
     ordering, collapse incidence, and the sign of a comparison.
 
+  h97-head-shrinkage: >
+    EXPLORATORY, zero compute, h90 Borehole. **BOUNDARY AVERSION IS A SPREAD
+    FAILURE, NOT A CENTRING FAILURE.** S2 FAILED and the failure is the finding:
+    the head relocates its centre toward the CORRECT bound in all four sensitive
+    dims (offsets .456/.327/.290/.325) while sitting at the domain centre in the
+    insensitive ones (.082, a 4.3x difference). The head knows where to go.
+    S1/S3 MET: the output cloud is 3-6x TIGHTER than uniform in every dimension
+    (SD/uniform .18-.30, sd of the ratio .044). Reach is governed by residual
+    gap/sd -- dim0 lands 0.84 sd from its bound and reaches 70%; dims 3/5/6 land
+    2.0-3.3 sd away and reach 0.2-2%. Gaussian prediction reproduces the
+    ordering with mean error 0.066 over FOUR points (a ranking, not a law).
+    NEITHER registered mechanism was right -- the answer, correct centring plus
+    insufficient spread, was not in my two-way framing. Second time today a
+    two-way framing excluded the truth.
+    CHANGES THE PRESCRIPTION from h96's implied architecture rewrite: the head
+    already gets 83-98% of the way. Two cheap levers -- sharpen centring via a
+    sensitivity-weighted L_loc (preferred, one loss change), or widen the output
+    (no longer obviously wrong, since h95/h96 showed more dispersion came with
+    BETTER regret).
   h96-roi-relocation: >
     EXPLORATORY, zero compute. **MECHANISM FOUND, WITH SEVERE LIMITS.** The ROI
     works by RELOCATING the query cloud toward x* in the dimensions carrying the
@@ -388,6 +407,17 @@ queued_experiments:
     really ROI-Q10); analyse.py evaluates P5 first, refuses every bar on
     incomplete arms, and prints the pool-mechanism warning itself if D helps
     while C fails to beat it.
+    **RUNNING: 10 workers, seeds 47-51 both arms, 0 FAILs.** Launched only after
+    an 8-job crash: NameError 't' (run()'s loop variable, not in scope inside
+    _propose_next_query). G1 passed and was structurally INCAPABLE of catching
+    it -- with the flag off the hook short-circuits. New standing gate G3:
+    execute the ON path end-to-end at minimal scale with the side effect
+    OBSERVED before launch. G3 then passed and showed the DT's raw proposal is
+    NEVER admissible (snapped 11/11, mean distance 0.73 vs the 0.55
+    student-teacher gap), so h94 tests 'nearest in-ROI pool member to the DT's
+    output' -- still not pool+argmax, but to be volunteered, not defended.
+    Confound named before results: SNAP-CONTROL snaps 0.54 vs 0.73, so P1 cannot
+    separate 'the ROI helps' from 'moving further helps'.
     TWO GATES: G1 bit-identity under use_roi=False -- NOT YET PERFORMED, the
     first attempt exceeded 2 min (MF-DRO trains 4000 iterations before its first
     real query); the second ran from two scratchpad COPIES of the tree so live
