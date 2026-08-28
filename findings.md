@@ -9352,3 +9352,62 @@ What it cannot say is that the ROI does NOTHING elsewhere. It says the ROI does
 nothing ELSEWHERE THAT IS AS LARGE AS WHAT IT DOES ON BOREHOLE. Detecting a
 2-point Hartmann effect would need roughly n=40 at that spread, which nobody is
 going to run.
+
+## L1's mechanism IS visible — but only under a sensitivity-aware measure
+
+EXPLORATORY, zero compute, on the peer's h102+h108 L1 runs, n=10, each seed
+against its own control, explicit paths.
+
+The peer's framing of the shared puzzle is that both surviving Borehole
+interventions "improve regret without moving the quantity their proposed
+mechanism operates on" -- the ROI raising dispersion, and **L1 leaving boundary
+reach at ratio 0.25**. I measured the same idea with a different instrument:
+
+    L1 vs its own control, paired, n=10
+      output-cloud spread    +0.0045  sd 0.0082  ratio 0.56   higher  7/10
+      sensitive-dim reach    +0.0299  sd 0.0257  ratio 1.16   higher **10/10**
+      regret (peer's)        -2.21    sd 1.78    ratio 1.24   better  9/10
+
+**Reach moves on 10 of 10 seeds at a ratio comparable to the regret gain's.**
+
+### The two measures are different quantities, and the difference is the point
+
+    peer's "bound frac"    proximity to the domain boundary, ALL dimensions,
+                           unweighted -> mean -0.56, ratio 0.25, moves DOWN
+    mine "sensitive-dim    fraction of HF queries within 0.05 of x* in dims
+    reach"                 0, 3, 5, 6 -- the four carrying 99.6% of the
+                           output variance -> +0.0299, ratio 1.16, 10/10
+
+L1 does NOT make the head hug boundaries generically. It DOES move it closer to
+the optimum in the dimensions that matter. Those are compatible and only the
+second is what the mechanism story requires.
+
+**This is the unweighted-distance trap again, in a third place.** findings.md
+already records it reversing a conclusion on Borehole (h96's metric choice) and
+making the ROI containment diagnostic uninterpretable (h100). Borehole has four
+dimensions carrying 0.4% of its variance between them, and any all-dimensions
+measure there is dominated by noise from dimensions that do not matter.
+
+### What this does to the shared puzzle
+
+It **weakens the symmetry** the peer's framing rests on. The two interventions
+are not unexplained in the same way:
+
+    ROI   improves regret; dispersion moves the WRONG way (up, while the founding
+          diagnosis blamed dispersion) -- genuinely counter to its story
+    L1    improves regret; sensitive-dim reach moves the RIGHT way, 10/10, at a
+          ratio comparable to the regret effect -- consistent with its story
+
+**L1's proposed mechanism is not contradicted by the data; it was measured with
+an instrument that could not see it.** That is a different situation from the
+ROI's, where the quantity moves opposite to the prescription.
+
+### What it does NOT establish
+
+Correlation, not mechanism. A 16% relative increase in reach co-occurring with a
+2.21-point regret gain does not show the first causes the second, and n=10 with
+ratio 1.16 is suggestive rather than settled. It also does not touch h113's
+composition question, which remains the right test and is running.
+
+Flagged to the peer, since its h113 protocol and its findings entry both rest on
+the symmetry this weakens.
