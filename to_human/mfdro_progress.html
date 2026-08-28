@@ -1187,6 +1187,28 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 <section>
   <p class="kicker">Tightness &middot; claimed, then withdrawn</p>
   <h2>The setting was never tuned &mdash; and the tighter one is not reliably better</h2>
+  <div class="col" style="border-left:3px solid var(--met);padding:0 0 0 16px;margin:0 0 1.4em">
+  <p class="kicker" style="color:var(--met)">Later finding &mdash; this section understates the case</p>
+  <p>Everything below compares settings that differ by a factor of two, and finds no reliable
+  difference. A <strong>five-fold</strong> comparison later became available &mdash; and there the
+  difference is the largest effect measured anywhere in this work.</p>
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:.86rem">
+  acceptance 10% vs 49% &nbsp;&middot;&nbsp; worse by 2.91 points &nbsp;&middot;&nbsp;
+  5 of 5 seeds &nbsp;&middot;&nbsp; effect size 5.69</p>
+  <p>So the honest reading is a <strong>shape, not a slope</strong>: flat below 10%, steeply worse
+  by 50%. Nothing here says tighter is always better &mdash; halving from 10% to 5% still buys
+  nothing reliable. It says <em>loose is bad</em>, and that the useful region is at or below the
+  setting everything else on this page already uses.</p>
+  <p>Two things about how that comparison came to exist are worth stating. It was only possible
+  because of a <strong>bug</strong>: an arm registered as a schedule from 50% down to 5% never
+  annealed &mdash; its progress variable was divided by a quantity the stopping rule never reaches
+  &mdash; so it ran at a constant 49% throughout. The defect produced the only wide comparison in
+  the project, and its measured rate matches the arithmetic of the bug to three decimal places.</p>
+  <p>And the conclusion it corrects was <em>mine</em>. I had written that this setting was a null
+  axis wherever properly measured, and a prediction was registered on those grounds and failed.
+  Every study I based that on compared settings two-fold apart or less. The evidence supported
+  &ldquo;flat below 10%&rdquo;; I wrote &ldquo;flat&rdquo;.</p>
+  </div>
   <div class="col">
   <p>Every region result in this investigation uses one acceptance rate: 10%. It was the first
   calibrated value tried and was never optimised &mdash; the project&rsquo;s own notes have carried
