@@ -2027,6 +2027,51 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+<section>
+  <p class="kicker">The cost side &middot; never previously stated</p>
+  <h2>The baseline we do not catch also runs twenty times faster</h2>
+  <div class="col">
+  <p>Everything measured on this page is <em>evaluation</em> cost &mdash; how much simulated budget each
+  method spends, matched exactly. That is the right currency for a sample&ndash;efficiency claim, and it
+  is what the frozen evaluation holds equal. It is not the only cost, and the other one has never
+  appeared in this record.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Arm</th><th class="n">Acceptance</th><th class="n">Minutes per run</th><th class="n">Against no region</th></tr></thead>
+    <tbody>
+      <tr><td>No region (run A)</td><td class="n">1.000</td><td class="n">82.4</td><td class="n">1.00&times;</td></tr>
+      <tr><td>No region (run B, <em>same settings</em>)</td><td class="n">1.000</td><td class="n">103.6</td><td class="n">1.26&times;</td></tr>
+      <tr><td>Both interventions</td><td class="n">0.100</td><td class="n">101.6</td><td class="n">1.23&times;</td></tr>
+      <tr><td>Region, tightest tested</td><td class="n">0.050</td><td class="n">142.8</td><td class="n">1.73&times;</td></tr>
+      <tr><td>Strongest baseline</td><td class="n">&mdash;</td><td class="n win">5.0</td><td class="n win">0.06&times;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>The baseline finishes in five minutes. This method takes between eighty and a hundred and
+  forty.</strong> Sixteen to twenty&ndash;nine times slower &mdash; and it is the same baseline that is
+  ahead on the headline metric on eight seeds of ten, and ahead on the founding diagnosis&rsquo;s own
+  metric on nine of ten.</p>
+  <p>None of this changes a single measured result. Sample efficiency is a real and separate question,
+  and if expensive evaluations dominate the true cost then wall&ndash;clock is close to irrelevant. But
+  <strong>&ldquo;closes six of a ten&ndash;point gap&rdquo; reads differently once you know the thing it
+  is chasing is twenty times cheaper to run</strong>, and the honest version of the contribution has to
+  carry both.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">And a cost model that did not survive checking</p>
+    <p>A concurrent session proposed the region&rsquo;s overhead scales inversely with how tight it is
+    &mdash; plausible, since a tighter region needs more sampling to fill its candidate pool. Two things
+    broke it. A setting with a <em>looser</em> average acceptance runs <em>slower</em> than a tighter
+    one, because its width floats during the run and the cost follows its tightest moments rather than
+    its average. And more awkwardly, <strong>two runs of the identical configuration differ by 1.26&times;
+    </strong> depending on what else the machine was doing &mdash; a confound the same size as the effect.
+    So the overhead is real and lies somewhere around 1.2&ndash;1.7&times;, and pretending to more
+    precision than that would require runs collected under controlled load, which these were not.</p>
+  </div>
+</section>
+
 <footer>
   <div class="col">
   <p>All figures regenerated from the 100 h83 runs. Simple regret is recomputed from each run&rsquo;s
