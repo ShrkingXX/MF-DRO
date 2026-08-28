@@ -62,10 +62,19 @@ concurrent_sessions:
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:
     - >-
-        the q < 0.10 question: h84 showed tight beats loose on Borehole but the
-        teacher measurements imply a turning point below q=0.10 (at q=0.02 the
-        closest approach to x* degrades 0.022 -> 0.110). The optimum for q lies in
-        (0.02, 0.10) and is UNLOCATED. No experiment tests it.
+        [ANSWERED 2026-08-28 by h97] the q < 0.10 question. q=0.05 BEATS the
+        confirmed q=0.10 on Borehole: paired -1.52, 4/5, clearing the
+        |mean|>0.59 AND >=4/5 separability bar registered in advance. Q05 vs
+        no-ROI is -5.01 at 5/5, against Q10's -3.49 at 4/5. So q=0.10 was never
+        optimised and every ROI figure in this project UNDERSTATES the effect.
+        G3 gate passed on measurement (accept_frac 0.0499-0.0500, target 0.05).
+        Turning point now bracketed in (0.02, 0.05] rather than (0.02, 0.10).
+        h107 is re-testing at seeds 42-46 before anything is built on it, since
+        every single-seed-set result re-tested this session lost something.
+        ORIGINAL WORDING, superseded: h84 showed tight beats loose on Borehole
+        but the teacher measurements imply a turning point below q=0.10 (at
+        q=0.02 the closest approach to x* degrades 0.022 -> 0.110). The optimum
+        for q lies in (0.02, 0.10) and is UNLOCATED. No experiment tests it.
     - Ackley and Currin MF-DRO deficits at a second seed set -- now CLAIMED as
       h93 by session B (registered and coded, awaiting compute).
 
