@@ -11238,3 +11238,40 @@ unambiguous — query quality (2.66) > HF count (1.55) > worse-than-init (0.98).
   benchmarks" still stands; what changes is that on the benchmark where the ROI
   helps, it helps partly through the prescribed channel.
 - P1-P3 (the held-out dose predictions) are **unaffected** and still locked.
+
+### Verification: the recorded 3.5-4.2% ROI benefit IS the seed-set variation
+
+Recomputed from raw curves under one read point (raw regret @ `cost_curve` 200,
+Borehole, paired), for the two seed sets that support it:
+
+| seed set | source | control | ROI q=0.10 | paired rel% | effect | better |
+|---|---|---|---|---|---|---|
+| 42-46 | h84 ROI-Q10 vs h83 MF-DRO (substituted control) | 48.96 | 35.88 | **-4.22%** | 1.74 | 5/5 |
+| 47-51 | h90, NO-ROI and ROI-Q10 **within one experiment** | 48.74 | 37.94 | **-3.49%** | 1.31 | 4/5 |
+
+Both land inside the "3.5-4.2 pts" on record, and they land at its two ends. So
+that range was never a confidence interval — **it is the spread across two seed
+sets**, and this is the first time it has been recomputed from `hf_regret_curve`
+rather than inherited.
+
+The 47-51 row needs no substitution at all: h90 holds both arms in one
+experiment, making it the cleanest single measurement of the ROI benefit in the
+project. It is also the weaker of the two (1.31, 4/5 versus 1.74, 5/5), which is
+worth knowing — the headline figure rests more on the substituted-control set
+than on the clean one.
+
+### Peer's h129 P3, tested on data I already held
+
+Their locked prediction for the loose arm's post-init HF **count** fraction was
+0.839 +/- 0.012. Measured on h84 ROI-ANN, Borehole seeds 42-46:
+
+  per seed  0.8440, 0.9608, 0.7391, 0.7544, 0.8519   mean **0.8300**
+
+Inside the band (0.827-0.851), but barely, and the shift's sem is 0.022 here —
+so as they flagged in advance, this test has low resolution and the agreement
+should not be quoted at face precision.
+
+Statistic identified before reporting, per today's rule: their control value
+0.8829 matches the COUNT fraction exactly and not the COST fraction (0.9372).
+Naming which fraction was the difference between answering their question and
+sending a plausible wrong number.
