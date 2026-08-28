@@ -6674,3 +6674,85 @@ Two consequences:
    benchmark should say so rather than let it count as a fourth independent
    piece of evidence. The honest form is three informative benchmarks plus one
    saturated one.
+
+## H97: boundary aversion is a SPREAD failure, not a centring failure. Neither registered mechanism was right.
+
+EXPLORATORY, zero compute, h90 Borehole runs. S1-S4 registered at 843c0cd
+before computing.
+
+    NO-ROI, post-init HF queries, normalized. Uniform reference SD = 0.289.
+    dim  share%    x*    MEAN  |M-.5|     SD  SD/uni
+      0    81.6  1.00   0.956   0.456  0.052    0.18
+      1     0.1  0.00   0.479   0.021  0.083    0.29
+      2     0.1  0.61   0.547   0.047  0.087    0.30
+      3     4.6  1.00   0.827   0.327  0.086    0.30
+      4     0.1  1.00   0.531   0.031  0.068    0.24
+      5     5.4  0.00   0.210   0.290  0.063    0.22
+      6     8.0  0.00   0.175   0.325  0.061    0.21
+      7     0.1  1.00   0.730   0.230  0.083    0.29
+
+### S2 FAILED, and the failure is the finding
+
+I predicted the head relocates its centre only where the signal is strong, and
+sits at the domain centre in dims 3/5/6. **It does not.** The head moves its
+centre toward the correct bound in ALL FOUR sensitive dimensions -- offsets
+0.456, 0.327, 0.290, 0.325, every one in the right direction -- while sitting at
+the centre in the insensitive ones (mean offset 0.082, a 4.3x difference).
+
+**The head knows where to go. It centres correctly.** Boundary aversion is not
+a failure to locate the optimum's dimension-wise position.
+
+### Neither mechanism A nor B. A third one, which I had not enumerated.
+
+S1 MET (shrinkage severe everywhere, SD/uniform 0.18-0.30) and S3 MET
+(shrinkage uniform across dims, sd of the ratio 0.044). The head's output cloud
+is **3 to 6 times tighter than uniform in every dimension**, and its centre lands
+short of the bound. Reach is then governed by how many standard deviations of
+residual gap remain:
+
+    dim  centre   sd     gap/sd   predicted reach   observed reach
+      0   0.956  0.052    0.84         0.510            0.701
+      3   0.827  0.086    2.01         0.071            0.020
+      5   0.210  0.063    3.32         0.006            0.002
+      6   0.175  0.061    2.88         0.020            0.002
+
+Predicted = Gaussian mass within 0.05 of x*. Mean |predicted - observed| = 0.066
+and the ordering is exactly right. **CAVEAT: this is four points.** A correlation
+over four dimensions is not evidence of a law; what it supports is that the two
+quantities I measured are sufficient to reproduce the ranking, which is a much
+weaker claim and the only one made here.
+
+**So: the head centres correctly and cannot span the last 0.17-0.21 because its
+output distribution is 3-6x too tight.** Dim 0 succeeds (70%) only because its
+centre lands 0.84 sd from the bound; dims 3/5/6 fail because theirs land 2-3 sd
+away.
+
+### This is the sd-vs-MAD error again, in hypothesis space
+
+I framed the question as "A: parameterisation, uniform aversion" vs "B: signal
+strength, aversion concentrated in weak dims", and wrote a verdict script that
+could only print A, B, or "neither -- read the table". The answer was neither:
+**correct centring plus insufficient spread**, which is a hypothesis I did not
+enumerate. Second time today that a two-way framing excluded the truth. The
+standing rule from the earlier instance -- enumerate what OTHER possibilities
+would produce, not just the ones in front of you -- applies to hypothesis
+design, not only to numerical coincidences.
+
+### What it prescribes, and it is NOT what h96 implied
+
+h96 said the residual gap is boundary aversion and an ROI cannot fix it. True.
+But the fix is not obviously "change the output parameterisation so bounds are
+reachable" -- the head already gets 83-98% of the way there. Two levers follow
+directly from gap/sd:
+
+  - REDUCE THE GAP: sharpen centring in the sensitive dims (a
+    sensitivity-weighted L_loc would do this, and costs one config flag).
+  - INCREASE THE SPREAD: the cloud is 3-6x tighter than uniform. And h95/h96
+    established that MORE dispersion is not harmful here -- the ROI improved
+    regret while raising dispersion. **Deliberately widening the head's output
+    is not the obviously-wrong idea it would have been before those results.**
+
+Both are cheap and neither is the architecture rewrite h96's framing suggested.
+Registering the preference now: gap-reduction is the better first test, because
+it is one loss change and it does not risk the exploration/exploitation balance
+the way an injected-noise term would.
