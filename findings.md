@@ -8809,3 +8809,49 @@ bit-identical queries on the **use_roi=True** path — the path the OFF-branch
 byte-identity argument does not cover — is already strong evidence that neither
 working-tree patch perturbs ROI results. If it holds to completion, h106, h107
 and h108 are uncontaminated.
+
+## The best setting closes 62% of the gap — computed on the only seed set that has all four arms
+
+EXPLORATORY, zero compute, explicit paths. The peer's h107 completed the q=0.05
+arm at seeds 42-46, which makes **42-46 the only seed set carrying all four
+arms** (no-ROI, Q10, Q05, MF-MES). Seed-matched n=5:
+
+    no-ROI   15.82  sd 2.36
+    Q10      11.59  sd 0.41
+    Q05      10.02  sd 2.25
+    MF-MES    6.40  sd 5.94
+
+    gap to MF-MES   no-ROI  +9.41
+                    Q10     +5.19   ->  45% closed
+                    Q05     +3.62   ->  **62% closed**
+
+h106 reported 57% for q=0.10 at its own n=10 seed set (42-46 + 52-56); on this
+5-seed set q=0.10 gives 45%. **Those are different seed sets, not a discrepancy**
+-- and the spread between them (45% vs 57% for the same setting) is itself a
+caution about reading any single gap-closure percentage too precisely.
+
+### What can and cannot be said
+
+CAN: on the seeds where every arm exists, **the better setting closes 62% of the
+deficit against 45% for the setting every earlier number used.** The direction
+matches h97 and h107's paired comparisons, and q=0.05 vs q=0.10 here is -1.57
+(4/5), reproducing h97's -1.52 and h107's -1.57 to within 0.05.
+
+CANNOT: give q=0.05 the n=10 seed-matched treatment h106 gave q=0.10. Q05 exists
+at 42-46 and 47-51; the comparison's n=10 set is 42-46 + 52-56; and **Borehole
+MF-MES does not exist at 47-51** (checked every experiment directory). Closing
+that would take Q05 at 52-56 -- 5 runs -- and neither session has claimed them.
+
+CANNOT: read 62% as precise. It is n=5, the MF-MES arm has sd 5.94 across a
+0.83-15.44 range, and paired, **Q05 still loses to MF-MES 2/5 with a median gap
+of +4.79.** The mean-based percentage is the friendliest true summary available;
+the paired one is less flattering and equally true.
+
+### Where this leaves the commissioned question
+
+The strategy is quantile-calibrated beta_t on the teacher's pool at q=0.05. On
+Borehole -- the one benchmark where MF-DRO has a real deficit -- it removes
+roughly **60% of that deficit** (62% at 42-46; 57% for the weaker setting at a
+different n=10 set), on 10/10 seeds pooled across two independent seed sets, with
+the effect 1.8x its own spread. It does not close the gap, and everything
+measured remains Borehole-specific.
