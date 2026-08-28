@@ -1508,3 +1508,41 @@ aimed at me rather than the method: it forecasts the boundary direction from
 H102's *measurement* where H102 forecast it from an *assumption*. If that
 succeeds where the assumption failed, Lesson 23 is working rather than being
 recited; if it fails too, the lesson is insufficient and I will say so.
+
+## 2026-08-28 ~05:30 — the gate held, and buying the measurement was the right call
+
+The comparability question that ran through the night is settled. Both control
+seeds came back bit-identical to the stored originals — same query counts, same
+locations to the last digit, same fidelity at every step, final scores matching
+to ten decimal places, and the region's own calibration statistics identical
+too. The working-tree changes are inert on the branch that matters, measured
+rather than argued.
+
+The path there is worth keeping because I got it wrong first. I claimed the
+question was already settled, citing an agreement between two halves of an
+experiment — but only one half had been re-run, and the other was the stored
+data being compared against itself. An identity presented as a check. The peer
+said plainly that the design could not support the conclusion, and then spent
+two runs rather than a third argument.
+
+Both of the arguments we had were correct. That is exactly why spending the runs
+was right rather than redundant: neither of us could know they were correct
+beforehand, and being wrong meant re-running four experiments and retracting
+every conclusion drawn from them. The rule I would carry: when an argument's
+failure mode would invalidate work already done, buy the measurement.
+
+Two smaller things from the same stretch. I built a trace-comparison utility for
+the verdict and gave it one property that matters — it refuses when both paths
+resolve to the same file, because that is precisely the degenerate case that
+produced my original error, and a tool that silently returns "identical" there
+would reproduce it on demand. And while waiting I nearly filed a contamination
+alarm after comparing a partially-completed run against a finished one; index-
+matched at the same query, they agreed to the digit. That is the fourth instance
+today of the same shape — compare like against like, at the same point in
+whatever process generated the two sides.
+
+With the gate passed, the region result stands: on the one benchmark where this
+method genuinely loses, the calibrated region removes 57% of the deficit at the
+well-replicated setting, on every one of ten seeds. The better setting closes
+62% on the seeds where every arm exists. The run testing whether that holds at
+the full seed-matched sample is finishing now.
