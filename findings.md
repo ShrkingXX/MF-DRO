@@ -9127,3 +9127,25 @@ four contaminated experiments.
 measurement.** The cost of h109 was 2 runs. The cost of being wrong was
 re-running h106, h107, h108 and h110 -- 22 runs -- plus every conclusion drawn
 from them tonight.
+
+### Gate miss: two H111 runs were never launched, and I reported the launch as complete
+
+Reported per the standing rule that every run and gate miss is recorded.
+
+H111 needs 10 runs. My launch loop was bounded by free slots and broke out when
+it hit the cap, so **Ackley seeds 45 and 46 were never started** — and I reported
+"launched 8" without checking whether the remaining two had gone. A later attempt
+to add them found `free=0` and exited silently for the same reason.
+
+It surfaced only because the analysis kept printing `INCOMPLETE -- pending [45,
+46]` while I assumed those runs were in flight. Had the Ackley arm been the one
+that mattered, I would have been waiting on runs that did not exist.
+
+**The launcher pattern is at fault, not the accounting.** `[ $L -ge $free ] &&
+break` silently drops jobs, and nothing downstream distinguishes "running" from
+"never started" — both look like "not yet in results/". The check that caught it
+is the one now added: enumerate the full job list and classify each as
+done / running / **MISSING**, rather than counting completed files against a
+total.
+
+Both runs are now launched and all ten are accounted for.
