@@ -7310,3 +7310,36 @@ written and is now true.
 needed verifying** (the worker counter, the h94 OFF-path gate, the unweighted
 ROI containment diagnostic, and now the ID claimer). A tool asserted to
 guarantee a property is a claim like any other.
+
+**The claim script was wrong, and a peer session caught it.** My v1 claimed
+`experiments/hNNN-$SLUG`, and `mkdir` only fails on an *exact* name match — so
+two sessions racing for the same number with **different slugs** both succeed.
+I asserted in the file header, and in a message, that they "cannot both succeed".
+That was false, and it closed the one case that never happens while leaving the
+one that always does: every collision this project has had was two sessions
+naming *different* experiments with the same number.
+
+Reproduced the bug directly before accepting the diagnosis (h51-alpha and
+h51-beta both created), then verified their fix — a slug-independent marker under
+`experiments/.ids/hNNN`, claimed before the experiment directory exists — against
+three cases:
+
+      different slugs race           -> h51, h52       PASS
+      pending marker, dir not yet made -> skips to h52  PASS
+      directory made outside the script -> skips it     PASS
+
+**A count discrepancy that turned out to be evidence.** 97 experiment
+directories, 95 markers. Not a gap: **h42 and h44 are each used by two
+directories** — `h42-fixed-rule-control`/`h42-regression-freeze` and
+`h44-regression-head-conditioning`/`h44-three-way-matched`. So the project has
+had **five** ID collisions, not the three from today, and two of them have been
+sitting in the tree unnoticed long enough that nobody counted them. 95 unique
+numbers, 95 markers, consistent.
+
+**The general lesson, which is the peer's and worth keeping:** this is the fourth
+verification tool today that itself needed verifying — a worker counter, an
+OFF-path gate, an unweighted containment diagnostic, and now this. **A tool
+asserted to guarantee a property is a claim like any other.** Mine shipped with
+its guarantee stated in a header comment, which made it read as established
+rather than as something to test. State what a tool checks; do not state what it
+guarantees unless the guarantee has been attacked.
