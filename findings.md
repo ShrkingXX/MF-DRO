@@ -11672,3 +11672,54 @@ was measured on — *and only to the benchmark whose scale it was measured on.*
 Absolute bars do not travel across objectives that differ 100x in range.
 Unit-free criteria (effect size, seed consistency) do, which is why every verdict
 here survives.
+
+## EXPLORATORY — the ROI STALLS late, and this is a measured motivation for the paper's beta_t
+
+**Not pre-registered.** h131's protocol locked P1 (effect at 12 HF) and P2
+(growth); this erosion analysis was run after seeing the curve. Labelled
+exploratory and reported as such. It nonetheless yields a *falsifiable* prediction
+for an experiment that has not yet run, which is the useful part.
+
+Borehole, seeds 42-46, paired, rel% of optimum (negative = ROI better):
+
+    cost 100:  42:-6.75  43:-10.59  44:-4.11  45:-8.36  46:-9.25
+    cost 200:  42:-3.78  43: -2.49  44:-1.56  45:-5.71  46:-7.57
+
+    erosion (200 minus 100):  +2.97  +8.09  +2.55  +2.65  +1.68
+    mean +3.588   sd 2.563   effect 1.40   eroded 5/5   SEPARABLE
+
+**The ROI's advantage erodes over the second half of the run, on every seed.** The
+mechanism is not that the ROI degrades — it is that it *stops improving* while the
+control does not:
+
+    between cost 100 and 200, regret fell by
+      control   5.193% of optimum   (sd 2.583)
+      ROI       1.605% of optimum   (sd 2.198)
+
+**The restricted method stalls; the unrestricted one keeps going.** Combined with
+the h131 finding that the ROI delivers essentially its full benefit within the
+first ~12 HF queries, the shape of the whole result is: **front-loaded gain, then
+a plateau that the control eventually eats into.** That is what over-restriction
+predicts — a region that was well-sized when the surrogate was uncertain becomes
+too tight once it is not.
+
+### This gives the paper's `beta_t` a measured motivation, and reframes h125
+
+The DRO paper writes `beta_t` with a subscript, and GP-UCB's `beta_t` grows with
+t — a **widening** ROI. h125 measured that widening costs 9.018 points and I have
+been treating the paper's direction as the harmful one.
+
+**These are compatible, and the distinction is tight-vs-wide against
+tight-then-wide.** h125 varied a *constant* tightness across arms. It says nothing
+about a schedule. What this measurement says is that the ROI's value is
+concentrated exactly where a widening schedule would keep it tight (early) and its
+stall is exactly where such a schedule would relax it (late).
+
+**Falsifiable prediction for h123 (the peer's, registered and unrun):** a widening
+schedule should beat a constant q=0.10 on Borehole, by recovering part of the
+3.588% that erodes after cost 100. It should NOT beat it before cost 100.
+
+Stated as a prediction rather than a conclusion because it is post-hoc on the
+curve that suggested it, and because the peer's h123 amendment currently predicts
+the opposite on h125's grounds. **Sent to them before their runs start so the
+grounds are visible in advance rather than assembled afterwards.**
