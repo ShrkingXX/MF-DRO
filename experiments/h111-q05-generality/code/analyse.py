@@ -14,9 +14,15 @@ BENCH=("Hartmann_6D","Ackley_10D")
 # the q=0.10 record each benchmark is being re-tested against
 Q10REF={"Hartmann_6D":"-1.62 pts, 3/5 (magnitude clears 0.59, split fails 4/5)",
         "Ackley_10D":"-0.09 pts, 1/5 (absent, not weak)"}
+# The q=0.10 arms are NOT all in one experiment: Hartmann's are in h84, Ackley's
+# in h86. Hardcoding h84 made every Ackley row silently unresolvable. Listed
+# explicitly rather than globbed -- globbing across experiment dirs returned a
+# non-canonical run earlier today and is banned here.
+H86=os.path.join(REPO,"experiments","h86-roi-full","results")
+Q10_DIR={"Hartmann_6D":H84, "Ackley_10D":H86}
 def path(b,arm,s):
     if arm=="ROI-Q05": return os.path.join(R111,f"{b}__ROI-Q05__seed{s}.json")
-    if arm=="ROI-Q10": return os.path.join(H84,f"{b}__ROI-Q10__seed{s}.json")
+    if arm=="ROI-Q10": return os.path.join(Q10_DIR[b],f"{b}__ROI-Q10__seed{s}.json")
     return os.path.join(H83,f"{b}__MF-DRO__seed{s}.json")
 if __name__=="__main__":
     print("H111 -- does q=0.05 make the ROI work outside Borehole?\n")

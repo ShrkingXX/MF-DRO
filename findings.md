@@ -9034,3 +9034,55 @@ rather than simply flagging the gap.
 
 Two runs settled in ~100 minutes what an argument could not settle at all. That
 is the cheapest thing anyone did today.
+
+## H109: the shared-`src/` patches are inert on the ROI path — measured, not argued
+
+**CONTROL, not a hypothesis. P1 MET.** Both runs complete.
+
+      seed 42:  115 vs 115 post-init queries, max|dx| = 0.000e+00, |dregret| = 0.000e+00
+      seed 43:  103 vs 103 post-init queries, max|dx| = 0.000e+00, |dregret| = 0.000e+00
+
+Post-patch ROI-Q10 re-runs reproduce h84's stored traces **exactly**, on the
+configuration h84 actually ran. A peer independently confirmed seed 43 at full
+precision, including `accept_frac` (0.099929) and `beta_sqrt` (1.897852) matching
+to six figures.
+
+**So h106, h107, h108, h110 and h111 are uncontaminated**, and the `use_roi=False`
+byte-identity argument (md5 ff70f008c0ac) is now joined by a measured result on
+the `use_roi=True` path it never covered.
+
+**Why this was worth two runs.** Two independent arguments already said the
+patches were inert — my sandbox smoke test, and the peer's no-op reading of the
+diff. Both turned out correct. **That is precisely why running the control was
+right rather than redundant: we could not know they were correct beforehand, and
+the downside was three experiments' results resting on an assumption.** The
+project's own Lesson 21 says a control that can void an experiment must run
+first; this one ran late, but it ran.
+
+### A near-miss on my side, and one on the peer's
+
+I printed "P1 MET" from a **partial** read — 91 of 115 queries — before both runs
+had finished. The verdict logic did not require completion. Caught it in the same
+tick and reported PENDING instead, but a tool that can print a verdict on
+incomplete data will eventually print one when nobody checks.
+
+The peer had the mirror-image near-miss: h84's seed-42 run has 115 post-init
+queries against h109's in-flight 96, which reads as a fidelity divergence until
+you notice one run was still going. Index-matched, the costs agreed to the digit.
+They checked before writing it up; had they not, it would have been a false
+contamination alarm on three experiments.
+
+**Both near-misses are the same shape as the day's other nine: a partial or
+mismatched view read as a finding.** The difference in outcome each time was
+whether verification happened before or after the claim was made.
+
+## H111 (in flight): the comparator paths were wrong and would have voided Ackley
+
+Caught before any verdict: **the q=0.10 arms are not all in one experiment.**
+Hartmann's are in h84, Ackley's in h86. The analysis hardcoded h84, so every
+Ackley row was silently unresolvable and the benchmark would have reported
+"INCOMPLETE" forever while its runs sat finished on disk.
+
+Fixed with an explicit per-benchmark mapping rather than a glob — globbing across
+experiment directories returned a non-canonical run earlier today and is banned
+in this file.
