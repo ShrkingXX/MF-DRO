@@ -1091,3 +1091,8 @@ PRIMARY_QUESTION_STATUS:
   - Report the difference and its spread, never a ratio, when the denominator is itself an effect that
     might be null.
   - When you retract a claim, find every surface it was published on.
+final_dose_response: 'Borehole, rel% @cost_curve 200, paired, all at one read point: q=0.100 -3.857 (n=10),
+  q=0.300 -2.547 (n=10, effect 1.67, better 10/10, PREDICTED before its runs existed and both P1 and P2
+  landed inside their registered brackets), q=0.493 -1.311 (n=5). Monotone in q. The log-q model predicts
+  the held-out dose''s HF fraction on BOTH seed sets to within 0.016 once re-anchored on each set''s own
+  control.'

@@ -13684,3 +13684,54 @@ restarts it is stopped" are different claims**, and today they came apart. A
 session can halt its own work and leave a scheduler that will re-start it, and the
 prompt it re-sends is indistinguishable from a genuine instruction except by its
 provenance.
+
+## h127 COMPLETE at n=10 — the final result, and a correction to my own 4-seed reading
+
+All ten seeds landed. q=0.30, Borehole, rel% @cost_curve 200, paired:
+
+    REGISTERED  42-46 vs h83 MF-DRO   benefit -2.858  sd 1.415  effect 2.02  5/5
+    SECONDARY   47-51 vs h90 NO-ROI   benefit -2.236  sd 1.721  effect 1.30  5/5
+    POOLED n=10                       benefit -2.547  sd 1.521  effect 1.67  10/10
+
+**Better on 10 of 10 seeds across two independent seed sets and two different
+control arms.**
+
+### The log-q model predicts the held-out dose on BOTH sets
+
+Re-anchoring the same slope on each set's own control:
+
+    set      control    predicted   observed   |err|
+    42-46     0.8829      0.8077     0.7916    0.0161
+    47-51     0.8795      0.8043     0.8105    0.0062
+
+**Both within 0.016**, from a model fitted on the control and q=0.10 only. That is
+out-of-sample validation on two seed sets rather than one.
+
+### CORRECTION to my own secondary-set analysis, on incomplete data
+
+An hour ago I reported the secondary set at **n=4** (seed 51 still running) as
+control 0.8544, q=0.30 HF fraction 0.7824, and explained its falling outside P1's
+band as an **anchoring artefact**. With seed 51 included the same quantities are
+**0.8795 and 0.8105.**
+
+**Both numbers moved by more than 0.025 on the addition of one seed**, and the
+specific explanation I offered does not survive. The honest account is simpler and
+less flattering to me: **an n=4 reading of a five-seed set was unstable, and I
+built an explanation on it rather than waiting.** The anchoring point is still true
+in general — a band does not transfer to a set with a different control — it just
+was not what was happening there.
+
+This is the tenth error of the day and **the first I caught myself without either
+a peer or a pre-registered clause forcing it.** It was caught only because the
+missing seed arrived; had h127 been stopped an hour earlier the explanation would
+have stood unchallenged in the record.
+
+### The dose-response, final, all at one read point
+
+    q = 0.100    -3.857 rel%   n=10   (h84 + h90 pooled)
+    q = 0.300    -2.547 rel%   n=10   (h127, predicted before it ran)
+    q = 0.493    -1.311 rel%   n= 5   (h128, peer)
+
+Monotone in q. The middle point was predicted from the outer structure before any
+of its runs existed, and its benefit and fidelity mix both landed inside their
+registered brackets.
