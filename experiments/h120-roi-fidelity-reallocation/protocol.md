@@ -162,3 +162,11 @@ costs three runs rather than a wrong conclusion. This is a compute bet, declared
 before the fact, not a provenance claim.
 
 Predictions P1-P4 remain UNCHANGED.
+
+### AMENDMENT 2 DEPENDENCY DISCHARGED (2026-08-28)
+
+h117's GATE G0 **PASSED**: 83 queries, 0 differing. The current tree reproduces
+a stored MF-DRO trace bit-identically, so the residual "same filenames is not
+same bytes" gap flagged above is now closed by measurement on the current
+content. The three ROI-OFF runs are not void. The compute bet declared above
+was not called.

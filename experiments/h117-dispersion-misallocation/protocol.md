@@ -146,3 +146,20 @@ this contrast.
 Separating "absence of continuous refinement" from "something about the DT/ROI/
 loss" requires an arm this protocol does not contain and which is not registered
 anywhere. Noting it as the open question rather than smuggling it into h117.
+
+---
+
+## GATE G0 RESULT (2026-08-28): **PASS** — 83 queries, 0 differing.
+
+`Ackley_10D MF-DRO seed42` on the current working tree reproduces h83's stored
+trace bit-identically (fid, x, y at every one of 83 queries). Log:
+`results/identity_gate.log`.
+
+The uncommitted h94 (`roi_inference_mode` hook, `_roi_snap`, actions_x variance
+logging) and h102 (`loc_loss` selector) patches are therefore inert BY
+EXECUTION, not merely by inspection — which is what this gate existed to
+establish, after inspection alone missed h94's NameError.
+
+h117's ten Borehole runs are cleared to count. This also discharges the
+dependency recorded in h120 Amendment 2: the three ROI-OFF control runs are no
+longer contingent on an unverified tree.

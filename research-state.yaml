@@ -822,6 +822,7 @@ h117_dispersion_misallocation:
   claims: Borehole_8D seeds 52-56, MF-DRO + MF-MES, 10 runs. Compute 5 workers.
   purpose: confirmatory replication of the h116 exploratory measure on seeds that
            played no part in choosing it.
+  gate_G0_RESULT: "PASS -- 83 queries, 0 differing, Ackley_10D MF-DRO seed42 vs h83. Patches inert by EXECUTION."
   gate_G0_blocking: >
     Ackley_10D MF-DRO seed42 on this working tree must reproduce h83's stored
     trace bit-identically. The tree carries uncommitted h94 (roi_inference_mode
