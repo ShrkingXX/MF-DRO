@@ -612,15 +612,59 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 </section>
 
 <section>
+  <p class="kicker">Confirmation &middot; Borehole</p>
+  <h2>The one intervention that came back intact</h2>
+  <div class="col">
+  <p>Three interventions were tried. Re-tested on seeds they were never developed on, two were
+  withdrawn outright and the third shrank by two thirds. This is the fourth such re-test, and the
+  first where the result held.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>seed</th><th class="n">with ROI</th><th class="n">without</th><th class="n">difference</th></tr></thead>
+    <tbody>
+      <tr><td class="n">47</td><td class="n">11.56%</td><td class="n">17.60%</td><td class="n win">&minus;6.05</td></tr>
+      <tr><td class="n">48</td><td class="n">13.79%</td><td class="n">15.67%</td><td class="n win">&minus;1.87</td></tr>
+      <tr><td class="n">49</td><td class="n">10.54%</td><td class="n">14.52%</td><td class="n win">&minus;3.97</td></tr>
+      <tr><td class="n">50</td><td class="n">13.11%</td><td class="n">18.88%</td><td class="n win">&minus;5.77</td></tr>
+      <tr><td class="n">51</td><td class="n">12.27%</td><td class="n">12.05%</td><td class="n">+0.22</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p>All three thresholds set in advance were met. Pooled over both seed sets the gain is
+  <strong>3.86 points, better on 9 of 10 seeds</strong>, and it kept <strong>83%</strong> of the size
+  it had on the seeds it was developed on. Teacher refinement kept 36%; the two withdrawn
+  interventions kept nothing.</p>
+  <p>So the answer to the question this investigation started from is not negative. On this
+  benchmark, the region-of-interest rule the paper itself defines &mdash; with its threshold
+  recalibrated at every iteration instead of held at a constant &mdash; measurably stops the method
+  wasting its expensive budget.</p>
+  <h3>The gain is in the bad runs, not the typical one</h3>
+  <p>This part was not predicted in advance and is reported as such. The spread across seeds falls by
+  <strong>60%</strong> (2.37 to 0.96). The improvement is concentrated where the method was worst:
+  the <em>worst</em> seed improves by 5.40 points, the <em>best</em> by 1.51. That is what removing
+  bad outcomes looks like, rather than lifting the average &mdash; which is what the stated goal
+  predicts.</p>
+  <p>An earlier claim of lower tail risk was discarded during this investigation for comparing a
+  method against a difference computed from it, which is negative by construction. This measurement
+  is each arm&rsquo;s own spread across seeds, which is the form that test has to take.</p>
+  <p><strong>It still does not make the method competitive.</strong> With the region of interest it
+  reaches 12.25% against the strongest baseline&rsquo;s 6.40%. The gap is roughly halved, not closed
+  &mdash; and a prediction registered before the runs said exactly that.</p>
+  </div>
+</section>
+
+<section>
   <p class="kicker">Status</p>
   <h2>What is running and what is open</h2>
   <div class="col">
   <ul>
-    <li><strong>The Borehole confirmation is in flight</strong> &mdash; three of five seed pairs complete.
-    It is the last untested claim the ROI has: a 4.22-point gain measured on the seeds the setting was
-    developed on. At three pairs it is running weaker and is not unanimous, but the analysis script
-    refuses to print a verdict below five and no verdict is being read here. The same run supplies
-    teacher refinement with a <em>third</em> independent seed set.</li>
+    <li><strong>The Borehole confirmation is complete and is reported above.</strong> At three of five
+    pairs it was running weaker and was not unanimous; the analysis script refuses to print a verdict
+    below five pairs, and none was read until all five were in. The final result met every threshold.
+    The same run supplies teacher refinement with a <em>third</em> independent seed set, still in
+    flight.</li>
     <li><strong>The next experiment is written and deliberately not launched.</strong> It applies the
     region of interest to the query rather than to the teacher &mdash; the version the paper actually
     defines. Its implementation is held outside the source tree as a patch, because another session has
