@@ -25,15 +25,19 @@ if __name__=="__main__":
     print(f"\n  n={len(d)}  paired mean {d.mean():+.2f}  "
           f"sd {d.std(ddof=1) if len(d)>1 else float('nan'):.2f}  ROI better {wins}/{len(d)}")
     print(f"  seeds 42-46 for reference: mean -4.22, sd 2.43, 5/5")
-    if miss: print(f"  INCOMPLETE -- pairs pending: {miss}"); sys.exit()
+    roi_done = not miss
+    if miss: print(f"  INCOMPLETE -- pairs pending: {miss}")
     print("\n  REGISTERED BARS")
-    p1 = wins>=4 and d.mean()<0
-    print(f"    P1 (negative on >=4/5 AND negative mean): {'MET' if p1 else 'FAILED'}")
-    print(f"    P2 (margin shrinks vs -4.22): "
-          f"{'MET' if abs(d.mean())<4.22 or d.mean()>0 else 'NOT MET'}")
-    roi=np.array([a for _,a,_ in rows])
-    print(f"    P3 (still does NOT beat MF-MES 6.40): "
-          f"{'MET (still behind)' if roi.mean()>6.40 else '*** REFUTED -- investigate ***'}")
+    p1 = roi_done and wins>=4 and d.mean()<0
+    if not roi_done:
+        print("    P1/P2/P3: CANNOT EVALUATE -- ROI arm incomplete")
+    else:
+        print(f"    P1 (negative on >=4/5 AND negative mean): {'MET' if p1 else 'FAILED'}")
+        print(f"    P2 (margin shrinks vs -4.22): "
+              f"{'MET' if abs(d.mean())<4.22 or d.mean()>0 else 'NOT MET'}")
+        roi=np.array([a for _,a,_ in rows])
+        print(f"    P3 (still does NOT beat MF-MES 6.40): "
+              f"{'MET (still behind)' if roi.mean()>6.40 else '*** REFUTED -- investigate ***'}")
     # --- REFINE-100 arm, bar registered in the protocol addendum before any result ---
     rrows=[];rmiss=[]
     for s in SEEDS:
@@ -57,7 +61,7 @@ if __name__=="__main__":
             print("\n    *** P4 FAILED -> teacher refinement joins the ROI flip and the HF")
             print("        floor as withdrawn. NO intervention tried this session survives")
             print("        fresh seeds; the session's answer is uniformly negative. ***")
-    if not p1:
+    if roi_done and not p1:
         print("\n  *** P1 FAILED -> per the protocol's falsifier, the Borehole gain is")
         print("      WITHDRAWN, and the ROI has NO surviving regret result on any")
         print("      benchmark. Only the controllability argument remains. State that")

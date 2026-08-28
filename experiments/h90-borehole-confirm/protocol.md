@@ -201,3 +201,21 @@ If P4 fails, teacher refinement joins the ROI flip and the HF floor as withdrawn
 and NO intervention tried this session survives fresh seeds. The session's answer
 to its primary question would then be uniformly negative, and the only durable
 results would be the controllability argument and the seed-dependence finding.
+
+## Amendment 4 — the two arms are made independent (registered with 0/5 REFINE results)
+
+The analysis script exited as soon as the ROI arm had a missing pair, which
+meant the REFINE-100 bars -- P4 and P5, registered in the addendum as separate
+claims -- could be skipped entirely by an unrelated failure in the ROI arm. One
+crashed ROI run would have silently cost the refinement arm its verdict, and the
+skip printed nothing to say so.
+
+Fixed: each arm now evaluates independently, and an incomplete arm prints
+"CANNOT EVALUATE" instead of falling through to a verdict or to the falsifier.
+This mirrors the P8 lookup-path defect in h89, where a verdict script printed
+CANNOT EVALUATE because it read the wrong directory -- the same class of error,
+caught here before it could fire.
+
+Registered with **zero REFINE-100 results on disk** (all 5 still running) and 1
+of 5 ROI pairs complete. No bar, threshold, or seed set is changed -- this is a
+control-flow fix to the evaluator, not a change to what is being tested.
