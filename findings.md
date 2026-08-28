@@ -11599,3 +11599,76 @@ The honest summary is now:
 So "an ROI strategy that stops MF-DRO wasting HF budget on low-value regions"
 has a tightness answer and no generality. That is a real result about the DRO
 paper's Sec 4.2 heuristic, and it is a negative one.
+
+## h131 — P1 INDETERMINATE (my protocol left a gap), and the motivating story is REFUTED
+
+Borehole and Hartmann, seeds 42-46, paired ROI-Q10 vs control, h83's frozen
+`sr_curve` + `grid`, read at several points on the post-init cost axis.
+
+    Borehole_8D                             Hartmann_6D
+    cost  ctrlHF   rel%     sd   eff  n     cost ctrlHF   raw    sd   eff  n
+      25    11.6  -4.681  5.417  0.86 3/5     25    2.8 -0.389 0.922 0.42 3/5
+      50    23.8  -5.626  2.895  1.94 5/5     50    5.0 -0.191 0.256 0.75 3/5
+     100    47.8  -7.813  2.495  3.13 5/5    100    7.2 -0.040 0.395 0.10 2/5
+     200    93.4  -4.224  2.433  1.74 5/5    200   11.2 -0.068 0.107 0.64 4/5
+
+**P1 predicted Borehole's effect at 12 HF would be below 0.5 sd; the falsifier was
+>= 1.0. It came in at 0.86 — inside the gap I left between the two.** That is a
+protocol-design flaw, not an ambiguous result: I registered a threshold and a
+falsifier and did not make them meet. P1 is recorded INDETERMINATE. This is the
+same failure class as the h113 gate and the T2 ranking bar: **a bar with a hole
+in it decides nothing, and the hole is only visible once a result lands in it.**
+
+### The motivating story is REFUTED, which the gate would not have told me
+
+h131 was built on the idea that the ROI needs accumulated HF observations to
+become useful. **Borehole's benefit does not accumulate.** In rel% of optimum it
+is −4.68% at 12 HF and −4.22% at 94 HF — statistically the same, and the run
+*peaks* at −7.81% around 48 HF before declining. What improves monotonically is
+**precision**: sd falls 5.417 → 2.433.
+
+**So the rising effect size across the run is variance reduction, not signal
+growth.** The ROI delivers essentially its full benefit within the first dozen HF
+queries. Any account of Borehole-vs-Hartmann that rests on "Borehole gets enough
+data for the confidence region to become informative" is wrong: the region is
+already doing its work at Hartmann's entire budget.
+
+### What the matched-HF comparison does and does not license
+
+At ~12 cumulative HF queries, Borehole is −4.68% at effect 0.86 and Hartmann's
+whole run is −2.05% (−0.068 raw, |opt| = 3.3224) at effect 0.64. The point
+estimates differ by 2.3x; **neither separates at n=5.** So "Hartmann is truncated
+Borehole" is neither established nor excluded, and the honest verdict on the
+question h131 was registered to decide is that **it does not have the power to
+decide it.** I am not going to convert 0.86-vs-0.64 into a similarity claim.
+
+## METHODOLOGICAL — the 0.59-regret-point bar is SCALE-DEPENDENT and was applied across benchmarks
+
+    benchmark      |optimum|    0.59 regret points as % of optimum
+    Borehole_8D     309.5756                             0.191%
+    Currin_2D        13.7987                             4.276%
+    Hartmann_6D       3.3224                            17.758%
+
+**The same bar is ~93x stricter on Hartmann than on Borehole in relative terms.**
+To "separate" on Hartmann a result must improve regret by 17.8% of the optimum;
+on Borehole, by 0.19%. The bar was fixed in a locked addendum in a Borehole
+context and h111 then applied it to Hartmann and Ackley (findings.md:9286).
+
+**It did not flip any recorded verdict, and I checked rather than assuming.**
+h111's two cells are Hartmann −0.52 sd 6.32 (effect 0.08, 2/5) and Ackley −0.09
+sd 0.73 (effect 0.12, 2/5). Both fail the unit-free criteria — consistency and
+effect size — on their own. Every cross-benchmark null in the record is in the
+same position. **So this is a latent hazard, not a corrupted conclusion.**
+
+**There is one near-miss, and it is mine.** h131's Hartmann cell at cost 200 is
+effect 0.64 at 4/5 — which clears the project's 0.5 sd effect-size bar and its
+4/5 consistency requirement, while failing the 0.59-point bar by a factor of 8.7.
+That is precisely the region where the two bars disagree, and it is a Hartmann
+cell. At n=5 I read it as suggestive and nothing more; the point is that the
+disagreement is no longer hypothetical.
+
+**Rule, generalising this morning's:** a bar is only portable to the statistic it
+was measured on — *and only to the benchmark whose scale it was measured on.*
+Absolute bars do not travel across objectives that differ 100x in range.
+Unit-free criteria (effect size, seed consistency) do, which is why every verdict
+here survives.
