@@ -10403,3 +10403,50 @@ MF-DRO's Hartmann waste exceeds MF-MES's in **3 of 5** seeds against a required
 4 — two seeds are tied at exactly 0.0%. The paired mean is +15.6 points, so
 MF-DRO is clearly worse on average, but a tie is not an exceedance and the gate
 is recorded as missed rather than rounded up.
+
+## The founding diagnosis's formula, recovered — and both its headline numbers turn on one seed
+
+A peer session could not reproduce "mean HF query score 0.336 vs 0.747" and asked
+whether the definition was recorded anywhere. **It is**, in
+`experiments/h84-roi-strategy/code/analyse.py:22`, and it reproduces exactly:
+
+      score = mean over post-init HF queries of
+              (y - best_init_HF_y) / (-known_optimal_value - best_init_HF_y)
+
+i.e. **the fraction of the remaining gap to the optimum that each query closes.**
+Recomputed on h83's Hartmann runs: MF-DRO 0.336, MF-MES 0.747 — the recorded
+values to three decimals. Recording the formula here so the statistic is
+checkable in future; it was recoverable only from one experiment's analysis code.
+
+### Per-seed, it is one seed
+
+      seed     MF-DRO   MF-MES
+        42     +0.684   +0.889
+        43     +0.808   +0.981
+        44     **-0.942**  +0.046
+        45     +0.560   +0.912
+        46     +0.571   +0.907
+
+      all five      MF-DRO 0.336   MF-MES 0.747   gap 0.411
+      without s44   MF-DRO 0.656   MF-MES 0.922   gap 0.266
+      median        MF-DRO 0.571   MF-MES 0.907   gap 0.336
+
+**Seed 44 alone moves MF-DRO's score by +0.320 — nearly the entire headline gap.**
+It is the only seed where MF-DRO's average HF query moves *away* from the
+optimum, and it drags the mean from 0.656 to 0.336.
+
+**This is the same seed** a peer independently found driving the diagnosis's other
+headline number: Hartmann's 20.8% waste is the mean of [0.0, 0.0, 75.0, 16.7,
+12.5]%, and the 75% is seed 44 (9 of 12 queries). Median waste is 12.5%; dropping
+seed 44 gives 7.3%.
+
+**So both statistics in the founding diagnosis are dominated by a single seed of
+five, and it is the same seed.** The gap between the methods is real at every
+seed — MF-MES scores higher on all five — but "0.336 vs 0.747" overstates its
+typical size by roughly 55%, and neither number should be quoted bare. The
+defensible version is the median pair, 0.571 vs 0.907.
+
+This does not overturn the diagnosis. It calibrates it, and it explains why
+interventions targeting the *average* wasted query have had so little purchase:
+on four seeds of five there is much less average waste to remove than the
+headline implies.
