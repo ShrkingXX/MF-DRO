@@ -85,7 +85,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-28  # 01:0x, h94 COMPLETE; n=10 table; h106 running
+last_updated: 2026-08-28  # 02:3x, q=0.05 supersedes q=0.10; mechanism unidentifiable; h106 finishing
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -298,6 +298,42 @@ queued_experiments:
     CONSEQUENCE: q=0.10 was never established as better than q~0.21 -- tied on
     regret AND mechanism. Calibration's case stays controllability across
     benchmarks, not superiority on Borehole.
+  TIGHTNESS_the_dose_answer: >
+    **q=0.10 WAS NEVER THE RIGHT SETTING; q=0.05 IS BETTER, and every ROI number
+    in this project uses an unoptimised value** -- q=0.10 was simply the first
+    calibrated value tried. Peer's h97, verified here with explicit paths:
+      Q05 vs no-ROI  -5.01  sd 1.95  ratio 2.56  5/5   SEPARABLE
+      Q10 vs no-ROI  -3.49  sd 2.66  ratio 1.31  4/5   SEPARABLE
+      Q05 vs Q10     -1.52  sd 1.21  ratio 1.26  4/5   SEPARABLE
+    All three separable -- worth noting against four of my own bars today that
+    passed at ratios of 0.16, 0.38 and effectively zero.
+    CORRECTS h98, which treated ROI-FIX2 as the "accept 0.21" level of a dose.
+    FIX2 is the FIXED-beta arm; its acceptance DRIFTS 250x within a run and 0.21
+    is the average of that drift, so it is not a dose point at all. Among the
+    CALIBRATED arms the dose is monotone: 0.49 not separable (a loose ROI does
+    nothing), 0.10 separable, 0.05 separably better. h98's tie between its top
+    two arms is now explained rather than merely observed.
+    REGISTERED NEXT: q=0.02 vs q=0.05, |mean| >= 0.5 sd, with h97's gate form --
+    observed accept_frac in [0.018,0.022] AND n_draws below the cap, so a
+    starved ROI falling back to unfiltered top-up is detected, not reinterpreted.
+  MECHANISM_is_unidentifiable_not_merely_unknown: >
+    **No ROI mechanism can be identified from these four benchmarks.**
+      benchmark   max var share  x* on bdry  MF-DRO deficit   ROI effect
+      Borehole        0.83         7 of 8     REAL (2/10)     WORKS -3.68
+      Currin          0.81         1 of 2     nil (saturated) none
+      Hartmann        0.35         0 of 6     tie  (5/10)     none
+      Ackley          0.10         0 of 10    tie  (5/10)     none
+    One positive case, so every property unique to Borehole explains the pattern
+    equally well -- concentration, boundary optimality and deficit size co-occur
+    perfectly. This is WHY h99 (headroom) and h100 (containment) fell so cleanly:
+    any gate must fail on three and hold on one, which unrelated quantities do by
+    construction. **Passing that test is nearly free and is not evidence.**
+    Currin looked like the discriminating case until it proved saturated.
+    WHAT WOULD SETTLE IT (registered as a design, not run, not cheap): a
+    SYNTHETIC family varying ONE property -- concentration -- with boundary
+    status and deficit size held fixed, so the claim has four points differing in
+    one thing rather than one point differing in everything. A fifth standard
+    benchmark buys little; it varies everything at once like the four here.
   N10_TABLE_all_four_benchmarks: >
     **THE HEADLINE, at n=10, seed-matched, explicit paths (no globbing).**
     Sources: h83 for 42-46; h89 CONTROL + h91 for Hartmann 52-56; h89 CONTROL +
