@@ -76,7 +76,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 22:1x, H98 -- centring mediates the ROI dose; h94 running
+last_updated: 2026-08-27  # 22:5x, H99/H100 -- two candidate gates eliminated; h94 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -247,6 +247,32 @@ queued_experiments:
     the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
     ordering, collapse incidence, and the sign of a comparison.
 
+  h99-headroom-and-h100-containment: >
+    EXPLORATORY, zero compute, both registered before computing. **TWO CANDIDATE
+    MECHANISMS TESTED, NEITHER SURVIVES.**
+    H99: weighted headroom (sensitivity x incumbent distance to x*) does NOT
+    gate the ROI and is nearly ANTI-correlated -- Hartmann 0.1852 (ROI FAILED),
+    Ackley 0.0496, **Borehole 0.0185 (ROI WORKED)**, Currin 0.0124. P2 registered
+    as risky, failed as expected. P1/P3 MET.
+    P3 KILLS h97's PRESCRIPTION OUTRIGHT: Borehole's dim 0 carries 86% of
+    first-order variance and has incumbent headroom **0.0000**, so a
+    sensitivity-weighted L_loc would put 86% of its weight where nothing can be
+    gained. WITHDRAWN, not suspended -- it was derived from a cloud statistic
+    before the incumbent correction.
+    H100: the ROI's own logged containment diagnostics. Q1 FAILED and INVERTED --
+    Borehole's ROI sits 1.26x FARTHER from x* than an unfiltered pool and
+    contains NOTHING within 0.2 of x* (0.0000), yet works; Hartmann's is 0.79x
+    (closer) with near-x* mass and failed.
+    **BUT the instrument is UNWEIGHTED** full-dimensional distance -- the metric
+    findings.md:3174 established reverses orderings on Borehole. Verdict is
+    UNTESTED, not refuted. That override is POST-HOC and labelled so; the
+    protocol normalized out the dimensionality confound and missed the weighting
+    one (4th time bitten by it).
+    SURVIVES REGARDLESS: Borehole scores 0.0000 and the ROI works, so the
+    'an ROI containing nothing near the optimum starves the DT' rationale -- the
+    failure that got the ROI deleted before -- is FALSE as stated with this
+    measure.
+    NET: h96's four-benchmark relocation pattern is REAL and UNEXPLAINED.
   h98-roi-dose-response: >
     EXPLORATORY, zero compute, h84's four Borehole arms. **CENTRING MEDIATES THE
     ROI DOSE over the three resolvable levels.** GAPSD (h97's predictor):

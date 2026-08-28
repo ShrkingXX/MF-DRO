@@ -1350,3 +1350,41 @@ that only a second seed set could test. And Borehole's remaining deficit is
 large, real, and untouched by anything that worked — the calibrated ROI closes
 37% of it, refinement does not close it. Narrowing where the problem lives is
 useful because it says where to aim, not because the problem shrank.
+
+## 2026-08-27 ~22:55 — two mechanisms tested, two eliminated, and a prescription withdrawn
+
+h96 left a real pattern with no mechanism: the ROI relocates the query cloud on
+exactly the one benchmark where it helps. I tested the two obvious gates.
+
+Headroom went first, and it failed in the direction I had registered as likely.
+The ROI works on the benchmark with the second LEAST left to gain and fails on
+the one with ten times more. Weighted headroom is nearly anti-correlated with
+where the ROI helps. That test also killed a prescription of my own: Borehole's
+dominant dimension carries 86% of the variance and has zero headroom, so the
+sensitivity-weighted loss I had recommended would optimise hardest where nothing
+can be gained. Withdrawn outright — it came from a cloud statistic and did not
+survive the incumbent correction.
+
+Containment went second and produced the more interesting failure. The ROI on
+Borehole sits farther from the optimum than an unfiltered pool would, contains
+nothing at all within 0.2 of it, and still delivers the only confirmed gain in
+the project. My script printed "the hypothesis is DEAD" and I overrode it —
+because the diagnostic is an unweighted full-dimensional distance, the exact
+metric this project established reverses orderings on this benchmark. The honest
+verdict is untested rather than refuted.
+
+That override is post-hoc and I have labelled it so. My protocol normalized out
+the dimensionality confound and missed the weighting one, which I have now been
+caught by four separate times today. Noticing a defect only when the result is
+unwelcome is how any failed prediction gets rescued, so the registered FAILED
+stands alongside it.
+
+One thing survives the whole mess independent of the weighting: the rationale
+that originally justified this diagnostic — that a region containing nothing
+near the optimum starves the model of good training examples, which is what got
+the ROI deleted before it was reinstated — is false as stated. Borehole scores
+exactly zero on it and works.
+
+So two candidate gates are gone and the pattern stands unexplained. That is
+where h94 matters: it tests the region as a constraint on the query rather than
+on the demonstrations, which is a different mechanism entirely.
