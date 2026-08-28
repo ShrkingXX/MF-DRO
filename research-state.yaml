@@ -71,7 +71,20 @@ concurrent_sessions:
         neither its q=0.10 nor its q=0.05 number is evidence in either direction.
         The mechanism remains constrained by exactly one benchmark.
     - >-
-        [RUNNING 2026-08-28] h113: do the two surviving interventions COMPOSE?
+        [COMPLETE 2026-08-28] h113: the two surviving interventions COMPOSE.
+        10/10, both seed sets, doubled gate passed on measurement. ROI -3.86
+        (9/10), L1 -2.21 (9/10), BOTH -5.96 (10/10); BOTH beats ROI ALONE by
+        -2.10 sd 1.05 on 10/10. Additive would be -6.07, shared bottleneck
+        -3.86, measured -5.96 -- 0.11 from additive. Equivalently: adding L1 on
+        top of the ROI buys -2.10 where L1 alone buys -2.21. TWO mechanisms, not
+        one reached two ways -- the FIRST structural constraint on the mechanism
+        question, since h111 showed benchmarks cannot constrain it and h116/h118
+        closed dispersion and boundary resolution. Neither channel is named. Does
+        NOT make the method competitive: 9.82 vs MF-MES's seed-matched 6.00.
+        Peer's fidelity hypothesis is NOT L1's channel -- the ROI shifts the mix
+        (-8.9 HF/+17.7 LF), L1 moves it back (+1.9/-3.5) and helps anyway.
+    - >-
+        [SUPERSEDED by the entry above] h113: do the two interventions COMPOSE?
         The calibrated ROI (-4.08, 10/10) and the L1 location loss (-2.21, 9/10)
         are the only two replicated effects, both Borehole-only, and both
         unexplained the SAME way -- each improves regret without moving the
