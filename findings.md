@@ -11943,3 +11943,54 @@ on dispersion is measuring something the lever does not move.
 
 Note this does not touch the founding diagnosis's "3x more dispersed", which
 compares MF-DRO against MF-MES, not ROI against no-ROI.
+
+---
+
+## NEGATIVE, and it retires a diagnostic: ROI tightness does not move query dispersion
+
+The peer built a dispersion-based shape check for h123's M1, validated it before
+offering it, and found it fails. I reproduce their numbers exactly.
+
+Borehole, seeds 42-46, mean pairwise distance among post-init queries:
+
+| arm | realized q | UNIT-cube dispersion | sd | vs Q10 | effect | RAW dispersion |
+|---|---|---|---|---|---|---|
+| ROI-Q10 | 0.100 | 0.2728 | 0.0724 | — | — | 6800.6 |
+| ROI-FIX2 | 0.214 | 0.2949 | 0.0733 | +0.0222 | 1.02 | 6968.6 |
+| ROI-ANN | 0.493 | 0.2801 | 0.0880 | +0.0074 | 0.20 | 7278.3 |
+| ROI-OFF | 1.000 | 0.2766 | 0.0742 | +0.0038 | 0.15 | 6679.5 |
+
+**Dispersion ranks 1, 4, 3, 2 against q ranks 1, 2, 3, 4.** A tenfold change in
+acceptance rate (0.10 -> 1.00) moves unit-cube dispersion by 0.0038, effect 0.15.
+Only FIX2 separates at all, and it is the arm whose acceptance floats.
+
+### The units error would have manufactured a false positive
+
+Look at the raw column. **6800.6 < 6968.6 < 7278.3 is perfectly monotone in q**
+for the three ROI arms — a convincing instrument, and only ROI-OFF breaks it.
+Borehole's domain spans are [0.1, 49900, 52530, 120, 52.9, 120, 560, 2190], so a
+raw Euclidean distance is dimensions 2 and 3 and essentially nothing else. The
+"validated" instrument would have been two dimensions out of eight.
+
+Seventh unit/scale problem between the two sessions today, and **the first that
+would have produced a false POSITIVE rather than a mismatch between two correct
+numbers.** The previous six cost round trips; this one would have cost a gate
+that silently passed on any schedule whatever.
+
+### What it retires, and what it does not touch
+
+RETIRED: dispersion as a proxy for ROI tightness. Any ROI diagnostic built on
+query spread is measuring something the lever does not move. It also sharpens
+the standing "the ROI works by moving the queries, not by tightening them" —
+spread is not even a downstream consequence of acceptance rate.
+
+NOT TOUCHED: the founding diagnosis's "3x more dispersed". That is MF-DRO
+against MF-MES — a comparison between methods — not ROI against no-ROI. h116's
+analysis of it stands; the two claims are about different contrasts and this
+result speaks only to the second.
+
+### Consequence for h123
+
+M1 ships as written: run-mean realized acceptance in [0.25, 0.30], with the
+shape blind spot **documented and unfixed**. A documented blind spot beats a
+gate that silently passes, which is what the dispersion check would have been.
