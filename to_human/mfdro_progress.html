@@ -769,6 +769,23 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   so the lever is either to sharpen the aim in the dimensions that matter, or to widen the spread
   &mdash; and widening is no longer the obviously bad idea it would have been, given that more
   dispersion arrived alongside better regret above.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">Correction, same day &mdash; this section had the wrong statistic</p>
+    <p>The table above describes where the <em>whole cloud</em> of queries lands. Simple regret does
+    not depend on the cloud &mdash; it depends on the single best point found. Measuring that instead,
+    on the same runs, changes what explains the ceiling.</p>
+    <p><strong>The best point is already exactly on target in the dimension carrying 81.6% of the
+    variance, with and without the region.</strong> There is no headroom there for anything to
+    improve. So the ceiling is not, as first written here, that the region helps only where the method
+    was already succeeding: it is that <em>five sixths of the problem is already solved by both arms</em>,
+    and every gain available to any method lives in the remaining sixth. The region does capture part
+    of that &mdash; on the best point it improves three of the four dimensions that matter.</p>
+    <p>A related trap this surfaced: the two largest per-dimension gains, taken raw, are in dimensions
+    carrying 0.1% of the variance each. Any per-dimension table without sensitivity weighting will
+    point straight at them.</p>
+  </div>
+  <div class="col">
   <h3>How much region do you want?</h3>
   <p>Three tightness settings were run. Aim quality improves as the region tightens, unanimously
   across seeds at each step, and regret improves in the same order. But the two tightest settings are
