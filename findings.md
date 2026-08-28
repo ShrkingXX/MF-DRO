@@ -12117,3 +12117,55 @@ had computed a different quantity entirely.
 
 Eighth naming incident today. The tell that saved it was a suspiciously exact
 ratio, not vigilance.
+
+## SYNTHESIS — the best constant ROI setting in the whole dataset is FIX2 (q~0.21), not q=0.10
+
+EXPLORATORY synthesis of existing arms, recomputed at ONE read point (rel%
+@cost_curve 200), Borehole, seeds 42-46, paired vs ROI-OFF:
+
+    arm         realized q   benefit@200   effect   better   late-recovery%
+    ROI-Q10         0.0999       -4.224     1.74      5/5            10.51
+    ROI-FIX2        0.2141       -4.814     4.67      5/5            24.34
+    ROI-ANN         0.4934       -1.311     0.54      3/5            22.06
+    ROI-OFF         1.0000        0.000       --       --            24.45
+
+**FIX2 has the largest effect size in this project — 4.67 — and it does not
+stall.** It matches or beats q=0.10's benefit with 2.7x the consistency, and
+recovers 24.34% of midpoint-available regret against q=0.10's 10.51%.
+
+**But head-to-head it is not separably better:** FIX2 − Q10 is −0.589 rel%, sd
+1.707, effect 0.35, FIX2 better 3/5. Per-seed −0.37, −1.35, −3.10, +0.80, +1.07.
+So the two are **tied on the direct contrast** while differing sharply in how
+consistently each beats the control. Both statements are true and I am not going
+to report only the flattering one.
+
+### The caveat that matters most, and it is a gap not a conclusion
+
+**ROI-FIX2 is not a quantile-calibrated arm.** It is `roi_beta_mode='fixed',
+roi_beta_sqrt=2.0`. Its q=0.2141 is a *measured run-mean outcome*, not a target.
+**A fixed beta produces a time-varying acceptance rate**, because the accepted set
+`{x | mu+beta*sigma >= max(mu-beta*sigma)}` depends on the posterior width, which
+changes across the run.
+
+So "FIX2 ~ q=0.21" and "a quantile arm at q=0.21" are **not the same object**, and
+comparing them as if they were is the same error class as everything else caught
+today. FIX2 may already be a de facto *schedule*.
+
+**Which direction it moves is UNMEASURED.** `roi_summary` stores run-level
+aggregates only — `accept_frac`, `beta_sqrt`, `n_records` — with no per-iteration
+trajectory. Analytically a fixed beta should *narrow* as sigma shrinks, which
+would predict a stall FIX2 does not show; so either the analysis is too simple or
+sigma does not shrink monotonically here. **I cannot resolve this from stored
+data and am not going to guess.**
+
+### Concrete consequence
+
+The peer is about to modify `mf_dro.py` for h123's cost-progress fix. **Logging
+per-iteration `accept_frac` in the same change would close two open gaps at once:**
+their M1 gate's acknowledged inability to see a schedule's *shape*, and this
+question of what FIX2 has been doing all along. Sent to them before they touch the
+file.
+
+**And this sharpens what h123 should compare against.** If FIX2 is already an
+implicit schedule and it is the best arm on record, then the informative contrast
+for an explicit `beta_t` is **h123 vs FIX2**, not h123 vs Q10.
