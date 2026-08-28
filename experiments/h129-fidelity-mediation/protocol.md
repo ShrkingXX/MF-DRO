@@ -122,3 +122,40 @@ registered bars are in regret points and do not port to a normalised score.
 **Pre-committed reading of a null:** if the effect lands below 1.0 I will report
 "does not engage", NOT "trend toward improvement". Recording this because I have
 a live incentive to want the dissociation — it is the more interesting result.
+
+---
+
+## AMENDMENT 3 — P6, the third benchmark (registered before reading the test arm)
+
+The regulariser reading of P5 needs a third benchmark. One exists and is paired:
+h83 `Ackley_10D__MF-DRO` (control) and h86 `Ackley_10D__ROI-Q10`, both seeds
+42-46, at the **same q=0.10** as the Borehole and Hartmann rows.
+
+**Control measured first (control is not the test):** Ackley HF fraction
+**0.9572 +- 0.0190**, with exactly 40 post-init HF queries in all five seeds.
+
+**P6.** The ROI lowers Ackley's HF fraction, >= 4/5 seeds down, effect >= 0.78
+(the weaker of the two shifts already measured, Hartmann's).
+
+### The structural caveat, stated BEFORE the result
+
+40 HF queries x c_H=5.0 = 200.0 = the entire post-init budget. Ackley's control
+spends essentially **all** of its budget on HF; the 1-3 LF queries per run are
+rounding. So Ackley sits against a ceiling, and **the direction of any movement
+is close to forced** — there is almost nowhere to go but down.
+
+**Therefore a DOWN result is weak evidence for the regulariser hypothesis**, and
+I am recording that now rather than after seeing it. The informative content of
+P6 is not the sign but the **magnitude**: whether the shift is comparable to
+Borehole's 0.144 and Hartmann's 0.056, or negligible.
+
+A genuinely discriminating test needs a benchmark whose control sits near the
+middle, where the hypothesis predicts *no* movement. None of the four benchmarks
+does: the controls are 0.883, 0.200, 0.957, and Currin has no ROI arm at all.
+**So the regulariser hypothesis cannot be properly tested with existing data**,
+and I should stop treating P6 as if it could settle it.
+
+Cost ratios for context (c_H:c_L) — Borehole 2:1, Ackley 5:1, Hartmann 8:1. The
+control HF fractions do not order with the cost ratio (Ackley is the most
+HF-heavy despite sitting between the other two), so the mix is not a pure
+consequence of benchmark cost geometry.
