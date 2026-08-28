@@ -5549,3 +5549,21 @@ FIXED: `src/analysis/worker_count.sh` counts only processes invoking
 `worker*.py` WITH job arguments, excluding launchers. Every worker count I
 reported today may have been inflated by one per such launcher -- including the
 transient "16"s I attributed to process turnover, which were more likely this.
+
+### Checkpoints do not record liveness, and that misled my own monitoring
+
+Small but load-bearing. After killing the over-launched H93 batch, 11 checkpoint
+files remained with `phase: "running"` and 0 queries. They were written at job
+start and never updated again, because the writer thread died with the process.
+
+My status query counted them as in-flight and reported "15 h93 runs running" when
+4 were. I only caught it because the ETAs were nonsense (0.0%, 0.3 min).
+
+The fix I applied is to cross-check checkpoints against `ps` output rather than
+trusting `phase`, and to delete checkpoints for jobs that are neither live nor
+finished. All 11 had 0 queries, verified before deletion.
+
+Worth stating because the same trap applies to any post-hoc reading of these
+directories: **a checkpoint's `phase` field records what the job was doing when
+it last wrote, not whether it is alive.** A killed job looks identical to a
+running one.
