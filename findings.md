@@ -10669,3 +10669,58 @@ measured quantity. h123 therefore reports realized q over cost progress
 alongside its regret numbers, whatever they show.
 
 (Identified independently by both sessions; the sharper phrasing is the peer's.)
+
+## Two interventions, two channels, and neither is the one the diagnosis named
+
+**Synthesis, drawing on h113 (mine) and h119/h120 (peer's), verified in both
+directions.**
+
+**h113's BASE cell is sound, measured not assumed.** It substitutes h83's
+`MF-DRO` for h90's `NO-ROI`. Verified where both an `MF-DRO` and a `ROI-OFF` run
+exist at the same seed:
+
+      seed 42:  107 vs 107 queries, max|dx| = 0, |dregret| = 0   (3654df07c vs be7109f81)
+      seed 43:  102 vs 102 queries, max|dx| = 0, |dregret| = 0   (3654df07c vs 2c1b1fe9c)
+
+Bit-identical across three commits. `MF-DRO` and `ROI-OFF` are the same arm under
+two names — which also means **h83's control has been an independent 5-seed
+no-ROI set the whole time**, something both sessions had missed while believing no
+such set existed.
+
+### The channels, now separated
+
+      the ROI acts on the FIDELITY MIX
+        HF 94.0 -> 84.8 (-9.20, 5/5), LF 12.6 -> 31.0 (+18.40, 5/5)
+        count-matched HF quality +17.05, LARGER than the unmatched +15.16,
+        so it is not an artefact of averaging over 9% fewer queries
+
+      the L1 loss does NOT act on the fidelity mix
+        adding L1 to the ROI moves the mix BACK (+1.9 HF, -3.5 LF)
+        and improves regret by a further 2.10 anyway
+
+**h113 said there are two mechanisms; the fidelity measurement says what one of
+them is.** The ROI buys fewer, better high-fidelity queries by spending more on
+low fidelity. L1's channel remains unnamed, and is now known not to be fidelity,
+not to be dispersion (weighted, unmoved), and not to be boundary reach
+(indistinguishable from zero over ten seeds).
+
+### The uncomfortable part
+
+**Neither channel is the one the founding diagnosis named.** The diagnosis
+identified wasted HF budget on low-value regions and prescribed reducing
+dispersion. Measured properly:
+
+  - dispersion **is** ~4x worse in MF-DRO where the objective lives — the
+    diagnosis was right about the property
+  - **no intervention in this project reduces it** — the ROI −0.0013, L1 +0.0045
+    with the wrong sign
+  - the two interventions that work do so through fidelity allocation and
+    something unidentified
+  - and they work **on the benchmark with the least waste** (Borehole median
+    3.2%) while failing on the one with the most (Hartmann 12.5%)
+
+So the honest summary of the whole line of work: **the diagnosis identified a real
+property, prescribed a lever nobody has pulled, and the things that do help act
+elsewhere.** That is a more useful result than a confirmed mechanism would have
+been at this level of confidence, because it says precisely where the next
+experiment should not go.
