@@ -1810,6 +1810,64 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+<section>
+  <p class="kicker">Dose &middot; how the stall depends on the setting</p>
+  <h2>Loosening the region helps &mdash; but only the first notch, and then nothing</h2>
+  <div class="col">
+  <p>If the late stall is caused by the region being too tight, it should get worse the tighter the
+  region is. Four settings have already been run on Borehole with their acceptance rates measured
+  rather than assumed. The test is what fraction of the regret <em>still available</em> at the halfway
+  point each one manages to remove in the second half:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Setting</th><th>Measured acceptance</th><th>Benefit at full budget</th><th>Consistency</th><th>Regret removed in the second half</th></tr></thead>
+    <tbody>
+      <tr><td>Tightest</td><td>0.10</td><td>&minus;4.22%</td><td>1.74</td><td>10.5%</td></tr>
+      <tr><td>Fixed&ndash;width</td><td>0.21</td><td class="win">&minus;4.81%</td><td class="win">4.67</td><td>24.3%</td></tr>
+      <tr><td>Loose</td><td>0.49</td><td>&minus;1.31%</td><td>0.54</td><td>22.1%</td></tr>
+      <tr><td>No region</td><td>1.00</td><td>&mdash;</td><td>&mdash;</td><td>24.5%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>The stall is a step, not a slope.</strong> The tightest setting recovers 10.5% of what
+  was still on the table; every looser setting recovers 22&ndash;24% and they are
+  <em>indistinguishable from one another</em>. Only the extreme comparison separates &mdash; all three
+  neighbouring pairs are ties. So what matters is escaping the tightest setting at all, not how far
+  you go past it.</p>
+  <p>That makes a concrete, falsifiable prediction about the scheduled version now being run: its
+  <em>shape</em> should matter much less than whether it gets clear of the tightest region, and there
+  should be a ceiling &mdash; ending loose should buy nothing over ending slightly loose. If the
+  scheduled run shows a gain that scales with how far it opens, this reading is wrong.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">The version of this table that would have been published</p>
+    <p>Measured as raw regret removed rather than as a share of what remained, the same four settings
+    give 1.60, 3.65, 4.37, 5.19 &mdash; a clean, monotone, entirely convincing dose&ndash;response.
+    <strong>It is an artefact.</strong> Settings that are ahead at the halfway point have less regret
+    left to remove, and the region settings <em>are</em> ahead, so the raw measure is mechanically
+    depressed for exactly the arms the hypothesis predicted would be depressed. The correction was
+    written into the protocol, along with the rule that the corrected measure decides, before any of
+    these numbers existed. <strong>This is the second false positive today that only advance
+    registration caught</strong> &mdash; the other was a measurement instrument that appeared to work
+    and was measuring two of eight dimensions.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">And the setting we have been studying may not be the best one</p>
+    <p>The fixed&ndash;width setting, at a measured acceptance of 0.21, carries the largest effect size
+    in this entire investigation &mdash; 4.67 against 1.74 &mdash; while also being one of the settings
+    that does not stall. Head to head against the tightest setting the two are statistically
+    <strong>tied</strong>, so this is not a claim that it is better; it beats the no&ndash;region
+    control far more consistently, and that is a different statement. It also is not the same kind of
+    object: its width is fixed rather than calibrated, so its acceptance rate <em>varies across the
+    run</em> and the run&ndash;average of 0.21 may be hiding a schedule that has been there all along.
+    The logs record only run totals, so this cannot be resolved from what we have &mdash; which is
+    itself the most useful thing to know, because the code is being modified this hour for another
+    reason and one extra recorded quantity would settle it.</p>
+  </div>
+</section>
+
 <footer>
   <div class="col">
   <p>All figures regenerated from the 100 h83 runs. Simple regret is recomputed from each run&rsquo;s
