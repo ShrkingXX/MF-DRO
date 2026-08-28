@@ -10965,3 +10965,42 @@ The cheap guard is a habit, not a tool: before asserting anything about a shared
 resource, enumerate the OTHER session's holdings explicitly, even when the
 answer seems obvious. `ps` for their workers, `git status` for the tree, the
 file itself for the report — all three were one command away each time.
+
+### Comparison A on Hartmann IS measured — and the answer is no at every setting
+
+Correcting my own clarification from an hour ago, which said "ROI vs no-ROI on
+Hartmann has never been tested with a complete control". It has. The peer caught
+it and I verified independently.
+
+The control was never missing: **h83's `MF-DRO` is `ROI-OFF` under another
+name** — bit-identical, jointly established — and it is complete at 5/5 seeds on
+Hartmann. h84's incomplete ROI-OFF arm was never needed.
+
+Hartmann, seeds 42-46, paired against h83's MF-DRO, `final_regret`:
+
+| arm | realized q | mean | paired | sd | effect | better |
+|---|---|---|---|---|---|---|
+| control | — | 0.251 | — | — | — | — |
+| h84 ROI-Q10 | 0.100 | 0.197 | -0.05 | 0.11 | 0.48 | 3/5 |
+| h111 ROI-Q05 | 0.050 | 0.248 | -0.00 | 0.22 | 0.01 | 2/5 |
+| h84 ROI-ANN | 0.498 | 0.303 | +0.05 | 0.08 | 0.69 | 1/5 |
+
+**Three settings spanning 10x, a complete five-seed control, nothing
+separable.** So the corrected claim is stronger than the one it replaces, not
+weaker: the only demonstrated ROI benefit is on Borehole, and on Hartmann the
+ROI fails to separate at every tightness tried. That now rests on measurement
+rather than on an untested cell.
+
+h122 was terminated as a result — its runs would have reproduced h83's existing
+traces rather than supply a control. Full reasoning and the discarded ~2
+worker-hours are recorded in its protocol.
+
+**A fourth unstated-statistic mismatch.** My paired differences are -0.05 /
+-0.00 / +0.05 (sd 0.11 / 0.22 / 0.08); the peer's are -2.05 / -0.52 / +1.12
+(sd 3.22 / 6.32 / 2.74) — the same three contrasts, same conclusion, scales
+~40x apart. I checked `final_regret`, `hf_regret_curve[-1]` and
+`inference_regret_curve[-1]`: all three agree at 0.2509 for the control, so it
+is not a field choice on my side, and it is unresolved pending their reply.
+After sd-vs-MAD, all-proposals-vs-HF-only and differences-vs-ratios, this is the
+fourth today. **Every one resolved to "both correct, different quantity", and
+every one cost a round trip.**
