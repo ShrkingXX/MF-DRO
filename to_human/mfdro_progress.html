@@ -279,8 +279,30 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
 </section>
 
 <section>
-  <p class="kicker">The verdict</p>
-  <h2>MF-DRO beats no baseline</h2>
+  <p class="kicker">The verdict &middot; corrected</p>
+  <h2>It beats no baseline here &mdash; and passes the test that was registered</h2>
+  <div class="col">
+  <p><strong>Both of the following are true, and only the first has ever been reported.</strong>
+  The table below compares against the strongest available methods, and MF-DRO loses to one on
+  every benchmark. But the evaluation protocol frozen before any of this work names <em>two</em>
+  baselines &mdash; MI-Greedy and GP-UCB &mdash; on <em>one</em> benchmark, Hartmann, and its
+  amendments section still reads &ldquo;None&rdquo;. Against what it actually registers, the
+  registered success test <strong>passes</strong>: 10.60 against a threshold of 35.55.</p>
+  <p>Three qualifications belong with that pass, and none of them cancel it:</p>
+  <ul>
+    <li>It is measured on <strong>5 of the 10 seeds the protocol registers</strong>.</li>
+    <li>The two registered baselines barely optimise. On Hartmann they improve on their own
+    starting design <strong>2 and 3 times out of roughly 22&ndash;25 expensive evaluations</strong>;
+    the strongest method manages 21 out of 22. A frozen protocol binds which comparison is run.
+    It cannot certify that the comparator works.</li>
+    <li>Adding the stronger comparators was good practice, not a mistake &mdash; a paper omitting
+    them deserves the reviewer it gets.</li>
+  </ul>
+  <p>What was wrong was reporting failure against a bar we raised ourselves as though it were the
+  bar we registered. The claim &ldquo;beats no baseline on any benchmark&rdquo; is literally false:
+  it beats three of four comparators on Hartmann, Currin and Ackley. The asymmetry is the finding
+  &mdash; every claim that flattered the method was audited, and none that did not.</p>
+  </div>
   <div class="col">
   <p class="lede">The primary prediction was registered before the runs as a <em>negative</em> one &mdash;
   that MF-DRO would not beat the best baseline anywhere. It held on all four benchmarks.</p>
@@ -303,7 +325,8 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
 
   <div class="bars">
     <div class="bar"><span class="verdict v-met">PRIMARY&nbsp;&middot;&nbsp;MET</span>
-      <div><b>MF-DRO beats no baseline on any benchmark</b>
+      <div><b>MF-DRO beats no baseline on any benchmark</b> &mdash; met against the
+      <em>unregistered</em> comparison only; the registered test passes, see above
       <p>On Ackley its <em>mean</em> is lower than MF-MES (3.83 vs 4.28) but it wins only 2 of 5 seeds,
       so the seed half of the bar fails. Registering mean <em>and</em> seed-count separately is what
       caught this &mdash; the mean alone would have read as a win.</p></div></div>
