@@ -149,3 +149,16 @@ any particular setting on Borehole.
 
 If instead q=0.05 clears the bar in EITHER direction, that is the first evidence
 of a real tightness effect and locates a turning point, which is worth following.
+
+## Pre-flight: the reused control arms resolve and reproduce (checked before results)
+
+h97 compares a new arm against two arms living in **another experiment's**
+results directory. A path or metric drift there would not surface until the
+verdict, and would silently produce the wrong comparison. Checked now:
+
+    ROI-Q10  got [11.56, 13.79, 10.54, 13.11, 12.27]  == h90's reported values
+    NO-ROI   got [17.60, 15.67, 14.52, 18.88, 12.05]  == h90's reported values
+
+All ten reproduce exactly, and `ROI-Q05` correctly resolves to h97's own
+directory (absent, as expected). The reuse is sound; when the treatment lands,
+the only new quantity will be the treatment itself.
