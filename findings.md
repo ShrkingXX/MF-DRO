@@ -12424,3 +12424,52 @@ Hartmann one it was proposed from.
 So the lead is a single-seed effect on one benchmark, contradicted on the other.
 Their own caution ("n=5, high variance, tested properly rather than believed")
 was warranted; this says specifically why.
+
+## h134 P4 — the Hartmann lead does NOT survive. And I left a gap in a gate for the second time today.
+
+CONFIRMATORY, registered before looking at the three new arms. Hartmann `L_loc`
+fractional decline vs the ROI-OFF control, seeds 42-46:
+
+    arm         decline   vs ctrl     sd   effect   less degraded
+    ROI-Q10      -0.579    +0.424  0.854     0.50   3/5   (the arm that suggested it)
+    ROI-FIX2     +0.253    +1.256  0.715     1.76   5/5
+    ROI-ANN      -1.514    -0.511  1.131     0.45   2/5   <- wrong direction
+    ROI-Q05      -0.086    +0.917  1.113     0.82   4/5
+
+    pooled n=20: mean +0.521  sd 1.121  effect 0.47  positive 14/20
+
+**P4 required 3 of 3 new arms in the predicted direction and a pooled effect
+>= 0.5. It gets 2 of 3 and 0.47. FAILS.** The registered falsifier (>= 2 of 3
+going the other way) did not fire either — only ROI-ANN did.
+
+**So the lead does not survive, and this is NOT the first non-null Hartmann
+cell.** An effect confined to 3 of 4 arms, with a pooled effect size below this
+project's weakest bar, is what a real-but-small effect looks like and also what
+noise looks like at n=5. I flagged it as a lead rather than a result an hour ago
+precisely so that this outcome would be available, and it is the outcome.
+
+### The gate had a hole in it, again
+
+P4's pass condition was 3/3; its falsifier was >=2/3 wrong. **A result at 1/3
+wrong falls between them.** That is the second time today — h131's P1 landed at
+0.86 between a 0.5 threshold and a 1.0 falsifier — and both times I wrote the two
+clauses minutes apart without checking they met.
+
+**The rule is not "write a falsifier".** It is: **the pass condition and the
+falsifier must partition the outcome space.** If they do not, some results have no
+registered verdict, and whatever I say about those is authored after seeing them —
+which is the entire thing pre-registration exists to prevent. Three bar-design
+failures today (h131 P1, h134 P4, and h132 P4's void 0.59 clause) against zero
+caught by noticing in advance.
+
+### One observation I am deliberately not building on
+
+ROI-FIX2 is the only arm whose Hartmann `L_loc` **improves** (+0.253, effect 1.76,
+5/5) — and it is also the best Borehole arm by effect size (4.67). It would be
+easy to assemble a story where FIX2's floating acceptance is doing something the
+quantile arms cannot.
+
+**I have no registered prediction for that and it is two observations on the same
+five seeds.** Recording it as an observation with its provenance so that if it is
+ever tested, the record shows it was noticed before it was predicted — and not
+dressed up as a finding in the meantime.
