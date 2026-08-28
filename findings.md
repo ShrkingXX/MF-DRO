@@ -9633,3 +9633,61 @@ combined arm 3.71 points behind. **That reading came from pairing against MF-MES
 at seeds h113 does not use** -- the seed-matching hazard, third appearance
 tonight, and the first that neither session could have caught by reasoning
 because the missing cell had to be run.
+
+## The dispersion argument's EVIDENCE changes completely. Its conclusion survives and improves.
+
+I flagged that Hartmann's dispersion figure needed the same sensitivity check as
+Borehole's. Done, using the same binned first-order estimator:
+
+    Hartmann shares: d0 34.7%  d3 25.9%  d4 33.5%  d2 2.5%  d5 2.5%  d1 0.9%
+
+    Hartmann  UNWEIGHTED  0.0974 -> 0.0927  -4.8%  ratio 0.59  separable
+              WEIGHTED    0.0945 -> 0.0926  -2.0%  ratio 0.20  **NOT separable**
+    Borehole  UNWEIGHTED  0.0730 -> 0.0834  +14%   ratio 1.07  separable
+              WEIGHTED    0.0549 -> 0.0535  -2.4%  ratio 0.33  **NOT separable**
+
+**Measured where each objective actually lives, the ROI changes dispersion on
+NEITHER benchmark.**
+
+### The sign flip was an artifact, and it was load-bearing
+
+The "neither necessary nor sufficient" argument -- built jointly with the peer,
+and which I called the sharpest framing of the session -- rested on a SIGN FLIP:
+dispersion down 10.6% on Hartmann where the ROI fails, up 9.5% on Borehole where
+it works. That flip is what made the argument vivid.
+
+**Weighted, there is no flip. Both are indistinguishable from zero.**
+
+So the evidence is replaced:
+
+    OLD  dispersion moves the WRONG WAY where the ROI works, and the RIGHT way
+         where it fails -> neither necessary nor sufficient
+    NEW  dispersion does not move measurably ON EITHER BENCHMARK, while regret
+         improves by 4 points on one -> the ROI does not operate on dispersion
+         at all
+
+**The conclusion is unchanged and the argument is stronger.** "A quantity the
+intervention does not move cannot be its mechanism" needs no sign-flip
+storytelling and no cross-benchmark comparison. It also no longer depends on
+Hartmann, which h111 and the resolution analysis showed cannot resolve an ROI
+effect at n=5 anyway.
+
+### A number that does not reconcile, flagged not resolved
+
+The peer reported Hartmann dispersion at **-10.6%**; I compute **-4.8%**
+unweighted on h84's ROI-Q10 arm against its own control at seeds 42-46. Same
+sign, factor of two apart. Likely a different arm, control, or query subset
+(all proposals vs HF-only). **Not resolved here** -- flagged to the peer, since
+it is a number in a shared argument and I would rather it be reconciled than
+quietly averaged.
+
+### Fifth instance, and the rule now has teeth
+
+h96 metric choice (caught in advance) | h100 containment (caught after) | the
+peer's bound-frac (caught by me) | h95 Borehole dispersion (mine, self-caught) |
+h95/peer Hartmann dispersion (this entry).
+
+**Every unweighted per-dimension average examined this session has been
+misleading.** Five for five. The rule is no longer "prefer weighted" -- it is
+that an unweighted per-dimension average is a defect until shown otherwise, and
+this project has now shown otherwise zero times.
