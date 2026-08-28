@@ -9861,3 +9861,69 @@ closed it: not the ROI (-0.0013), not L1 (+0.0045, ratio 0.56, the wrong sign).
 the diagnosis's prescription has never actually been tried -- which is a
 different position from its having been tried and failed, and the write-up
 should say so.
+
+## The founding diagnosis HOLDS under weighting — and Borehole reverses the trap's direction
+
+**EXPLORATORY**, verified independently against a peer's measurement with my own
+Sobol weights. MF-DRO vs MF-MES, HF queries, seeds 42-46:
+
+      Hartmann_6D   UNWEIGHTED  0.0974 vs 0.0280   3.48x   paired ratio 2.14
+                    WEIGHTED    0.0873 vs 0.0219   3.99x   paired ratio 2.66
+      Borehole_8D   UNWEIGHTED  0.0783 vs 0.0738   1.06x   paired ratio 0.21
+                    WEIGHTED    0.0627 vs 0.0157   4.00x   paired ratio 1.99
+
+**"MF-DRO's proposals are 3x more dispersed" survives, and is closer to 4x once
+measured where the objective lives — on BOTH benchmarks.**
+
+### The trap does not have a direction, which is worse than a bias
+
+Every previous instance ran one way: unweighted averaging **manufactured** a
+difference that vanished under weighting. **Borehole runs the other way.**
+Unweighted, MF-DRO and MF-MES look identically dispersed (1.06x, paired ratio
+0.21 — nothing). Weighted, MF-DRO is 4x more dispersed.
+
+The mechanism is the mirror image of the cases we had been catching: **MF-MES
+concentrates hard where it matters** (weighted sd 0.0157 against its own
+unweighted 0.0738) **and wanders freely where it does not.** Averaging over all
+eight dimensions averages its discipline away.
+
+So my "defect until shown otherwise" rule was right and my implied reason was
+wrong. I had been treating unweighted averaging as *inflating* differences.
+**It can invent one or erase one depending on where each method spends its
+variance, and the sign cannot be anticipated.** There is no correction factor.
+Five instances all ran one way and we would both have predicted the sixth wrong.
+
+### What it does to the mechanism story — sharpens it
+
+With everything now measured the same way:
+
+      MF-DRO IS over-dispersed where it matters    ~4x, both benchmarks
+      The ROI does NOT reduce that                 weighted -0.0013, ratio 0.33
+      The ROI improves Borehole regret anyway      -3.5 to -4.2, 9-10/10
+
+**The founding diagnosis identified a real property and the wrong lever.** That
+is stronger than "dispersion is not the lever", because it no longer depends on
+dispersion being unmoved *in general* — it rests on a large, real, persistent gap
+that the intervention which demonstrably works does not close.
+
+**And the diagnosis's actual prescription has never been tried.** No intervention
+in this project reduces weighted dispersion: not the ROI (−0.0013), not L1
+(+0.0045, wrong sign). "Reduce dispersion where it matters" is untried, not
+tried-and-failed, and the write-up must say so.
+
+### Consequence for h113, recorded before its results
+
+If h113 comes out shared-bottleneck, **the shared channel cannot be dispersion**,
+because neither arm moves weighted dispersion at all. One candidate explanation
+is ruled out in advance rather than after.
+
+### Third statistic-choice discrepancy tonight
+
+The peer's paired ratios did not match mine until I checked which statistic each
+of us used: they computed paired **differences**, I quoted paired **ratios**.
+Theirs reproduce exactly once matched (2.14, 0.21, 1.99).
+
+That is the third apparent disagreement tonight caused by unstated statistic
+choice — after sd-versus-MAD and all-proposals-versus-HF-only. **Every one
+resolved to "both correct, different quantity", and every one cost a round trip.**
+Naming the statistic in the number is cheaper than reconciling it afterwards.
