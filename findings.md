@@ -5820,3 +5820,75 @@ and it was met. The ROI makes MF-DRO substantially less wasteful; it does not
 make it competitive on this benchmark.
 
 Still open: the Borehole REFINE-100 arm (P4/P5, third seed set) is running.
+
+## H90 CONFIRMATORY: the Borehole ROI gain SURVIVES fresh seeds. P1 MET.
+
+The first intervention this session to pass a clean fresh-seed confirmation with
+its primary bar met. Two others were announced and withdrawn; this one held.
+
+    seed   ROI-Q10   no ROI     diff
+      47     11.56    17.60    -6.05
+      48     13.79    15.67    -1.87
+      49     10.54    14.52    -3.97
+      50     13.11    18.88    -5.77
+      51     12.27    12.05    +0.22
+
+    fresh seeds 47-51   mean -3.49  sd 2.66  ROI better 4/5
+    dev   seeds 42-46   mean -4.22  sd 2.43  ROI better 5/5
+    retention 83%       combined n=10: -3.85, sd 2.44, better 9/10
+
+    P1 (>=4/5 AND negative mean)     MET
+    P2 (margin shrinks vs -4.22)     MET  -- predicted, and it did
+    P3 (still does NOT beat MF-MES)  MET  -- 6.40 vs an ROI mean of 12.25
+
+Drop-one-seed: mean ranges -2.85 to -4.42 and stays negative in all five; wins
+are 3/4 with any of the four winners dropped, 4/4 dropping the loss.
+
+### Pre-registration verified rather than asserted
+
+The P1/P2/P3 bars were committed at **18:54:17** (5950dcd). The earliest h90
+result of ANY arm was written at 19:31:10, and the earliest ROI-Q10 treatment
+result at 19:54:20 -- **37 and 60 minutes later.** Amendment 4 (19:56:25, with 2
+of 5 ROI pairs on disk) changed control flow only: `wins>=4 and d.mean()<0`,
+the 4.22, and the 6.40 are all byte-identical across that diff.
+
+CORRECTION to that amendment's commit message: it says "1/5 ROI pairs complete"
+and the true figure was 2/5. Seed 48 landed 14 seconds before the commit. The
+statement was accurate when I checked and stale when I committed; no bar was
+touched either way, but a pre-registration claim should be right.
+
+### Why this one survived when two others did not -- registered in ADVANCE
+
+h90's protocol gave a reason for expecting Borehole to hold where Hartmann
+failed, and it is worth recording that the reason was stated before the runs:
+
+  Hartmann's gain came from ONE ROI setting of three; the other two were neutral
+  or harmful. Borehole's appeared at ALL THREE tested (-4.81 fixed beta, -4.22
+  q=0.10, -1.31 q~0.49), making it a property of APPLYING an ROI rather than of
+  the setting that got selected.
+
+That is a pre-registered discriminator between a real effect and a
+setting-selection artifact, and it predicted both outcomes correctly. It is the
+second claim this session derived from a measurement taken BEFORE the claim, and
+the second such claim to hold -- against seven refutations among claims that
+were not.
+
+### What this does NOT establish, stated as plainly as the result
+
+**The north star is unchanged: MF-DRO still beats no baseline on Borehole.** The
+ROI moves it from 15.74 to 12.25; MF-MES is at 6.40. The gain is real, it is
+83% retained at fresh seeds, and it closes roughly a quarter of a gap that
+remains large. P3 was registered as a NEGATIVE prediction precisely so this
+could not be quietly forgotten, and it was met.
+
+The result is also Borehole-only. Across benchmarks the ROI is -3.49 here,
+-1.62 on Hartmann (3/5, flip withdrawn), -0.09 on Ackley (1/5), and +0.11 on
+Currin (0/5, HARMED). One benchmark improving is a finding about that
+benchmark until something explains why the others do not.
+
+### It does not depend on the inference-time question either
+
+This is the ROI applied to the TEACHER -- the imitation-channel version the code
+audit describes. h94 asks whether applying it to the QUERY does better. H90's
+result stands regardless of how h94 comes out, and h94's P3 now has a concrete
+number to beat: |B-A| = 3.49.
