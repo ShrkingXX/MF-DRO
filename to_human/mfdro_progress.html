@@ -1053,7 +1053,7 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 
 <section>
   <p class="kicker">The result this investigation was for</p>
-  <h2>On the one benchmark where it really loses, the region removes 57% of the deficit</h2>
+  <h2>On the one benchmark where it really loses, the region improves it by about four points</h2>
   <div class="col">
   <p>Ten seeds, matched to the comparison&rsquo;s own seed set for the first time. Every seed improves.</p>
   </div>
@@ -1105,8 +1105,20 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     to the reference on 7 of 10, with mean and median both against it. The narrowing is from &ldquo;loses
     by 7.18&rdquo; to &ldquo;loses by 3.10&rdquo;.</p>
     <p><strong>And this is not the best setting.</strong> It uses the value every earlier number used,
-    which halving improves. So 57% is a floor, not a ceiling &mdash; and the better setting has not been
-    run at these seeds.</p>
+    which halving improves &mdash; though a later re-test found that halving&rsquo;s advantage does not
+    hold on a third set of seeds.</p>
+    <p><strong>Correction, same day &mdash; the percentage was the wrong summary.</strong> This section
+    first reported the improvement as &ldquo;57% of the deficit&rdquo;. A comparator score that had never
+    been run was then measured, and it turns out the reference method&rsquo;s own result on this
+    benchmark <em>varies by 4.5 points across seed sets</em> &mdash; more than the improvement being
+    measured. So the percentage swings from <strong>34% to 79%</strong> depending on which seeds you
+    pair, and 57% is one of three equally valid choices.</p>
+    <p>The instability is entirely in the denominator. Across three independent seed sets the method
+    scores 15.8 / 15.7 / 15.0 without the region and 11.6 / 12.3 / 11.1 with it &mdash; so the
+    improvement is <strong>4.2 / 3.5 / 3.9 points, a spread of 0.7</strong>, the most reproducible
+    quantity in this work. The reference it was being divided by spans 4.5. <strong>Dividing a stable
+    effect by an unstable baseline manufactures a headline that moves while the result does not.</strong>
+    The improvement is about four points; that is the number that travels.</p>
     <p>One thing worth noticing in the table: the reference method is better on average and
     <em>far</em> less reliable, ranging from 0.83 to 15.44 across seeds against the region arm&rsquo;s
     8.08 to 14.73.</p>
