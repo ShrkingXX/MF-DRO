@@ -201,3 +201,29 @@ is adopted from the peer's point because it is about how to measure, not about
 what to expect, and it would be needed under any hypothesis. It also lets the
 result speak to their before/after-cost-100 prediction rather than averaging
 across it.
+
+---
+
+## AMENDMENT 3 (2026-08-28) — manipulation check. Filed before launch.
+
+Adopted from the peer's h132 design; I should have had it and did not.
+
+**GATE M1 (blocking, and it can void the headline regardless of direction).**
+ROI-WIDEN ramps q from 0.05 to 0.50 by cost progress, so at low cost it is
+TIGHTER than ROI-Q10's constant 0.10, and at high cost looser. The check:
+
+  - At post-init cost 25, ROI-WIDEN's realized `roi_summary.accept_frac`
+    trajectory must be BELOW ROI-Q10's, and its regret must not differ from
+    ROI-Q10's by more than the seed-to-seed spread. Early on, a tight ramp and a
+    constant q=0.10 should behave similarly, with the ramp marginally tighter.
+  - Realized acceptance must track the configured ramp. Given the quantile
+    calibration hits its target to three decimals at q=0.05, 0.10 and 0.493
+    (measured), a ramp that does not move acceptance is not a ramp.
+
+**If M1 fails, the implementation is wrong and h123's comparison is void
+regardless of which way it fell.** Recorded now so that a favourable result
+cannot be kept while an unfavourable one is blamed on implementation.
+
+This is the check that would have caught ROI-ANN's bug on its first run: that
+arm's realized acceptance never moved from ~0.49 across a configured 0.50->0.05
+anneal, and nobody compared configured against realized until today.
