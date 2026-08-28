@@ -108,3 +108,36 @@ interventions that both help do not share this one.
   substitution at the three seeds where it is currently untested; a failure
   voids this table.
 - P1 and P1b are the same fact under a fixed cost budget, not two.
+
+## AMENDMENT 3'S INVALIDATION CONDITION: DISCHARGED (2026-08-28)
+
+h120 read its control from h83's `MF-DRO` under a measured-equivalence exception,
+and Amendment 3 registered a specific condition that would void the result: the
+three ROI-OFF runs launched at seeds 44-46 must reproduce h83's MF-DRO
+bit-identically at exactly the seeds where the substitution was untested.
+
+**They do.**
+
+| seed | fresh n | stored n | differing | fresh commit | dirty | stored commit |
+|---|---|---|---|---|---|---|
+| 44 | 137 | 137 | **0** | 26a9b9cd1 | True | 3654df07c |
+| 45 | 140 | 140 | **0** | 15203e5cd | True | 3654df07c |
+| 46 | 137 | 137 | **0** | ee5ecafcc | True | 3654df07c |
+
+Bit-identical on fid, x and y at every query, across **three different commits**,
+every one of them with the working tree dirty (the h94/h102 patches), against a
+stored trace from a fourth.
+
+This does more than clear h120:
+
+1. **`MF-DRO` and `ROI-OFF` are the same arm**, now verified at 5 of 5 Borehole
+   seeds (42-43 previously, 44-46 here) rather than 2.
+2. **h117's GATE G0 is extended.** G0 established the current tree reproduces one
+   stored trace (Ackley seed42, 83 queries). This adds three Borehole runs on
+   three further commits — 414 more queries, still 0 differing.
+3. **Everything downstream of the substituted control stands**: h120's confirmed
+   P1/P1b/P3, the -4.22% ROI benefit row, and h128's control.
+
+The check was registered before the runs finished and its failure condition was
+stated in advance. It was not designed for purposes 1-3 above, which is what
+makes it worth those conclusions.
