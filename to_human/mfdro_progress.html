@@ -428,6 +428,37 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 </section>
 
 <section>
+  <p class="kicker">The premise that justified deleting it</p>
+  <h2>It was removed for failing a test it still fails &mdash; while working</h2>
+  <div class="col">
+  <p>The region of interest was tried, judged to be starving the model of good training examples, and
+  deleted. The stated reason: a region that never contains anything near the optimum cannot teach the
+  model where to look. A diagnostic was added to catch exactly that, recording how much of the accepted
+  region lands near the target.</p>
+  <p>On Borehole that diagnostic reads <strong>0.0000</strong>. The region contains nothing at all near
+  the optimum &mdash; and it produces the only confirmed improvement in this entire investigation, 3.49
+  points, holding at seeds it was never tuned on.</p>
+  <p><strong>So the premise is false as stated.</strong> Whatever the region does to earn that gain, it
+  is not supplying near-optimal examples, and a method was discarded on a criterion it can fail while
+  working. Two separate explanations for <em>what</em> it does instead have now been tested and neither
+  survived: it is not that more room is available to improve (the region works on the benchmark with the
+  second least room, and fails on the one with ten times more), and it is not that the region sits
+  closer to the target (on Borehole it sits <em>farther</em> away than an unfiltered draw).</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">Held open rather than closed</p>
+    <p>That containment diagnostic measures plain distance across all eight dimensions, four of which
+    carry 0.4% of the outcome between them &mdash; the same unweighted measure that reverses conclusions
+    elsewhere in this work. So the second explanation is <em>untested</em>, not refuted, and the numbers
+    it produced should not be read as weak evidence either way. Settling it needs the diagnostic
+    recomputed with weights, which the stored data cannot support: the region&rsquo;s accepted points are
+    summarised and then discarded, so it is a re-run, not a re-analysis.</p>
+    <p>What survives regardless of that: the region contains nothing near the optimum by the measure
+    that was used to condemn it, and works anyway.</p>
+  </div>
+</section>
+
+<section>
   <p class="kicker">Code audit &middot; the deeper confound</p>
   <h2>The ROI has never been applied to a real query</h2>
   <div class="col">
