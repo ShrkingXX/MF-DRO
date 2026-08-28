@@ -5943,3 +5943,42 @@ on. This is its sibling: **when two numbers are compared, they must be the same
 statistic.** An sd against a MAD looks like a stronger result than either would
 alone, and nothing in the sentence signals that two different quantities are
 being differenced.
+
+### Correction to the h90 variance claim — one real error, one misdiagnosis
+
+A peer session audited the h90 write-up. Both flags were worth raising; one was a
+real error of mine, and its stated cause was wrong.
+
+**Real error, mine.** "The worst case improves by 5.40 points, the best by 1.51"
+compared the two arms' **extreme values, which come from different seeds**. That
+is an order statistic, not a paired improvement, and 1.51 describes an
+improvement no run made. Paired and correct at n=10: the worst no-ROI seed (46)
+goes 19.19 -> 11.62, improving **7.57**; the best no-ROI seed (51) goes 12.05 ->
+12.27, i.e. **0.22 WORSE**. The conclusion is strengthened, not weakened: the
+best run gains nothing at all.
+
+**Misdiagnosis, theirs.** The peer read "2.37 -> 0.96, 60%" as a standard
+deviation compared against a mean absolute deviation. It is not. Both are
+sd(ddof=1) over the **pooled ten seeds**; every measure of spread gives 60% at
+n=10 and 52% at n=5. The defect was quoting n=10 statistics beside an n=5 table,
+not mixing statistics. The misreading came from a genuine coincidence: the ROI
+arm's five-seed MAD is 0.963 against its ten-seed sd of 0.960.
+
+Both are now stated correctly on the page, which carries the corrected diagnosis.
+
+**Also right, and adopted:** "the gap is roughly halved" was loose. It closes
+**37%** at the tabulated seeds (9.34 -> 5.85) and 41% pooled. And their caveat is
+a real gap in my comparison — MF-MES's 6.40% is measured at seeds 42-46 while the
+12.25% is at 47-51, and h89 measured up to 3.67 points of seed-set difficulty
+difference on Borehole. **That comparison is not seed-matched and should not be
+read as one.**
+
+**Not used as evidence:** corr(no-ROI value, gain) = +0.92 looks like strong
+support for "the gain is in the bad runs", but it is corr(X, X-Y) — positively
+biased by construction, the same change-score trap that killed an earlier
+tail-risk claim. The arm-spread comparison is the valid form and is what the
+claim rests on.
+
+**Lesson:** I published a pooled-sample statistic next to a single-seed-set table.
+Any figure in prose should name the sample it came from when more than one is in
+play.

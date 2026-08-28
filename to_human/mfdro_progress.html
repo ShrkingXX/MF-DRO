@@ -665,12 +665,20 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   predicts.</p>
   <div class="callout">
     <p class="kicker">Correction, same day</p>
-    <p>This paragraph first read &ldquo;60% (2.37 to 0.96)&rdquo; with the worst seed improving 5.40 and the
-    best 1.51. Those numbers do not reproduce from the five values in the table above. The 2.37 is the
-    no-region arm&rsquo;s standard deviation; the 0.96 is the region arm&rsquo;s <em>mean absolute
-    deviation</em> &mdash; two different statistics compared against each other, which manufactured the
-    extra eight points of drop. The corrected figures are above. The conclusion is unchanged and in fact
-    slightly stronger, since the best seed does not improve at all.</p>
+    <p>This paragraph first read &ldquo;60% (2.37 to 0.96)&rdquo; with the worst seed improving 5.40 and
+    the best 1.51, and neither figure reproduces from the five values in the table above.</p>
+    <p><strong>The worst/best pair was wrong outright.</strong> It compared the two arms&rsquo;
+    extreme values, which come from <em>different seeds</em>, so it described an improvement that no
+    single run made. The best seed does not improve at all. The corrected, paired figures are above,
+    and the conclusion is slightly stronger for it.</p>
+    <p><strong>The spread pair was a mismatched sample, not a mismatched statistic.</strong> 2.37 and
+    0.96 are both the standard deviation at the same ddof, computed over the pooled <em>ten</em>
+    seeds rather than the five tabulated here: across ten seeds every measure of spread gives 60%,
+    and across the five shown every measure gives 52%. An intermediate version of this note said a
+    standard deviation had been compared against a mean absolute deviation. That diagnosis was
+    wrong. It arose from a coincidence &mdash; the region arm&rsquo;s five-seed mean absolute
+    deviation is 0.963, almost exactly its ten-seed standard deviation of 0.960. The five-seed
+    figures are quoted above so they can be checked against the table.</p>
   </div>
   <p>An earlier claim of lower tail risk was discarded during this investigation for comparing a
   method against a difference computed from it, which is negative by construction. This measurement
