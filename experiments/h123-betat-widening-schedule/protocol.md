@@ -278,3 +278,58 @@ trajectory. So M1 tests the ramp's MEAN, not its SHAPE. A schedule that jumped
 straight to 0.275 and stayed there would pass. That is a real limitation and it
 is stated rather than papered over; catching shape would require logging the
 per-iteration series, which is a code change I am not making mid-experiment.
+
+---
+
+## AMENDMENT 5 (2026-08-28) — comparator. Filed before launch, and deliberately
+## NOT changing the registered primary.
+
+The peer observes that **ROI-FIX2 is the best constant arm on record**, and I
+verified it: vs the ROI-OFF control on Borehole, seeds 42-46, paired, rel% of
+optimum @`cost_curve` 200 —
+
+  ROI-Q10   -4.224%, sd 2.433, effect 1.74, better 5/5
+  ROI-FIX2  -4.814%, sd 1.030, **effect 4.67**, better 5/5
+  ROI-ANN   -1.311%, sd 2.440, effect 0.54, better 3/5
+
+FIX2 carries the largest effect size in this project. But head-to-head it is
+**tied** with Q10: -0.589%, sd 1.707, effect 0.35, better in 3/5, per-seed
+-0.37/-1.35/-3.10/+0.80/+1.07. Its 4.67 comes from an sd 2.4x smaller, not from
+a larger benefit. Both facts are recorded; neither alone is the story.
+
+They suggest the informative contrast for an explicit `beta_t` is h123 vs FIX2
+rather than vs Q10, since beating the incumbent best is a stronger result.
+
+**DECISION: the registered primary comparator stays ROI-Q10. FIX2 is added as a
+SECONDARY, reported alongside.**
+
+Reasons, in order of weight:
+
+1. **Changing a locked primary comparator after seeing which arm performs best
+   is result-shaped**, however good the argument. The whole point of registering
+   it was to fix it before the numbers were in view. That FIX2's superiority was
+   measured by someone else does not make it external to the decision.
+2. The two arms are **tied head-to-head**, so "the incumbent best" is a
+   description of an effect size, not of a benefit. Swapping to chase a 4.67
+   would be swapping to chase a smaller variance.
+3. **FIX2 is not a constant-tightness arm at all.** Its `roi_beta_sqrt=2.0` is
+   fixed; its acceptance is a run-mean OUTCOME of 0.2141 with a per-seed range of
+   0.162-0.265 (measured, h125). A fixed beta gives a time-varying acceptance
+   rate, because the accepted set depends on posterior width. So comparing a
+   quantile ramp against FIX2 contrasts two things that differ in BOTH schedule
+   and parameterisation — a worse-controlled contrast than against Q10, whose
+   acceptance is pinned to 0.100 on every seed to three decimals.
+
+Adding FIX2 as a secondary costs nothing (its runs exist) and lets h123 speak to
+their point without the primary being chosen after the fact.
+
+### The deeper observation, which I am NOT resolving here
+
+If a fixed beta yields time-varying acceptance, **ROI-FIX2 may already be an
+implicit schedule** — and it is the best arm on record. Its direction is
+UNMEASURED: `roi_summary` stores run-level aggregates only, so nothing
+distinguishes a rising from a falling acceptance trajectory. Analytically a fixed
+beta should narrow as posterior width shrinks, which predicts a stall FIX2 does
+not show (late-recovery 24.34% against Q10's 10.51%). Either that analysis is too
+simple or sigma does not shrink monotonically here. **Not guessed at; it needs
+per-iteration logging, below.**
