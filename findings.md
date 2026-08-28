@@ -13,8 +13,10 @@
 #   benchmarks once MF-MES and SF-DRO are included, and neither is in the frozen
 #   protocol. [UPDATED by H105: at the registered n=10 the frozen test PASSES by
 #   6x, and Hartmann's ordering FLIPPED -- MF-DRO 5.32 vs MF-MES 6.84 on the
-#   mean, a TIE paired (5/10, median +0.22). "Not the best on any benchmark" is
-#   no longer supported on Hartmann. Three cells remain at n=5, untested.]
+#   mean, a TIE paired (5/10, median +0.22). CORRECTED AGAIN: all four cells
+#   already have n=10 -- Hartmann TIE (5/10), Ackley TIE (5/10, median +0.11),
+#   Currin NIL (both within 0.01% of optimum), Borehole LOSS (2/10, median +8.30,
+#   median>mean so not one seed). TIED ON TWO, NIL ON ONE, LOSING ON ONE.]
 #   The former wording, "MF-DRO beats no baseline on any of the four
 #   benchmarks", is FALSE on the protocol's own definition and is superseded --
 #   see "THE HEADLINE IS WRONG AS WORDED" below. Any occurrence of it later in
@@ -8183,3 +8185,56 @@ in the tooling built to check it. **Convenience globbing across experiment
 directories is unsafe in this repo and the table above uses explicit paths only.**
 It surfaced because Hartmann's h83 value is one I happen to know by heart; a
 benchmark I knew less well would have passed unnoticed.
+
+## CORRECTION: every cell already has n=10. "Three cells untested" was wrong.
+
+I wrote that h83's table is n=5 per cell with exactly one cell doubled and three
+untested against resampling. **All four cells already have a second seed set.**
+Verified here with EXPLICIT paths — h83 for 42-46; h89's CONTROL + h91 for
+Hartmann; h89's CONTROL + h92 for Borehole; h93 for Currin and Ackley — and
+every figure reproduces the concurrent session's table exactly:
+
+    benchmark     vs              n   MF-DRO   base   paired   median   better
+    Hartmann_6D   MF-MES         10     5.32   6.84    -1.52    +0.22    5/10
+    Borehole_8D   MF-MES         10    15.42   8.24    +7.18    +8.30    2/10
+    Currin_2D     MF-MI-Greedy   10     0.01   0.00    +0.01    +0.00    3/10
+    Ackley_10D    SF-DRO         10     3.62   3.46    +0.17    +0.11    5/10
+
+**Nothing new was measured.** Every number comes from a run that already existed
+and was already reported: Hartmann's 5/10 from h91, Borehole's from h92, Currin
+and Ackley from h93 four hours ago. What had not been done was putting them in
+one table, which is exactly why "three cells untested" looked true to me while
+being false.
+
+### The corrected verdict against the strongest comparator per benchmark, at n=10
+
+    Hartmann   TIE    5/10, median +0.22, mean -1.52 (one seed at -15.09)
+    Ackley     TIE    5/10, median +0.11
+    Currin     NIL    both methods within 0.01% of the optimum; solved
+    Borehole   LOSS   2/10, median +8.30 -- and the median EXCEEDS the mean, so
+                      unlike Hartmann this is not one seed carrying it
+
+**Tied on two, nil on one, losing on one.** That is materially different from
+"not the best method on any of the four benchmarks", which is what this file
+said all evening, and different again from my "one cell tested, three untested".
+
+Limits that travel with it: n=10, no p-values and none appropriate. Ackley's
+comparator SF-DRO is this method's own single-fidelity ablation, not an external
+baseline. Currin is saturated. Borehole is the one real deficit and it is robust.
+
+### A methods rule, adopted from the concurrent session's own error
+
+Its first pass at this table globbed `experiments/*/results/{bench}__{method}__
+seed{s}.json` and took the first match. That returned Hartmann MF-DRO at 42-46
+as **12.06** against h83's **7.99** — silently a different experiment's run of
+the same nominal config, on different code. It caught it only because it knew
+h83's number by heart.
+
+That is the cross-experiment comparability hazard it documented this afternoon
+(h75 vs h83 differing 9.28 pts on identical seeds), reproduced inside the tooling
+built to check for it.
+
+**STANDING RULE: convenience globbing across experiment directories is BANNED,
+not discouraged.** Any cross-experiment table must name its source path per cell.
+The table above does. Both of today's instances of this hazard were caught by
+someone recognising a familiar number, which is not a control.
