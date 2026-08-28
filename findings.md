@@ -9753,3 +9753,56 @@ benchmarks inherits this.
 
 **Rule adopted:** an unweighted per-dimension average on these benchmarks is a
 defect until shown otherwise. Shown otherwise: zero times in five.
+
+## The five-instance lesson, encoded in an instrument instead of a note
+
+The peer verified the dispersion correction against its own Sobol weights and
+reached the same conclusion from independent numbers, and reconciled its -10.6%:
+it was **all proposals** where mine was **HF queries only** -- a different
+statistic, not an error. Both were in its output and it quoted the larger; the
+HF-only one is the relevant statistic, since the founding diagnosis is about
+wasted HF budget specifically.
+
+Its generalisation is the part worth keeping: **the noise is produced by the
+thing being measured.** The low-variance dimensions dominate the average because
+they are the ones the optimiser wanders in -- nothing penalises it for doing so.
+So this is not a mistake anyone can remember their way out of, and "remember to
+weight" was demonstrably insufficient: it was written down mid-session and then
+violated twice, once by each session.
+
+**So the weights now live in the instrument.** `tools/perdim.py`:
+
+    shares(bench)                 measured first-order shares, cached
+    agg(per_dim, bench)           sensitivity-weighted, the default
+    agg(v, bench, unweighted=True) allowed only with the explicit flag, and
+                                   prints to stderr why it is probably wrong
+
+Its diagnosis for each benchmark is the sharpest form of the whole problem:
+
+    Borehole_8D   4 of 8 dims carry 1.26% of the variance between them
+                  -> an unweighted mean gives them **50% of the weight**
+    Hartmann_6D   1 of 6 dims carries 0.87%
+                  -> an unweighted mean gives it 17% of the weight
+
+**On Borehole, half the measurement weight goes to dimensions carrying one and a
+quarter percent of the objective.** That single line explains all five instances
+and why four of them were on Borehole.
+
+Verified against the hand calculation it replaces: weighted 0.0548 -> 0.0535
+(-0.0013), matching the correction entry exactly; the unweighted path returns
++0.0104, the misleading value, after warning.
+
+### Why a tool rather than a rule
+
+This is the second lesson tonight moved from prose into code, and both were
+lessons that had already been written down and then violated:
+
+    tools/compare_traces.py  refuses to compare a run against itself -- the
+                             degenerate case that produced h106's Q3 identity
+                             AFTER the hazard was documented
+    tools/perdim.py          refuses an unweighted aggregate silently -- after
+                             "prefer weighted" was written down and violated twice
+
+A rule in a findings file is read by whoever remembers to look. A refusal in a
+function is enforced on whoever calls it. **Where a failure has recurred after
+being documented, the documentation is not the fix.**
