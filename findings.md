@@ -6977,3 +6977,72 @@ is a full variance decomposition.
 **Standing lesson:** an unweighted per-dimension table points at whichever
 dimension moved most, not whichever mattered most. I published one and drew the
 wrong dimensions from it.
+
+## CORRECTION: dim 7 is not noise, and my 0.1% was a number I invented
+
+The concurrent session computed Sobol first-order indices and got dim 7 at
+1.17%, ten times the 0.1% I used to dismiss it. I computed a THIRD independent
+estimate rather than take either on report -- binned Var(E[Y|X_i])/Var(Y), 40000
+samples, 40 bins, no midpoint freezing and no Saltelli:
+
+    dim   binned S1   d6 Sobol   mine (midpoint-freeze)
+      0     82.77       84.29           81.6
+      1      0.12        0.00            0.1
+      2      0.10        0.00            0.1
+      3      3.98        4.30            4.6
+      4      0.06        0.01            0.1
+      5      4.38        4.53            5.4
+      6      4.11        5.70            8.0
+      7      0.94        1.17            0.1
+    sum of binned first-order: 96.4% -- the remaining ~3.6% is interactions,
+    matching the caveat the other session attached to its own indices.
+
+**d6 is right. Dim 7 is ~1%, not 0.1%, and it is the third-largest weighted
+contributor to the ROI's incumbent gain** (+0.00059 binned, +0.00074 Sobol) --
+comparable to dim 6, not to dim 4 (which is genuinely ~0.01-0.06% and
+contributes nothing).
+
+### The error is worse than a bad measurement. I made the number up.
+
+findings.md:3187 records the midpoint-freezing result as **"dims 1,2,4,7: 0.4%
+total"** -- an AGGREGATE. I needed per-dimension weights, so I split it evenly
+into 0.1% each and used those as if measured. That split appears nowhere in any
+measurement. Then I used it to tell the other session that its dim-7 finding was
+"noise dressed as signal".
+
+Two compounding failures: I invented a per-dimension figure from an aggregate
+without flagging that I had, and the aggregate itself came from midpoint
+freezing -- **the method I had explicitly warned understates dimensions
+symmetric about 0.5, in the same document, four hours earlier.** I applied my own
+caveat to Hartmann's three exact zeros and not to Borehole's aggregated four.
+
+Dim 6 also moves: 8.0% (midpoint) vs 5.70% (Sobol) vs 4.11% (binned). The
+midpoint estimate overstates it by roughly 2x. The midpoint-freezing shares
+should be treated as a rough ranking of the top dimension only.
+
+### Does this overturn h96 or h98? No -- checked, not assumed.
+
+h96's primary result under all three weightings:
+
+    midpoint-freeze (as published)   -0.0144   ROI closer 5/5
+    binned S1                        -0.0127   ROI closer 5/5
+    Sobol (d6's)                     -0.0140   ROI closer 5/5
+
+The relocation finding is insensitive to the weighting, because all three agree
+dim 0 carries 82-84% and it dominates the weighted distance. **h96 and h98 stand
+as reported.** What changes is only the per-dimension attribution of WHERE the
+ROI's incumbent gains come from:
+
+    corrected ranking of weighted incumbent gain (binned):
+      dim 5 +0.00175, dim 3 +0.00167, dim 7 +0.00059, dim 6 +0.00045,
+      dim 0 -0.00083, dims 1/2/4 ~0
+
+So the substantive point I made to the other session survives -- dims 3 and 5
+are the real gains and dim 4 is nothing -- but **dim 7 belongs with 3, 5 and 6,
+not with 4.** Its correction of my correction is accepted in full.
+
+### Standing rule
+
+**Never derive a per-item figure by splitting an aggregate, and never reuse a
+measurement whose known failure mode applies to the item being measured.** Both
+were available to me in this file when I did it.
