@@ -1794,3 +1794,31 @@ affirmative answer to the primary question this project has produced.
 
 Amended h123 before launch: its grounds are gone and it tests the harmful
 direction. Original prediction left visible.
+
+## 2026-08-28 — h126 launched, after a launch incident I caused
+
+Registered h126 to probe BELOW the plateau h125 revealed: q=0.02 vs q=0.10, a 5x
+contrast — deliberately the range h125 proved has power, rather than the 2x
+contrasts that produced the false "tightness is a null axis" prior. Checked
+feasibility before locking: roi_raw_pool=2000 and _N_POOL=600 mean q=0.02 needs
+~15 draws against MAX_DRAWS=40, so no pool starvation and no silent top-up from
+unfiltered draws.
+
+INCIDENT, reported. My first launch went out against a worker whose ROI-Q02 arm
+did not exist: the patch asserted a 3-space anchor against a 1-space file and
+refused, correctly — and I started the launcher in the same command block
+without checking that it had. Four jobs spawned for an unresolvable arm, died on
+the ARMS lookup, wrote nothing, killed within a minute. Cost: worker-seconds.
+
+Second instance of the h94 pattern. h94 launched 8/8 runs that died on a
+NameError because the ON path had never been executed, and gate G3 was added
+afterwards specifically to stop that. I did not apply my own gate.
+
+The lesson is narrower than "run the gate": **a patch that refuses is only a
+safety net if something checks whether it refused.** The assertion worked. I
+ignored its result by putting the launch beside it.
+
+Relaunched after importing the worker module and asserting ARMS['ROI-Q02'] is
+exactly {'use_roi':True,'roi_beta_mode':'quantile','roi_target_accept':0.02},
+with ROI-Q10 and ROI-OFF unchanged and BUDGET/SPEC intact. All five runs alive
+and checkpointing.
