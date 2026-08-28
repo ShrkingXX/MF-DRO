@@ -1051,3 +1051,29 @@ h125_tightness_dose_response:
     Amended before launch, original prediction left visible, direction flipped to
     "ROI-WIDEN is WORSE". Tension recorded: GP-UCB's beta_t grows (widens);
     measurement says widening hurts.
+
+METRIC_DEFINITION_resolved_2026_08_28:
+  frozen_metric: "Final simple regret at matched cost (PROTOCOL.md)."
+  READ_POINT_MATTERS_MORE_THAN_UNITS: >
+    Result files store TWO cost curves. cost_curve is post-init (2 -> ~201,
+    budget 200); cumulative_cost_curve includes the initial design (42 -> 241
+    Borehole, -> 294 Hartmann). Reading "at cost 200" on the cumulative curve
+    truncates every run at ~2/3 of its budget. This is NOT a rescaling: h125's
+    Borehole effect moves 5.69 -> 1.65, Hartmann's 0.58 -> 0.02.
+  correct_read_point: "cost_curve @ 200 -- the budget the worker terminates on."
+  units: >
+    Frozen metric is % of optimum. known_optimal_value = -3.32237 (Hartmann),
+    -309.5756 (Borehole). Percentage = 30.1x raw on Hartmann. EFFECT SIZES ARE
+    INVARIANT to this scaling; only quoted magnitudes change.
+  overshoot_is_negligible: >
+    cost_curve end-cost mean 200.29 (17 Borehole runs), 201.18 (17 Hartmann),
+    max 205. Under 2.5%. The peer's attribution of the scale gap partly to
+    overshoot is NOT supported; units alone explain it. Their "178x" is a
+    near-zero-denominator artefact (third such today).
+  h125_VERIFIED_SAFE: >
+    Under matched cost via cost_curve @200: +9.018 raw, effect 5.69, 5/5 --
+    unchanged. In frozen units +2.91% of optimum, sd 0.51%, same effect.
+  h120_unaffected: >
+    Uses HF/LF counts and count-matched mean HF y; no regret field. P2 would be
+    overshoot-sensitive but P2 FAILED, so nothing claimed rests on it.
+  convention_going_forward: "State the read point alongside the statistic: 'raw @cost_curve 200'."
