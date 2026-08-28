@@ -628,6 +628,9 @@ open_questions:
   open is a LITERATURE question, not a code one: whether the reference''s own budget regime makes that
   prior reasonable there. It changes no number here, only how charitably the baselines should be described.'
 - 'Boundary aversion: causal test (change the output parameterisation) not run.'
+- Does a widening beta_t schedule recover the 3.588% that erodes after cost 100? Predicted yes, and predicted
+  NOT to help before cost 100. The peer's h123 is the registered test; my prediction is EXPLORATORY and
+  post-hoc on the curve that suggested it.
 h116_relevance_blindness:
   status: COMPLETE. Locked prediction NOT supported (gate 0.17 / 0.10, needed 1.0).
   compute: zero new runs (re-analysis of h83).
@@ -948,24 +951,23 @@ peer_h129_P3_answered:
     (0.9372). Naming which fraction was the difference between an answer and a plausible wrong number.
 
     '
-current_direction: 'h129: mechanism scoping. ESTABLISHED — the ROI improves HF query quality on Borehole
-  (effect 2.66, 5/5), which overturns my ''acts elsewhere'' summary and agrees with the peer''s count-matched
-  h120 P3 from an independent statistic. ESTABLISHED — the fidelity mechanism is Borehole-specific (1.65
-  / 0.78 / 0.49 across Borehole/Hartmann/Ackley), so it is not a property of the ROI. REFUTED — my own
-  ''regulariser toward the middle'' reading; the most extreme control moves least. PENDING — h127 q=0.30
-  tests the held-out dose predictions P1/P2.'
-
+current_direction: 'h131: the ROI is FRONT-LOADED and then STALLS. Full benefit inside the first ~12 HF
+  queries (-4.68% of optimum at 12 HF vs -4.22% at 94); advantage then erodes +3.588% between cost 100
+  and 200, effect 1.40, 5/5, because the ROI stops improving (1.605%) while the control does not (5.193%).
+  This reframes h125 -- it varied CONSTANT tightness and cannot speak to a SCHEDULE -- and gives the paper''s
+  beta_t subscript a measured motivation: tight early, wider late. Falsifiable prediction handed to the
+  peer before their h123 launches. PENDING: h127 q=0.30 (P1/P2), h123 beta_t.'
 h120_amendment3_DISCHARGED_2026_08_28:
-  result: >
-    Fresh ROI-OFF runs at Borehole seeds 44,45,46 are BIT-IDENTICAL to h83's
-    stored MF-DRO (137/140/137 queries, 0 differing), across three different
-    commits (26a9b9cd1, 15203e5cd, ee5ecafcc), all dirty=True, vs stored
-    3654df07c.
+  result: 'Fresh ROI-OFF runs at Borehole seeds 44,45,46 are BIT-IDENTICAL to h83''s stored MF-DRO (137/140/137
+    queries, 0 differing), across three different commits (26a9b9cd1, 15203e5cd, ee5ecafcc), all dirty=True,
+    vs stored 3654df07c.
+
+    '
   consequences:
-    - "MF-DRO == ROI-OFF verified at 5/5 Borehole seeds, not 2."
-    - "Extends h117 gate G0 by 414 queries on three further commits."
-    - "h120 P1/P1b/P3 stand. The -4.22% benefit row stands. h128's control stands."
-  note: >
-    Registered as an invalidation condition BEFORE the runs finished, and not
-    designed for the three consequences above -- which is what makes it able to
-    support them.
+  - MF-DRO == ROI-OFF verified at 5/5 Borehole seeds, not 2.
+  - Extends h117 gate G0 by 414 queries on three further commits.
+  - h120 P1/P1b/P3 stand. The -4.22% benefit row stands. h128's control stands.
+  note: 'Registered as an invalidation condition BEFORE the runs finished, and not designed for the three
+    consequences above -- which is what makes it able to support them.
+
+    '

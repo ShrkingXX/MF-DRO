@@ -1898,3 +1898,37 @@ designed for.
 
 Published the synthesis. Still in flight: h117 (last run), h126 (q=0.02),
 h127 (peer's q=0.30). None can change the generality finding — all Borehole.
+
+## 2026-08-28 (cont.) — h131: the ROI is front-loaded and then stalls
+
+Registered h131 before computing, to ask whether Hartmann is different in KIND or
+merely TRUNCATED — since four mechanisms x four benchmarks now have exactly one
+positive cell each, always Borehole, which is descriptive and explains nothing.
+
+**P1 INDETERMINATE.** It landed at 0.86, inside a gap I left between my 0.5
+threshold and my 1.0 falsifier. A protocol-design flaw, third of its class here.
+
+**The motivating story is refuted anyway**, and the gate would not have told me:
+Borehole's benefit does not accumulate. −4.68% of optimum at 12 HF queries,
+−4.22% at 94. It peaks at −7.81% around 48 and declines. What improves
+monotonically is precision, sd 5.417 → 2.433 — so a rising effect size across a
+run is variance reduction, not signal growth.
+
+**EXPLORATORY follow-up, and the most useful thing this round:** the advantage
+erodes +3.588% of optimum between cost 100 and 200, effect 1.40, 5/5 seeds. The
+mechanism is a stall — over that span the control's regret falls 5.193% while the
+ROI's falls 1.605%. Front-loaded gain, then a plateau the control eats into.
+
+**This reframes h125 and the paper's `beta_t`.** h125 varied a CONSTANT tightness
+and establishes that uniformly wider is worse; it says nothing about a schedule.
+Tight-then-wide is compatible with both. The ROI's value sits where a widening
+schedule stays tight, and its stall sits where such a schedule relaxes. Sent to
+the peer with a falsifiable prediction BEFORE their h123 launches, so the grounds
+are visible in advance rather than assembled afterwards.
+
+**METHODOLOGICAL:** the 0.59-regret-point separability bar is scale-dependent —
+0.191% of optimum on Borehole, 17.758% on Hartmann, ~93x stricter. It was set in
+a Borehole context and h111 applied it to Hartmann and Ackley. Checked rather than
+assumed: it flipped no verdict, because every cross-benchmark null also fails the
+unit-free criteria. One near-miss, my own. Rule extended — a bar is portable only
+to the statistic AND the benchmark scale it was measured on.
