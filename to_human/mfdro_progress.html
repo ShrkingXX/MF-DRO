@@ -329,6 +329,43 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
   its optimum is exactly 0, so the relative metric divides by zero and does not apply there.</p>
   </div>
 
+  <div class="col">
+  <h3>At twice the seeds, that table no longer says what it said</h3>
+  <p>Every one of those four cells has since been measured on a second, independent set of seeds.
+  Assembling them &mdash; no new runs, just runs that already existed and had never been put in one
+  place &mdash; changes three of the four verdicts:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Benchmark</th><th>Strongest comparator</th><th class="n">MF-DRO</th><th class="n">Comparator</th><th class="n">Median gap</th><th class="n">Seeds won</th><th>At 10 seeds</th></tr></thead>
+    <tbody>
+      <tr><td>Hartmann 6D</td><td>MF-MES</td><td class="n">5.32</td><td class="n">6.84</td><td class="n">+0.22</td><td class="n">5 of 10</td><td class="win">tie</td></tr>
+      <tr><td>Ackley 10D</td><td>SF-DRO <span class="dim">(own ablation)</span></td><td class="n">3.62</td><td class="n">3.46</td><td class="n">+0.11</td><td class="n">5 of 10</td><td class="win">tie</td></tr>
+      <tr><td>Currin 2D</td><td>MF-MI-Greedy</td><td class="n">0.01</td><td class="n">0.00</td><td class="n">+0.00</td><td class="n">3 of 10</td><td class="dim">nil &mdash; both solved</td></tr>
+      <tr><td>Borehole 8D</td><td>MF-MES</td><td class="n">15.42</td><td class="n">8.24</td><td class="n">+8.30</td><td class="n">2 of 10</td><td>real deficit</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Tied on two, nil on one, losing on one.</strong> Not &ldquo;second everywhere&rdquo;, which
+  is what five seeds per cell showed. Hartmann actually <em>reverses</em>: at five seeds the comparator
+  led 6.62 to 7.99; at ten the method leads 5.32 to 6.84 on the mean &mdash; while the median still
+  favours the comparator by 0.22, and the mean is carried by a single seed worth &minus;15. Mean and
+  median disagreeing in sign is the definition of a tie, and both are reported here for that reason.</p>
+  <p>Borehole is the one honest deficit, and it is the robust one: its median gap <em>exceeds</em> its
+  mean, so unlike Hartmann it is not one seed doing the work.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">How this nearly went wrong, twice</p>
+    <p>The first attempt at this table searched every experiment folder for a matching filename and took
+    whatever turned up first. It returned one method&rsquo;s score as 12.06 where the real figure was
+    7.99 &mdash; a different experiment&rsquo;s run of the same nominal configuration, on different code.
+    It was caught only because someone happened to know the right number by heart. The table above names
+    an explicit source file for every cell, and searching across experiment folders for convenience is
+    now banned rather than discouraged. Both times this hazard appeared today it was caught by
+    recognition, which is luck, not a control.</p>
+  </div>
+
   <div class="bars">
     <div class="bar"><span class="verdict v-met">PRIMARY&nbsp;&middot;&nbsp;MET</span>
       <div><b>MF-DRO does not beat the <em>best</em> baseline on any benchmark</b> &mdash; met against the
