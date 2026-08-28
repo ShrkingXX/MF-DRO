@@ -1,4 +1,4 @@
-# H104 — does the pre-registered success test survive the seed count it registered?
+# H105 — does the pre-registered success test survive the seed count it registered?
 
 LOCKED BEFORE ANY RUN. ID claimed via `tools/claim_id.sh`.
 
