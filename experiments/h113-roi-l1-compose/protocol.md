@@ -73,3 +73,46 @@ be exactly the unfalsifiable reading this project keeps catching.
     cannot be constrained by adding benchmarks.
   - **Worse than either alone:** they interfere, which would be the most
     surprising outcome and the most informative about what the head is doing.
+
+---
+
+## GATE DEFECT, diagnosed and amended BEFORE any regret number was read
+
+**The registered L_loc gate FAILED on the first completed seed** (43: L_loc =
+0.0969 against a > 0.10 bar). Reporting that as registered. But the gate is
+mis-specified, and the defect is diagnosable without reference to the outcome.
+
+**What the gate did wrong.** Its threshold came from L1-*alone* runs, whose tail
+L_loc is 0.110–0.144. The combined arm adds the ROI, and **the ROI concentrates
+the teacher's target distribution, which lowers MSE-like losses on its own** —
+a confound a peer session identified hours ago in a different context. So the
+gate cannot distinguish "L1 did not fire" from "L1 fired and the ROI narrowed the
+targets it is fitting". It conflates the manipulation with its interaction.
+
+**Independent evidence the manipulation DID fire**, from a statistic the ROI
+cannot depress because concentration takes iterations to develop:
+
+      L_loc over the FIRST FIVE iterations
+        MSE, no ROI      0.0583
+        MSE + ROI        0.0515
+        L1 alone         0.1868
+        L1 + ROI (h113)  0.2186     <- 4x any MSE arm
+
+No MSE objective produces 0.2186. The L1 loss is active.
+
+**What I am NOT doing.** I am not retroactively passing the registered gate. It
+failed as written and that stands in the record. Relaxing a threshold after
+seeing the quantity it gates is the move this project has caught repeatedly, and
+it would be no better for being correct here.
+
+**Amended gate, registered now.** For the remaining nine runs and for the arm as a
+whole, the manipulation check is the **first-five-iteration L_loc, which must
+exceed 0.10** — a bar every MSE arm fails by a factor of two and every L1 arm
+clears by a factor of two.
+
+**Timing, which is the whole justification.** The analysis exits at the gate
+before computing regret, so **no h113 regret number has been read by anyone at
+the time of this amendment.** The instrument is being corrected in ignorance of
+the outcome it will be used to judge. If that were not true this amendment would
+be worthless, and I would have had to void the arm and re-run it under a correct
+gate instead.

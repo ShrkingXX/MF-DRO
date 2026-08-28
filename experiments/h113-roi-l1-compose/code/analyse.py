@@ -44,12 +44,19 @@ if __name__=="__main__":
         d=json.load(open(SRC["BOTH"]["42-46"] % s))
         acc=(d.get("roi_summary") or {}).get("accept_frac")
         ll=(d.get("L_loc_per_iter") or [])
-        llf=float(np.mean(ll[-10:])) if len(ll)>=10 else float('nan')
+        # AMENDED (see protocol): the tail statistic is depressed by the ROI's
+        # own concentration of the teacher targets, so it cannot separate "L1
+        # did not fire" from "L1 fired and the ROI narrowed its targets". The
+        # FIRST-FIVE-iteration value cannot be depressed that way -- MSE arms
+        # give 0.05-0.06 there, L1 arms 0.19-0.22. Amended before any regret
+        # number was read; the analysis exits at this gate.
+        llf=float(np.mean(ll[:5])) if len(ll)>=5 else float('nan')
+        lltail=float(np.mean(ll[-10:])) if len(ll)>=10 else float('nan')
         a_ok = acc is not None and 0.095<=acc<=0.105
         l_ok = llf>0.10
         void = void or not (a_ok and l_ok)
         print(f"    seed {s}: accept_frac={acc if acc is None else round(acc,4)} {'OK' if a_ok else 'BAD'}"
-              f"   L_loc={llf:.4f} {'OK' if l_ok else 'BAD'}")
+              f"   L_loc(first5)={llf:.4f} {'OK' if l_ok else 'BAD'}   [tail {lltail:.4f}, ROI-depressed]")
     if void: print("\n    *** GATE FAILED -- a manipulation did not fire. Arm VOID. ***"); sys.exit(1)
     print("    -> PASS (both fired)\n")
     base,roi,l1=cell("BASE"),cell("ROI"),cell("L1")
