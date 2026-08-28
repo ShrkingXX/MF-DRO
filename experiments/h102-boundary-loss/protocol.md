@@ -125,3 +125,33 @@ modified and I read it as my own sandbox leaking into the tree. It was not — a
 five pending `src/` hunks are the peer's H94 instrumentation, applied on their
 side. Checking whose change it was took one command; asserting it was mine would
 have been a false alarm about a shared file while 15 workers ran.
+
+## Pre-flight: P1's measurement function verified, and the reference values it will be judged against
+
+Checked before results, since P1's verdict depends entirely on `bound_frac` and a
+bug there would produce a confident wrong answer.
+
+    boundary dims: [0, 1, 3, 4, 5, 6, 7]  -- 7 of 8
+    NO-ROI    per-seed  0.0467 0.0622 0.0639 0.0320 0.0594   mean 0.0529
+    ROI-Q10   per-seed  0.0506 0.0673 0.0556 0.0810 0.0680   mean 0.0645
+
+Both reproduce, to four decimals, the figures measured independently earlier in
+this investigation. The control path (`h90/.../NO-ROI`) resolves.
+
+**A reference point that sharpens P1's reading.** The ROI *already* raises
+boundary-reaching from **5.29% to 6.45%** — a 1.16-point, 22% relative increase,
+purely from constraining where the teacher looks. So the question h102 answers is
+not "can anything raise it" but **how the loss function compares to the ROI as a
+lever on the same quantity**:
+
+  - L1 raising it by **much more than 1.16 points** would say the output
+    parameterisation is the bigger lever, and that the ROI was working around a
+    limitation of the head rather than fixing it.
+  - L1 raising it by **about the same** would say the two act on the same
+    bottleneck and are unlikely to compose.
+  - L1 **not** raising it would fail P1 outright, and P2 would then say nothing
+    about boundary aversion in either direction.
+
+None of these were registered as predictions — P1 registers only the direction,
+and P2 registers no direction at all. This is stated so the result is read
+against a number rather than against an impression.
