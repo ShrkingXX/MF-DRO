@@ -13666,3 +13666,21 @@ two sessions today, and the eighth found by the other one.
 The pattern the whole day converges on: **the checking is the instrument.** One of
 nine was caught unaided, and that one only because a protocol had been written to
 name in advance the claim its result could retract.
+
+## The recurring loop was still firing after the stop — cancelled
+
+After the user's instruction to stop, the 17-minute autoresearch cron **re-issued
+the standing "continue autoresearch" prompt**. I did not act on it: the user's
+most recent direct instruction was to stop, and a recurring scheduler re-sending
+an old prompt is not a new instruction.
+
+**Job `6646b35a` was still live.** The peer session reported having cancelled that
+exact job id when they stopped; `CronList` showed it running. Whether their cancel
+did not take or they cancelled a different handle, **the stop was incomplete on
+the automation side while both sessions believed it was complete.** Cancelled now.
+
+Worth recording as its own failure mode: **"I stopped" and "the thing that
+restarts it is stopped" are different claims**, and today they came apart. A
+session can halt its own work and leave a scheduler that will re-start it, and the
+prompt it re-sends is indistinguishable from a genuine instruction except by its
+provenance.
