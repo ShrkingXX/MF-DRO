@@ -82,3 +82,43 @@ intervention cheaply if it deserves killing.
   relevance would improve regret.
 - Data source is h83-main-comparison ONLY (4 bench x 5 method x 5 seeds,
   seeds 42-46). No cross-experiment globbing.
+
+---
+
+## AMENDMENT 1 (2026-08-28) — coordinate scale. Filed AFTER first computation.
+
+DISCLOSURE: the first run of this protocol was executed and its numbers are
+reported in analysis.md as SUPERSEDED. This amendment was written after
+seeing them. It is filed because the measure was confounded, not because
+the numbers were unwelcome.
+
+The protocol said "X = non-init HF queries" without fixing the coordinate
+scale. Stored `x` is NOT on a common scale across benchmarks:
+
+  Borehole_8D  domain widths [0.1, 4.99e4, 5.25e4, 120, ...]  -- RAW units
+  Hartmann_6D  domain widths [1, 1, 1, 1, 1, 1]               -- unit cube
+
+So on the PRIMARY benchmark, s_j = sd(X[:,j]) is dominated by each
+dimension's box width, which is a constant of the benchmark, identical for
+every method and every seed. The normalised profile p therefore measured
+the domain box, not the policy. This explains the otherwise implausible
+stability of the superseded result (rho = -0.405, sd 0.02 across seeds, for
+BOTH methods): both were largely reading off the same fixed box.
+
+CORRECTION: normalise to the unit cube before computing dispersion,
+  Z = (X - domain_min) / (domain_max - domain_min),
+using `get_benchmark(f"{bench}_HF")["domain_min"/"domain_max"]`, the same
+source `tools/perdim.py` uses for S1. All of steps 2-4 then run on Z.
+This makes Borehole and Hartmann commensurate and removes the box constant.
+
+The hypothesis, prediction, gate (>=1.0), primary/secondary/degenerate
+assignments and limitations are UNCHANGED. Only the coordinate scale changes.
+
+## AMENDMENT 2 (2026-08-28) — sample-size floor. Filed at the same time.
+
+The superseded run also exposed that non-init HF query counts on Hartmann
+are small and highly variable (as few as 8 for MF-DRO seed42, vs 25 for
+MF-MES seed42). A per-dimension sd over n=8 points in d=6 is too noisy to
+rank. Runs with fewer than 15 non-init HF queries are now reported with
+their n and EXCLUDED from the paired statistic; the exclusion count is
+reported. Borehole (n ~ 79-99) is unaffected.
