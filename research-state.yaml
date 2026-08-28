@@ -62,6 +62,25 @@ concurrent_sessions:
     - read-only cross-checks and stress tests of completed arms
   unclaimed_and_open:
     - >-
+        [REPLICATED 2026-08-28 by h107] q=0.05's advantage over q=0.10 SURVIVES a
+        second seed set: -1.57 at 4/5 (seeds 42-46) against h97's -1.52 at 4/5
+        (47-51) -- the two sets agree to 0.05 pts, 103% retention. Pooled n=10:
+        vs no-ROI -5.40 at 10/10; vs Q10 -1.54 at 8/10, |mean|/sd 0.88, clearing
+        both the 0.59 separability bar and the 0.5-sd effect-size bar. FIRST
+        result this session to return at full size on its first re-test. h111 is
+        now testing whether q=0.05 also works OUTSIDE Borehole, since the
+        'Borehole-only' limitation rests entirely on the q=0.10 arms.
+    - >-
+        [REPLICATED 2026-08-28 by h108] the L1 location loss. Regret -2.34 at 5/5
+        (42-46) against h102's -2.08 at 4/5 (47-51); pooled n=10 mean -2.21,
+        9/10, |mean|/sd 1.24. Second effect to replicate at full size, and still
+        MECHANISTICALLY UNEXPLAINED -- both mechanism predictions about it failed.
+        h108's P2 predicted the boundary direction from h102's MEASUREMENT and
+        failed too (2/5 vs 4/5), because that measurement was itself unseparable
+        (pooled -0.56 at 6/10, |mean|/sd 0.25). NEW STANDING RULE: a measurement
+        is only a basis for prediction once it clears the same separability bar a
+        result would have to clear.
+    - >-
         [ANSWERED 2026-08-28 by h97] the q < 0.10 question. q=0.05 BEATS the
         confirmed q=0.10 on Borehole: paired -1.52, 4/5, clearing the
         |mean|>0.59 AND >=4/5 separability bar registered in advance. Q05 vs
