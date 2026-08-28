@@ -5567,3 +5567,71 @@ Worth stating because the same trap applies to any post-hoc reading of these
 directories: **a checkpoint's `phase` field records what the job was doing when
 it last wrote, not whether it is alive.** A killed job looks identical to a
 running one.
+
+## CODE AUDIT: the ROI has never been applied to a real query. Not once.
+
+Not an experimental result -- a fact about the implementation, verified by
+reading the execution path. It reframes every ROI number in this file.
+
+### The path
+
+Real queries come from ONE call, `src/policy/mf_dro.py:3090`:
+
+    x_t, ell_t = self.dt.propose_mf(...)
+
+and inside `propose_mf` (`src/model/decisionTransformer.py`), with
+`use_candidate_scoring=False` -- the setting EVERY experiment in this project
+used, because pool+argmax is excluded as a fix:
+
+    x_t = self.action_head(h).clamp(0.0, 1.0)
+
+Between that call and the query being issued, the only modifications are
+FIDELITY overrides (the cold-start HF warmup and h85's HF floor). **No ROI
+symbol appears anywhere in the real-query path.** Every `roi_candidates`
+reference sits inside `simulate_mf_trajectory` -- the teacher rollout that
+GENERATES TRAINING DATA -- or in config plumbing that passes ROI settings into
+it (lines 2486-2500). The other four `propose_mf` call sites are diagnostic
+probes that do not affect the query.
+
+### What this means for every ROI result reported here
+
+The ROI restricts the pool the TEACHER draws its actions from. The student is a
+regression head that emits x directly and is never told the ROI exists. So the
+ROI reaches a real query only through imitation: teacher proposes in-ROI ->
+those become `actions_x` -> `L_loc = MSE(x_pred, actions_x)` -> the head's
+weights shift -> the emitted x moves *somewhat* toward where the ROI was.
+
+Every ROI effect in this project is therefore a **second-order effect through a
+lossy imitation channel**, not the ROI heuristic as the DRO paper defines it.
+Sec 4.2's X_hat is a CONSTRAINT ON THE QUERY; what was implemented is a
+constraint on the teacher's demonstrations.
+
+This is the best structural explanation on hand for the ROI's signature: real
+but small on Borehole, negligible on Ackley, actively harmful on Currin, and
+withdrawn on Hartmann. An intervention filtered through imitation should be
+weak and inconsistent across problems, which is exactly what was measured. It
+also fits h88's reframing -- MF-DRO builds a BETTER global surrogate than
+MF-MES and fails to convert it into queries. The ROI aims at that conversion
+step and then never touches it.
+
+### Registered honestly: this does NOT mean "the ROI works, we just wired it wrong"
+
+Three things must not be over-read here:
+
+1. The ROI-on/ROI-off runs really are different, so the imitation channel does
+   carry signal. The question is how much, not whether.
+2. Nothing here rescues a withdrawn claim. h87's Hartmann failure and h89's HF
+   floor failure stand exactly as recorded.
+3. This predicts an inference-time ROI should be STRONGER. It does not predict
+   the sign. A constraint that excludes the DT's preferred point can easily hurt
+   -- Currin is already harmed by the training-only version.
+
+### The trap this walks toward, named in advance
+
+"Enforce the ROI at inference" can be implemented as: draw candidates, keep the
+in-ROI ones, pick one. If the picking is by acquisition score, that IS pool+
+argmax, which is excluded -- the contribution would be erased and the result
+meaningless. Any inference-time ROI must keep the DT as the decision-maker: the
+ROI may only say which points are ADMISSIBLE, never which admissible point is
+best. h94 is designed around that line, with a control that detects if I cross
+it accidentally.
