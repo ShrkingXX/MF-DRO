@@ -1710,3 +1710,44 @@ down. Flagged as a definition mismatch, not a claimed error.
 
 Launched all three h120 ROI-OFF control runs (seeds 44, 45, 46) behind the
 slot-polling launcher. h117's four Borehole arms are 42 min into ~83.
+
+## 2026-08-28 — the annealing bug, and testing the ROI where the waste is
+
+Went looking for whether the paper's `beta_t` subscript had ever been tested.
+h84 has a `ROI-ANN` arm configured `roi_accept_start=0.50, roi_accept_end=0.05`,
+so it looked answered. It is not.
+
+**The anneal never ran.** `_prog = n_real_iter / T_real` with `T_real =
+bo_iterations = 4000`, against runs that terminate on a cost budget of 200 and
+reach ~104 HF observations on Borehole, ~18 on Hartmann. Realized q moved 1.1
+points on Borehole and 0.13 on Hartmann, out of a configured 45. ROI-ANN is a
+constant q~0.49 arm — the loosest ROI in the project.
+
+findings.md already recorded it as "ROI-ANN (q~0.49)". The realized value had
+been measured and written down without anyone asking why a 0.50->0.05 schedule
+was sitting at 0.49. The defect and its own evidence have been adjacent in the
+file for some time.
+
+Every "annealed ROI" statement is void, and the paper's beta_t is still
+untested. The direction also matters and cuts against the project's prior:
+acceptance is monotone INCREASING in beta, GP-UCB's beta_t GROWS with t, so a
+faithful schedule WIDENS the ROI over the run — the reverse of ROI-ANN's intent
+and of the whole q=0.10/q=0.05 tightening programme.
+
+Did NOT edit `mf_dro.py`: it is the one shared tree and 10 runs are live. Asked
+the peer to hold off too, and put two design questions to them before I register
+the schedule experiment (cost-based progress variable; widening vs tightening).
+
+Launched **h122**: completes h84's Hartmann ROI-OFF control (seeds 44-46 — that
+arm holds only 42-43, the same shortfall as its Borehole side) so the primary
+question can be tested on the benchmark h121 showed the waste lives on. The
+locked prediction is a NULL, with grounds, and pre-commits that any arm clearing
+the bar gets reported as prominently and needs separate confirmation.
+
+Also caught a problem I had created: h120's and h122's control runs write to
+their own directories while the arms they compare against live in h84 — the
+banned cross-experiment pairing. Declared an explicit exception before any of
+those runs produced a file: they are h84 arm completions (byte-identical worker,
+config, budget, spec; tree passed G0), will be merged into h84's results with a
+per-run provenance manifest, and the merge is withdrawn if any run's commit
+fails an empty-diff check at merge time.
