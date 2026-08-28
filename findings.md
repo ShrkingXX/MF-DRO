@@ -9253,3 +9253,54 @@ confirmation and is actually just variance being briefly quiet.
 **Standing rule to add:** *n* seed sets agreeing does not license a claim; the
 bar has to be applied to the pooled sample, and a claim registered at n=5 and
 confirmed at n=5 is still a claim about ten seeds, not about the method.
+
+## H111: "the ROI works only on Borehole" is a fact about the ROI, not about q=0.10
+
+**CONFIRMATORY**, 10/10 runs, G3 gate passed on measurement (accept_frac
+0.0498–0.0501 on every run).
+
+      Hartmann_6D   Q05 vs no-ROI  -0.52, sd 6.32, better 2/5   NOT separable
+      Ackley_10D    Q05 vs no-ROI  -0.09, sd 0.73, better 2/5   NOT separable
+
+Neither clears the 0.59 bar registered before the runs, and both split 2/5.
+
+**So two different tightness settings now fail on both benchmarks.** q=0.10 gave
+−1.62 (3/5) on Hartmann and −0.09 (1/5) on Ackley; q=0.05 gives −0.52 (2/5) and
+−0.09 (2/5). **Borehole-only is a property of the region heuristic on these
+benchmarks, not an artefact of an untuned threshold** — which is what the
+experiment was registered to decide, and it decided it in the direction that
+leaves the limitation standing.
+
+**P2 (Ackley) MET as registered** — I predicted no separable improvement on the
+grounds that −0.09 at 1/5 is an *absent* effect rather than a weak one, and that
+halving the acceptance rate is not a route from absent to separable. That held.
+
+**P1 (Hartmann) was registered with no direction**, and the answer is "no
+separable effect". Worth noting the reason is not that the effect is small but
+that it is **unresolvable**: sd 6.32 across five seeds, spanning −9.52 to +8.02.
+Hartmann's q=0.10 result had the same character — magnitude clearing, split
+failing. **At n=5 this benchmark cannot resolve an ROI effect of any plausible
+size**, which is a fact about the measurement, not about the method, and it means
+neither the q=0.10 nor the q=0.05 Hartmann number should be quoted as evidence
+either way.
+
+### What this closes, and what it costs
+
+**Closes:** the most-repeated limitation in this investigation is now *tested*
+rather than assumed. Before h111 it rested entirely on q=0.10 arms; it now rests
+on two settings spanning a 2× range, on both benchmarks where a difference could
+in principle be resolved.
+
+**Costs:** the hoped-for outcome — that a better setting would make the ROI work
+elsewhere and thereby make the mechanism identifiable from more than one
+benchmark — did not happen. **The mechanism remains constrained by exactly one
+benchmark**, which is the peer's standing point and h111 does not move it.
+
+### Premise qualification, recorded before the result landed
+
+h111's protocol motivated the retest as "a setting known to be stronger". h110
+reversed that at a third seed set while h111 was running, so I qualified the
+premise in the protocol **before** these numbers existed: h111 tests *a second
+tightness setting, not a better one*. That makes this null more informative than
+it would otherwise be — two settings failing, rather than one setting failing at
+a value that might have been wrong.
