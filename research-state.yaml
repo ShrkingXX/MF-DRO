@@ -30,9 +30,9 @@ concurrent_sessions:
     - h85-teacher-refinement   # owns the launcher and its analysis
     - h88-surrogate-vs-data    # has results
   claimed_by_session_B:
-    - h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds 47-51
-    - h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific
-    - h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)
+    - "h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds 47-51"
+    - "h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific"
+    - "h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)"
     - h93-currin-ackley-seeds  # REGISTERED + CODED, NOT LAUNCHED (gated on h90 finishing).
                                # Closes the last gap: Currin and Ackley have never been
                                # measured at a second seed set. If both deficits fail to
@@ -164,7 +164,7 @@ constraints:
       use_candidate_scoring=True is NOT an acceptable fix (human-directed):
       pool+argmax is not the contribution.
   - use_roi=False must stay bit-identical (gated at every commit).
-  - MF-DRO defaults in force: M=3, n_roi_candidates=600, refinement OFF.
+  - "MF-DRO defaults in force: M=3, n_roi_candidates=600, refinement OFF."
   - num_workers x threads <= 15.
   - No p-values at n<=5. Protocol commits BEFORE result commits.
 
@@ -260,4 +260,4 @@ open_questions:
   - MI-Greedy and MF-GP-UCB under-optimise on Ackley/Hartmann (beat their own
     initial design 0.8-3.0 times out of 20-40 HF queries). Cause unresolved;
     candidate is the reference's inflated prior mean maxY+2*rangeY.
-  - Boundary aversion: causal test (change the output parameterisation) not run.
+  - "Boundary aversion: causal test (change the output parameterisation) not run."
