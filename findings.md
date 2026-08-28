@@ -5816,8 +5816,13 @@ form of the test, and it is the form used here.
 
 MF-DRO with the ROI reaches 12.25% on Borehole at seeds 47-51 against MF-MES's
 6.40%. **The gap is roughly halved, not closed.** P3 registered this in advance
-and it was met. The ROI makes MF-DRO substantially less wasteful; it does not
-make it competitive on this benchmark.
+and it was met.
+> **[SUPERSEDED below]** "Roughly halved" is loose: the ROI closes **37%** of the
+> gap at the tabulated seeds (9.34 -> 5.85) and 41% pooled. That comparison is
+> also NOT seed-matched — 6.40% is measured at seeds 42-46 and 12.25% at 47-51.
+
+The ROI makes MF-DRO substantially less wasteful; it does not make it competitive
+on this benchmark.
 
 Still open: the Borehole REFINE-100 arm (P4/P5, third seed set) is running.
 
@@ -6833,8 +6838,14 @@ is exactly on target:
       ROI effect      -0.001 -0.018 -0.011 +0.042 +0.033 +0.040 +0.011 +0.063
 
 **The ROI improves reach on five of eight dimensions, and its four largest gains
-are all boundary dimensions** (7, 3, 5, 4). It does not improve dim 0 because
-there is nothing to improve — both arms are already at 1.000.
+are all boundary dimensions** (7, 3, 5, 4).
+> **[SUPERSEDED below]** This ranks RAW gains and is misleading. Weighted by
+> measured sensitivity, the real gains are dims **3 and 5**; dim 4 carries 0.01%
+> of variance and contributes nothing. The dim-1 residual likewise carries ~0%
+> and cannot explain the gap.
+
+It does not improve dim 0 because there is nothing to improve — both arms are
+already at 1.000.
 
 **Dimension 1 is where every method fails.** x*_1 = 0, the lower bound, and no
 arm gets past ~0.48. That single dimension is the clearest surviving expression
@@ -7260,6 +7271,10 @@ the registry and the claim is the creation**. `tools/claim_id.sh <slug>` scans
 `experiments/` for the highest hNNN, tries to create the next, and on failure —
 which is exactly the lost-race case — retries with the following number. Two
 sessions racing cannot both succeed.
+> **[FALSE — corrected below]** `mkdir` fails only on an EXACT name match, so two
+> sessions racing for the same number with DIFFERENT slugs both succeed — which
+> is the only case that has ever occurred. Fixed with a slug-independent marker
+> under `experiments/.ids/hNNN`.
 
     tools/claim_id.sh roi-tightness    ->  experiments/h102-roi-tightness
 
