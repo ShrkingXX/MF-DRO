@@ -1275,3 +1275,33 @@ architecture rewrite. The head is already 83-98% of the way, so the levers are
 to sharpen centring (a sensitivity-weighted L_loc, one flag) or to widen the
 output — and widening is no longer obviously wrong, because h95 and h96 showed
 more dispersion arriving alongside better regret.
+
+## 2026-08-27 ~22:15 — the dose, and a bar that passed on noise
+
+h84 had run three ROI tightness settings on Borehole and their regret outcomes
+were already known, so the mediation claim from h96/h97 could be tested against
+a four-level dose instead of a single on/off contrast. Registered first, because
+the interesting feature was that regret is NOT monotone in tightness — the
+fixed-beta arm is looser than q=0.10 and scores better — so if centring mediates
+it had to inherit that shape.
+
+It appeared to. GAPSD ranked the four arms exactly as regret does, inversion
+included, and the mechanical bar printed MET. Then I checked whether the two
+arms at the top are actually separable, because they differ by 0.02. They are
+not: paired mean −0.018 against a per-seed sd of 0.169, better on 2 of 5. The
+inversion is noise, in the mechanism and probably in the regret too.
+
+So T2 is recorded as MET, as registered, and as uninformative at the position
+that motivated it. An ordering bar over four items always produces an ordering;
+passing it means nothing unless the adjacent pairs are separable. That is the
+same defect as the M1 bar on a floored measure, wearing different clothes, and
+it is now a standing rule.
+
+What survives is still worth having. Over the three levels that ARE resolvable
+— no ROI, annealed, tight — centring improves monotonically and unanimously
+(5/5 at both steps) and regret follows in the same order. Centring mediates the
+dose where the dose can be measured at all.
+
+It also quietly removes a claim: q=0.10 was never shown to beat q≈0.21. They are
+tied on regret and on mechanism. Calibration's case is controllability across
+benchmarks, which is what it always was, and not superiority on Borehole.

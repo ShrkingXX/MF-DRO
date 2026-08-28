@@ -76,7 +76,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 21:5x, H97 -- boundary aversion is a SPREAD failure; h94 running
+last_updated: 2026-08-27  # 22:1x, H98 -- centring mediates the ROI dose; h94 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -247,6 +247,22 @@ queued_experiments:
     the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
     ordering, collapse incidence, and the sign of a comparison.
 
+  h98-roi-dose-response: >
+    EXPLORATORY, zero compute, h84's four Borehole arms. **CENTRING MEDIATES THE
+    ROI DOSE over the three resolvable levels.** GAPSD (h97's predictor):
+    OFF 2.29 -> ANN 2.02 -> FIX2 1.64 / Q10 1.66, against regret 0 / -1.31 /
+    -4.81 / -4.22. Tight-vs-ANN paired -0.377 (5/5), ANN-vs-OFF -0.278 (5/5).
+    T1 MET, T2 MET, T3 FAILED, T4 not triggered.
+    **BUT T2 IS HOLLOW WHERE IT MATTERED.** Its interest was reproducing the
+    FIX2>Q10 inversion; the arm means differ by 0.02, and the per-seed check
+    gives paired mean -0.018, sd 0.169, FIX2 better 2/5, ratio 0.11 -- the arms
+    are TIED. The bar passed because argsort totally orders four numbers whether
+    or not adjacent ones are separable. Recorded MET as registered AND
+    uninformative at that position. New standing rule: an ordering bar needs a
+    separability check on the adjacent pairs carrying its meaning.
+    CONSEQUENCE: q=0.10 was never established as better than q~0.21 -- tied on
+    regret AND mechanism. Calibration's case stays controllability across
+    benchmarks, not superiority on Borehole.
   h97-head-shrinkage: >
     EXPLORATORY, zero compute, h90 Borehole. **BOUNDARY AVERSION IS A SPREAD
     FAILURE, NOT A CENTRING FAILURE.** S2 FAILED and the failure is the finding:
