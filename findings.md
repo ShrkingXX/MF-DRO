@@ -12945,3 +12945,28 @@ my framing of this as a mechanism study rather than a competitive result, and th
 state file's headline — **all survive.** That is the outcome that demanded the
 most scrutiny and it is the one I got, so the scrutiny went into the gate label
 above rather than into the claims.
+
+## Instrument — `tools/check_report.py`, and why its first version was wrong
+
+The published-page audit found a jointly-retracted claim live in four sections,
+so the check is now mechanical and runs before every publish. It verifies three
+things: the file has not been rebuilt from a **served copy** (the peer's wrapper
+contamination, hit twice on their side — tell is a leading `<!doctype` instead of
+`<title>`), that **retracted claims are not asserted**, and that tags balance.
+
+**Its first version was a shell script and it failed on its first run** — it
+flagged `"0.11 from additive"` as a live claim. That phrase is inside a callout
+headed *"A phrase from our own notes, withdrawn"*, which is **exactly where a
+retracted phrase should appear**. A substring check cannot distinguish an
+assertion from a citation, so it fires on correctly-written corrections and would
+have trained me to ignore it within a day.
+
+Rewritten in Python: it strips retraction callouts and typographically-quoted
+spans before searching. **A checker that punishes correct behaviour is worse than
+no checker**, because the failure mode is that its output gets ignored — and this
+one would have been ignored on the first real correction I wrote.
+
+Both instruments today failed their first self-test in the same way — the peer's
+reconciliation tool counted its own output, and this one flagged its own
+retraction. That is now two for two, and it is a reason to run a new instrument
+against known-good input before trusting a failure it reports.
