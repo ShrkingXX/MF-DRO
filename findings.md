@@ -5635,3 +5635,55 @@ meaningless. Any inference-time ROI must keep the DT as the decision-maker: the
 ROI may only say which points are ADMISSIBLE, never which admissible point is
 best. h94 is designed around that line, with a control that detects if I cross
 it accidentally.
+
+### Code-drift audit: absolute numbers are not comparable across experiments
+
+**EXPLORATORY**, triggered by noticing that h90's NO-ROI arm scores far better on
+Borehole than older MF-DRO runs at the *same seeds*.
+
+**The effect is real and large.** h75 and h83 both ran MF-DRO on Borehole at
+seeds 42-45, and h75's protocol states it used "h57 configuration, unchanged":
+
+      seed      h75      h83     diff
+        42    22.33    15.28    -7.04
+        43    25.01    14.77   -10.25
+        44    24.43    12.93   -11.50
+        45    25.22    16.90    -8.31
+      mean shift -9.28 pts, sd 1.98, 4/4 same direction
+      optimisation query sequences identical: 0/4
+
+Seven behavioural files changed between those commits, including
+src/policy/mf_dro.py (+109/-8) and src/baselines/mf_baselines.py (+451/-138).
+The shift is code, not seeds.
+
+**So I audited every experiment** for whether its own arms span a behavioural
+code change (diffing each pair of commits its results carry, restricted to
+src/, dro_runner.py, benchmarks.py):
+
+  CLEAN (doc-only commit variation): h83, h85, h86, h87, h89, h90, h91, h92, h93,
+    and h60-h81 generally -- 24 of 29.
+  SPANS BEHAVIOURAL CHANGES: h57 (5 pairs), h58 (3), h59 (3), h62 (3), h63 (4),
+    and h84 (21 pairs).
+
+**h84 is the one that mattered, and it holds.** h84 produced the -4.22 Borehole
+ROI gain that h90 is re-testing, and its arms do span a behavioural change --
+but by design, not by accident: ROI-OFF REUSES h83's MF-DRO for seeds 44-46 and
+re-runs 42/43 live as an explicit reproduction control. That control passes
+exactly:
+
+      Hartmann s42/s43, Borehole s42/s43:  |dregret| = 0.000e+00, max|dx| = 0.000e+00
+
+The single differing file is the HF-floor block, gated behind `real_hf_every`
+(default 0), so it cannot fire in these runs. **The -4.22 is not a code
+artifact.** I went looking for a confound in the session's central number and did
+not find one; the control that rules it out was already there.
+
+**What this does change.** Nothing about the paired within-experiment deltas the
+session rests on -- those are all clean. What it invalidates is reading ABSOLUTE
+numbers across experiments: h75's Borehole 22-25% and h83's 13-17% describe
+different code, and any table mixing pre-h83 absolute values with current ones is
+wrong. Only h84's reuse crosses that line, and only under a control that passes.
+
+**Rule to keep:** a paired comparison is valid iff both arms ran on commits with
+no behavioural diff, OR a reproduction control demonstrates equality. Record the
+commit in every result file (already done via `_code`) so this stays checkable.
