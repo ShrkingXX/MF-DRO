@@ -9206,3 +9206,50 @@ Paired, **Q05 loses to MF-MES on 6 of 10 seeds with a median gap of +1.43**,
 while the mean-based figure reads "66% of the gap closed". R4 existed to force
 those onto the same page. The honest headline is: the ROI removes most of the
 deficit on average and still loses more often than it wins, head to head.
+
+## CORRECTION: q=0.05's advantage over q=0.10 is NOT established — a third seed set reverses it
+
+I reported h107 as "the first result this session to survive at full size" and
+published it. **A peer session's h110 ran the same comparison at seeds 52-56 and
+it does not hold there.** I verified their runs independently against h106's
+q=0.10 arm at matched seeds; the figures reproduce exactly.
+
+      seed set          Q05 - Q10     Q05 better
+      42-46  (h107)        -1.57         4/5
+      47-51  (h97)         -1.52         4/5
+      52-56  (h110)        **+0.30**     2/5
+
+      pooled n=15: mean -0.93, sd 2.03, better 10/15, |mean|/sd = 0.46
+
+**Against my own registered bar this FAILS.** The bar was |paired mean| > 0.59
+AND at least 4/5 in one direction. Pooled, the magnitude clears (0.93) and the
+**split does not**: 10 of 15 is 67%, not 80%. It also fails the peer's
+independently-derived effect-size bar (0.46 < 0.5).
+
+### What is withdrawn and what stands
+
+**WITHDRAWN:** "q=0.05 beats q=0.10", and with it "every ROI figure in this
+project understates the effect". Neither is supported at three seed sets.
+
+**STANDS, and is unaffected:** the ROI itself works on Borehole at either
+setting. Q05 vs no-ROI is −5.01 / −5.79 / −4.71 across the three sets; Q10 is
+−4.08 at 10/10. **The region is the result; the threshold is not.** That is the
+outcome h97's protocol registered as the third possibility and called "a more
+useful claim than a tuned optimum" — it just took a third seed set to reach it.
+
+### Why I was fooled, and it is not the obvious reason
+
+Two seed sets agreed to **0.05 points** — −1.52 against −1.57. I treated that
+near-identity as strong evidence and said so in the write-up and on the published
+page. **The closeness was the persuasive part, and closeness across two samples
+is not evidence about a third.** Two draws from a wide distribution can land
+almost on top of each other; that is a property of two draws, not of the effect.
+
+This is the same shape as the Hartmann flip that h87 withdrew, and I had that
+example in front of me. What made this one harder to see is that the agreement
+was tighter than any real effect I had measured all session — which reads as
+confirmation and is actually just variance being briefly quiet.
+
+**Standing rule to add:** *n* seed sets agreeing does not license a claim; the
+bar has to be applied to the pooled sample, and a claim registered at n=5 and
+confirmed at n=5 is still a claim about ten seeds, not about the method.
