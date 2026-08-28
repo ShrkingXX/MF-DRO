@@ -189,3 +189,32 @@ mechanism for the ROI actively HARMING some benchmarks (Currin, +0.11).
 rollout actions, not a measure of the gap at the real query. A small L_loc would
 not prove the real query lands in-ROI. So D1 can weaken h94's premise but cannot
 establish it, and no verdict on h94 will be drawn from this diagnostic.
+
+## Amendment 3 — G1 attempted a second time, killed, and the reason recorded
+
+Second attempt at the bit-identity gate. Run from two COPIES of the tree in
+scratchpad (HEAD vs patched) so the live `src/` was never touched, at a cheap
+config (bo_iterations=60, num_epochs=1, budget 25) on the reasoning that the
+risk G1 tests -- RNG or state perturbation by a no-op hook -- shows up at any
+training length.
+
+KILLED after ~7 minutes, incomplete. **Not because it failed: because I was the
+16th process on a 15-core cap.** The concurrent session had gone from 14 workers
+to 15 while the check was queued, and my diagnostic made 16. It was niced to 19,
+which is a mitigation and not a compliance argument.
+
+I withdrew a false accusation about this exact rule earlier today. Holding
+myself to it when it costs me the gate I want is the same rule.
+
+G1 REMAINS UNMET. h94 is blocked on it, and blocked on G2 (workers <= 5)
+regardless. The next attempt goes when h90 finishes and frees slots -- its
+REFINE-100 arm has been running 2h17m and is the long pole.
+
+### An observation recorded WITHOUT a conclusion
+
+System load average read 38-39 during this window against 16-17 earlier. The
+reliable measurement -- 16 processes at ~90% CPU, 53% memory free -- does not
+support a thrashing diagnosis, and Darwin's load average counts states that
+inflate it relative to the Linux reading I would instinctively apply. Recorded
+because it is unusual, NOT flagged as a problem: I raised one alarm today by
+over-reading a load-adjacent number and will not do it twice.
