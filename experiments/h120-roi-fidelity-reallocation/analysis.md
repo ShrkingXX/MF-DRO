@@ -52,6 +52,42 @@ easily push it over. It should not be cited as evidence that the ROI leaves the
 founding diagnosis's statistic untouched on Borehole; it is evidence that the
 effect there, if any, is smaller than the ones in P1 and P3.
 
+## SCOPE CORRECTION (2026-08-28, after the peer's h129 P6) — Borehole only
+
+h120 confirmed that the ROI reallocates fidelity. **That result is
+Borehole-specific and must be stated as such.** The same measure across four
+benchmarks, ROI-Q10 vs h83 control, seeds 42-46, paired, post-init HF count
+fraction:
+
+| bench | c_H | max HF affordable | control HF per seed | at ceiling? | shift | effect |
+|---|---|---|---|---|---|---|
+| Ackley_10D | 5.0 | 40.0 | 40, 40, 40, 40, 40 | **YES** | -0.033 | 0.49 |
+| Currin_2D | 3.0 | 66.7 | 31, 40, 22, 21, 22 | no | -0.030 | 0.41 |
+| **Borehole_8D** | 2.0 | 100.0 | 93, 99, 93, 91, 94 | no | **-0.144** | **1.65** |
+| Hartmann_6D | 8.0 | 25.0 | 8, 24, 12, 6, 8 | no | +0.056 | 0.78 |
+
+**Only Borehole clears 1.0, and it does so by 2x over the next benchmark.**
+Currin is a fourth point I added to the peer's three; it is uncensored and
+agrees (0.41).
+
+**Ackley's cell is censored and should not be counted as evidence either way.**
+Its control spends 40 HF x c_H=5.0 = exactly the 200 budget, in all five seeds
+with zero variance. The fraction cannot rise, so the measure is one-sided
+there.
+
+**Headroom does not explain the ordering.** Ranked by HF queries affordable
+(Hartmann 25, Ackley 40, Currin 67, Borehole 100) the effects run
+0.78, 0.49, 0.41, 1.65 — not monotone. Ranked by how close the control sits to
+its ceiling (Ackley 100%, Borehole 94%, Hartmann 46%, Currin 40%) they run
+0.49, 1.65, 0.78, 0.41 — also not monotone. So there is no mechanical account
+on this evidence; Borehole is simply the outlier.
+
+**What survives unchanged.** P3 — count-matched mean HF y, +17.05 at effect
+3.54, 5/5 — is a QUALITY measure, not a fidelity one, and nothing here touches
+it. The peer's independent P4 (query score up, effect 2.66) agrees from a
+different statistic. Quality is the mechanism that survives across measures;
+fidelity is the one that does not survive across benchmarks.
+
 ## Standing
 
 The fidelity-mix account is now CONFIRMED in two of its three limbs at
