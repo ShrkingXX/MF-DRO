@@ -11723,3 +11723,72 @@ Stated as a prediction rather than a conclusion because it is post-hoc on the
 curve that suggested it, and because the peer's h123 amendment currently predicts
 the opposite on h125's grounds. **Sent to them before their runs start so the
 grounds are visible in advance rather than assembled afterwards.**
+
+---
+
+## Two corrections to what I published this morning
+
+Both come from the peer's h131, both verified independently here rather than
+adopted, and both change how a number of mine should be quoted.
+
+### 1. The Borehole benefit PEAKS mid-run and declines. It does not accumulate.
+
+ROI-Q10 vs h83 control, Borehole, seeds 42-46, paired, read at several points on
+the post-init cost axis (rel% of optimum 309.576):
+
+| post-init cost | control HF queries | rel% | sd | effect | better |
+|---|---|---|---|---|---|
+| 25 | ~12 | -4.681 | 5.417 | 0.86 | 3/5 |
+| 50 | ~24 | -5.140 | 2.488 | 2.07 | 5/5 |
+| **100** | ~48 | **-7.813** | 2.495 | **3.13** | 5/5 |
+| 200 | ~93 | -4.224 | 2.433 | 1.74 | 5/5 |
+
+I reproduce three of the peer's four cells to three decimals (cost 50 differs by
+0.49 on interpolation detail).
+
+**The headline -4.22% is the DECLINED value.** At half the budget the benefit is
+-7.81%, nearly double. And the sd falls monotonically (5.417 -> 2.433), so the
+effect size rising across the run is **variance reduction, not signal growth**.
+
+Two consequences:
+
+- Quoting "the ROI is worth 3.5-4.2%" at full budget **understates it by ~2x at
+  its peak**, and describes a non-monotone quantity as though it were a level.
+- Any "Borehole eventually accumulates enough data for the confidence region to
+  bite" story is dead. **-4.681% is already there at twelve HF queries** — which
+  is Hartmann's entire post-init budget. Data volume is not what separates the
+  benchmarks.
+
+### 2. My Hartmann claim was stronger than the evidence
+
+I published "on Hartmann the ROI moves neither the regret (0.48) nor the quality
+it diagnosed (0.33)". The 0.48 came from the raw `final_regret` field. At the
+correct read point (@`cost_curve` 200) the cell is:
+
+  **-1.891% of optimum, sd 3.252, effect 0.58, better in 4 of 5 seeds.**
+
+That is not a clean zero. It fails the 1.0 bar, but it is directionally
+consistent in 4/5 seeds and the point estimate is nearly 2% of the optimum.
+
+**Corrected claim:** the ROI *fails to move Hartmann regret detectably at n=5*.
+"Does not move it" is stronger than the data supports. The QUALITY cell
+(-0.075, effect 0.33, 2/5) is genuinely flat and carries that claim on its own —
+which is the cell that matters, since quality is the channel the diagnosis named.
+
+So h130's conclusion survives, and rests on the quality cell rather than on both.
+
+### 3. Their scale-dependent-bar finding, and why nothing broke
+
+The 0.59-regret-point separability bar is absolute, and in relative terms it is
+0.191% of optimum on Borehole against 17.758% on Hartmann — **93x stricter** on
+the benchmark with the smaller objective range. It was fixed in a Borehole
+context and later applied to Hartmann and Ackley.
+
+Nothing in the record is corrupted by it: every cross-benchmark null also fails
+on effect size and seed consistency, which are unit-free. My h130 table is
+untouched for the same reason — it uses effect sizes throughout.
+
+**Rule, extended from this morning's:** a bar is portable only to the statistic
+AND the benchmark scale it was measured on. Absolute bars do not travel across
+objectives whose ranges differ 100x; effect sizes and seed-consistency counts do.
+That is why the unit-free habit saved us rather than any vigilance about bars.
