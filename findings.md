@@ -8753,3 +8753,59 @@ without argument, as I told the concurrent session.
 Recorded now specifically so this cannot be produced afterward as a reason to
 doubt an unwelcome result. Validating a control before it reports is the only
 time the validation is worth anything.
+
+## H107: q=0.05 replicates — the first result this session to survive at full size
+
+**CONFIRMATORY.** P1/P2/P3 and the 0.59 separability bar registered before any
+run. G3 gate passed on measurement: accept_frac 0.0499-0.0500 on all five seeds.
+
+      seed     Q05     Q10   no-ROI   Q05-noROI   Q05-Q10
+        42    9.14   11.50    15.28       -6.14     -2.36
+        43   11.09   12.27    14.77       -3.68     -1.19
+        44   10.47   11.37    12.93       -2.46     -0.89
+        45   12.71   11.19    16.90       -4.19     +1.52
+        46    6.71   11.62    19.19      -12.48     -4.91
+
+      Q05 vs no-ROI: -5.79, 5/5      Q05 vs Q10: -1.57, 4/5
+
+**Across two independent seed sets:**
+
+      47-51 (h97)    vs no-ROI  -5.01 (5/5)   vs Q10  -1.52 (4/5)
+      42-46 (h107)   vs no-ROI  -5.79 (5/5)   vs Q10  -1.57 (4/5)
+      POOLED n=10    vs no-ROI  -5.40, sd 2.98, better 10/10
+                     vs Q10     -1.54, sd 1.76, better  8/10, |mean|/sd = 0.88
+
+**The two seed sets agree to 0.05 points — 103% retention.** For a session in
+which −5.85 became −2.11, a 4/5 became 2/5, and two claims were withdrawn
+outright, this is the first result to come back at full size on its first
+re-test. It also clears the peer session's independently-derived effect-size bar
+(|mean| ≥ 0.5 sd; this is 0.88), which no earlier ROI comparison did.
+
+**So the tightness effect is real.** q=0.10 — the value every ROI figure in this
+project rests on — is confirmed suboptimal on two seed sets. Against no-ROI,
+q=0.05 gives **−5.40 pooled at 10/10**, against q=0.10's own record of −4.22
+(h84), −3.49 (h90), −3.93 (h106).
+
+**It still does not make the method competitive:** 10.02% against MF-MES's 6.40%,
+as P3 registered.
+
+**What was registered and what it cost.** P2 was registered with NO direction
+predicted, on the explicit grounds that this session had repeatedly watched
+re-tests destroy effects. That was the right posture and it did not bias the
+result — but it is worth recording that the honest prior was wrong here, and
+the effect was more robust than the session's base rate suggested.
+
+## H109 (in flight): the patch is inert on the ROI path
+
+The reproduction control launched after establishing that h106's Q3 could not
+support its comparability claim. Post-patch ROI-Q10 re-runs vs h84's stored
+traces, seeds 42 and 43:
+
+      seed 42:  25 optimisation queries  max|dx| = 0.000e+00   IDENTICAL
+      seed 43:  26 optimisation queries  max|dx| = 0.000e+00   IDENTICAL
+
+Not yet complete, and the verdict waits for the full runs. But 25+ consecutive
+bit-identical queries on the **use_roi=True** path — the path the OFF-branch
+byte-identity argument does not cover — is already strong evidence that neither
+working-tree patch perturbs ROI results. If it holds to completion, h106, h107
+and h108 are uncontaminated.
