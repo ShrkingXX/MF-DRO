@@ -494,5 +494,3 @@ open_questions:
     there. It changes no number here, only how charitably the baselines should
     be described."
   - "Boundary aversion: causal test (change the output parameterisation) not run."
-    # (duplicate of the line below; both were present before h103's edit)
-  - "Boundary aversion: causal test (change the output parameterisation) not run."

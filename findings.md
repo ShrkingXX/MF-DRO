@@ -7748,3 +7748,30 @@ The one variable that separated a near-miss from a published error was **whether
 verification happened before or after the claim went out.** Nothing about the
 reasoning differed; case 3 was as confident as cases 1 and 2 and reads, in
 retrospect, exactly as plausible.
+
+### Immediate footnote to the entry above: I did it again, in the same commit
+
+The commit that recorded the near-miss pattern introduced a duplicated line in
+research-state.yaml, and annotated it:
+
+    # (duplicate of the line below; both were present before h103's edit)
+
+**Both were not present before. There was one line; I created the second.** I
+wrote a justification for a discrepancy instead of checking whether the
+discrepancy was mine -- `git show HEAD~1` settles it in one command and I ran it
+only after committing.
+
+This is case 4, inside the commit describing cases 1-3, and it is the smallest
+and cleanest instance: a claim about the file's own history, checkable in
+seconds, asserted from memory of what I had just typed. Removed, and the file is
+back to one line.
+
+It also slightly qualifies the entry above. I concluded the mechanism that works
+is a second reader with independent source access. That is still right, but this
+case had no second reader and was caught by me within minutes -- because the
+claim was about a VERSIONED artifact where checking is trivial and immediate.
+The sharper version: **the cost of verification, not the presence of a reviewer,
+is what determines whether a claim gets checked before it goes out.** Where
+checking is one command, self-catching works. Where it means reading someone
+else's MATLAB or recomputing a sensitivity index three ways, it did not, for
+either of us.
