@@ -294,7 +294,13 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
     <li>The two registered baselines barely optimise. On Hartmann they improve on their own
     starting design <strong>2 and 3 times out of roughly 22&ndash;25 expensive evaluations</strong>;
     the strongest method manages 21 out of 22. A frozen protocol binds which comparison is run.
-    It cannot certify that the comparator works.</li>
+    It cannot certify that the comparator works.
+    <br><strong>And this was checked, not assumed:</strong> a line-by-line audit against the original
+    authors&rsquo; MATLAB confirms both are faithfully ported, including a deliberately inflated prior
+    the authors themselves note suits a different acquisition. They are weak here, not broken by us
+    &mdash; so the comparison stands and only the pass is hollowed out. The audit nearly went the other
+    way: two lines of that MATLAB, read alone, say the inflated prior is for a different method
+    entirely, and the branch four lines above names this one explicitly.</li>
     <li>Adding the stronger comparators was good practice, not a mistake &mdash; a paper omitting
     them deserves the reviewer it gets.</li>
   </ul>
@@ -325,7 +331,7 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
 
   <div class="bars">
     <div class="bar"><span class="verdict v-met">PRIMARY&nbsp;&middot;&nbsp;MET</span>
-      <div><b>MF-DRO beats no baseline on any benchmark</b> &mdash; met against the
+      <div><b>MF-DRO does not beat the <em>best</em> baseline on any benchmark</b> &mdash; met against the
       <em>unregistered</em> comparison only; the registered test passes, see above
       <p>On Ackley its <em>mean</em> is lower than MF-MES (3.83 vs 4.28) but it wins only 2 of 5 seeds,
       so the seed half of the bar fails. Registering mean <em>and</em> seed-count separately is what
@@ -340,6 +346,7 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
       near-single-fidelity by construction &mdash; the authors&rsquo; own code&rsquo;s behaviour, not a defect here.</p></div></div>
   </div>
 </section>
+
 
 <section>
   <p class="kicker">The runs</p>
