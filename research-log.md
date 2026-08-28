@@ -1173,3 +1173,38 @@ workers; the launcher's argv carries sixteen job strings and my per-PID grep
 attributed it many times over. Load average 21.7 was consistent with 15 and I
 did not reconcile it. Session B's deviation note was accurate as written.
 `src/analysis/worker_count.sh` now counts only worker processes WITH job args.
+
+## 2026-08-27 ~21:00 — H95: the founding diagnosis's implied fix points the wrong way
+
+h90 confirmed the ROI lowers final regret on Borehole. That is not what this
+investigation was commissioned to test. The commission was "stop MF-DRO wasting
+HF budget", and simple regret is a MAX statistic — a method can lower it by
+landing one good query while wasting as many as before. So I registered h95's
+bars before computing anything and read h90's completed runs.
+
+The average query really does improve: mean HF query regret falls 4.15 points on
+5/5 seeds. Waste falls wherever waste exists, roughly halving in all three seeds
+that had any; the other two had none in either arm, which is why my M1 bar
+failed — I demanded ">=4/5 strictly better" on a measure with a floor that 2/5
+seeds already sat on. That is a bar-design failure, recorded as FAILED rather
+than rewritten, with a standing rule added.
+
+The finding is M2, which failed in the opposite direction to my prediction. **The
+ROI increases dispersion while improving both regret and query quality.** The
+concurrent session had measured the same thing independently under a different
+statistic and got the same sign; its message arrived in the same tool result as
+my registration commit, so my bar was blind but I knew the likely answer before
+running my script — recorded, because "registered before computing" and
+"registered before knowing" came apart and only the first is strictly true.
+
+This matters beyond one benchmark. The diagnosis I was handed says "proposals
+are 3x more dispersed", which invites "concentrate them". h88 already found
+MF-DRO's wider queries produce a *better* global surrogate than the method that
+beats it. Now the one intervention that demonstrably works increases dispersion.
+Dispersion looks like a correlate of the failure rather than its cause, and any
+future fix argued from "reduce dispersion" has to explain this first.
+
+h94 is unaffected: it constrains the query to a plausibility region, which is
+not a dispersion argument. If anything this raises the value of its SNAP-CONTROL
+arm, since snapping to a finite pool is a concentration mechanism and now has a
+concrete reason to be viewed with suspicion rather than hope.

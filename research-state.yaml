@@ -62,7 +62,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-27  # 20:3x, H90 P1 MET -- first surviving confirmation
+last_updated: 2026-08-27  # 21:0x, H95 -- dispersion is not the lever
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -233,6 +233,26 @@ queued_experiments:
     the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
     ordering, collapse incidence, and the sign of a comparison.
 
+  h95-roi-waste-mechanism: >
+    EXPLORATORY, zero compute, on h90's Borehole runs. Bars registered 20:53:57
+    before computing. **THE ROI IMPROVES THE AVERAGE QUERY BY DISPERSING MORE,
+    NOT LESS.** Mean HF query regret falls 4.15 pts on 5/5 (M3 MET), waste
+    fraction falls where waste exists (3/3 nonzero cases, roughly halved) but M1
+    FAILED on a bar I designed badly -- the measure has a floor at zero and 2/5
+    seeds sat on it in both arms, so ">=4/5 strictly better" was unmeetable.
+    Recorded as FAILED rather than rewritten after seeing data.
+    **M2 FAILED IN THE OPPOSITE DIRECTION AND THAT IS THE FINDING**: the ROI
+    INCREASES dispersion (+0.010, higher on 4/5) while improving both regret and
+    mean query quality. The concurrent session measured it independently under a
+    different statistic and got the same sign (+9.5% overall, +14.3% on HF).
+    This contradicts the premise this investigation was handed -- "proposals are
+    3x more dispersed" invites "concentrate them", and on the one benchmark
+    where an intervention demonstrably works it did the opposite. With h88
+    (MF-DRO's wider queries give a BETTER global surrogate), two independent
+    lines now say **dispersion is a correlate of MF-DRO's failure, not its
+    cause.** Any future fix justified by reducing dispersion must explain this.
+    Normalization caveat: both arms sit at ~0.25x the dispersion of a uniform
+    draw, so this is a change WITHIN an already-concentrated regime.
   h90-borehole-confirm: >
     **ROI ARM COMPLETE, P1 MET.** The Borehole ROI gain SURVIVES fresh seeds
     47-51: paired mean **-3.49**, sd 2.66, ROI better **4/5** (-6.05, -1.87,
