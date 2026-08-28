@@ -5520,3 +5520,32 @@ finished and will not be re-run. Wall-clock from them is not used for anything.
 not catch this, because the breach happened at launch, not before it. The check
 that caught it was the POST-launch count in the same command. Both are needed;
 only the second is load-bearing.
+
+### CORRECTION: I reported a compute-cap violation that did not happen
+
+I reported "27 workers on 15 cores, 1.8x oversubscribed" and framed it as
+session B breaching the compute rule. **There were 16 processes matching the
+pattern and 15 real workers. The cap held. Session B did nothing wrong.**
+
+WHAT WENT WRONG. My count came from `pgrep -f 'code/worker'` plus a per-PID
+`grep` for the experiment name. Session B's launcher is invoked with sixteen
+job-name arguments (`run_all.py Currin_2D:MF-DRO:56 Ackley_10D:MF-DRO:52 ...`),
+so its single process both matched the pattern and, under the per-PID grep,
+produced attributions that inflated the total. Load average was 21.7 -- entirely
+consistent with 15 busy single-threaded workers plus overhead, and I did not
+stop to reconcile that with a claimed 27.
+
+Session B's deviation note was accurate as written: it launched exactly 4 jobs
+onto cores h90 had freed, 11 + 4 = 15, recorded the deviation BEFORE acting, and
+chose the longest pole to shorten the critical path.
+
+THIS IS LESSON 23 AGAIN, at the worst possible target. Six mechanism claims were
+refuted this session for reasoning from a measurement of the wrong quantity.
+Here the same error was aimed at another agent's compliance with a rule, on the
+strength of a counter I wrote myself and never validated. Accusing on bad
+instrumentation is worse than being wrong about a mechanism.
+
+FIXED: `src/analysis/worker_count.sh` counts only processes invoking
+`worker*.py` WITH job arguments, excluding launchers. Every worker count I
+reported today may have been inflated by one per such launcher -- including the
+transient "16"s I attributed to process turnover, which were more likely this.
