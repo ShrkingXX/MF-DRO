@@ -223,13 +223,25 @@ queued_experiments:
     ordering, collapse incidence, and the sign of a comparison.
 
   h89-hffloor-confirm: >
-    RUNNING (10/20). HF FLOOR ARM COMPLETE AND ITS RESULT IS **WITHDRAWN**:
-    at fresh seeds 52-56 the across-seed sd went UP (2.08 -> 3.17, P1 PRIMARY
-    FAILED) and the paired mean got WORSE by 1.60 pts (P2 FAILED), better 1/5.
-    P3 MET (collapse recurs, streaks 4/11/6) but P4's correlation is -0.84, the
-    WRONG SIGN -- the floor HARMS the most-collapsed seeds (seed 54: 0.76% ->
-    9.07%). The mechanism is inverted, not merely unconfirmed.
-    Borehole REFINE-100 arm still running -- that is the live question.
+    COMPLETE, 25 runs, 0 failures. TWO VERDICTS.
+    (a) HF FLOOR: **WITHDRAWN**. At fresh seeds 52-56 the across-seed sd went UP
+    (2.08 -> 3.17, P1 PRIMARY FAILED) and the paired mean got WORSE by 1.60 pts
+    (P2 FAILED), better 1/5. P3 MET (collapse recurs, streaks 4/11/6) but P4's
+    correlation is -0.84, the WRONG SIGN -- the floor HARMS the most-collapsed
+    seeds (seed 54: 0.76% -> 9.07%). Mechanism inverted, not just unconfirmed.
+    (b) TEACHER REFINEMENT: **SURVIVES at 36% of its size**. Paired -2.11 pts,
+    better 4/5 (P5 PRIMARY MET). P6 FAILED (needed <= -2.9), so per the
+    registered falsifier **h85's -5.85 is SUPERSEDED; -2.11 is the figure.**
+    P8 MET: does NOT close the gap to MF-MES (12.91% vs 10.07% at matched
+    seeds, comparator re-run at seeds 52-56 because h83's 6.40% is from 42-46
+    and those seeds are 3.67 pts easier).
+  h85_P4_CORRECTED: >
+    h85's P4 (cost) is **FAILED**, not met. The bar said "wall-clock cost under
+    2x"; TOTAL wall-clock on Borehole is 2.07x (82.4 -> 170.7 min). It was first
+    reported MET at 1.97x using PER-QUERY wall-clock, a measure the bar never
+    named and the one that happened to pass. Rule now standing: when a bar
+    admits more than one measure, report BOTH and name which the verdict turns
+    on, before computing either.
   SECOND WITHDRAWAL OF THE DAY: >
     Both the ROI's Hartmann flip (h84 4/5 -> h87 2/5) and the HF floor's
     variance result (h85 -> h89) met their bars at n=5 on one seed set, were
@@ -237,7 +249,8 @@ queued_experiments:
     seeds. The confirmation discipline is what separates real results from
     these; the caveats did not. TEACHER REFINEMENT (Borehole -5.85, 5/5) SHOULD
     BE ASSUMED NOT TO REPLICATE until h89's Borehole arm and/or session B's h90
-    report.
+    report. [RESOLVED: h89 confirmed it in DIRECTION (4/5) but at 36% of size --
+    -2.11, not -5.85. h90 adds a THIRD seed set, 47-51.]
 
 open_questions:
   - Does a controlled ROI raise mean HF query quality (h84 P1)?
