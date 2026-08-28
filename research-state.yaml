@@ -830,6 +830,22 @@ h117_dispersion_misallocation:
   prediction_locked: "wR/uR >= 2.0 in >=4/5 seeds AND |mean log|/sd >= 2.0."
 
 intervention_NOT_launched:
-  ard_weighted_L_loc: >
+  ard_weighted_L_loc_SUPERSEDED: >
     Weight L_loc by ARD-derived per-dimension relevance. Motivated by the three
     code facts, but supported only by an EXPLORATORY result. Blocked on h117.
+
+h116_CORRECTION_same_day:
+  withdrawn: >
+    "MF-DRO misallocates dispersion across dimensions." Seven of eight Borehole
+    dims give sd ratio 0.97 weighted AND unweighted. The whole effect is dim 0.
+  actual_finding: >
+    Borehole dim 0 (r_w, S1 0.858) has a BOUNDARY optimum. MF-MES pins to it:
+    100% of HF queries at z0>=0.9, sd 0.001-0.013. MF-DRO drifts: 84-97%, sd
+    0.032-0.104. MF-DRO spends 8.9% of HF queries (3.2-16.5%) off the boundary,
+    MF-MES 0.0%, and those queries are strictly wasted -- best off-boundary y is
+    below mean on-boundary y in 5/5 seeds.
+  status: EXPLORATORY on h83 seeds 42-46. h117 predictions 4-6 test it on 52-56.
+  next_intervention_candidate: >
+    Not ARD-weighted L_loc. The output parameterisation: action_head(h).clamp(0,1)
+    cannot represent a boundary optimum without saturating, which is the
+    already-registered and never-run boundary-aversion causal test.

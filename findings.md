@@ -10007,3 +10007,55 @@ this is one seed set and must not be built on.
 The ARD-weighted-`L_loc` intervention that the three code facts suggested is
 **not supported by any passing test**. It rests on the exploratory result
 above. Not launched.
+
+### CORRECTION to the h116 exploratory entry above (same day, before h117 reported)
+
+The entry above says MF-DRO's "excess spread is in the dimensions that carry
+the objective's variance" and that its allocation is "systematically the
+inverse of MF-MES's". **Both overstate it. Withdrawn.**
+
+Per-dimension sd ratios DRO/MES on Borehole:
+
+| dim | S1 share | sd ratio DRO/MES |
+|---|---|---|
+| 0 | 0.858 | **18.15** |
+| 5, 6, 3, 7, 1, 2, 4 | 0.045 - 0.001 | 0.67 - 1.89, no consistent direction |
+
+Weighted ratio excluding dim 0: **0.97**. Unweighted excluding dim 0: **0.97**.
+The two methods are indistinguishable on seven of eight dimensions. There is no
+allocation pattern. There is one dimension.
+
+### What it actually is: failure to lock a boundary optimum
+
+Borehole dim 0 is r_w in [0.05, 0.15]; its optimum is at the UPPER boundary.
+
+| method | mean z0 | sd z0 | % HF queries at z0>=0.9 | min z0 |
+|---|---|---|---|---|
+| MF-MES | 0.997 - 1.000 | 0.001 - 0.013 | **100%** | 0.927 |
+| MF-DRO | 0.948 - 0.965 | 0.032 - 0.104 | 84 - 97% | 0.128 |
+
+MF-MES pins to the boundary and never leaves it. MF-DRO gets close and keeps
+drifting off. So the 18x is substantially a **small-denominator artefact** —
+MF-MES's sd is ~0.001 — and the ratio is the wrong thing to quote.
+
+The robust, absolute statement, and the best result of this session:
+
+> **MF-DRO spends 8.9% of its HF queries (per seed 3.2, 14.1, 6.5, 16.5, 4.3%)
+> off the optimal boundary in the one dimension that carries 86% of Borehole's
+> variance. MF-MES spends 0.0%. Those queries are strictly wasted: the BEST
+> off-boundary value (175-208) is below the MEAN on-boundary value (226-238) in
+> all five seeds, so none of them could ever have become the incumbent.**
+
+This is the boundary aversion already on record for Borehole, now localised to
+a single dimension and priced in HF budget. It is a concrete mechanism for the
+founding diagnosis's "20.8% of HF queries land worse than the initial design",
+though the two percentages are different measurements and 8.9% does not explain
+all of 20.8%.
+
+Still EXPLORATORY, on h83 seeds 42-46. h117 (seeds 52-56) now carries locked
+predictions 4-6 on the off-boundary fraction, filed before any h117 run finished.
+
+**Method lesson, third time this project:** a ratio whose denominator can go to
+zero should be reported as an absolute quantity. "18x" and "3.96x weighted" are
+both true and both nearly uninterpretable; "8.9% versus 0.0% of HF budget" is
+the same fact and is actionable.
