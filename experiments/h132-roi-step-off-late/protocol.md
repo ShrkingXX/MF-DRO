@@ -61,3 +61,41 @@ this experiment's switch point.
 mechanistic fact, not an alternative headline, and quoting it as the ROI's benefit
 would be precisely the read-point flexibility this project has spent the day
 guarding against. Registered here so that neither session drifts into it.
+
+---
+
+## AMENDMENT 1 — P4/P5, a ZERO-COMPUTE limb testable now (registered before computing)
+
+The primary question states the causal path: *the DT regression head emits x
+directly and is trained on rollout-teacher actions drawn from `roi_candidates`,
+so the ROI is the lever that shapes the training distribution.* If the late stall
+is real, it should be visible in the DT's own learning signals, and those are
+already logged per iteration (`L_loc_per_iter`, 115 entries per run, alongside
+`cost_curve` so iterations can be mapped to the post-init cost axis).
+
+**Mechanism under test.** Late in the run the ROI's accepted set has contracted
+around a region the DT has already learned. Its targets stop moving, so the head
+fits them well while the proposals stop exploring — low loss, flat regret.
+
+**P4 (locked direction).** Over iterations with post-init cost > 100 — the span
+where the advantage erodes — the ROI arm's mean `L_loc` is **lower** than the
+control's, paired over seeds 42-46, effect >= 0.5 and >= 4/5 seeds.
+
+**Falsified if** the ROI's `L_loc` is *higher* with effect >= 0.5. That would mean
+the ROI makes the DT's targets harder to fit rather than easier, and the stall
+needs a different account.
+
+**P5 (NO direction registered, reported either way).** `grad_coherency_per_iter`
+and `action_reward_corr_per_iter` over the same span. I have no grounds for a
+sign on either, and grad_coherency collapses from 0.91 to 0.01 within a single
+control run, so its late values may be uninformative in both arms. Reported as
+descriptive, and **a null here is not evidence for P4.**
+
+**Scope limit, stated first.** P4 is a *correlational* test on existing runs. Low
+late-run `L_loc` alongside flat regret is consistent with the training
+distribution having collapsed, and equally consistent with the DT having simply
+converged for reasons unrelated to the ROI. **Only h132's step arm can separate
+those**, because only it removes the restriction while holding everything else
+fixed. P4 therefore cannot confirm the mechanism — it can only fail to find the
+signature the mechanism requires, which would weaken h132's premise before its
+runs are spent.
