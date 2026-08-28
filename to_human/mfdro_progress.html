@@ -975,8 +975,8 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 </section>
 
 <section>
-  <p class="kicker">Tightness &middot; measured once, under re-test</p>
-  <h2>The setting was never tuned, and a tighter one is better</h2>
+  <p class="kicker">Tightness &middot; claimed, then withdrawn</p>
+  <h2>The setting was never tuned &mdash; and the tighter one is not reliably better</h2>
   <div class="col">
   <p>Every region result in this investigation uses one acceptance rate: 10%. It was the first
   calibrated value tried and was never optimised &mdash; the project&rsquo;s own notes have carried
@@ -1110,6 +1110,47 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     <p>One thing worth noticing in the table: the reference method is better on average and
     <em>far</em> less reliable, ranging from 0.83 to 15.44 across seeds against the region arm&rsquo;s
     8.08 to 14.73.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Where this leaves the question it was asked</p>
+  <h2>What the region of interest does, and where it stops</h2>
+  <div class="col">
+  <p>The brief was to find a way of using the paper&rsquo;s plausible-region rule that stops this method
+  spending its expensive budget in bad places. After a night of it, the answer has a shape worth stating
+  in one piece.</p>
+  <h3>What holds</h3>
+  <p><strong>A constant threshold cannot control the region at all.</strong> Under a fixed setting the
+  fraction of space accepted swings from 13% to 100% across benchmarks, by 250&times; within a single
+  run, and by 7&times; between seeds of one benchmark. Solving for the threshold that hits a target
+  acceptance rate collapses all three to no variation. That is a controllability result and it holds
+  regardless of whether the region helps &mdash; it is what makes &ldquo;how much region do you want&rdquo;
+  a question anyone can ask.</p>
+  <p><strong>On the one benchmark where this method genuinely loses, the region removes most of the
+  deficit.</strong> Roughly 57&ndash;66% of it depending on setting and seed set, on ten of ten seeds at
+  the well-replicated setting, at an effect nearly twice its own spread, confirmed at fresh seeds and
+  again at fresh randomness.</p>
+  <p><strong>It works by moving the queries, not by tightening them.</strong> Dispersion goes
+  <em>up</em> where the region helps and down where it fails &mdash; the opposite of what the original
+  diagnosis prescribes.</p>
+  <h3>What does not</h3>
+  <p><strong>It still loses.</strong> Head to head against the strongest comparator it is behind on six
+  of ten seeds even at its best setting. Removing most of a deficit is not closing it, and that was
+  registered as the expected outcome before the runs rather than conceded after them.</p>
+  <p><strong>Everything measured is one benchmark.</strong> Regret, relocation, waste reduction and
+  query quality all appear on the same single benchmark of four and are absent on the one the original
+  diagnosis was drawn from.</p>
+  <p><strong>Which tightness to use is open.</strong> The tighter setting looked better on two seed sets
+  and reversed on a third.</p>
+  <h3>Why the mechanism cannot be identified from this evidence</h3>
+  <p>There is exactly one benchmark where the region does anything, and it is simultaneously the most
+  concentrated, the only one whose optimum sits on the boundary almost everywhere, and the only real
+  deficit. Those three travel together, so <em>any</em> property unique to it explains the pattern
+  equally well. That is why two candidate explanations were eliminated cleanly tonight: a test that has
+  to fail on three benchmarks and hold on one is nearly free to pass. <strong>The mechanism is not
+  unknown here; it is unidentifiable</strong> &mdash; and what would settle it is a constructed family
+  of problems varying one property at a time, not a fifth benchmark varying all of them.</p>
   </div>
 </section>
 
