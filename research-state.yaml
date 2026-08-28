@@ -872,3 +872,24 @@ h116_QUALIFICATION_baseline_confound:
     I published the 8.9%-vs-0.0% comparison before reading how the baseline
     picks its query. The number was right, the implied mechanism was not.
     Checking how the OTHER arm works is part of interpreting a gap.
+
+h118_roi_boundary_waste:
+  status: COMPLETE. Locked prediction NOT supported (effect 0.62, needed 1.0).
+  compute: zero new runs (re-analysis of h90, Borehole seeds 47-51).
+  gate_miss: "ROI-Q10 vs NO-ROI: 4/5 seeds but effect 0.62 (0.76 at the 0.95 cut)."
+  exploratory: >
+    REFINE-100 (use_roi=False, teacher_refine_samples=100) puts 54.2% of HF
+    queries on the boundary vs NO-ROI 14.7% (non-overlapping per-seed ranges) and
+    cuts waste 6.79 pts, effect 1.90, 5/5. It clamps local Gaussians to the box
+    (mf_dro.py:1543); torch.rand never reaches the corner in 8D. A FILTER CANNOT
+    CREATE MASS THE PROPOSAL DISTRIBUTION NEVER HAD -- which also explains
+    MF-MES's boundary behaviour (box-constrained L-BFGS-B).
+  KEY_NEGATIVE: >
+    ROI-Q10 and REFINE-100 reach the same final value (271.64 vs 271.03) while
+    differing 2.8x in wasted budget; r(waste, final y) = -0.255 over 15 runs.
+    The boundary waste is real, reproducibly fixable, and does NOT buy
+    performance. h116 must not be read as the reason MF-DRO loses.
+  consequence_for_primary_question: >
+    Two mechanistic candidates for the ROI's Borehole benefit are now ruled out
+    by pre-registered tests: dispersion (h116) and boundary resolution (h118).
+    The channel remains UNIDENTIFIED.

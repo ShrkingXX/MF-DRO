@@ -10102,3 +10102,71 @@ after.
 the baseline selects its query. The number was right; the mechanism I implied
 was not. Checking how the OTHER arm works is part of interpreting a gap, not an
 optional follow-up.
+
+---
+
+## h118 — the ROI cannot fix boundary waste, and the waste does not explain the loss
+
+Two results, one of them uncomfortable for the line of work above.
+
+### The locked prediction failed (second gate miss in two experiments)
+
+Hypothesis: the ROI is a resolution amplifier. The teacher's 600 candidates are
+uniform draws (`_draw_raw` = `torch.rand`) filtered by the ROI, so at acceptance
+rate q their density inside the ROI scales as 1/q; a tighter ROI should let the
+teacher reach the boundary and cut wasted budget.
+
+Borehole, h90, seeds 47-51, paired, wasted HF fraction (z0 < 0.9):
+
+| arm | mean waste | vs NO-ROI | effect | seeds |
+|---|---|---|---|---|
+| NO-ROI | 9.6% | — | — | — |
+| ROI-Q10 | 7.7% | -1.90 pts | **0.62** | 4/5 |
+| REFINE-100 | 2.8% | -6.79 pts | **1.90** | 5/5 |
+
+**GATE FAILED** for the ROI (needed >=4/5 AND effect >=1.0; got 4/5 and 0.62).
+Declared sensitivity at the 0.95 cut: effect 0.76, same verdict.
+
+### Why — and it generalises
+
+REFINE-100 clamps its 100 local Gaussians to the box (`mf_dro.py:1543`), which
+puts probability mass EXACTLY on the boundary. `torch.rand` returns [0,1) and in
+8 dimensions never approaches the corner. The ROI only FILTERS those draws.
+
+Boundary mass actually achieved (HF queries at z0 >= 0.999):
+NO-ROI 14.7%, ROI-Q10 18.6%, REFINE-100 **54.2%** (per-seed ranges 5.3-19.5 vs
+43.6-61.5, non-overlapping).
+
+> **A filter cannot create probability mass the proposal distribution never had.**
+
+That one sentence covers all three mechanisms seen so far: MF-MES reaches the
+boundary through box-constrained L-BFGS-B (converges onto active constraints),
+REFINE-100 through clamped local Gaussians, and the ROI through neither.
+
+### The negative that constrains everything above
+
+Mean final best HF y: NO-ROI 260.84, **ROI-Q10 271.64, REFINE-100 271.03**.
+
+ROI-Q10 and REFINE-100 land on the same final value while differing **2.8x in
+wasted budget**. Across all 15 runs, waste vs final value gives r = -0.255
+(5 seeds, 3 non-independent arms — a description, not an inference).
+
+**The boundary waste is real, is reproducibly fixable, and buys nothing.**
+Cutting it from 7.7% to 2.8% changed the outcome by 0.6 in 271. So the h116
+finding — which I published this morning and which h117 is now replicating —
+should NOT be read as the reason MF-DRO loses. It is a genuine inefficiency
+that turns out not to be the binding constraint.
+
+I am recording this against my own last three commits, which built toward
+treating that waste as the mechanism. It measures something true; it does not
+explain the gap.
+
+### Where this leaves the primary question
+
+The ROI's Borehole benefit (3.5-4.2 pts, sd 0.37, 9-10 of 10 seeds — still the
+most reproducible quantity in the project) is real and is now shown NOT to work
+through boundary resolution: the ROI barely moves boundary mass (14.7% -> 18.6%)
+and fails the waste gate, while an arm that moves it decisively (54.2%) gains no
+extra regret. **The channel through which the ROI helps remains unidentified**,
+and two mechanistic candidates — dispersion (h116) and boundary resolution
+(h118) — are now ruled out with pre-registered tests rather than argument.
