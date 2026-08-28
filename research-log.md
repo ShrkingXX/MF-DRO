@@ -1963,3 +1963,38 @@ include broke it.
 Predictions handed to the peer before h123 launches: the ramp's shape should
 matter far less than whether it escapes q~0.10, and there should be a ceiling
 around q~0.21 above which no schedule endpoint buys anything.
+
+## 2026-08-28 (cont.) — h134: why Hartmann is inert, and the bar failures move into tools
+
+**The finding.** The primary question's causal path is that the ROI shapes a
+*training distribution*, so it can only matter if training responds. Nobody had
+checked. `L_loc` first-third vs last-third, seeds 42-46: Borehole control declines
++0.078; **Hartmann control declines −1.003 — the loss nearly doubles across a run,
+4/5 seeds.** Between-benchmark contrast effect 1.10, 4/5, independently reproduced
+by the peer.
+
+Since `L_loc` is a loss on a moving target, this cannot separate "the head can't
+learn" from "the target moves faster than the head follows". The disjunction
+suffices: **on Hartmann the head does not track its training target, so an
+intervention that works by reshaping that target has little purchase.** That is
+an account of ROI inertness needing **no claim about where the region sits** —
+the question h100's unweighted-distance instrument left undecidable. Hartmann is
+not iteration-starved (120 vs 107) but HF-query-starved (11.2 vs 93.4).
+
+**P1 failed on a threshold I mis-set** — 0.40 calibrated from one seed's
+first-iteration vs last-iteration values, then registered against first-third vs
+last-third means, which differ by an order of magnitude.
+
+**A lead correctly died.** I noticed the ROI arm degrading less than control on
+Hartmann and flagged it as a lead, not a result. My P4 replicated it across four
+arms on the same five seeds and returned an equivocal 3-of-4 with pooled effect
+0.47. The peer's test varied the **benchmark** instead and killed it outright: the
+Hartmann mean is carried by seed 42 alone (+0.424 → +0.082 without it), and on
+Borehole the sign reverses on a more separable contrast. **I replicated along the
+axis with the most data rather than the axis the claim was about.**
+
+**Tooling.** Three bar-design failures today and two calibration failures, none
+caught in advance. `tools/check_gate.py` now verifies pass/falsifier **partition**
+the outcome space (self-tested against both real gaps), and `--calibrated-by`
+implements the peer's rule that a bar carries the command computing its
+calibrating value, so misapplying it becomes a diff rather than a judgement call.

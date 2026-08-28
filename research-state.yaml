@@ -615,10 +615,14 @@ open_questions:
   our bug -- the h83 comparison stands, and only the frozen protocol''s PASS is hollowed out. What remains
   open is a LITERATURE question, not a code one: whether the reference''s own budget regime makes that
   prior reasonable there. It changes no number here, only how charitably the baselines should be described.'
-- 'Boundary aversion: causal test (change the output parameterisation) not run.'
 - Does a widening beta_t schedule recover the 3.588% that erodes after cost 100? Predicted yes, and predicted
   NOT to help before cost 100. The peer's h123 is the registered test; my prediction is EXPLORATORY and
   post-hoc on the curve that suggested it.
+- 'ANSWERED (h134): why the ROI is inert on Hartmann. The head does not track its training target there
+  -- L_loc nearly doubles across a run (control -1.003, 4/5) while Borehole''s is flat (+0.078); contrast
+  effect 1.10, reproduced independently. Since the ROI acts by reshaping that target, it has little purchase.
+  Requires NO claim about region placement, which h100''s unweighted-distance instrument could not decide.'
+- 'Boundary aversion: causal test (change the output parameterisation) still not run.'
 h116_relevance_blindness:
   status: COMPLETE. Locked prediction NOT supported (gate 0.17 / 0.10, needed 1.0).
   compute: zero new runs (re-analysis of h83).
