@@ -5687,3 +5687,67 @@ wrong. Only h84's reuse crosses that line, and only under a control that passes.
 **Rule to keep:** a paired comparison is valid iff both arms ran on commits with
 no behavioural diff, OR a reproduction control demonstrates equality. Record the
 commit in every result file (already done via `_code`) so this stays checkable.
+
+## L_loc: the imitation channel IS lossy. D1 confirmed, D2 refuted in direction.
+
+EXPLORATORY, zero new compute -- `L_loc_per_iter` was already logged by every
+run. Registered in h94 Amendment 2 BEFORE computing. h90 Borehole, seeds 47-51
+(NO-ROI n=5, ROI-Q10 n=3 so far).
+
+`L_loc` is `MSELoss(x_pred, actions_x)` with mean reduction, so it is a
+PER-ELEMENT squared error in normalized [0,1]^d.
+
+| | first 10% | last 10% | RMSE/dim | L2 over d=8 |
+|---|---|---|---|---|
+| NO-ROI (n=5)  | 0.0480 | **0.0380** | 0.195 | 0.551 |
+| ROI-Q10 (n=3) | 0.0415 | **0.0297** | 0.172 | 0.487 |
+
+Reference points, same units:
+
+    two independent uniform points        0.1667   RMSE/dim 0.408
+    predict 0.5 against a uniform target  0.0833   RMSE/dim 0.289
+    unit-cube diameter at d=8                              2.828
+
+### D1 CONFIRMED — and it is the load-bearing one
+
+The head does NOT converge onto the teacher's actions. Over a full run L_loc
+falls only 0.048 -> 0.038, and it ends 0.55 away in L2 from the point the
+teacher chose -- **19.5% of the domain's diameter**, every query, at the end of
+training.
+
+Against the "predict the centre of the domain and ignore the input" baseline it
+is better by at most 2.2x. **At most**, because that 0.0833 assumes a uniform
+target: the teacher is a MES argmax over the pool, so its actions concentrate,
+the true constant-predictor baseline is LOWER than 0.0833, and the head's real
+margin over it is smaller than 2.2x by an unknown amount.
+
+So the channel the ROI must travel to reach a real query is lossy in the plain
+sense: the student ends up a fifth of the domain away from what the teacher
+demonstrated. This is the quantitative version of the code audit's claim, and it
+is the first time this session that a mechanism claim was checked against a
+quantity that was already being logged rather than against a new experiment.
+
+### D2 REFUTED IN DIRECTION, and the refutation is confounded
+
+D2 predicted L_loc comparable between arms, with a much LARGER ROI-on value
+being evidence the ROI harms by making the teacher hard to imitate. The opposite
+happened: **ROI-on L_loc is 22% LOWER** (0.0297 vs 0.0380).
+
+That is not evidence of better imitation and must not be read as such. The ROI
+restricts the teacher's candidate pool, so its actions are drawn from a smaller
+region; a more concentrated target lowers MSE without the student tracking it
+any better. Separating the two needs Var(actions_x), which is not logged.
+
+**Consequence for h94: log Var(actions_x) per iteration.** Without it, "ROI-on
+has lower L_loc" is uninterpretable, and the ratio L_loc/Var(actions_x) is the
+statistic that would actually say whether the ROI makes the teacher easier or
+harder to imitate. Added to h94's worker requirements.
+
+### D3 holds: this does NOT establish h94's premise
+
+Stated in advance and repeated because it constrains what the above licenses.
+L_loc is a TRAINING loss over rollout actions, not the gap at the real query. It
+shows the student does not reproduce the teacher; it does NOT show where the
+real query lands relative to the ROI. h94's P5 (fraction of real queries that
+actually required snapping) remains the measurement that settles that, and no
+h94 verdict will be drawn from L_loc.
