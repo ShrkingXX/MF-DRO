@@ -103,3 +103,49 @@ so the completed files support "the measured rate is 0.05" and not the stronger
 because the target is fixed by the arm definition and verified in the shim, but
 carrying `target_accept` into the summary would be the better design and is worth
 doing in any future arm.
+
+---
+
+## ADDENDUM — the separability bar, fixed before h97 results exist
+
+Registered with 0/5 h97 runs on disk. Reason: two tightness levels are ALREADY on
+record, and if they cannot be told apart, h97's P2 cannot be read as an ordering
+either. Establishing that bar after seeing h97 would let me pick it to suit.
+
+Recomputed from h84's Borehole arms, seeds 42-46:
+
+      seed   FIX2 (acc 21.4%)   Q10 (acc 10.0%)   FIX2 - Q10
+        42        11.13              11.50          -0.37
+        43        10.93              12.27          -1.35
+        44         8.26              11.37          -3.10
+        45        11.99              11.19          +0.80
+        46        12.70              11.62          +1.07
+      paired mean -0.589, sd 1.707, FIX2 better 3/5, |mean|/sd = 0.35
+
+**A 2.1x change in acceptance rate (21.4% -> 10.0%) moves regret by 0.59 points
+against a per-seed sd of 1.71, and splits 3/2.** Those two levels are not
+separable. A peer session reached the same conclusion from the mechanism side
+(GAPSD paired -0.018 against sd 0.169) and recorded that q=0.10 was never shown
+to beat q~0.21.
+
+### The bar
+
+**h97's q=0.05 vs q=0.10 difference is declared an ORDERING only if it exceeds
+what already failed to separate: |paired mean| > 0.59 AND at least 4/5 in one
+direction.** Anything smaller is recorded as INDISTINGUISHABLE, whatever its sign.
+
+This is deliberately a bar the existing data would fail. That is the point: an
+ordering claim has to beat the noise level that two settings 2.1x apart could not.
+
+### What the likely outcome means
+
+Three tightness levels spanning 21.4% -> 10.0% -> 5.0%, a **4.3x range**, all
+mutually indistinguishable, would be a stronger and more useful result than a
+tuned optimum: **the mechanism is the region, not the threshold.** It would also
+retire the tightness question rather than leaving it open, and it says the
+calibration's value is controllability across benchmarks — bounding rejection
+cost and collapsing 12.6-100% acceptance to a single dial — not superiority at
+any particular setting on Borehole.
+
+If instead q=0.05 clears the bar in EITHER direction, that is the first evidence
+of a real tightness effect and locates a turning point, which is worth following.
