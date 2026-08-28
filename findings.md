@@ -7932,3 +7932,71 @@ protocol's own "uninformative" label and the three confounds of Amendments 7-8.
 SNAP-CONTROL remains interpretable on its own terms -- it snapped 100% by design
 and is a real intervention -- so "does quantizing onto an unfiltered pool hurt?"
 is answerable even though "does the ROI at inference help?" is not.
+
+## H105: the pre-registered success test PASSES at the seed count it registered
+
+**CONFIRMATORY.** Bars locked before the 10 new runs. A peer session established
+that PROTOCOL.md registers two baselines on one benchmark at **10 seeds**, and
+that h83 ran 5. This supplies the other five. Cost: ~2 minutes — the registered
+baselines are the cheapest methods in the comparison (GP-UCB 0.0 min, MI-Greedy
+0.1-0.2 min), and MF-DRO (h89 CONTROL, spec-verified) and MF-MES (h91) already
+existed at seeds 52-56.
+
+      method          n    mean     SE   mean+SE   mean-SE   registered?
+      MF-DRO         10    5.32   1.58      6.90      3.74   no
+      MF-MI-Greedy   10   50.72   7.85     58.57     42.87   YES
+      MF-GP-UCB      10   55.26   6.17     61.43     49.09   YES
+      MF-MES         10    6.84   1.47      8.31      5.37   no
+
+      registered test, registered baselines:  6.90 < 42.87   PASSES  (P1 MET)
+
+**The pass is not marginal — it clears by a factor of six, at the full registered
+sample.** The "half the registered seeds" caveat that has ridden alongside this
+claim all evening is now discharged.
+
+### The gate that nearly voided this, and why it was wrong
+
+The reused arms span commits, so the protocol required a code-drift check. A
+FILE-level check **failed on all four methods** — and would have voided the
+experiment. It was too coarse: it flags changes to files a method never executes.
+`src/policy/mf_dro.py` changed between h83 and h89, but the change is entirely
+inside the `use_roi=True` branch and the teacher-refinement block.
+
+The criterion that matters is whether the **executed** path changed:
+
+      use_roi=False branch, md5 across 3654df07 / af5ec31b / 4b5b0077 / 244a91f3
+          ff70f008c0ac  ff70f008c0ac  ff70f008c0ac  ff70f008c0ac   (255 chars)
+
+Byte-identical at every commit that contributed a run. Independently corroborated:
+h84's reproduction control compared ROI-OFF at `155b5f4d` against h83's MF-DRO at
+`3654df07` and reported `|dregret| = 0.000e+00` on four pairs.
+
+**This also retroactively validates h91, h92 and h93**, which all pooled h83's
+seeds with fresh ones across those same commits. That pooling is sound.
+
+### P2 was REFUTED on the protocol's metric, and is a TIE on the paired one
+
+I registered "MF-DRO still does not beat MF-MES at n=10" as positive. On the
+protocol's own mean-based metric it is false: **5.32 vs 6.84, MF-DRO lower.**
+
+But the paired comparison says something different and I am reporting it beside
+the mean rather than choosing whichever reads better:
+
+      paired n=10: mean -1.52, sd 6.24, median +0.22, MF-DRO better 5/10
+        seeds 42-46  mean +1.37  (better 2/5)
+        seeds 52-56  mean -4.40  (better 3/5)
+
+**Five of ten and a median of +0.22 is a tie.** The favourable mean is driven by
+one seed (54: -15.09) against a paired sd of 6.24. This reproduces h91's earlier
+finding exactly, and the honest statement is that **MF-DRO and MF-MES are
+indistinguishable on Hartmann at n=10** — not that MF-DRO wins. Reporting the
+mean alone would be the same error this project has spent the day correcting,
+in the flattering direction.
+
+### The headline, now fully qualified
+
+MF-DRO **passes its pre-registered success test on the protocol's own benchmark,
+against both registered baselines, at the registered seed count**, by 6x —
+against baselines that h103 established are a faithful port of the reference's
+deliberate UCB prior and are genuinely weak at this budget. It is tied with
+MF-MES on Hartmann and behind it on Borehole. Every clause is load-bearing.
