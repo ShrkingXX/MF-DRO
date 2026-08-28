@@ -5760,3 +5760,63 @@ future reader — or a paper draft — lifting an absolute number out of those
 sections and setting it beside a current one. The rule above covers that case,
 and this note says where the risk actually lives rather than leaving the audit's
 "6 affected" unqualified.
+
+## H90: the ROI's Borehole gain SURVIVES fresh seeds — the first claim that does
+
+**CONFIRMATORY.** Bars registered in h90's protocol before any run; q=0.10 fixed
+as a module constant so no other ROI setting could be tried on seeds 47-51. Both
+arms re-run at these seeds; nothing reused across seed sets.
+
+      seed   ROI-Q10   no ROI     diff
+        47     11.56    17.60    -6.05
+        48     13.79    15.67    -1.87
+        49     10.54    14.52    -3.97
+        50     13.11    18.88    -5.77
+        51     12.27    12.05    +0.22
+      n=5  paired mean -3.49  sd 2.66  ROI better 4/5
+
+      P1 (negative on >=4/5 AND negative mean)  MET
+      P2 (margin shrinks vs -4.22)              MET
+      P3 (still does NOT beat MF-MES 6.40)      MET -- still behind
+
+**Pooled over both seed sets: n=10, mean -3.86, sd 2.44, median -3.88, better
+9/10.** The effect retained **83%** of its original size at fresh seeds. For
+comparison, teacher refinement — the only other intervention to survive — retained
+36%, and the two withdrawn interventions retained nothing.
+
+This matters beyond the number. Three interventions were tried this session and
+fresh-seed re-tests cost every one of them something: the ROI's Hartmann flip was
+WITHDRAWN (4/5 -> 2/5), the HF floor was WITHDRAWN (mechanism inverted), and
+refinement shrank by 64% and failed its cost bar. **The ROI's Borehole gain is the
+first result to come back essentially intact.** The session's answer to its
+primary question is therefore not negative: on Borehole, the paper's own ROI
+heuristic — with beta_t calibrated per iteration rather than held constant —
+measurably stops MF-DRO wasting budget, and it replicates.
+
+### The mechanism shows up as variance, not mean
+
+**EXPLORATORY** — not registered, found while reading the completed table.
+
+      arm        mean     sd    range   worst    best
+      ROI-Q10   11.92   0.96     3.25   13.79   10.54
+      no ROI    15.78   2.37     7.14   19.19   12.05
+
+The ROI cuts across-seed sd by **60%** (2.37 -> 0.96) and range by 54%. Its gain
+is concentrated where the method was worst: the **worst case improves by 5.40
+points, the best case by only 1.51**. That is the signature of removing bad
+outcomes rather than improving typical ones — which is exactly what "stop wasting
+HF budget on low-value regions" predicts.
+
+Stated carefully because an earlier tail-risk claim this session was discarded as
+a change-score artefact: this is **each arm's own spread across seeds**, not a
+correlation between a method and a difference involving it. That is the valid
+form of the test, and it is the form used here.
+
+### What it does NOT show
+
+MF-DRO with the ROI reaches 12.25% on Borehole at seeds 47-51 against MF-MES's
+6.40%. **The gap is roughly halved, not closed.** P3 registered this in advance
+and it was met. The ROI makes MF-DRO substantially less wasteful; it does not
+make it competitive on this benchmark.
+
+Still open: the Borehole REFINE-100 arm (P4/P5, third seed set) is running.
