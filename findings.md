@@ -10901,3 +10901,40 @@ beta_t grows with t, which widens this ROI, while measurement says widening cost
 9 points. Both can hold — **the theory governs a confidence bound's validity, not
 the usefulness of the induced set as a training-distribution filter.** Those are
 different claims about the same object.
+
+### CLARIFICATION: "every ROI effect is Borehole-specific" was over-broad
+
+I have repeated that claim many times today, and h121's mismatch argument leans
+on it. It conflates two different comparisons, and h125 forces them apart.
+
+**Comparison A — does an ROI help at all? (ROI vs no-ROI.)**
+Established on Borehole: 3.5-4.2 pts, sd 0.37, 9-10 of every 10 seeds.
+**On Hartmann this has NEVER been properly run.** h84's Hartmann `ROI-OFF`
+control holds seeds 42-43 only — the same shortfall as its Borehole side.
+h122 is completing that control right now and will test it for the first time.
+
+**Comparison B — does the ROI's tightness matter? (tight vs loose ROI.)**
+h111 is the source of "no tightness effect off Borehole". Its arms are
+`ROI-Q05` only, compared against q=0.10 — **a 2x contrast** (-1.52 and -1.57,
+both 4/5, not separable). That is exactly the underpowered design h125 exposed.
+**h111's null does not establish that tightness is inert on Hartmann; it
+establishes that 0.10 -> 0.05 is not enough movement to see anything.**
+
+And at 5x, h125 DID separate on Hartmann: regret 0.197 -> 0.303, effect 1.01,
+4/5 seeds. Marginal, but present and in the same direction as Borehole's.
+
+So the accurate position is:
+
+| claim | status |
+|---|---|
+| ROI vs no-ROI helps on Borehole | established, most reproducible result here |
+| ROI vs no-ROI on Hartmann | **never tested with a complete control** (h122, in flight) |
+| Tightness matters on Borehole | established at 5x (effect 5.69) |
+| Tightness matters on Hartmann | **weak evidence YES at 5x** (effect 1.01, 4/5) |
+| Tightness inert at 2x anywhere | established, and now explained as underpowered |
+
+This does not overturn h121's mismatch — that argument is about comparison A,
+and A on Hartmann is still unmeasured rather than shown positive. But "every
+ROI effect is Borehole-specific" should not be written again without saying
+which comparison is meant. Two of the four rows above are about a benchmark
+where the relevant experiment has not finished.
