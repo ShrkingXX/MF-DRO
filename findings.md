@@ -12270,3 +12270,41 @@ the point without the primary having been chosen after the fact.
 
 Worth recording that my own "different objects" observation was the argument
 against my own proposal, and I did not notice.
+
+### The seed-set asymmetry is NOISE, and I used the wrong denominator checking it
+
+I have been carrying "the cleaner set is the weaker one" as a caveat worth
+putting in a write-up. It is not a finding. Verified at one read point, no
+selection:
+
+| set | n | mean | sd | effect | better |
+|---|---|---|---|---|---|
+| SUBSTITUTED 42-46 | 5 | -4.224% | 2.433 | 1.74 | 5/5 |
+| CLEAN 47-51 | 5 | -3.489% | 2.663 | 1.31 | 4/5 |
+| **POOLED 42-51** | 10 | **-3.857%** | 2.436 | **1.58** | **9/10** |
+
+Difference between sets: **-0.735**. Standard error of that difference:
+sqrt(2.433^2/5 + 2.663^2/5) = **1.613**. Ratio **0.46** — under half a standard
+error. The asymmetry is sampling noise in n=5 halves, not a property of the
+substitution.
+
+**Pooling is legitimate here** precisely because h120 Amendment 3 verified the
+control substitution bit-identical at 5/5 Borehole seeds. So there is one
+estimate: **-3.86% of optimum, effect 1.58, better in 9 of 10 seeds.**
+
+My original caution survives only in its first half: quoting "3.5-4.2%" presents
+a two-set spread as though it were an interval. The fix is not to flag an
+asymmetry — it is to quote the pooled estimate.
+
+**And my own check used a mismatched denominator.** I compared a
+difference-of-means against the sem of the POOLED MEAN (2.436/sqrt(10) = 0.770),
+giving 0.95. The correct denominator for comparing two means is the sem of their
+DIFFERENCE (1.613), giving 0.46. Both are under 1 so the verdict is unchanged,
+but my ratio was twice the right one and my printed label said "under half a
+standard error" while displaying 0.95 — a label that did not match its own number.
+
+Third time today a gap between two of our numbers proved smaller than the noise
+on either, after the near-zero-denominator ratios and the rank-order-off-a-tie.
+Same family: **a difference between two estimates is not a finding until it is
+compared against the spread of the estimates it separates — using the spread of
+the DIFFERENCE, not of either estimate.**
