@@ -6161,3 +6161,39 @@ afterward and the two measurements are independent (different definitions: mean
 per-dim std of HF query locations here, overall and HF-only proposal sd there).
 Recording the sequence because "registered before computing" and "registered
 before knowing" came apart here, and only the first is strictly true.
+
+### The ROI's dispersion effect has OPPOSITE signs on the two benchmarks
+
+**EXPLORATORY.** Follows the Borehole dispersion result, and it sharpens it. A
+peer session replicated that result with a different statistic on the same runs
+and concluded dispersion is "a correlate of the failure, not its cause". Both
+their measurement and mine are **Borehole**. The founding diagnosis — mean HF
+query score 0.336 vs 0.747, proposals 3x more dispersed — was measured on
+**Hartmann**. So the claim was being argued on the wrong benchmark. Measuring
+Hartmann directly:
+
+      benchmark   ROI outcome      dispersion effect      paired
+      Hartmann    FAILED/withdrawn   -10.6% (DOWN)        4/5 down
+      Borehole    WORKED (-3.49)     +9.5%  (UP)          4/5 up
+
+**The ROI reduced dispersion precisely where it did not help, and increased it
+where it did.** That is a stronger and more specific statement than "correlate,
+not cause", and it is the sharper one because the reduction happened on the very
+benchmark the diagnosis was drawn from:
+
+  - **Not sufficient.** On Hartmann the ROI achieved the reduction the diagnosis
+    prescribes and the regret result was withdrawn anyway.
+  - **Not necessary.** On Borehole it moved dispersion the wrong way and improved
+    regret by 3.49 points, 9/10 pooled.
+
+So on these two benchmarks dispersion reduction is neither necessary nor
+sufficient for the improvement. Any future fix justified as "concentrate the
+proposals" has to account for both halves, not just the Borehole half.
+
+**Limits, stated plainly.** n=5 per benchmark and no p-values, per standing
+discipline. Hartmann's ROI-OFF arm reuses h83 for seeds 44-46 under the
+reproduction control that passes at 0.000e+00. Hartmann's HF-only counts are
+small (5-25 queries per run), so its HF-only column is noisy; the all-proposal
+column is the one carrying the claim. And the peer's replication and mine are two
+statistics on ONE dataset, not two datasets — the Hartmann measurement here is
+the first genuinely separate one.
