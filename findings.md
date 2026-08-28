@@ -7141,3 +7141,71 @@ This predicts something checkable at zero compute: the ROI's own logged
 diagnostics record `min_dist_to_xstar` and `frac_within_0.2` for the accepted
 region. If the mechanism is right, the ROI region should sit close to x* on
 Borehole and far from it on Hartmann. Registered as H100 rather than asserted.
+
+## H100: Q1 FAILED — and the instrument has a defect I did not flag in advance
+
+EXPLORATORY, zero compute. Q1-Q3 registered at 93f0d72 before computing.
+
+    benchmark    d   min_dist   uniform ref   ratio   frac<0.2   ROI outcome
+    Borehole     8    0.4934     0.3902       1.26    0.0000     WORKED -3.49
+    Hartmann     6    0.2040     0.2572       0.79    0.0023     failed
+    Ackley      10    0.3627     0.5307       0.68    0.0000     negligible
+    Currin       2    0.0067     0.0205       0.32    0.4773     saturated
+
+ratio = the ROI's min_dist divided by what a uniform 600-point draw gives at
+that d, so the dimensionality confound the protocol flagged is normalized out.
+
+**Q1 FAILED, and inverted.** Borehole's ROI sits FARTHER from x* than an
+unfiltered pool would (1.26x) and contains **nothing at all** within 0.2 of x*
+(0.0000) -- yet the ROI works there. Hartmann's ROI is CLOSER than uniform
+(0.79x) and does contain near-x* mass -- and the ROI failed there.
+
+Q2 FAILED: the frac_within_0.2 ordering is Currin > Hartmann > Ackley >
+Borehole, i.e. almost exactly reversed from the ROI's benefit.
+
+### What the failure licenses, and what it does not — the instrument is defective
+
+My script printed "the surrogate-quality hypothesis is DEAD". **I am overriding
+that verdict, and flagging clearly that the override is POST-HOC.**
+
+`min_dist_to_xstar` and `frac_within_0.2` are UNWEIGHTED full-dimensional
+distances. findings.md:3174 established, hours before this protocol was written,
+that unweighted distance on Borehole REVERSES the true ordering, because four of
+its eight dimensions carry ~0.4% of the output variance between them. On
+Borehole, "within 0.2 of x*" demands closeness in four dimensions that do not
+matter. A region perfectly placed in dims 0/3/5/6 and arbitrary in 1/2/4/7 would
+score 0.0000 on this measure.
+
+**So Q1's failure is consistent with the hypothesis being wrong AND with the
+instrument being unable to see it.** The honest verdict is UNTESTED, not
+refuted.
+
+My protocol flagged the dimensionality confound and normalized it out. It did
+NOT flag the weighting defect, which I had documented myself and have now been
+bitten by four times (the h96 metric choice, the h97 cloud/incumbent mix-up, the
+dim-7 aggregate split, and here). Noticing it only after seeing an unwelcome
+result is exactly the pattern that lets a researcher rescue any failed
+prediction, so it is recorded as post-hoc and does not erase the registered
+FAILED.
+
+### One thing that DOES survive, independent of the weighting
+
+Whatever `frac_within_0.2` measures, **Borehole scores 0.0000 and the ROI works
+there.** The rationale recorded in the source for adding this diagnostic was
+that "an ROI that never contains anything near the optimum starves the DT of
+near-optimal training examples" -- that was the failure that got the ROI deleted
+before it was reinstated. On Borehole the ROI contains nothing near the optimum
+by this measure, does not starve, and delivers the only confirmed gain in the
+project. **The starvation rationale is false as stated with this measure**, and
+that holds whether or not the measure is well-chosen.
+
+### Standing position on the mechanism
+
+Two candidate gates have now been tested and neither survives as stated:
+headroom (H99, eliminated, anti-correlated) and containment (H100, untested due
+to instrument defect, and inverted as measured). **h96's four-benchmark
+relocation pattern remains real and unexplained.** Resolving containment
+properly needs a sensitivity-weighted containment diagnostic, which does not
+exist in the logs and would cost a 5-run re-instrumentation of the Borehole ROI
+arm. Not launching it: h94 owns the compute and its result bears on whether this
+line matters at all.
