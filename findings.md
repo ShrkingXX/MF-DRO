@@ -12308,3 +12308,61 @@ on either, after the near-zero-denominator ratios and the rank-order-off-a-tie.
 Same family: **a difference between two estimates is not a finding until it is
 compared against the spread of the estimates it separates — using the spread of
 the DIFFERENCE, not of either estimate.**
+
+## h134 — P1 FAILS on a threshold I mis-set. But on Hartmann the head gets WORSE, not merely flat.
+
+CONFIRMATORY, zero compute. `L_loc` first-third vs last-third means, fractional
+decline `(first-last)/first`, Borehole and Hartmann, seeds 42-46:
+
+    bench        arm         first     last   frac decline     sd   iters
+    Borehole     ROI-OFF    0.0437   0.0401         +0.078  0.113     107
+    Borehole     ROI-Q10    0.0323   0.0339         -0.061  0.203     116
+    Hartmann     ROI-OFF    0.0323   0.0609         -1.003  0.983     120
+    Hartmann     ROI-Q10    0.0205   0.0289         -0.579  0.889     109
+
+**P1 required Borehole's control decline to be >= 0.40. It is 0.078, so P1 fails
+on its first clause.** My threshold was wrong and the error is instructive: I set
+0.40 from having seen `L_loc` run 0.1288 -> 0.0372 in one seed — **first iteration
+against last iteration**, which is not the statistic I then registered
+(first-third against last-third means). The loss collapses within the first few
+iterations and is flat thereafter, so the two statistics differ by an order of
+magnitude. **I calibrated a bar on one quantity and applied it to another**, four
+hours after naming that exact failure and twice after being caught doing it.
+
+### The directional half holds, and the substantive finding is stronger than P1
+
+    ROI-OFF  Hartmann - Borehole decline = -1.081  sd 0.983  effect 1.10  4/5
+    ROI-Q10  Hartmann - Borehole decline = -0.518  sd 0.848  effect 0.61  4/5
+
+The registered **falsifier did not fire** — Hartmann does not match Borehole. And
+the direction is worse than "Hartmann learns less":
+
+**On Hartmann `L_loc` INCREASES over the run**, 0.0323 -> 0.0609, nearly doubling,
+in 4 of 5 seeds. On Borehole it is flat. The head is not failing to improve; it is
+**losing ground**.
+
+### What this licenses, given the confound I registered first
+
+`L_loc` is a loss on a **moving target** — the teacher actions drawn from
+`roi_candidates`. A rising loss is equally consistent with "the head is failing to
+learn" and "the target moves faster than the head can follow". **These are not
+separable from this statistic**, and with 11.2 HF queries per Hartmann run the
+teacher's targets have every reason to be unstable.
+
+So the defensible claim is the disjunction, and it is enough for the purpose:
+**on Hartmann the head does not track its training target, whether because it
+cannot learn or because the target will not hold still. Either way an intervention
+that works by reshaping that target has little purchase**, which is a sufficient
+account of the ROI's inertness there that requires no claim about *where* the
+region sits — the question h100's defective instrument left open.
+
+Hartmann is not starved of iterations: 120 post-init against Borehole's 107. It is
+starved of HF queries, 11.2 against 93.4. So this is not "the DT barely trains".
+
+### EXPLORATORY, not registered
+
+The ROI arm's Hartmann degradation is *less bad* than the control's (-0.579 vs
+-1.003). If real, the ROI is partially stabilising a target that is otherwise
+running away — which would be a genuine effect on Hartmann, in a quantity nobody
+has looked at, while leaving regret untouched. n=5, high variance, and no
+direction was registered. **Flagged as a lead, not a result.**
