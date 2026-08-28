@@ -2072,6 +2072,87 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+<section>
+  <p class="kicker">The last experiment &middot; a prediction made before the runs existed</p>
+  <h2>A held&ndash;out dose, called in advance, and it landed</h2>
+  <div class="col">
+  <p>The region&rsquo;s strength is set by one number: what fraction of candidate points it admits.
+  Two settings had been measured. A model fitted to those was used to predict a third &mdash; both how
+  the budget would split and how much regret would fall &mdash; and the prediction was written down and
+  committed to version control while the runs had produced <em>no output at all</em>.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Quantity at the held&ndash;out setting</th><th class="n">Predicted</th><th class="n">Measured</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Share of budget on expensive queries</td><td class="n">0.808 &plusmn; 0.020</td><td class="n">0.792</td><td class="win">inside</td></tr>
+      <tr><td>Improvement over no region</td><td class="n">2.21%</td><td class="n">2.86%</td><td class="win">inside the bracket</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Both landed, on five seeds out of five, and the stated uncertainty was honest</strong>
+  &mdash; the spread in the data was slightly <em>narrower</em> than the interval claimed, where an
+  earlier prediction on this page had claimed an interval nearly twice too tight and was recorded as
+  uninformative because of it. The two ways the prediction could have failed &mdash; no effect at all,
+  or an abrupt step rather than a smooth response &mdash; sit six and three standard errors away.</p>
+  <p>The dose&ndash;response is now complete at three measured settings, all read at the same point:
+  <strong>4.22% at the tightest, 2.86% in the middle, 1.31% at the loosest.</strong></p>
+  </div>
+  <div class="callout">
+    <p class="kicker">What a successful prediction does not buy</p>
+    <p>The model that made this call treats the benefit as flowing through one channel: the region
+    shifts spending away from expensive evaluations. <strong>Other sections of this page show that
+    account is incomplete</strong> &mdash; the region also improves the <em>quality</em> of the
+    expensive queries it does make, by the largest effect measured anywhere here, and the spending shift
+    itself does not reproduce on three other benchmarks. So the model predicts a held&ndash;out point to
+    within a standard error and is still not the right account of why. Those are both true, and the
+    second is the one that would matter for a paper.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Where this stops</p>
+  <h2>Stopped by instruction, with four questions registered and unanswered</h2>
+  <div class="col">
+  <p>Work on this line was halted. The last ten runs were allowed to finish because they were nearly
+  complete and already registered; nothing further was started, and five free machine slots were left
+  unused. What remains open is recorded as <em>locked predictions</em> rather than as a narrative, so
+  whoever picks it up inherits tests rather than impressions:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Open question</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Does the paper&rsquo;s own scheduled confidence parameter help?</td><td>registered, never run</td></tr>
+      <tr><td>Is the best&ndash;performing setting <em>already</em> such a schedule?</td><td>open on indirect evidence; the direct test is one run</td></tr>
+      <tr><td>Does switching the region off late recover the stall?</td><td>registered, never run</td></tr>
+      <tr><td>Is there anything below the tightest setting tested?</td><td>runs killed at 58%; unanswered</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p>The second of those is the one worth returning to. The best&ndash;performing configuration on
+  record is labelled a <em>fixed</em> setting, and three independent measurements &mdash; its behaviour
+  early and late, its runtime, and the number of samples it draws &mdash; all point to its strength
+  varying across a run in exactly the direction the source paper&rsquo;s notation specifies. If that is
+  right, the paper&rsquo;s prescription was accidentally implemented and then measured as the best arm
+  without anyone noticing. <strong>One run would settle it.</strong></p>
+  </div>
+  <div class="callout">
+    <p class="kicker">The most reliable thing built today was not a result</p>
+    <p>Two independent sessions worked this problem in parallel and checked each other&rsquo;s numbers.
+    Between them they made <strong>nine errors of statistic, scale, or unchecked assertion</strong>
+    &mdash; a ratio quoted with a near&ndash;zero denominator, a threshold measured on one quantity and
+    applied to another, a rank order read off a tie, a budget comparison that would have silently handed
+    one method a quarter more resource, among others. <strong>Eight of the nine were caught by the other
+    session, not the one that made them.</strong> The single exception was caught because a protocol had
+    been written in advance to name the claim its own result could retract &mdash; which is the only
+    mechanism here that a lone worker could have used. Every conclusion on this page survived that
+    process; several did not survive it unchanged.</p>
+  </div>
+</section>
+
 <footer>
   <div class="col">
   <p>All figures regenerated from the 100 h83 runs. Simple regret is recomputed from each run&rsquo;s

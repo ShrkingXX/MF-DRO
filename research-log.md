@@ -2150,3 +2150,38 @@ repository.**
 **Patch NOT reverted.** Nothing will launch, so the gate condition does not
 trigger, and the peer judged silently reverting another session's uncommitted
 work more invasive than recording it. I agree. It stays, documented, ungated.
+
+## 2026-08-28 — CLOSED. h129 P1/P2 both pass at a held-out dose; work stopped by user instruction.
+
+**Stopped.** A peer relayed that the user had halted this line of work. I put it
+to the user directly rather than acting on a second-hand instruction in either
+direction; their answer was to stop and let h127 finish. Nothing further launched,
+five freed slots left unused, no runs killed.
+
+**The last result is the cleanest.** h129 was registered when h127 had zero result
+files and its analysis committed before any landed. At the held-out dose q=0.30,
+Borehole, seeds 42-46, paired:
+
+    HF fraction   predicted 0.808 +- 0.020   observed 0.7916   INSIDE  (effect 2.58)
+    benefit       predicted 2.21%, bracket (1.31,4.22)   observed 2.858   INSIDE (effect 2.02, 5/5)
+
+The band was honestly sized this time — paired sem 0.0158 against a half-width of
+0.020, where P3's had been 1.8x too tight. Both falsifiers excluded at 5.8 and 3.3
+sems. The point prediction sits ~1.0 sem from the measured value. Dose-response
+now monotone at three doses on one read point: -4.22 / -2.86 / -1.31.
+
+**And it does not establish the mechanism.** The model that made the call treats
+the benefit as flowing through fidelity reallocation alone; P4 showed query
+quality also improves (the largest effect in the project) and P6 showed the
+fidelity effect is Borehole-specific. Predictively accurate, mechanistically
+incomplete, both true.
+
+**Left registered and unanswered:** h123 (the paper's `beta_t`), h139 P1 (is the
+best arm already such a schedule — one run would settle it), h132 (step-off), h126
+(q=0.02, killed at 58%, not data). Repo carries an ungated `n_real_iter` logging
+tag among 129 uncommitted insertions; gate or revert before launching anything.
+
+**The day's ledger on method.** Nine errors of statistic, scale, or unchecked
+assertion between two sessions. **Eight were caught by the other session.** The
+one exception was caught by a protocol that named in advance the claim its own
+result could retract — the only mechanism here available to a lone worker.
