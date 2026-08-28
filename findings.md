@@ -10938,3 +10938,30 @@ and A on Hartmann is still unmeasured rather than shown positive. But "every
 ROI effect is Borehole-specific" should not be written again without saying
 which comparison is meant. Two of the four rows above are about a benchmark
 where the relevant experiment has not finished.
+
+### Process pattern worth naming: one-sided views of shared resources
+
+Three times today I reasoned correctly from a premise that covered only my own
+half of something both sessions share, and stated the conclusion as though it
+covered both:
+
+1. **The working tree.** Wrote a provenance condition referring to "my working
+   tree" and required an empty diff that could only be met by reverting patches
+   mid-flight on a repo we share. (Peer corrected.)
+2. **`to_human/mfdro_progress.html`.** Warned the peer to check "your own copy"
+   of the report. There is one file; they had edited it directly minutes
+   earlier. (Self-corrected after a republish notification.)
+3. **The run queue.** Verified that every launcher of MINE had finished
+   dispatching, then told the peer "the tree is effectively quiet" and invited
+   them to patch `src/`. Their h127 was live with 7 of 10 runs still to launch,
+   so a patch would have split that experiment across two code states — the
+   exact hazard I had raised myself. (Self-corrected within minutes.)
+
+The shape is identical each time: **check what I control, then state a
+conclusion about what we share.** Each individual check was correct. What was
+wrong was the scope of the claim built on it.
+
+The cheap guard is a habit, not a tool: before asserting anything about a shared
+resource, enumerate the OTHER session's holdings explicitly, even when the
+answer seems obvious. `ps` for their workers, `git status` for the tree, the
+file itself for the report — all three were one command away each time.
