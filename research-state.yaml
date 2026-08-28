@@ -789,3 +789,47 @@ open_questions:
     there. It changes no number here, only how charitably the baselines should
     be described."
   - "Boundary aversion: causal test (change the output parameterisation) not run."
+
+# ---------------------------------------------------------------------------
+# 2026-08-28 -- h116 / h117 (this session)
+# ---------------------------------------------------------------------------
+h116_relevance_blindness:
+  status: COMPLETE. Locked prediction NOT supported (gate 0.17 / 0.10, needed 1.0).
+  compute: zero new runs (re-analysis of h83).
+  code_facts_verified:
+    - "ko_gp.py:312 RBFKernel(ard_num_dims=self.d) -- the KO surrogate IS ARD."
+    - "mf_dro.py:251 lengthscale.mean().item() -- the ARD vector is averaged away."
+    - "That is the only point lengthscales enter the pipeline; per-dimension
+       relevance is discarded. exactGP.py is isotropic but is NOT on the KO path."
+  amendments:
+    - "1: stored x has no common coordinate scale (Borehole raw, box widths to
+       5.25e4; Hartmann unit cube). First run measured the domain box, not the
+       policy. Filed after seeing the numbers; says so. Originals kept as SUPERSEDED."
+    - "2: n>=15 non-init HF query floor. Removes 4/5 Hartmann seeds."
+  exploratory_result_needing_replication:
+    borehole_weighted_over_unweighted_dispersion_ratio: [2.95, 3.22, 2.96, 3.67, 5.53]
+    effect_abs_mean_log_over_sd: 4.84
+    reading: >
+      MF-DRO and MF-MES spread HF queries by the same TOTAL amount on Borehole
+      (1.06x) but MF-DRO's is 3.96x larger weighted by variance share. The excess
+      sits in the dimensions that matter. "Blind to relevance" is the WRONG
+      description -- the allocation is the systematic inverse of MF-MES's, not
+      random. Accurate wording: fails to localise along the dimensions that
+      determine the objective.
+
+h117_dispersion_misallocation:
+  status: RUNNING (launched 2026-08-28).
+  claims: Borehole_8D seeds 52-56, MF-DRO + MF-MES, 10 runs. Compute 5 workers.
+  purpose: confirmatory replication of the h116 exploratory measure on seeds that
+           played no part in choosing it.
+  gate_G0_blocking: >
+    Ackley_10D MF-DRO seed42 on this working tree must reproduce h83's stored
+    trace bit-identically. The tree carries uncommitted h94 (roi_inference_mode
+    hook, _roi_snap) and h102 (loc_loss) patches, inert by inspection only --
+    and inspection is what missed h94's NameError. G0 failure VOIDS h117.
+  prediction_locked: "wR/uR >= 2.0 in >=4/5 seeds AND |mean log|/sd >= 2.0."
+
+intervention_NOT_launched:
+  ard_weighted_L_loc: >
+    Weight L_loc by ARD-derived per-dimension relevance. Motivated by the three
+    code facts, but supported only by an EXPLORATORY result. Blocked on h117.

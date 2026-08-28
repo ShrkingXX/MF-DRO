@@ -1598,3 +1598,30 @@ already bounded in advance by H115 — it cannot show the method reaching MF-MES
 Borehole — and by the weighted-dispersion work, which rules out dispersion as the
 shared channel if it comes out shared. Both bounds were established before the
 numbers, which is the only time such bounds are worth anything.
+
+## 2026-08-28 — h116 (zero compute) and h117 (launched)
+
+Chased down whether the surrogate is ARD. It is (`ko_gp.py:312`); `exactGP.py`
+is isotropic but is not on the KO path, and I nearly filed that as a finding
+from the wrong file. What IS true is that `mf_dro.py:251` averages the ARD
+vector into a single state feature, and that is the only place lengthscales
+enter the pipeline — the policy never sees per-dimension relevance.
+
+Pre-registered h116 on that basis (relevance-blindness should show up as an
+uncorrelated dispersion profile) and it **failed its gate**: effect 0.17 (SD)
+and 0.10 (MAD), with the two declared variants disagreeing in sign.
+
+Also caught a real error in my own measure mid-experiment: stored `x` has no
+common coordinate scale across benchmarks, so the first run was reading
+Borehole's domain box rather than the policy. Amended (disclosed as
+post-hoc), recomputed, kept the originals as superseded.
+
+The exploratory follow-up is the substantive result: the two methods' TOTAL
+HF-query dispersion on Borehole is equal (1.06x), but weighted by variance
+share MF-DRO's is 3.96x larger, 5/5 seeds, effect 4.84. The problem is
+mis-allocation across dimensions, not more scatter. That reworded the founding
+diagnosis and refuted h116's own "blind" framing.
+
+Launched h117 to replicate it on fresh seeds 52-56, with a blocking bit-identity
+gate because the working tree carries two uncommitted patches that are inert
+only by inspection. 15 workers total (10 peer h113 + 5 mine), at cap, not over.
