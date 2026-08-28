@@ -11183,3 +11183,58 @@ The recorded 3.5-4.2% Borehole benefit is independently confirmed here by a
 different route — h84's ROI-Q10 against h83's MF-DRO at seeds 42-46 gives
 **4.22%, effect 1.74, 5/5**. That figure has been quoted all project; this is
 the first time I have recomputed it from the raw curves myself.
+
+## h129 P4 — FALSIFIED. The ROI *does* aim HF better, and I made a units error inside my own locked protocol
+
+**The result** (Borehole, seeds 42-46, paired, founding diagnosis's own `score`
+formula from h84 `analyse.py:22`; ROI-OFF is h83 MF-DRO under h84's gate):
+
+    quantity                  control   q=0.10     diff      sd   effect   dir
+    mean HF query score         0.381    0.495   +0.114   0.043     2.66   5/5 up
+    HF query COUNT             94.000   84.800   -9.200   5.933     1.55   5/5 down
+    frac HF worse than init     0.079    0.030   -0.050   0.051     0.98   5/5 down
+    best HF query score         0.633    0.734   +0.101   0.069     1.46   5/5 up
+
+**P4 predicted the score would be roughly unchanged. It is the LARGEST effect in
+the table.** My registered falsification condition was "falsified if mean HF
+query score rises with an effect comparable to the fidelity shift's 1.65". It
+rose with effect 2.66, at 5/5. **P4 is falsified**, and with it my summary that
+"the interventions that work act elsewhere" — at least for query quality on
+Borehole, the ROI moves exactly the channel the founding diagnosis prescribed.
+
+### The error inside the protocol
+
+P4 offered two criteria and they disagree: "|paired mean| below the 0.59
+separability bar" (satisfied, 0.114) and "an effect far smaller than the count
+change" (failed, 2.66 vs 1.55). The first criterion is **void**, and I should
+have seen it when I wrote it.
+
+**The 0.59 bar is in regret points** (findings.md:6820 — "a regret difference of
+0.59 points"). Mean HF query score is normalised, with a control value of 0.381.
+Requiring a normalised score to move 0.59 is requiring it to more than double
+before it counts as separable. The bar can never fire on this statistic; I
+registered a criterion that was guaranteed to be met.
+
+That is the sixth unit/statistic mismatch of the day and **my first inside my own
+locked prediction** — the peer confessed theirs (h128) an hour ago and I repeated
+the pattern immediately after. The mechanism was identical to theirs: a number
+repeated all project long stops looking like it has units.
+
+**The unit-free statistics are the ones to trust here**: effect size and
+consistency, both of which are scale-invariant. By those, the ranking is
+unambiguous — query quality (2.66) > HF count (1.55) > worse-than-init (0.98).
+
+### What this does and does not establish
+
+- On Borehole the ROI moves **both** channels: it makes HF queries better
+  (2.66) *and* makes fewer of them (1.55, and the 0.144 fidelity shift). The
+  pure-fidelity mediation model behind h129 P1-P3 is therefore **incomplete**;
+  the benefit is not carried by reallocation alone.
+- It does **not** establish that better queries *cause* lower regret. Both are
+  downstream of the same ROI restriction, and n=5 cannot separate them.
+- The founding diagnosis's waste numbers were **Hartmann** (0.336/0.747, 20.8%
+  worse-than-init). This is Borehole, where worse-than-init is only 7.9% to
+  begin with. h121's "the waste and the ROI's benefit are on different
+  benchmarks" still stands; what changes is that on the benchmark where the ROI
+  helps, it helps partly through the prescribed channel.
+- P1-P3 (the held-out dose predictions) are **unaffected** and still locked.

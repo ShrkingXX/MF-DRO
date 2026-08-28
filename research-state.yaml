@@ -1,1079 +1,918 @@
-# ============================================================================
-# CONCURRENT SESSIONS -- READ THIS FIRST, BEFORE STARTING WORK
-# ============================================================================
-# Two Claude sessions have been working this repo in parallel today. That has
-# already produced three collisions, all of which cost real work:
-#   1. The H87 withdrawal was written twice, ~50 s apart, into findings.md.
-#   2. HF-FLOOR's Borehole bit-identity was verified twice, independently.
-#   3. Two DIFFERENT experiments were both created as H88
-#      (h88-surrogate-vs-data and h88-borehole-confirm; the latter renumbered
-#      to H89 because it had no results yet).
-#
-# Neither session can see the other's intent. Before starting anything:
-#   - run `git log --oneline -8` and check the last ~15 minutes
-#   - run `pgrep -f 'code/worker.py' | wc -l` TWICE a few seconds apart
-#     (single samples transiently over-report by 1-2 during worker turnover)
-#   - claim what you are taking below, in a commit, before doing it
-#
-# EXPERIMENT NUMBER RANGES (slug reservations did NOT prevent collisions --
-# H88 and H89 were each created twice, by different sessions, for different
-# hypotheses). Numbers are now reserved by RANGE:
-#     session A (h85 launcher owner): h85 - h89
-#     session B (this one):           h90 and above
-#
 concurrent_sessions:
-  compute_owner: >
-    Whichever session holds the running launcher owns compute. As of this
-    writing that is the h85 session. A second session must NOT launch while
-    workers are at 15.
-  claimed_by_session_A:
-    - h85-teacher-refinement   # owns the launcher and its analysis
-    - h88-surrogate-vs-data    # has results
-  claimed_by_session_B:
-    - "h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds 47-51"
-    - "h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific"
-    - "h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)"
-    - >-
-        h90 RESULT (2026-08-27 ~20:20): ROI Borehole gain SURVIVES. P1/P2/P3 all
-        MET. n=5 mean -3.49 sd 2.66, 4/5. Pooled n=10 mean -3.86, 9/10, 83% of
-        the original effect retained. FIRST intervention to replicate near full
-        size. Secondary (exploratory): ROI cuts across-seed sd 60%, worst case
-        -5.40 pts vs best case -1.51 -- it removes bad outcomes. Does NOT close
-        the gap to MF-MES (12.25% vs 6.40%), exactly as P3 registered.
-    - >-
-        h90 COMPLETE 15/15. ROI Borehole gain CONFIRMED (P1/P2/P3 met, pooled
-        n=10 mean -3.86, 9/10, 83% retention). Teacher refinement CONFIRMED at a
-        THIRD seed set (-3.29, 5/5, P4/P5 met); across three sets 14/15, set
-        means -3.75 sd 1.91. My registered DECAY reading is REFUTED -- -5.85 /
-        -2.11 / -3.29 is seed-set variation, not a trend, and the bar I set was
-        too low. Refinement's COST bar stays FAILED (1.25-2.07x vs <2.0x).
-    - >-
-        h93 COMPLETE 20/20. Currin deficit replicates NOMINALLY (+0.01%, 1/5) but
-        is 0.0155 absolute on a 13.80 optimum with 4/5 seeds at exactly 0 -- both
-        methods have solved it. Ackley deficit does NOT replicate (-0.07, better
-        3/5, vs +0.40 at 42-46). P1/P3 MET; P2 was registered with no direction.
-        HEADLINE RESTATED: MF-DRO has ONE substantive deficit of four (Borehole),
-        not four. Boundary aversion becomes the whole account, not one benchmark's.
-    - h93-currin-ackley-seeds  # REGISTERED + CODED, NOT LAUNCHED (gated on h90 finishing).
-                               # Closes the last gap: Currin and Ackley have never been
-                               # measured at a second seed set. If both deficits fail to
-                               # replicate, MF-DRO loses ONE benchmark of four, not four.
-    - to_human/ report and the published artifact
-    - read-only cross-checks and stress tests of completed arms
-  unclaimed_and_open:
-    - >-
-        [CLOSED 2026-08-28 by h111] "the ROI works only on Borehole" is a fact
-        about the ROI, NOT about q=0.10. Two tightness settings spanning a 2x
-        range now fail on both non-Borehole benchmarks where a difference could
-        be resolved: Hartmann Q05 -0.52 (2/5, sd 6.32) and Ackley -0.09 (2/5),
-        neither clearing the 0.59 bar, against q=0.10's -1.62 (3/5) and -0.09
-        (1/5). NOTE Hartmann is UNRESOLVABLE at n=5 (range -9.52 to +8.02), so
-        neither its q=0.10 nor its q=0.05 number is evidence in either direction.
-        The mechanism remains constrained by exactly one benchmark.
-    - >-
-        [COMPLETE 2026-08-28] h113: the two surviving interventions COMPOSE.
-        10/10, both seed sets, doubled gate passed on measurement. ROI -3.86
-        (9/10), L1 -2.21 (9/10), BOTH -5.96 (10/10); BOTH beats ROI ALONE by
-        -2.10 sd 1.05 on 10/10. Additive would be -6.07, shared bottleneck
-        -3.86, measured -5.96 -- 0.11 from additive. Equivalently: adding L1 on
-        top of the ROI buys -2.10 where L1 alone buys -2.21. TWO mechanisms, not
-        one reached two ways -- the FIRST structural constraint on the mechanism
-        question, since h111 showed benchmarks cannot constrain it and h116/h118
-        closed dispersion and boundary resolution. Neither channel is named. Does
-        NOT make the method competitive: 9.82 vs MF-MES's seed-matched 6.00.
-        Peer's fidelity hypothesis is NOT L1's channel -- the ROI shifts the mix
-        (-8.9 HF/+17.7 LF), L1 moves it back (+1.9/-3.5) and helps anyway.
-    - >-
-        [SUPERSEDED by the entry above] h113: do the two interventions COMPOSE?
-        The calibrated ROI (-4.08, 10/10) and the L1 location loss (-2.21, 9/10)
-        are the only two replicated effects, both Borehole-only, and both
-        unexplained the SAME way -- each improves regret without moving the
-        quantity its proposed mechanism operates on. Additive would be ~-6.3;
-        a shared bottleneck ~-4.1. 10 runs at BOTH seed sets. P2 registered with
-        no direction; P3 registers NO threshold and is descriptive only.
-    - >-
-        [WITHDRAWN 2026-08-28 by h110 -- see the correction in findings.md]
-        q=0.05's advantage over q=0.10 SURVIVES a
-        second seed set: -1.57 at 4/5 (seeds 42-46) against h97's -1.52 at 4/5
-        (47-51) -- the two sets agree to 0.05 pts, 103% retention. Pooled n=10:
-        vs no-ROI -5.40 at 10/10; vs Q10 -1.54 at 8/10, |mean|/sd 0.88, clearing
-        both the 0.59 separability bar and the 0.5-sd effect-size bar. FIRST
-        result this session to return at full size on its first re-test. h111 is
-        now testing whether q=0.05 also works OUTSIDE Borehole, since the
-        'Borehole-only' limitation rests entirely on the q=0.10 arms.
-    - >-
-        [REPLICATED 2026-08-28 by h108] the L1 location loss. Regret -2.34 at 5/5
-        (42-46) against h102's -2.08 at 4/5 (47-51); pooled n=10 mean -2.21,
-        9/10, |mean|/sd 1.24. Second effect to replicate at full size, and still
-        MECHANISTICALLY UNEXPLAINED -- both mechanism predictions about it failed.
-        h108's P2 predicted the boundary direction from h102's MEASUREMENT and
-        failed too (2/5 vs 4/5), because that measurement was itself unseparable
-        (pooled -0.56 at 6/10, |mean|/sd 0.25). NEW STANDING RULE: a measurement
-        is only a basis for prediction once it clears the same separability bar a
-        result would have to clear.
-    - >-
-        [ANSWERED 2026-08-28 by h97] the q < 0.10 question. q=0.05 BEATS the
-        confirmed q=0.10 on Borehole: paired -1.52, 4/5, clearing the
-        |mean|>0.59 AND >=4/5 separability bar registered in advance. Q05 vs
-        no-ROI is -5.01 at 5/5, against Q10's -3.49 at 4/5. So q=0.10 was never
-        optimised and every ROI figure in this project UNDERSTATES the effect.
-        G3 gate passed on measurement (accept_frac 0.0499-0.0500, target 0.05).
-        Turning point now bracketed in (0.02, 0.05] rather than (0.02, 0.10).
-        h107 is re-testing at seeds 42-46 before anything is built on it, since
-        every single-seed-set result re-tested this session lost something.
-        ORIGINAL WORDING, superseded: h84 showed tight beats loose on Borehole
-        but the teacher measurements imply a turning point below q=0.10 (at
-        q=0.02 the closest approach to x* degrades 0.022 -> 0.110). The optimum
-        for q lies in (0.02, 0.10) and is UNLOCATED. No experiment tests it.
-    - Ackley and Currin MF-DRO deficits at a second seed set -- now CLAIMED as
-      h93 by session B (registered and coded, awaiting compute).
+  compute_owner: 'Whichever session holds the running launcher owns compute. As of this writing that is
+    the h85 session. A second session must NOT launch while workers are at 15.
 
+    '
+  claimed_by_session_A:
+  - h85-teacher-refinement
+  - h88-surrogate-vs-data
+  claimed_by_session_B:
+  - 'h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds
+    47-51'
+  - 'h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific'
+  - 'h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)'
+  - 'h90 RESULT (2026-08-27 ~20:20): ROI Borehole gain SURVIVES. P1/P2/P3 all MET. n=5 mean -3.49 sd 2.66,
+    4/5. Pooled n=10 mean -3.86, 9/10, 83% of the original effect retained. FIRST intervention to replicate
+    near full size. Secondary (exploratory): ROI cuts across-seed sd 60%, worst case -5.40 pts vs best
+    case -1.51 -- it removes bad outcomes. Does NOT close the gap to MF-MES (12.25% vs 6.40%), exactly
+    as P3 registered.'
+  - h90 COMPLETE 15/15. ROI Borehole gain CONFIRMED (P1/P2/P3 met, pooled n=10 mean -3.86, 9/10, 83% retention).
+    Teacher refinement CONFIRMED at a THIRD seed set (-3.29, 5/5, P4/P5 met); across three sets 14/15,
+    set means -3.75 sd 1.91. My registered DECAY reading is REFUTED -- -5.85 / -2.11 / -3.29 is seed-set
+    variation, not a trend, and the bar I set was too low. Refinement's COST bar stays FAILED (1.25-2.07x
+    vs <2.0x).
+  - 'h93 COMPLETE 20/20. Currin deficit replicates NOMINALLY (+0.01%, 1/5) but is 0.0155 absolute on a
+    13.80 optimum with 4/5 seeds at exactly 0 -- both methods have solved it. Ackley deficit does NOT
+    replicate (-0.07, better 3/5, vs +0.40 at 42-46). P1/P3 MET; P2 was registered with no direction.
+    HEADLINE RESTATED: MF-DRO has ONE substantive deficit of four (Borehole), not four. Boundary aversion
+    becomes the whole account, not one benchmark''s.'
+  - h93-currin-ackley-seeds
+  - to_human/ report and the published artifact
+  - read-only cross-checks and stress tests of completed arms
+  unclaimed_and_open:
+  - '[CLOSED 2026-08-28 by h111] "the ROI works only on Borehole" is a fact about the ROI, NOT about q=0.10.
+    Two tightness settings spanning a 2x range now fail on both non-Borehole benchmarks where a difference
+    could be resolved: Hartmann Q05 -0.52 (2/5, sd 6.32) and Ackley -0.09 (2/5), neither clearing the
+    0.59 bar, against q=0.10''s -1.62 (3/5) and -0.09 (1/5). NOTE Hartmann is UNRESOLVABLE at n=5 (range
+    -9.52 to +8.02), so neither its q=0.10 nor its q=0.05 number is evidence in either direction. The
+    mechanism remains constrained by exactly one benchmark.'
+  - '[COMPLETE 2026-08-28] h113: the two surviving interventions COMPOSE. 10/10, both seed sets, doubled
+    gate passed on measurement. ROI -3.86 (9/10), L1 -2.21 (9/10), BOTH -5.96 (10/10); BOTH beats ROI
+    ALONE by -2.10 sd 1.05 on 10/10. Additive would be -6.07, shared bottleneck -3.86, measured -5.96
+    -- 0.11 from additive. Equivalently: adding L1 on top of the ROI buys -2.10 where L1 alone buys -2.21.
+    TWO mechanisms, not one reached two ways -- the FIRST structural constraint on the mechanism question,
+    since h111 showed benchmarks cannot constrain it and h116/h118 closed dispersion and boundary resolution.
+    Neither channel is named. Does NOT make the method competitive: 9.82 vs MF-MES''s seed-matched 6.00.
+    Peer''s fidelity hypothesis is NOT L1''s channel -- the ROI shifts the mix (-8.9 HF/+17.7 LF), L1
+    moves it back (+1.9/-3.5) and helps anyway.'
+  - '[SUPERSEDED by the entry above] h113: do the two interventions COMPOSE? The calibrated ROI (-4.08,
+    10/10) and the L1 location loss (-2.21, 9/10) are the only two replicated effects, both Borehole-only,
+    and both unexplained the SAME way -- each improves regret without moving the quantity its proposed
+    mechanism operates on. Additive would be ~-6.3; a shared bottleneck ~-4.1. 10 runs at BOTH seed sets.
+    P2 registered with no direction; P3 registers NO threshold and is descriptive only.'
+  - '[WITHDRAWN 2026-08-28 by h110 -- see the correction in findings.md] q=0.05''s advantage over q=0.10
+    SURVIVES a second seed set: -1.57 at 4/5 (seeds 42-46) against h97''s -1.52 at 4/5 (47-51) -- the
+    two sets agree to 0.05 pts, 103% retention. Pooled n=10: vs no-ROI -5.40 at 10/10; vs Q10 -1.54 at
+    8/10, |mean|/sd 0.88, clearing both the 0.59 separability bar and the 0.5-sd effect-size bar. FIRST
+    result this session to return at full size on its first re-test. h111 is now testing whether q=0.05
+    also works OUTSIDE Borehole, since the ''Borehole-only'' limitation rests entirely on the q=0.10 arms.'
+  - '[REPLICATED 2026-08-28 by h108] the L1 location loss. Regret -2.34 at 5/5 (42-46) against h102''s
+    -2.08 at 4/5 (47-51); pooled n=10 mean -2.21, 9/10, |mean|/sd 1.24. Second effect to replicate at
+    full size, and still MECHANISTICALLY UNEXPLAINED -- both mechanism predictions about it failed. h108''s
+    P2 predicted the boundary direction from h102''s MEASUREMENT and failed too (2/5 vs 4/5), because
+    that measurement was itself unseparable (pooled -0.56 at 6/10, |mean|/sd 0.25). NEW STANDING RULE:
+    a measurement is only a basis for prediction once it clears the same separability bar a result would
+    have to clear.'
+  - '[ANSWERED 2026-08-28 by h97] the q < 0.10 question. q=0.05 BEATS the confirmed q=0.10 on Borehole:
+    paired -1.52, 4/5, clearing the |mean|>0.59 AND >=4/5 separability bar registered in advance. Q05
+    vs no-ROI is -5.01 at 5/5, against Q10''s -3.49 at 4/5. So q=0.10 was never optimised and every ROI
+    figure in this project UNDERSTATES the effect. G3 gate passed on measurement (accept_frac 0.0499-0.0500,
+    target 0.05). Turning point now bracketed in (0.02, 0.05] rather than (0.02, 0.10). h107 is re-testing
+    at seeds 42-46 before anything is built on it, since every single-seed-set result re-tested this session
+    lost something. ORIGINAL WORDING, superseded: h84 showed tight beats loose on Borehole but the teacher
+    measurements imply a turning point below q=0.10 (at q=0.02 the closest approach to x* degrades 0.022
+    -> 0.110). The optimum for q lies in (0.02, 0.10) and is UNLOCATED. No experiment tests it.'
+  - Ackley and Currin MF-DRO deficits at a second seed set -- now CLAIMED as h93 by session B (registered
+    and coded, awaiting compute).
 project: mfdro-aistats
-question: >
-  Can a method built on SF-DRO (papers/DRO.pdf) match or beat standard
-  multi-fidelity BO baselines? If not, what specifically makes MF-DRO waste its
-  high-fidelity budget, and can the paper's own ROI heuristic fix it?
+question: 'Can a method built on SF-DRO (papers/DRO.pdf) match or beat standard multi-fidelity BO baselines?
+  If not, what specifically makes MF-DRO waste its high-fidelity budget, and can the paper''s own ROI
+  heuristic fix it?
+
+  '
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-28  # 06:0x, gate PASSED; Borehole-only survives a real test; h113 running
+last_updated: 2026-08-28
+status: 'NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5 seeds, 0 failures) is
+  the headline comparison and its PRIMARY pre-registered prediction -- that MF-DRO beats no baseline --
+  was MET on all four benchmarks. The project has since turned from "does it win" to "why does it lose",
+  and that diagnosis is now concrete and mechanistic. Three candidate fixes were tried; two (the ROI''s
+  Hartmann flip, the HF floor) were WITHDRAWN after fresh seeds, and teacher refinement survived but shrank
+  64% and failed its cost bar. **h90 has now CONFIRMED the ROI''s Borehole gain at fresh seeds (P1/P2/P3
+  met, pooled n=10 mean -3.86, 9/10, 83% retention).** The answer to the primary question is therefore
+  POSITIVE on one benchmark: a per-iteration calibrated beta_t does measurably stop MF-DRO wasting budget,
+  halving the gap to MF-MES on Borehole without closing it. h90''s refinement arm is still running.
 
-status: >
-  NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
-  seeds, 0 failures) is the headline comparison and its PRIMARY pre-registered
-  prediction -- that MF-DRO beats no baseline -- was MET on all four benchmarks.
-  The project has since turned from "does it win" to "why does it lose", and
-  that diagnosis is now concrete and mechanistic. Three candidate fixes were
-  tried; two (the ROI's Hartmann flip, the HF floor) were WITHDRAWN after fresh
-  seeds, and teacher refinement survived but shrank 64% and failed its cost bar.
-  **h90 has now CONFIRMED the ROI's Borehole gain at fresh seeds (P1/P2/P3 met,
-  pooled n=10 mean -3.86, 9/10, 83% retention).** The answer to the primary
-  question is therefore POSITIVE on one benchmark: a per-iteration calibrated
-  beta_t does measurably stop MF-DRO wasting budget, halving the gap to MF-MES on
-  Borehole without closing it. h90's refinement arm is still running.
-
+  '
 headline_result:
   experiment: h83-main-comparison (100/100 runs, 0 failures)
   metric: relative regret at cost 200 (ABSOLUTE simple regret on Ackley, whose optimum is 0)
-  table: |
-    Currin_2D      MI-Greedy 0.00 | MF-DRO 0.01 | GP-UCB 0.06 | MF-MES 0.35
+  table: 'Currin_2D      MI-Greedy 0.00 | MF-DRO 0.01 | GP-UCB 0.06 | MF-MES 0.35
+
     Hartmann_6D    MF-MES 6.62    | MF-DRO 7.99 | SF-DRO 10.33 | MI-Greedy 47.12 | GP-UCB 56.67
+
     Borehole_8D    MF-MES 6.40    | GP-UCB 8.88 | MF-DRO 15.82 | MI-Greedy 28.44
+
     Ackley_10D     SF-DRO 3.43    | MF-DRO 3.83 | MF-MES 4.28 | MI-Greedy 7.71 | GP-UCB 8.60
+
+    '
   bars:
-    PRIMARY: MET on all four -- MF-DRO beats no baseline by the stated bar
-             (lower mean AND >=4/5 seeds). On Ackley its mean is lower than
-             MF-MES but it wins only 2/5 seeds.
+    PRIMARY: MET on all four -- MF-DRO beats no baseline by the stated bar (lower mean AND >=4/5 seeds).
+      On Ackley its mean is lower than MF-MES but it wins only 2/5 seeds.
     SECONDARY: NOT MET -- SF-DRO (10.33%) does not beat MF-DRO (7.99%) on Hartmann.
     TERTIARY: MET -- MI-Greedy LF fraction <10% on all four (1.5/9.7/1.0/3.3%).
-
 diagnosis:
-  summary: >
-    MF-DRO finds a competitive BEST point but wastes far more budget getting
-    there. Scoring each post-init HF query (y-best_init)/(y_opt-best_init):
-  numbers: |
-    Hartmann  MF-DRO mean 0.336 vs MF-MES 0.747; 20.8% of HF queries land WORSE
-              than the initial design (MF-MES 5.3%); per-dim spread 3.5x MF-MES
-    Borehole  MF-DRO mean 0.381 vs MF-MES 0.669; MF-DRO makes MORE HF queries
-              (94 vs 84) and still finds a worse maximum -- NOT budget starvation
-  mechanism: >
-    h83 runs the regression head (use_candidate_scoring=False): the DT emits
-    x = action_head(h).clamp(0,1) directly, with NO acquisition maximisation at
-    inference. Its training targets are rollout-teacher actions argmaxed over
-    roi_candidates, which with use_roi=False is UNIFORM over the domain. So the
+  summary: 'MF-DRO finds a competitive BEST point but wastes far more budget getting there. Scoring each
+    post-init HF query (y-best_init)/(y_opt-best_init):
+
+    '
+  numbers: "Hartmann  MF-DRO mean 0.336 vs MF-MES 0.747; 20.8% of HF queries land WORSE\n          than\
+    \ the initial design (MF-MES 5.3%); per-dim spread 3.5x MF-MES\nBorehole  MF-DRO mean 0.381 vs MF-MES\
+    \ 0.669; MF-DRO makes MORE HF queries\n          (94 vs 84) and still finds a worse maximum -- NOT\
+    \ budget starvation\n"
+  mechanism: 'h83 runs the regression head (use_candidate_scoring=False): the DT emits x = action_head(h).clamp(0,1)
+    directly, with NO acquisition maximisation at inference. Its training targets are rollout-teacher
+    actions argmaxed over roi_candidates, which with use_roi=False is UNIFORM over the domain. So the
     policy is trained on domain-spread targets and learns to propose diffusely.
-  borehole_specific: >
-    Boundary aversion, RESURRECTED after being wrongly eliminated. 99.6% of
-    Borehole's variance is in dims 0/3/5/6, all four with x* ON the boundary;
-    MF-DRO reaches them in 0-2% of HF queries vs MF-MES's 34-70%. The recorded
-    elimination used UNWEIGHTED distance to x*; weighting by sensitivity
+
+    '
+  borehole_specific: 'Boundary aversion, RESURRECTED after being wrongly eliminated. 99.6% of Borehole''s
+    variance is in dims 0/3/5/6, all four with x* ON the boundary; MF-DRO reaches them in 0-2% of HF queries
+    vs MF-MES''s 34-70%. The recorded elimination used UNWEIGHTED distance to x*; weighting by sensitivity
     REVERSES it (0.0543 vs 0.0308). One link of the elimination chain is broken.
 
+    '
 current_experiment:
   id: h84-roi-strategy
   status: 32/34 done, 0 failures. Reproduction control PASSED 4/4 bit-identical.
-  headline: >
-    h83's PRIMARY finding STANDS: MF-DRO beats no baseline on any benchmark.
-    An earlier claim that the calibrated ROI overturned this on Hartmann was
-    ANNOUNCED AND THEN WITHDRAWN -- h87 re-tested it with q=0.10 fixed in
-    advance, one arm, fresh seeds 47-51, and it failed at 2/5 seeds against a
+  headline: 'h83''s PRIMARY finding STANDS: MF-DRO beats no baseline on any benchmark. An earlier claim
+    that the calibrated ROI overturned this on Hartmann was ANNOUNCED AND THEN WITHDRAWN -- h87 re-tested
+    it with q=0.10 fixed in advance, one arm, fresh seeds 47-51, and it failed at 2/5 seeds against a
     bar requiring 4/5. See the WITHDRAWN section in findings.md.
-  roi_effect_by_benchmark: >
-    Borehole -4.22 pts (5/5 seeds, control verified bit-identical 4/4) but still
-    behind MF-MES 6.40 vs 11.59. Hartmann: h84 showed -1.62 pts but the
-    baseline-beating claim did not replicate. Ackley -0.09 (negligible).
-    Currin +0.11, i.e. HARMED on 5/5 seeds. The ROI helps two benchmarks, does
-    nothing on one, and harms one.
-  why_the_h84_hartmann_number_misled: >
-    The favourable paired mean at fresh seeds (-3.62) is almost entirely one
-    seed where MF-MES collapses (25.25%) and MF-DRO does not (9.56%). On three
-    of the other four MF-DRO loses. A 'lower TAIL RISK' reading was offered and
-    is NOT SUPPORTED: tested across all benchmarks and both seed sets, MF-DRO
-    has the smaller worst case on only 2 of 5, and on Hartmann 42-46 and
-    Borehole it has BOTH a wider spread and a worse tail than MF-MES. The
-    pattern is a property of seeds 47-51, not of the methods.
-  the_control_argument: >
-    Fixed beta is uncontrolled along THREE measured axes: across benchmarks
-    (12.6%-100% acceptance), within a run (250x on Borehole), and across SEEDS
-    of the same benchmark (6.9x on Hartmann, 3.6% to 24.9%). Calibration
-    collapses all three to 1.0x. This case does not depend on the regret
-    numbers at all.
-  my_prediction_refuted: >
-    I registered P1 as unlikely to be met, twice, from a +0.010 measurement of
-    the ROI's effect on teacher-action quality at ONE model state. Refuted on
-    Borehole 5/5. The error: that measured the teacher, but the ROI acts on the
-    policy through the whole training DISTRIBUTION across rollouts.
-  metric_lesson: >
-    PRIMARY was set on MEAN query quality; simple regret is a MAX statistic.
-    Hartmann shows d(mean) +0.000 with d(best) +0.022 and regret -2.17pts, so the
-    mean-based bar records nothing while the method helps. See Lesson 22.
-  strategy: >
-    Control the ROI ACCEPTANCE RATE and solve for beta_t by bisection. Keeps the
-    paper's set X_hat_{m,t} = {x | UCB >= max LCB} exactly; sets only beta_t,
-    which the paper subscripts by t but never specifies. A constant beta is
-    unusable: acceptance swings 250x on Borehole (100% at n_hf=10, 0.4% at 35).
-  arms: [ROI-OFF (h83 reuse, control PASSED), ROI-FIX2, ROI-Q10, ROI-ANN]
-  registered_bars: >
-    P1 FAILED (set on MEAN query quality; simple regret is a MAX statistic --
-    Lesson 22). P2 REFUTED (fixed beta was predicted to buy nothing on Borehole;
-    it posted the best regret there). Five mechanism claims refuted in total --
-    Lesson 23, four of them erring by UNDERESTIMATING the intervention.
-  falsifier: >
-    If ROI-Q10 and ROI-ANN both fail P1, budget waste is NOT a candidate-
-    distribution problem and the target becomes the output parameterisation.
 
+    '
+  roi_effect_by_benchmark: 'Borehole -4.22 pts (5/5 seeds, control verified bit-identical 4/4) but still
+    behind MF-MES 6.40 vs 11.59. Hartmann: h84 showed -1.62 pts but the baseline-beating claim did not
+    replicate. Ackley -0.09 (negligible). Currin +0.11, i.e. HARMED on 5/5 seeds. The ROI helps two benchmarks,
+    does nothing on one, and harms one.
+
+    '
+  why_the_h84_hartmann_number_misled: 'The favourable paired mean at fresh seeds (-3.62) is almost entirely
+    one seed where MF-MES collapses (25.25%) and MF-DRO does not (9.56%). On three of the other four MF-DRO
+    loses. A ''lower TAIL RISK'' reading was offered and is NOT SUPPORTED: tested across all benchmarks
+    and both seed sets, MF-DRO has the smaller worst case on only 2 of 5, and on Hartmann 42-46 and Borehole
+    it has BOTH a wider spread and a worse tail than MF-MES. The pattern is a property of seeds 47-51,
+    not of the methods.
+
+    '
+  the_control_argument: 'Fixed beta is uncontrolled along THREE measured axes: across benchmarks (12.6%-100%
+    acceptance), within a run (250x on Borehole), and across SEEDS of the same benchmark (6.9x on Hartmann,
+    3.6% to 24.9%). Calibration collapses all three to 1.0x. This case does not depend on the regret numbers
+    at all.
+
+    '
+  my_prediction_refuted: 'I registered P1 as unlikely to be met, twice, from a +0.010 measurement of the
+    ROI''s effect on teacher-action quality at ONE model state. Refuted on Borehole 5/5. The error: that
+    measured the teacher, but the ROI acts on the policy through the whole training DISTRIBUTION across
+    rollouts.
+
+    '
+  metric_lesson: 'PRIMARY was set on MEAN query quality; simple regret is a MAX statistic. Hartmann shows
+    d(mean) +0.000 with d(best) +0.022 and regret -2.17pts, so the mean-based bar records nothing while
+    the method helps. See Lesson 22.
+
+    '
+  strategy: 'Control the ROI ACCEPTANCE RATE and solve for beta_t by bisection. Keeps the paper''s set
+    X_hat_{m,t} = {x | UCB >= max LCB} exactly; sets only beta_t, which the paper subscripts by t but
+    never specifies. A constant beta is unusable: acceptance swings 250x on Borehole (100% at n_hf=10,
+    0.4% at 35).
+
+    '
+  arms:
+  - ROI-OFF (h83 reuse
+  - control PASSED)
+  - ROI-FIX2
+  - ROI-Q10
+  - ROI-ANN
+  registered_bars: 'P1 FAILED (set on MEAN query quality; simple regret is a MAX statistic -- Lesson 22).
+    P2 REFUTED (fixed beta was predicted to buy nothing on Borehole; it posted the best regret there).
+    Five mechanism claims refuted in total -- Lesson 23, four of them erring by UNDERESTIMATING the intervention.
+
+    '
+  falsifier: 'If ROI-Q10 and ROI-ANN both fail P1, budget waste is NOT a candidate- distribution problem
+    and the target becomes the output parameterisation.
+
+    '
 constraints:
-  - >-
-      use_candidate_scoring=True is NOT an acceptable fix (human-directed):
-      pool+argmax is not the contribution.
-  - use_roi=False must stay bit-identical (gated at every commit).
-  - "MF-DRO defaults in force: M=3, n_roi_candidates=600, refinement OFF."
-  - num_workers x threads <= 15.
-  - No p-values at n<=5. Protocol commits BEFORE result commits.
-
+- 'use_candidate_scoring=True is NOT an acceptable fix (human-directed): pool+argmax is not the contribution.'
+- use_roi=False must stay bit-identical (gated at every commit).
+- 'MF-DRO defaults in force: M=3, n_roi_candidates=600, refinement OFF.'
+- num_workers x threads <= 15.
+- No p-values at n<=5. Protocol commits BEFORE result commits.
 completed_diagnostics:
-  h88-surrogate-vs-data: >
-    COMPLETE. Same KO GP, same 4096-point recommender, three different datasets.
-    THE LIMIT IS THE SURROGATE, NOT THE DATA. Every recommendation across all
-    three conditions and both benchmarks lands in 11.96-29.03% relative regret,
-    while the best OBSERVED points reach 0.67-19.19%. The KO global argmax is a
-    poor point regardless of what it is fit on.
-  h88_key_numbers: |
-    condition                    Hartmann   Borehole
-    A: fit on MF-DRO's queries     13.15%     22.66%
-    B: fit on MF-MES's queries     19.92%     21.42%
+  h88-surrogate-vs-data: 'COMPLETE. Same KO GP, same 4096-point recommender, three different datasets.
+    THE LIMIT IS THE SURROGATE, NOT THE DATA. Every recommendation across all three conditions and both
+    benchmarks lands in 11.96-29.03% relative regret, while the best OBSERVED points reach 0.67-19.19%.
+    The KO global argmax is a poor point regardless of what it is fit on.
+
+    '
+  h88_key_numbers: 'condition                    Hartmann   Borehole
+
+    A: fit on MF-DRO''s queries     13.15%     22.66%
+
+    B: fit on MF-MES''s queries     19.92%     21.42%
+
     C: fit on a Sobol design       29.03%     22.64%
-    (C's own best observation:     65.51%     31.90%)
-  h88_consequences: >
-    (1) Rules out "recommend from the model instead of reporting the best
-    query" as an avenue. (2) Bounds what any data-side intervention (ROI,
-    teacher refinement, HF floor) can buy. (3) Does NOT excuse MF-DRO's query
-    quality -- simple regret depends on the best QUERY, which is where MF-DRO
-    loses. (4) Refutes "good model, bad policy" as the bulk explanation, though
-    the model does beat its own best query on 1 of 10 runs under a strong
-    recommender (0 of 20 under the live weak one).
-  h88_correction: >
-    Recommendation quality is NOT monotone in design dispersion: MF-DRO
-    (moderate) > MF-MES (concentrated) > Sobol (maximal). An earlier claim that
-    MF-DRO's dispersion produces a better global surrogate was an extrapolation
-    from two points that condition C refuted. There is an interior optimum and
-    MF-DRO happens to sit nearer it.
 
+    (C''s own best observation:     65.51%     31.90%)
+
+    '
+  h88_consequences: '(1) Rules out "recommend from the model instead of reporting the best query" as an
+    avenue. (2) Bounds what any data-side intervention (ROI, teacher refinement, HF floor) can buy. (3)
+    Does NOT excuse MF-DRO''s query quality -- simple regret depends on the best QUERY, which is where
+    MF-DRO loses. (4) Refutes "good model, bad policy" as the bulk explanation, though the model does
+    beat its own best query on 1 of 10 runs under a strong recommender (0 of 20 under the live weak one).
+
+    '
+  h88_correction: 'Recommendation quality is NOT monotone in design dispersion: MF-DRO (moderate) > MF-MES
+    (concentrated) > Sobol (maximal). An earlier claim that MF-DRO''s dispersion produces a better global
+    surrogate was an extrapolation from two points that condition C refuted. There is an interior optimum
+    and MF-DRO happens to sit nearer it.
+
+    '
 queued_experiments:
-  h86-roi-full: >
-    6/10. The h83 MF-DRO rerun, scoped to Currin + Ackley because h84 already
-    covered Hartmann + Borehole at the same config and seeds. Ackley done
-    (P3 FAILED, 1/5). Currin running.
-  h87-hartmann-confirm: >
-    COMPLETE, 10/10, 0 failures. P1 FAILED (2/5), P3 FAILED. Falsifier fired and
-    the flip was withdrawn from findings.md, research-log.md, this file and the
-    published report. The verdict was mechanical: analyse.py was committed while
-    the treatment arm was still running, refuses verdicts below 5/5, and prints
-    the falsifier itself.
-  h85-teacher-refinement: >
-    COMPLETE 24/24, 0 failures, reproduction control PASSED 4/4 bit-identical.
-    Borehole REFINE-100 -5.85 pts (5/5); Hartmann REFINE-100 -1.93 (3/5);
-    Hartmann HF-FLOOR -1.37 (3/5) with sd 5.85 -> 2.00; Borehole HF-FLOOR +0.18
-    (0/5, non-binding, 4 runs bit-identical). Bars P1/P2/P3/P4/P5 MET, P6
-    REFUTED. P2 was the mechanism bar (near-bound 8.93% -> 16.32%).
-  h85_P4_cost_bar: >
-    FAILED, recorded 2026-08-27 after checking completed runs rather than
-    projections. Teacher refinement's wall-clock is 1.25x the unmodified method
-    at seeds 52-56 but 2.07x at seeds 42-46, against a registered bar of <2.0x.
-    The bar applies to the intervention, so one seed set exceeding it is a
-    failure. The published report had stated only the 1.25x figure and called it
-    "inside its limit"; that was corrected on the live page (commit at 19:0x) and
-    now reads as the range 1.25-2.07x with the FAILED verdict. Wall-clock cost is
-    the FIFTH quantity found to vary by seed set, after paired sd, tail-risk
-    ordering, collapse incidence, and the sign of a comparison.
+  h86-roi-full: '6/10. The h83 MF-DRO rerun, scoped to Currin + Ackley because h84 already covered Hartmann
+    + Borehole at the same config and seeds. Ackley done (P3 FAILED, 1/5). Currin running.
 
-  h99-headroom-and-h100-containment: >
-    EXPLORATORY, zero compute, both registered before computing. **TWO CANDIDATE
-    MECHANISMS TESTED, NEITHER SURVIVES.**
-    H99: weighted headroom (sensitivity x incumbent distance to x*) does NOT
-    gate the ROI and is nearly ANTI-correlated -- Hartmann 0.1852 (ROI FAILED),
-    Ackley 0.0496, **Borehole 0.0185 (ROI WORKED)**, Currin 0.0124. P2 registered
-    as risky, failed as expected. P1/P3 MET.
-    P3 KILLS h101's PRESCRIPTION OUTRIGHT: Borehole's dim 0 carries 86% of
-    first-order variance and has incumbent headroom **0.0000**, so a
-    sensitivity-weighted L_loc would put 86% of its weight where nothing can be
-    gained. WITHDRAWN, not suspended -- it was derived from a cloud statistic
-    before the incumbent correction.
-    H100: the ROI's own logged containment diagnostics. Q1 FAILED and INVERTED --
-    Borehole's ROI sits 1.26x FARTHER from x* than an unfiltered pool and
-    contains NOTHING within 0.2 of x* (0.0000), yet works; Hartmann's is 0.79x
-    (closer) with near-x* mass and failed.
-    **BUT the instrument is UNWEIGHTED** full-dimensional distance -- the metric
-    findings.md:3174 established reverses orderings on Borehole. Verdict is
-    UNTESTED, not refuted. That override is POST-HOC and labelled so; the
-    protocol normalized out the dimensionality confound and missed the weighting
-    one (4th time bitten by it).
-    SURVIVES REGARDLESS: Borehole scores 0.0000 and the ROI works, so the
-    'an ROI containing nothing near the optimum starves the DT' rationale -- the
-    failure that got the ROI deleted before -- is FALSE as stated with this
-    measure.
-    NET: h96's four-benchmark relocation pattern is REAL and UNEXPLAINED.
-  h98-roi-dose-response: >
-    EXPLORATORY, zero compute, h84's four Borehole arms. **CENTRING MEDIATES THE
-    ROI DOSE over the three resolvable levels.** GAPSD (h101's predictor):
-    OFF 2.29 -> ANN 2.02 -> FIX2 1.64 / Q10 1.66, against regret 0 / -1.31 /
-    -4.81 / -4.22. Tight-vs-ANN paired -0.377 (5/5), ANN-vs-OFF -0.278 (5/5).
-    T1 MET, T2 MET, T3 FAILED, T4 not triggered.
-    **BUT T2 IS HOLLOW WHERE IT MATTERED.** Its interest was reproducing the
-    FIX2>Q10 inversion; the arm means differ by 0.02, and the per-seed check
-    gives paired mean -0.018, sd 0.169, FIX2 better 2/5, ratio 0.11 -- the arms
-    are TIED. The bar passed because argsort totally orders four numbers whether
-    or not adjacent ones are separable. Recorded MET as registered AND
-    uninformative at that position. New standing rule: an ordering bar needs a
-    separability check on the adjacent pairs carrying its meaning.
-    CONSEQUENCE: q=0.10 was never established as better than q~0.21 -- tied on
-    regret AND mechanism. Calibration's case stays controllability across
-    benchmarks, not superiority on Borehole.
-  TIGHTNESS_the_dose_answer: >
-    **q=0.10 WAS NEVER THE RIGHT SETTING; q=0.05 IS BETTER, and every ROI number
-    in this project uses an unoptimised value** -- q=0.10 was simply the first
-    calibrated value tried. Peer's h97, verified here with explicit paths:
-      Q05 vs no-ROI  -5.01  sd 1.95  ratio 2.56  5/5   SEPARABLE
-      Q10 vs no-ROI  -3.49  sd 2.66  ratio 1.31  4/5   SEPARABLE
-      Q05 vs Q10     -1.52  sd 1.21  ratio 1.26  4/5   SEPARABLE
-    All three separable -- worth noting against four of my own bars today that
-    passed at ratios of 0.16, 0.38 and effectively zero.
-    CORRECTS h98, which treated ROI-FIX2 as the "accept 0.21" level of a dose.
-    FIX2 is the FIXED-beta arm; its acceptance DRIFTS 250x within a run and 0.21
-    is the average of that drift, so it is not a dose point at all. Among the
-    CALIBRATED arms the dose is monotone: 0.49 not separable (a loose ROI does
-    nothing), 0.10 separable, 0.05 separably better. h98's tie between its top
-    two arms is now explained rather than merely observed.
-    REGISTERED NEXT: q=0.02 vs q=0.05, |mean| >= 0.5 sd, with h97's gate form --
-    observed accept_frac in [0.018,0.022] AND n_draws below the cap, so a
-    starved ROI falling back to unfiltered top-up is detected, not reinterpreted.
-  MECHANISM_is_unidentifiable_not_merely_unknown: >
-    **No ROI mechanism can be identified from these four benchmarks.**
-      benchmark   max var share  x* on bdry  MF-DRO deficit   ROI effect
-      Borehole        0.83         7 of 8     REAL (2/10)     WORKS -3.68
-      Currin          0.81         1 of 2     nil (saturated) none
-      Hartmann        0.35         0 of 6     tie  (5/10)     none
-      Ackley          0.10         0 of 10    tie  (5/10)     none
-    One positive case, so every property unique to Borehole explains the pattern
-    equally well -- concentration, boundary optimality and deficit size co-occur
-    perfectly. This is WHY h99 (headroom) and h100 (containment) fell so cleanly:
-    any gate must fail on three and hold on one, which unrelated quantities do by
-    construction. **Passing that test is nearly free and is not evidence.**
-    Currin looked like the discriminating case until it proved saturated.
-    WHAT WOULD SETTLE IT (registered as a design, not run, not cheap): a
-    SYNTHETIC family varying ONE property -- concentration -- with boundary
-    status and deficit size held fixed, so the claim has four points differing in
-    one thing rather than one point differing in everything. A fifth standard
-    benchmark buys little; it varies everything at once like the four here.
-  N10_TABLE_all_four_benchmarks: >
-    **THE HEADLINE, at n=10, seed-matched, explicit paths (no globbing).**
-    Sources: h83 for 42-46; h89 CONTROL + h91 for Hartmann 52-56; h89 CONTROL +
-    h92 for Borehole 52-56; h93 for Currin and Ackley 52-56. Verified
-    independently in this session; every figure reproduces the peer's table.
-      benchmark    vs             n   MF-DRO  base   paired  median  better
-      Hartmann_6D  MF-MES        10    5.32   6.84   -1.52   +0.22   5/10  TIE
-      Ackley_10D   SF-DRO        10    3.62   3.46   +0.17   +0.11   5/10  TIE
-      Currin_2D    MF-MI-Greedy  10    0.01   0.00   +0.01   +0.00   3/10  NIL
-      Borehole_8D  MF-MES        10   15.42   8.24   +7.18   +8.30   2/10  LOSS
-    **TIED ON TWO, NIL ON ONE, LOSING ON ONE.** Supersedes both "not the best
-    method on any benchmark" (n=5) and my own "one cell tested, three untested".
-    Hartmann REVERSED between n=5 and n=10 (7.99 vs 6.62 -> 5.32 vs 6.84); mean
-    and median disagree in sign there, so TIE is the honest word, not a win.
-    Borehole is the one real deficit and the robust one -- its median EXCEEDS
-    its mean, so unlike Hartmann it is not one seed.
-    CAVEATS: no p-values and none appropriate. Ackley's comparator SF-DRO is
-    this method's own single-fidelity ablation, not an external baseline. Currin
-    is saturated (both within 0.01% of optimum).
-  h94-roi-at-inference-COMPLETE: >
-    10/10, 0 failures. **P5 FAILED (snapped 0.009 vs a >0.5 bar), so C and D are
-    INCONCLUSIVE by the protocol's own text** -- the DT's raw output was already
-    admissible 99.1% of the time. P1/P2/P3/P4 all read MET and are NOT being
-    used: P1's mean is 0.16 of its sd, and P3 compares C against B, the SAME
-    configuration 0.9% of queries apart.
-    THE FINDING THAT REPLACES THE INTENDED ONE: the ROI accepts 9.9% of uniform
-    draws and the DT proposes inside it 99.1% of the time -- **10x enrichment
-    over chance, without being told the ROI exists at inference.** So a
-    query-side ROI cannot help much because THE CONSTRAINT IS ALREADY SATISFIED,
-    not because the imitation channel is lossy. Reconciles with L_loc: imitating
-    a REGION is easier than imitating a POINT, and only the region is what the
-    ROI constrains.
-    WITHDRAWN: Amendment 7's "the DT's proposal is NEVER admissible (11/11)",
-    which came from a smoke test at bo_iterations=60/num_epochs=1 and does not
-    hold at 4000/10.
-    DELIVERED INSTEAD: a fresh-RNG replication of the teacher-side ROI at the
-    same seeds -- h90 -3.49 (4/5), h94 -3.86 (5/5), pooled n=10 **-3.68 at
-    9/10**, agreeing to 0.72 pts per seed. Three independent Borehole
-    measurements now: h84 -4.22, h90 -3.49, h94 -3.86.
-    SNAP-CONTROL fired (100% by design) and IS interpretable: same mean as the
-    ROI, THREE TIMES the spread (sd 3.98 vs 1.28), producing both the project's
-    best Borehole result (5.78, below MF-MES's 6.40) and one worse than doing
-    nothing. Quantizing onto a finite pool is a lottery, not a hidden source of
-    the ROI's gain.
-  BOREHOLE_ONLY_survives_a_real_test: >
-    **The single most important status line.** Every ROI effect is
-    Borehole-specific, and that claim has now faced a real attempt to break it
-    rather than resting on an untuned threshold. The peer's h111 ran ROI-Q05 on
-    Hartmann and Ackley, 10 runs, gate observed (accept 0.0498-0.0501):
-      Hartmann  Q05 vs no-ROI  -0.52  sd 6.32  2/5   NOT separable
-      Ackley    Q05 vs no-ROI  -0.09  sd 0.73  2/5   NOT separable
-    **TWO tightness settings spanning 2x both fail on both benchmarks**
-    (q=0.10 gave -1.62 and -0.09). So Borehole-only is a property of the
-    heuristic, NOT an artifact of an unchosen threshold.
-    BOUNDED CORRECTLY, and this corrects both sessions: Hartmann's paired sd is
-    6.32, so an effect needs |mean| >= 3.16 to resolve there at n=5. Borehole's
-    effect is 5.79, which WOULD clear that. So Hartmann **rules out a
-    Borehole-sized effect** and rules out nothing below ~3.2 points. The peer's
-    "cite neither number in either direction" is too strong; my h104 phrasing
-    ("the ROI does essentially nothing on Hartmann") was worse -- I reported an
-    unresolvable measurement as a measured zero. Detecting a 2-point Hartmann
-    effect would need ~n=40.
-  h110_RESULT_tightness_is_seed_set_dependent: >
-    **COMPLETE 5/5.** All four bars MET, and the line that matters is not a bar:
-    Q05 vs Q10 head-to-head at seed-matched n=10 is **-0.63, ratio 0.27, 6/10 --
-    NOT SEPARABLE.** Per seed set: -1.57 (42-46), -1.52 (47-51), **+0.30
-    (52-56)**. q=0.05 beat q=0.10 on two seed sets and not the third, and the
-    two that agreed did so to 0.05 -- the same shape that preceded the Hartmann
-    flip's withdrawal.
-    **WITHDRAWN: "the strategy is q=0.05".** Correct version: q=0.05 is at least
-    as good everywhere measured, better on 2 of 3 seed sets, indistinguishable
-    pooled seed-matched. Both settings work (Q05 -4.71/-5.01/-5.79; Q10 -4.08 at
-    10/10). Which target to use is OPEN.
-    R2 (66% vs 57% gap closed) passed and must NOT be leaned on -- that 9-point
-    difference IS the -0.63 head-to-head over a ~9.4-point gap, so it inherits
-    its non-separability. **A gap-closure percentage inherits the separability of
-    the difference underneath it.** R4 forced the paired count alongside: Q05
-    still LOSES to MF-MES 6/10, median +1.43.
-  h109_GATE_PASSED: >
-    **P1 MET 2/2, BIT-IDENTICAL.** seed42 115v115, seed43 103v103, max|dx|=0,
-    max|dy|=0, zero fidelity mismatches, final_regret identical to 10 decimals.
-    The working-tree patches are INERT on the use_roi=TRUE branch, MEASURED (G1
-    had covered use_roi=False only). h106/h107/h108/h110/h113 all CLEAN.
-    Transferable rule: when an argument's failure mode would invalidate work
-    already done, buy the measurement. 2 runs against a 22-run re-run.
-  h113-roi-l1-compose: >
-    RUNNING (peer's), 10 runs, Borehole ROI-Q10 + L1-LOSS at seeds 42-51. The
-    two interventions that replicated are both Borehole-only and both unexplained
-    IN THE SAME WAY -- each improves regret without moving the quantity its
-    proposed mechanism operates on (ROI raises dispersion; L1 leaves boundary
-    reach at ratio 0.25). Whether they compose is the cheapest test of whether
-    they are one phenomenon or two.
-      additive          approx -6.3   two independent mechanisms
-      shared bottleneck approx -4.1   no better than the ROI alone
-    **The additive prediction lands on top of MF-MES (8.24 on these seeds)** --
-    if additive, the combined arm ties the strongest comparator on the one
-    benchmark where MF-DRO loses. Registered as a hypothesis's prediction, not an
-    expectation; would need fresh-seed re-verification.
-    I nearly duplicated this (h114, withdrawn) AND h111 (h112, withdrawn).
-  DUPLICATION_rules_earned_tonight: >
-    Two near-duplications in two ticks, both withdrawn before launch.
-    RULE 1 (h112): grep the results tree for the arm BEFORE writing the protocol.
-    RULE 2 (h114): **rule 1 is insufficient.** It finds COMPLETED work only -- it
-    cannot see concurrent work, and it misses the same question at a different
-    parameterisation (my Q05 glob would never have matched the peer's Q10 arm).
-    **When a peer flags a question as open and worth doing, message BEFORE
-    designing.** That is the signal that actually predicts duplication, and it is
-    what the peer acted on from its side.
-  BEST_SETTING_closes_62pct: >
-    On seeds 42-46 -- **the only seed set carrying all four arms** (no-ROI, Q10,
-    Q05, MF-MES), enabled by the peer's h107 -- seed-matched n=5:
-      no-ROI 15.82 | Q10 11.59 | Q05 10.02 | MF-MES 6.40
-      gap to MF-MES: no-ROI +9.41 -> Q10 +5.19 (45% closed) -> Q05 +3.62 (62%)
-    h106 reported 57% for q=0.10 on ITS n=10 set; here the same setting gives
-    45%. Different seed sets, not a discrepancy -- and that 45-vs-57 spread for
-    ONE setting is the caution against reading any closure percentage precisely.
-    Q05 vs Q10 here is -1.57 (4/5), reproducing h97's -1.52 and h107's -1.57 to
-    within 0.05.
-    PAIRED, which must accompany the percentage: Q05 still loses to MF-MES 2/5,
-    median +4.79.
-  ROI_lifts_the_whole_distribution: >
-    EXPLORATORY, h106's n=10 arms, compared as ORDER STATISTICS -- deliberately
-    NOT corr(no-ROI, gain), which is corr(X, X-Y) and positive by construction;
-    this project already discarded a tail-risk claim built on that form.
-      worst 19.19->14.73 (-4.46) | 75th -4.62 | median -4.30 | 25th -3.72
-      best  10.52-> 8.08 (-2.44)
-    Every quantile improves 3.7-4.6 except the best run at 2.4. Worst gains
-    1.83x what best gains. **A mean shift with a mild gradient, NOT a tail fix.**
-    TEMPERS my own 'the ROI tightens the arm' (sd 2.37->1.78), used in
-    findings.md, the report and a peer message: the tightening is a BYPRODUCT of
-    that gradient, not variance control, and reading it as the latter would
-    repeat the overreach of the withdrawn tail-risk claim.
-  h110-q05-seedmatched: >
-    RUNNING, 5 runs, Borehole ROI-Q05 at seeds 52-56 -- gives q=0.05 the
-    seed-matched n=10 treatment h106 gave q=0.10. Both comparators already exist
-    there (MF-MES h92, no-ROI h89 CONTROL). **CONDITIONAL ON h109**: same patched
-    code, so a P1 failure contaminates it exactly as it does h106/h107/h108. That
-    dependency is registered in its protocol and printed by its analysis header.
-    Bars state effect sizes (R1: mean <= -3.0 AND ratio >= 0.5); R4 requires the
-    paired count vs MF-MES to be printed with the mean-based percentage.
-  h109-patch-repro-control: >
-    **COMPLETE. P1 MET on 2/2 -- BIT-IDENTICAL.** seed42 115v115, seed43 103v103,
-    max|dx|=0, max|dy|=0, zero fidelity mismatches, final_regret identical to 10
-    decimals. The patches are INERT on the use_roi=True branch, MEASURED (G1 had
-    covered use_roi=False only). **h106, h107, h108 and h110 are CLEAN.**
-    (peer's), 2 runs, THE GATE on every post-patch result. Re-runs
-    Borehole ROI-Q10 at seeds 42-43 on current code against h84's stored traces;
-    P1 = bit-identical. **Its construction was verified here BEFORE it reports**:
-    config identical to h84's except exp_name, which mf_dro.py never reads (only
-    src/policy/dro.py, the single-fidelity class, for logging/resume paths). So a
-    P1 failure is a real patch signal, not a config artifact.
-  h106-roi-closes-the-gap: >
-    **COMPLETE, 5/5, 0 failures. ALL THREE BARS MET.** Calibration gate observed
-    on every run (accept 0.0998-0.0999 vs a 0.10 target; n_distinct 600).
-      Q1 PRIMARY  ROI vs no-ROI  mean -4.08  sd 2.36  ratio 1.73  **10/10**
-      Q2 NEGATIVE gap to MF-MES 7.18 -> 3.10, **57% closed**, still behind
-      Q3 HALVES   42-46 -4.22 | 52-56 -3.93 | split 0.30
-    Q1 is the FIRST bar this session to state an effect size and meet it (four
-    earlier bars passed on counts/signs at ratios 0.16, 0.38, ~0).
-    Q3 is a SEED-STABILITY result ONLY. **It does NOT establish code
-    comparability** -- h106 ran seeds 52-56 only and reads 42-46 from h84's
-    stored files, so "reproduces h84's -4.22" is an IDENTITY, and the 0.30 split
-    confounds patch effect with seed effect. Comparability remains REASONED, not
-    measured; the peer's h109 (re-run ROI-Q10 at seeds 42-43 on current code vs
-    stored traces, use_roi=TRUE) is the control that settles it.
-    PAIRED, both statistics: MF-DRO+ROI still loses to MF-MES 3/10, mean +3.10,
-    median +3.46. The ROI TIGHTENS the arm (sd 2.37 -> 1.78) while MF-MES sits at
-    4.68 (range 0.83-15.44) -- better on average, far less reliable.
-    NOT LICENSED: generalisation beyond Borehole, or 'best setting' -- this is
-    q=0.10 and q=0.05 is separably better, so **57% is a floor, not a ceiling**.
-    (superseded RUNNING note) 5 runs, Borehole ROI-Q10 at seeds 52-56. Seed-matches the ROI arm
-    to the n=10 comparison for the first time (ROI was at 42-46 and 47-51; the
-    comparison uses 42-46 and 52-56). Asks whether the one intervention that
-    works reduces the one deficit that is real. Q1 requires the paired mean to
-    be >= HALF its own paired sd -- the first bar this session to state an
-    effect size, after four passed on counts and signs alone. Q2 registered
-    NEGATIVE (the ROI should NOT close the gap). Q3 checks the two seed-set
-    halves agree within 2 pts, and is also the standing check on code drift,
-    since comparability with h84's pre-patch arm is REASONED not measured.
-  h104-hartmann-waste: >
-    EXPLORATORY, zero compute, h84's Hartmann arms. **EVERY MEASURED EFFECT OF
-    THE ROI IS BOREHOLE-SPECIFIC.** The commission's diagnosis is Hartmann-based
-    but every waste measurement was on Borehole, the one benchmark where the ROI
-    also improves regret -- so 'reduces waste' and 'improves regret' had never
-    been observed apart. Hartmann separates them and the answer is neither:
-    waste mean -0.013 (2/5, seeds 42/43 at the floor in BOTH arms), mean query
-    regret -0.001, dispersion DOWN 0.005 (the direction accompanying failures).
-      effect            Borehole       Hartmann
-      regret            -3.49 (4/5)    failed/withdrawn
-      relocation        PRESENT 5/5    absent
-      waste reduction   3/3 non-floor  none
-      mean query regret -4.15 (5/5)    -0.001
-      dispersion        UP +9.5%       DOWN -10.6%
-    W1 FAILED. **W2 MET AS REGISTERED AND MEANINGLESS** -- h95's bars required
-    '>=N/5 AND negative mean'; I kept the count and dropped the mean, so W2
-    certifies 3/5 wins at a paired mean of -0.001 across +/-8 swings. The script
-    then fired W3 (waste and regret are separable) on that hollow pass; the
-    conclusion is NOT taken, and W3's question stays OPEN because Hartmann did
-    not supply the improvement that would have tested it.
-    THIRD bar-design failure of the session, all rhyming: M1 count-on-a-floored-
-    measure, T2 ordering-without-separability, W2 count-without-effect-size.
-    Standing rule: a bar must state the EFFECT SIZE it requires, not only the
-    seed count, and must say what happens when seeds cannot move.
-  h103-baseline-sanity: >
-    Source audit vs the authors' MATLAB. The two REGISTERED baselines are
-    FAITHFULLY PORTED, not broken: mfboPreProcessParams.m:229-239 puts
-    MF-GP-UCB, Illus-MF-GP-UCB, GP-UCB and MF-MI-Greedy in the inflated-prior
-    branch (maxY+2*rangeY, author's comment 'works best for UCB'), so our
-    unconditional form is correct for both methods we implement. NOT our bug --
-    h83 stands; only the frozen protocol's PASS is hollowed out. Nearly
-    published the opposite: two lines of that MATLAB read alone imply MI-Greedy
-    should get meanY, and the branch four lines above names it explicitly.
-    CLOSES the 'baselines under-optimise, cause unresolved' open question.
-  h101-head-shrinkage: >   # renumbered from h97, ID collision
-    EXPLORATORY, zero compute, h90 Borehole. **BOUNDARY AVERSION IS A SPREAD
-    FAILURE, NOT A CENTRING FAILURE.** S2 FAILED and the failure is the finding:
-    the head relocates its centre toward the CORRECT bound in all four sensitive
-    dims (offsets .456/.327/.290/.325) while sitting at the domain centre in the
-    insensitive ones (.082, a 4.3x difference). The head knows where to go.
-    S1/S3 MET: the output cloud is 3-6x TIGHTER than uniform in every dimension
-    (SD/uniform .18-.30, sd of the ratio .044). Reach is governed by residual
-    gap/sd -- dim0 lands 0.84 sd from its bound and reaches 70%; dims 3/5/6 land
-    2.0-3.3 sd away and reach 0.2-2%. Gaussian prediction reproduces the
-    ordering with mean error 0.066 over FOUR points (a ranking, not a law).
-    NEITHER registered mechanism was right -- the answer, correct centring plus
-    insufficient spread, was not in my two-way framing. Second time today a
-    two-way framing excluded the truth.
-    CHANGES THE PRESCRIPTION from h96's implied architecture rewrite: the head
-    already gets 83-98% of the way. Two cheap levers -- sharpen centring via a
-    sensitivity-weighted L_loc (preferred, one loss change), or widen the output
-    (no longer obviously wrong, since h95/h96 showed more dispersion came with
-    BETTER regret).
-  h96-roi-relocation: >
-    EXPLORATORY, zero compute. **MECHANISM FOUND, WITH SEVERE LIMITS.** The ROI
-    works by RELOCATING the query cloud toward x* in the dimensions carrying the
-    variance -- not by concentrating it. Sensitivity-weighted distance, all four
-    benchmarks, ROI-Q10 vs no-ROI:
-      Borehole  WORKED -3.49      relocation PRESENT -0.0144, closer 5/5
-      Hartmann  FAILED            relocation ABSENT  +0.0070, closer 3/5
-      Ackley    -0.09 negligible  relocation ABSENT  +0.0088, closer 1/5
-      Currin    +0.11 HARMED      relocation ABSENT  -0.0007, closer 2/5
-    Relocation tracks the outcome 4/4; DISPERSION ANTI-TRACKS IT (down 10.6% on
-    Hartmann where the ROI failed, up 9.5% on Borehole where it worked), so
-    dispersion is NEITHER NECESSARY NOR SUFFICIENT. Hartmann was registered as
-    the falsifier BEFORE computing; Ackley/Currin predicted before looking
-    (absent on both: right; negative on Currin: WRONG).
-    The PRIMARY measure was named in the protocol as the sensitivity-weighted
-    distance, chosen from findings.md:3174's prior finding, before seeing
-    numbers: weighted gives 5/5 on Borehole, unweighted an ambiguous 3/5. First
-    time the h85-P4 rule (name the deciding measure in advance) changed a result.
-    LIMITS, load-bearing: **exactly ONE positive case** -- three negatives are
-    cheap agreement and one benchmark where the ROI works without relocating
-    would sink it. And it **does NOT explain HARM**: Currin got worse with
-    relocation at zero. Open question, not absorbed.
-    BOUNDS THE GAIN: on Borehole the ROI improves reach in dim 0 (81.6% of
-    variance, 0.701->0.747) and barely moves dims 3/5/6 (0.049/0.003/0.007 vs
-    MF-MES's 0.49/0.34/0.70). That is why it closes 37% of the gap and cannot
-    close more -- the residual is boundary aversion, which an ROI cannot fix
-    because it selects WHERE to look, not what the head can emit. Makes the
-    output-parameterisation experiment the highest-value next lever, with a
-    specific quantitative target for the first time.
-  h95-roi-waste-mechanism: >
-    EXPLORATORY, zero compute, on h90's Borehole runs. Bars registered 20:53:57
-    before computing. **THE ROI IMPROVES THE AVERAGE QUERY BY DISPERSING MORE,
-    NOT LESS.** Mean HF query regret falls 4.15 pts on 5/5 (M3 MET), waste
-    fraction falls where waste exists (3/3 nonzero cases, roughly halved) but M1
-    FAILED on a bar I designed badly -- the measure has a floor at zero and 2/5
-    seeds sat on it in both arms, so ">=4/5 strictly better" was unmeetable.
-    Recorded as FAILED rather than rewritten after seeing data.
-    **M2 FAILED IN THE OPPOSITE DIRECTION AND THAT IS THE FINDING**: the ROI
-    INCREASES dispersion (+0.010, higher on 4/5) while improving both regret and
-    mean query quality. The concurrent session measured it independently under a
-    different statistic and got the same sign (+9.5% overall, +14.3% on HF).
-    This contradicts the premise this investigation was handed -- "proposals are
-    3x more dispersed" invites "concentrate them", and on the one benchmark
-    where an intervention demonstrably works it did the opposite. With h88
-    (MF-DRO's wider queries give a BETTER global surrogate), two independent
-    lines now say **dispersion is a correlate of MF-DRO's failure, not its
-    cause.** Any future fix justified by reducing dispersion must explain this.
-    Normalization caveat: both arms sit at ~0.25x the dispersion of a uniform
-    draw, so this is a change WITHIN an already-concentrated regime.
-  h90-borehole-confirm: >
-    **ROI ARM COMPLETE, P1 MET.** The Borehole ROI gain SURVIVES fresh seeds
-    47-51: paired mean **-3.49**, sd 2.66, ROI better **4/5** (-6.05, -1.87,
-    -3.97, -5.77, +0.22), against -4.22 and 5/5 on the development seeds --
-    83% retention. Combined n=10: -3.85, 9/10. Drop-one-seed mean stays negative
-    in all five. P2 MET (margin shrank, as predicted). P3 MET (still does NOT
-    beat MF-MES: 12.25 vs 6.40).
-    THE FIRST INTERVENTION THIS SESSION TO PASS A CLEAN FRESH-SEED CONFIRMATION.
-    Pre-registration verified by timestamp, not asserted: bars committed
-    18:54:17, earliest result of any arm 19:31:10, earliest treatment result
-    19:54:20. Amendment 4 changed control flow only; bar expressions
-    byte-identical across the diff.
-    NORTH STAR UNCHANGED -- MF-DRO still beats no baseline; the gain closes about
-    a quarter of the MF-MES gap and is Borehole-only (Hartmann -1.62 3/5 flip
-    withdrawn, Ackley -0.09 1/5, Currin +0.11 0/5 HARMED).
-    REFINE-100 arm still running -- h90's P4, the third seed set for teacher
-    refinement.
-  h89-hffloor-confirm: >
-    COMPLETE, 25 runs, 0 failures. TWO VERDICTS.
-    (a) HF FLOOR: **WITHDRAWN**. At fresh seeds 52-56 the across-seed sd went UP
-    (2.08 -> 3.17, P1 PRIMARY FAILED) and the paired mean got WORSE by 1.60 pts
-    (P2 FAILED), better 1/5. P3 MET (collapse recurs, streaks 4/11/6) but P4's
-    correlation is -0.84, the WRONG SIGN -- the floor HARMS the most-collapsed
-    seeds (seed 54: 0.76% -> 9.07%). Mechanism inverted, not just unconfirmed.
-    (b) TEACHER REFINEMENT: **SURVIVES at 36% of its size**. Paired -2.11 pts,
-    better 4/5 (P5 PRIMARY MET). P6 FAILED (needed <= -2.9), so per the
-    registered falsifier **h85's -5.85 is SUPERSEDED; -2.11 is the figure.**
-    P8 MET: does NOT close the gap to MF-MES (12.91% vs 10.07% at matched
-    seeds, comparator re-run at seeds 52-56 because h83's 6.40% is from 42-46
-    and those seeds are 3.67 pts easier).
-  h85_P4_CORRECTED: >
-    h85's P4 (cost) is **FAILED**, not met. The bar said "wall-clock cost under
-    2x"; TOTAL wall-clock on Borehole is 2.07x (82.4 -> 170.7 min). It was first
-    reported MET at 1.97x using PER-QUERY wall-clock, a measure the bar never
-    named and the one that happened to pass. Rule now standing: when a bar
-    admits more than one measure, report BOTH and name which the verdict turns
-    on, before computing either.
-  SECOND WITHDRAWAL OF THE DAY: >
-    Both the ROI's Hartmann flip (h84 4/5 -> h87 2/5) and the HF floor's
-    variance result (h85 -> h89) met their bars at n=5 on one seed set, were
-    recorded as provisional WITH correct caveats attached, and died at fresh
-    seeds. The confirmation discipline is what separates real results from
-    these; the caveats did not. TEACHER REFINEMENT (Borehole -5.85, 5/5) SHOULD
-    BE ASSUMED NOT TO REPLICATE until h89's Borehole arm and/or session B's h90
-    report. [RESOLVED: h89 confirmed it in DIRECTION (4/5) but at 36% of size --
-    -2.11, not -5.85. h90 adds a THIRD seed set, 47-51.]
+    '
+  h87-hartmann-confirm: 'COMPLETE, 10/10, 0 failures. P1 FAILED (2/5), P3 FAILED. Falsifier fired and
+    the flip was withdrawn from findings.md, research-log.md, this file and the published report. The
+    verdict was mechanical: analyse.py was committed while the treatment arm was still running, refuses
+    verdicts below 5/5, and prints the falsifier itself.
 
-  h94-roi-at-inference: >
-    PROTOCOL LOCKED, NOT LAUNCHED, implementation held OUT of src/ as a patch.
-    Follows from a CODE AUDIT, not an experiment: **the ROI has never been
-    applied to a real query.** use_roi=True restricts only
-    simulate_mf_trajectory's teacher pool; the real query is
-    action_head(h).clamp(0,1) at mf_dro.py:3090 and no ROI symbol appears
-    anywhere between that call and the query being issued (only fidelity
-    overrides). Every ROI number in this project is therefore a SECOND-ORDER
-    effect through a lossy imitation channel -- teacher proposes in-ROI ->
-    actions_x -> L_loc MSE -> the head's weights shift -- not the DRO paper's
-    Sec 4.2 constraint on WHERE YOU QUERY. This is the best structural
-    explanation on hand for the ROI's signature (real but small on Borehole,
-    negligible on Ackley, harmful on Currin, withdrawn on Hartmann): an
-    intervention filtered through imitation should be weak and inconsistent.
-    It fits h88's reframing -- MF-DRO builds a BETTER global surrogate than
-    MF-MES and fails to convert it into queries; the ROI aims at that
-    conversion step and then never touches it.
-    DESIGN: Borehole seeds 47-51, arms A=NO-ROI and B=ROI-Q10 REUSED from h90,
-    C=ROI-PROJECT (snap to nearest in-ROI candidate) and D=SNAP-CONTROL (snap to
-    nearest of an UNFILTERED pool) run fresh. 10 new runs.
-    **Arm D is the point of the design**: it separates quantizing the DT's
-    output onto a finite pool -- a crude relative of the EXCLUDED pool+argmax
-    mechanism -- from restricting it to the ROI. If D explains C, the honest
-    conclusion is that the excluded mechanism resurfaced, not that the ROI
-    works, and it will be reported in those words.
-    P1 (C vs D, the discriminator) is registered as GENUINELY UNCERTAIN: seven
-    of eight mechanism claims this session were refuted. P5 checks the
-    manipulation took at all (>50% of queries actually snapped) before P1/P3
-    are allowed to mean anything.
-    L_LOC DIAGNOSTIC (EXPLORATORY, zero compute, registered before computing):
-    **D1 CONFIRMED -- the imitation channel really is lossy.** The head never
-    converges onto the teacher: L_loc falls only 0.048 -> 0.038 over a run and
-    ends 0.55 away in L2, 19.5% of the d=8 domain diameter, every query. Better
-    than a "predict the per-dim mean" baseline by AT MOST 2.2x, and less than
-    that because the teacher's MES-argmax actions concentrate. D2 REFUTED IN
-    DIRECTION (ROI-on L_loc is 22% LOWER, not larger) but CONFOUNDED -- the ROI
-    concentrates the target, which lowers MSE without better tracking; the patch
-    now logs Var(actions_x) so the ratio becomes interpretable. D3 holds: L_loc
-    is a training loss over rollout actions, NOT the gap at the real query, so
-    it supports h94's premise without establishing it. P5 still settles that.
-    CODE COMPLETE, 0 results on disk: worker.py refuses to run if src/ lacks the
-    patch (an unpatched run would write a file labelled ROI-PROJECT that is
-    really ROI-Q10); analyse.py evaluates P5 first, refuses every bar on
-    incomplete arms, and prints the pool-mechanism warning itself if D helps
-    while C fails to beat it.
-    **RUNNING: 10 workers, seeds 47-51 both arms, 0 FAILs.** Launched only after
-    an 8-job crash: NameError 't' (run()'s loop variable, not in scope inside
-    _propose_next_query). G1 passed and was structurally INCAPABLE of catching
-    it -- with the flag off the hook short-circuits. New standing gate G3:
-    execute the ON path end-to-end at minimal scale with the side effect
-    OBSERVED before launch. G3 then passed and showed the DT's raw proposal is
-    NEVER admissible (snapped 11/11, mean distance 0.73 vs the 0.55
-    student-teacher gap), so h94 tests 'nearest in-ROI pool member to the DT's
-    output' -- still not pool+argmax, but to be volunteered, not defended.
-    Confound named before results: SNAP-CONTROL snaps 0.54 vs 0.73, so P1 cannot
-    separate 'the ROI helps' from 'moving further helps'.
-    TWO GATES: G1 bit-identity under use_roi=False -- NOT YET PERFORMED, the
-    first attempt exceeded 2 min (MF-DRO trains 4000 iterations before its first
-    real query); the second ran from two scratchpad COPIES of the tree so live
-    src/ was never touched, at a cheap config, and was KILLED at ~7 min because
-    the concurrent session went 14 -> 15 workers and made mine the 16th on a
-    15-core cap. Third attempt running under a self-limiting wrapper that aborts
-    if the count exceeds 14. No H94 result may be reported before G1 passes.
-    G2: workers <=5 and h90 complete (it supplies A and B).
+    '
+  h85-teacher-refinement: 'COMPLETE 24/24, 0 failures, reproduction control PASSED 4/4 bit-identical.
+    Borehole REFINE-100 -5.85 pts (5/5); Hartmann REFINE-100 -1.93 (3/5); Hartmann HF-FLOOR -1.37 (3/5)
+    with sd 5.85 -> 2.00; Borehole HF-FLOOR +0.18 (0/5, non-binding, 4 runs bit-identical). Bars P1/P2/P3/P4/P5
+    MET, P6 REFUTED. P2 was the mechanism bar (near-bound 8.93% -> 16.32%).
 
+    '
+  h85_P4_cost_bar: 'FAILED, recorded 2026-08-27 after checking completed runs rather than projections.
+    Teacher refinement''s wall-clock is 1.25x the unmodified method at seeds 52-56 but 2.07x at seeds
+    42-46, against a registered bar of <2.0x. The bar applies to the intervention, so one seed set exceeding
+    it is a failure. The published report had stated only the 1.25x figure and called it "inside its limit";
+    that was corrected on the live page (commit at 19:0x) and now reads as the range 1.25-2.07x with the
+    FAILED verdict. Wall-clock cost is the FIFTH quantity found to vary by seed set, after paired sd,
+    tail-risk ordering, collapse incidence, and the sign of a comparison.
+
+    '
+  h99-headroom-and-h100-containment: 'EXPLORATORY, zero compute, both registered before computing. **TWO
+    CANDIDATE MECHANISMS TESTED, NEITHER SURVIVES.** H99: weighted headroom (sensitivity x incumbent distance
+    to x*) does NOT gate the ROI and is nearly ANTI-correlated -- Hartmann 0.1852 (ROI FAILED), Ackley
+    0.0496, **Borehole 0.0185 (ROI WORKED)**, Currin 0.0124. P2 registered as risky, failed as expected.
+    P1/P3 MET. P3 KILLS h101''s PRESCRIPTION OUTRIGHT: Borehole''s dim 0 carries 86% of first-order variance
+    and has incumbent headroom **0.0000**, so a sensitivity-weighted L_loc would put 86% of its weight
+    where nothing can be gained. WITHDRAWN, not suspended -- it was derived from a cloud statistic before
+    the incumbent correction. H100: the ROI''s own logged containment diagnostics. Q1 FAILED and INVERTED
+    -- Borehole''s ROI sits 1.26x FARTHER from x* than an unfiltered pool and contains NOTHING within
+    0.2 of x* (0.0000), yet works; Hartmann''s is 0.79x (closer) with near-x* mass and failed. **BUT the
+    instrument is UNWEIGHTED** full-dimensional distance -- the metric findings.md:3174 established reverses
+    orderings on Borehole. Verdict is UNTESTED, not refuted. That override is POST-HOC and labelled so;
+    the protocol normalized out the dimensionality confound and missed the weighting one (4th time bitten
+    by it). SURVIVES REGARDLESS: Borehole scores 0.0000 and the ROI works, so the ''an ROI containing
+    nothing near the optimum starves the DT'' rationale -- the failure that got the ROI deleted before
+    -- is FALSE as stated with this measure. NET: h96''s four-benchmark relocation pattern is REAL and
+    UNEXPLAINED.
+
+    '
+  h98-roi-dose-response: 'EXPLORATORY, zero compute, h84''s four Borehole arms. **CENTRING MEDIATES THE
+    ROI DOSE over the three resolvable levels.** GAPSD (h101''s predictor): OFF 2.29 -> ANN 2.02 -> FIX2
+    1.64 / Q10 1.66, against regret 0 / -1.31 / -4.81 / -4.22. Tight-vs-ANN paired -0.377 (5/5), ANN-vs-OFF
+    -0.278 (5/5). T1 MET, T2 MET, T3 FAILED, T4 not triggered. **BUT T2 IS HOLLOW WHERE IT MATTERED.**
+    Its interest was reproducing the FIX2>Q10 inversion; the arm means differ by 0.02, and the per-seed
+    check gives paired mean -0.018, sd 0.169, FIX2 better 2/5, ratio 0.11 -- the arms are TIED. The bar
+    passed because argsort totally orders four numbers whether or not adjacent ones are separable. Recorded
+    MET as registered AND uninformative at that position. New standing rule: an ordering bar needs a separability
+    check on the adjacent pairs carrying its meaning. CONSEQUENCE: q=0.10 was never established as better
+    than q~0.21 -- tied on regret AND mechanism. Calibration''s case stays controllability across benchmarks,
+    not superiority on Borehole.
+
+    '
+  TIGHTNESS_the_dose_answer: "**q=0.10 WAS NEVER THE RIGHT SETTING; q=0.05 IS BETTER, and every ROI number\
+    \ in this project uses an unoptimised value** -- q=0.10 was simply the first calibrated value tried.\
+    \ Peer's h97, verified here with explicit paths:\n  Q05 vs no-ROI  -5.01  sd 1.95  ratio 2.56  5/5\
+    \   SEPARABLE\n  Q10 vs no-ROI  -3.49  sd 2.66  ratio 1.31  4/5   SEPARABLE\n  Q05 vs Q10     -1.52\
+    \  sd 1.21  ratio 1.26  4/5   SEPARABLE\nAll three separable -- worth noting against four of my own\
+    \ bars today that passed at ratios of 0.16, 0.38 and effectively zero. CORRECTS h98, which treated\
+    \ ROI-FIX2 as the \"accept 0.21\" level of a dose. FIX2 is the FIXED-beta arm; its acceptance DRIFTS\
+    \ 250x within a run and 0.21 is the average of that drift, so it is not a dose point at all. Among\
+    \ the CALIBRATED arms the dose is monotone: 0.49 not separable (a loose ROI does nothing), 0.10 separable,\
+    \ 0.05 separably better. h98's tie between its top two arms is now explained rather than merely observed.\
+    \ REGISTERED NEXT: q=0.02 vs q=0.05, |mean| >= 0.5 sd, with h97's gate form -- observed accept_frac\
+    \ in [0.018,0.022] AND n_draws below the cap, so a starved ROI falling back to unfiltered top-up is\
+    \ detected, not reinterpreted.\n"
+  MECHANISM_is_unidentifiable_not_merely_unknown: "**No ROI mechanism can be identified from these four\
+    \ benchmarks.**\n  benchmark   max var share  x* on bdry  MF-DRO deficit   ROI effect\n  Borehole\
+    \        0.83         7 of 8     REAL (2/10)     WORKS -3.68\n  Currin          0.81         1 of\
+    \ 2     nil (saturated) none\n  Hartmann        0.35         0 of 6     tie  (5/10)     none\n  Ackley\
+    \          0.10         0 of 10    tie  (5/10)     none\nOne positive case, so every property unique\
+    \ to Borehole explains the pattern equally well -- concentration, boundary optimality and deficit\
+    \ size co-occur perfectly. This is WHY h99 (headroom) and h100 (containment) fell so cleanly: any\
+    \ gate must fail on three and hold on one, which unrelated quantities do by construction. **Passing\
+    \ that test is nearly free and is not evidence.** Currin looked like the discriminating case until\
+    \ it proved saturated. WHAT WOULD SETTLE IT (registered as a design, not run, not cheap): a SYNTHETIC\
+    \ family varying ONE property -- concentration -- with boundary status and deficit size held fixed,\
+    \ so the claim has four points differing in one thing rather than one point differing in everything.\
+    \ A fifth standard benchmark buys little; it varies everything at once like the four here.\n"
+  N10_TABLE_all_four_benchmarks: "**THE HEADLINE, at n=10, seed-matched, explicit paths (no globbing).**\
+    \ Sources: h83 for 42-46; h89 CONTROL + h91 for Hartmann 52-56; h89 CONTROL + h92 for Borehole 52-56;\
+    \ h93 for Currin and Ackley 52-56. Verified independently in this session; every figure reproduces\
+    \ the peer's table.\n  benchmark    vs             n   MF-DRO  base   paired  median  better\n  Hartmann_6D\
+    \  MF-MES        10    5.32   6.84   -1.52   +0.22   5/10  TIE\n  Ackley_10D   SF-DRO        10  \
+    \  3.62   3.46   +0.17   +0.11   5/10  TIE\n  Currin_2D    MF-MI-Greedy  10    0.01   0.00   +0.01\
+    \   +0.00   3/10  NIL\n  Borehole_8D  MF-MES        10   15.42   8.24   +7.18   +8.30   2/10  LOSS\n\
+    **TIED ON TWO, NIL ON ONE, LOSING ON ONE.** Supersedes both \"not the best method on any benchmark\"\
+    \ (n=5) and my own \"one cell tested, three untested\". Hartmann REVERSED between n=5 and n=10 (7.99\
+    \ vs 6.62 -> 5.32 vs 6.84); mean and median disagree in sign there, so TIE is the honest word, not\
+    \ a win. Borehole is the one real deficit and the robust one -- its median EXCEEDS its mean, so unlike\
+    \ Hartmann it is not one seed. CAVEATS: no p-values and none appropriate. Ackley's comparator SF-DRO\
+    \ is this method's own single-fidelity ablation, not an external baseline. Currin is saturated (both\
+    \ within 0.01% of optimum).\n"
+  h94-roi-at-inference-COMPLETE: '10/10, 0 failures. **P5 FAILED (snapped 0.009 vs a >0.5 bar), so C and
+    D are INCONCLUSIVE by the protocol''s own text** -- the DT''s raw output was already admissible 99.1%
+    of the time. P1/P2/P3/P4 all read MET and are NOT being used: P1''s mean is 0.16 of its sd, and P3
+    compares C against B, the SAME configuration 0.9% of queries apart. THE FINDING THAT REPLACES THE
+    INTENDED ONE: the ROI accepts 9.9% of uniform draws and the DT proposes inside it 99.1% of the time
+    -- **10x enrichment over chance, without being told the ROI exists at inference.** So a query-side
+    ROI cannot help much because THE CONSTRAINT IS ALREADY SATISFIED, not because the imitation channel
+    is lossy. Reconciles with L_loc: imitating a REGION is easier than imitating a POINT, and only the
+    region is what the ROI constrains. WITHDRAWN: Amendment 7''s "the DT''s proposal is NEVER admissible
+    (11/11)", which came from a smoke test at bo_iterations=60/num_epochs=1 and does not hold at 4000/10.
+    DELIVERED INSTEAD: a fresh-RNG replication of the teacher-side ROI at the same seeds -- h90 -3.49
+    (4/5), h94 -3.86 (5/5), pooled n=10 **-3.68 at 9/10**, agreeing to 0.72 pts per seed. Three independent
+    Borehole measurements now: h84 -4.22, h90 -3.49, h94 -3.86. SNAP-CONTROL fired (100% by design) and
+    IS interpretable: same mean as the ROI, THREE TIMES the spread (sd 3.98 vs 1.28), producing both the
+    project''s best Borehole result (5.78, below MF-MES''s 6.40) and one worse than doing nothing. Quantizing
+    onto a finite pool is a lottery, not a hidden source of the ROI''s gain.
+
+    '
+  BOREHOLE_ONLY_survives_a_real_test: "**The single most important status line.** Every ROI effect is\
+    \ Borehole-specific, and that claim has now faced a real attempt to break it rather than resting on\
+    \ an untuned threshold. The peer's h111 ran ROI-Q05 on Hartmann and Ackley, 10 runs, gate observed\
+    \ (accept 0.0498-0.0501):\n  Hartmann  Q05 vs no-ROI  -0.52  sd 6.32  2/5   NOT separable\n  Ackley\
+    \    Q05 vs no-ROI  -0.09  sd 0.73  2/5   NOT separable\n**TWO tightness settings spanning 2x both\
+    \ fail on both benchmarks** (q=0.10 gave -1.62 and -0.09). So Borehole-only is a property of the heuristic,\
+    \ NOT an artifact of an unchosen threshold. BOUNDED CORRECTLY, and this corrects both sessions: Hartmann's\
+    \ paired sd is 6.32, so an effect needs |mean| >= 3.16 to resolve there at n=5. Borehole's effect\
+    \ is 5.79, which WOULD clear that. So Hartmann **rules out a Borehole-sized effect** and rules out\
+    \ nothing below ~3.2 points. The peer's \"cite neither number in either direction\" is too strong;\
+    \ my h104 phrasing (\"the ROI does essentially nothing on Hartmann\") was worse -- I reported an unresolvable\
+    \ measurement as a measured zero. Detecting a 2-point Hartmann effect would need ~n=40.\n"
+  h110_RESULT_tightness_is_seed_set_dependent: '**COMPLETE 5/5.** All four bars MET, and the line that
+    matters is not a bar: Q05 vs Q10 head-to-head at seed-matched n=10 is **-0.63, ratio 0.27, 6/10 --
+    NOT SEPARABLE.** Per seed set: -1.57 (42-46), -1.52 (47-51), **+0.30 (52-56)**. q=0.05 beat q=0.10
+    on two seed sets and not the third, and the two that agreed did so to 0.05 -- the same shape that
+    preceded the Hartmann flip''s withdrawal. **WITHDRAWN: "the strategy is q=0.05".** Correct version:
+    q=0.05 is at least as good everywhere measured, better on 2 of 3 seed sets, indistinguishable pooled
+    seed-matched. Both settings work (Q05 -4.71/-5.01/-5.79; Q10 -4.08 at 10/10). Which target to use
+    is OPEN. R2 (66% vs 57% gap closed) passed and must NOT be leaned on -- that 9-point difference IS
+    the -0.63 head-to-head over a ~9.4-point gap, so it inherits its non-separability. **A gap-closure
+    percentage inherits the separability of the difference underneath it.** R4 forced the paired count
+    alongside: Q05 still LOSES to MF-MES 6/10, median +1.43.
+
+    '
+  h109_GATE_PASSED: '**P1 MET 2/2, BIT-IDENTICAL.** seed42 115v115, seed43 103v103, max|dx|=0, max|dy|=0,
+    zero fidelity mismatches, final_regret identical to 10 decimals. The working-tree patches are INERT
+    on the use_roi=TRUE branch, MEASURED (G1 had covered use_roi=False only). h106/h107/h108/h110/h113
+    all CLEAN. Transferable rule: when an argument''s failure mode would invalidate work already done,
+    buy the measurement. 2 runs against a 22-run re-run.
+
+    '
+  h113-roi-l1-compose: "RUNNING (peer's), 10 runs, Borehole ROI-Q10 + L1-LOSS at seeds 42-51. The two\
+    \ interventions that replicated are both Borehole-only and both unexplained IN THE SAME WAY -- each\
+    \ improves regret without moving the quantity its proposed mechanism operates on (ROI raises dispersion;\
+    \ L1 leaves boundary reach at ratio 0.25). Whether they compose is the cheapest test of whether they\
+    \ are one phenomenon or two.\n  additive          approx -6.3   two independent mechanisms\n  shared\
+    \ bottleneck approx -4.1   no better than the ROI alone\n**The additive prediction lands on top of\
+    \ MF-MES (8.24 on these seeds)** -- if additive, the combined arm ties the strongest comparator on\
+    \ the one benchmark where MF-DRO loses. Registered as a hypothesis's prediction, not an expectation;\
+    \ would need fresh-seed re-verification. I nearly duplicated this (h114, withdrawn) AND h111 (h112,\
+    \ withdrawn).\n"
+  DUPLICATION_rules_earned_tonight: 'Two near-duplications in two ticks, both withdrawn before launch.
+    RULE 1 (h112): grep the results tree for the arm BEFORE writing the protocol. RULE 2 (h114): **rule
+    1 is insufficient.** It finds COMPLETED work only -- it cannot see concurrent work, and it misses
+    the same question at a different parameterisation (my Q05 glob would never have matched the peer''s
+    Q10 arm). **When a peer flags a question as open and worth doing, message BEFORE designing.** That
+    is the signal that actually predicts duplication, and it is what the peer acted on from its side.
+
+    '
+  BEST_SETTING_closes_62pct: "On seeds 42-46 -- **the only seed set carrying all four arms** (no-ROI,\
+    \ Q10, Q05, MF-MES), enabled by the peer's h107 -- seed-matched n=5:\n  no-ROI 15.82 | Q10 11.59 |\
+    \ Q05 10.02 | MF-MES 6.40\n  gap to MF-MES: no-ROI +9.41 -> Q10 +5.19 (45% closed) -> Q05 +3.62 (62%)\n\
+    h106 reported 57% for q=0.10 on ITS n=10 set; here the same setting gives 45%. Different seed sets,\
+    \ not a discrepancy -- and that 45-vs-57 spread for ONE setting is the caution against reading any\
+    \ closure percentage precisely. Q05 vs Q10 here is -1.57 (4/5), reproducing h97's -1.52 and h107's\
+    \ -1.57 to within 0.05. PAIRED, which must accompany the percentage: Q05 still loses to MF-MES 2/5,\
+    \ median +4.79.\n"
+  ROI_lifts_the_whole_distribution: "EXPLORATORY, h106's n=10 arms, compared as ORDER STATISTICS -- deliberately\
+    \ NOT corr(no-ROI, gain), which is corr(X, X-Y) and positive by construction; this project already\
+    \ discarded a tail-risk claim built on that form.\n  worst 19.19->14.73 (-4.46) | 75th -4.62 | median\
+    \ -4.30 | 25th -3.72\n  best  10.52-> 8.08 (-2.44)\nEvery quantile improves 3.7-4.6 except the best\
+    \ run at 2.4. Worst gains 1.83x what best gains. **A mean shift with a mild gradient, NOT a tail fix.**\
+    \ TEMPERS my own 'the ROI tightens the arm' (sd 2.37->1.78), used in findings.md, the report and a\
+    \ peer message: the tightening is a BYPRODUCT of that gradient, not variance control, and reading\
+    \ it as the latter would repeat the overreach of the withdrawn tail-risk claim.\n"
+  h110-q05-seedmatched: 'RUNNING, 5 runs, Borehole ROI-Q05 at seeds 52-56 -- gives q=0.05 the seed-matched
+    n=10 treatment h106 gave q=0.10. Both comparators already exist there (MF-MES h92, no-ROI h89 CONTROL).
+    **CONDITIONAL ON h109**: same patched code, so a P1 failure contaminates it exactly as it does h106/h107/h108.
+    That dependency is registered in its protocol and printed by its analysis header. Bars state effect
+    sizes (R1: mean <= -3.0 AND ratio >= 0.5); R4 requires the paired count vs MF-MES to be printed with
+    the mean-based percentage.
+
+    '
+  h109-patch-repro-control: '**COMPLETE. P1 MET on 2/2 -- BIT-IDENTICAL.** seed42 115v115, seed43 103v103,
+    max|dx|=0, max|dy|=0, zero fidelity mismatches, final_regret identical to 10 decimals. The patches
+    are INERT on the use_roi=True branch, MEASURED (G1 had covered use_roi=False only). **h106, h107,
+    h108 and h110 are CLEAN.** (peer''s), 2 runs, THE GATE on every post-patch result. Re-runs Borehole
+    ROI-Q10 at seeds 42-43 on current code against h84''s stored traces; P1 = bit-identical. **Its construction
+    was verified here BEFORE it reports**: config identical to h84''s except exp_name, which mf_dro.py
+    never reads (only src/policy/dro.py, the single-fidelity class, for logging/resume paths). So a P1
+    failure is a real patch signal, not a config artifact.
+
+    '
+  h106-roi-closes-the-gap: "**COMPLETE, 5/5, 0 failures. ALL THREE BARS MET.** Calibration gate observed\
+    \ on every run (accept 0.0998-0.0999 vs a 0.10 target; n_distinct 600).\n  Q1 PRIMARY  ROI vs no-ROI\
+    \  mean -4.08  sd 2.36  ratio 1.73  **10/10**\n  Q2 NEGATIVE gap to MF-MES 7.18 -> 3.10, **57% closed**,\
+    \ still behind\n  Q3 HALVES   42-46 -4.22 | 52-56 -3.93 | split 0.30\nQ1 is the FIRST bar this session\
+    \ to state an effect size and meet it (four earlier bars passed on counts/signs at ratios 0.16, 0.38,\
+    \ ~0). Q3 is a SEED-STABILITY result ONLY. **It does NOT establish code comparability** -- h106 ran\
+    \ seeds 52-56 only and reads 42-46 from h84's stored files, so \"reproduces h84's -4.22\" is an IDENTITY,\
+    \ and the 0.30 split confounds patch effect with seed effect. Comparability remains REASONED, not\
+    \ measured; the peer's h109 (re-run ROI-Q10 at seeds 42-43 on current code vs stored traces, use_roi=TRUE)\
+    \ is the control that settles it. PAIRED, both statistics: MF-DRO+ROI still loses to MF-MES 3/10,\
+    \ mean +3.10, median +3.46. The ROI TIGHTENS the arm (sd 2.37 -> 1.78) while MF-MES sits at 4.68 (range\
+    \ 0.83-15.44) -- better on average, far less reliable. NOT LICENSED: generalisation beyond Borehole,\
+    \ or 'best setting' -- this is q=0.10 and q=0.05 is separably better, so **57% is a floor, not a ceiling**.\
+    \ (superseded RUNNING note) 5 runs, Borehole ROI-Q10 at seeds 52-56. Seed-matches the ROI arm to the\
+    \ n=10 comparison for the first time (ROI was at 42-46 and 47-51; the comparison uses 42-46 and 52-56).\
+    \ Asks whether the one intervention that works reduces the one deficit that is real. Q1 requires the\
+    \ paired mean to be >= HALF its own paired sd -- the first bar this session to state an effect size,\
+    \ after four passed on counts and signs alone. Q2 registered NEGATIVE (the ROI should NOT close the\
+    \ gap). Q3 checks the two seed-set halves agree within 2 pts, and is also the standing check on code\
+    \ drift, since comparability with h84's pre-patch arm is REASONED not measured.\n"
+  h104-hartmann-waste: "EXPLORATORY, zero compute, h84's Hartmann arms. **EVERY MEASURED EFFECT OF THE\
+    \ ROI IS BOREHOLE-SPECIFIC.** The commission's diagnosis is Hartmann-based but every waste measurement\
+    \ was on Borehole, the one benchmark where the ROI also improves regret -- so 'reduces waste' and\
+    \ 'improves regret' had never been observed apart. Hartmann separates them and the answer is neither:\
+    \ waste mean -0.013 (2/5, seeds 42/43 at the floor in BOTH arms), mean query regret -0.001, dispersion\
+    \ DOWN 0.005 (the direction accompanying failures).\n  effect            Borehole       Hartmann\n\
+    \  regret            -3.49 (4/5)    failed/withdrawn\n  relocation        PRESENT 5/5    absent\n\
+    \  waste reduction   3/3 non-floor  none\n  mean query regret -4.15 (5/5)    -0.001\n  dispersion\
+    \        UP +9.5%       DOWN -10.6%\nW1 FAILED. **W2 MET AS REGISTERED AND MEANINGLESS** -- h95's\
+    \ bars required '>=N/5 AND negative mean'; I kept the count and dropped the mean, so W2 certifies\
+    \ 3/5 wins at a paired mean of -0.001 across +/-8 swings. The script then fired W3 (waste and regret\
+    \ are separable) on that hollow pass; the conclusion is NOT taken, and W3's question stays OPEN because\
+    \ Hartmann did not supply the improvement that would have tested it. THIRD bar-design failure of the\
+    \ session, all rhyming: M1 count-on-a-floored- measure, T2 ordering-without-separability, W2 count-without-effect-size.\
+    \ Standing rule: a bar must state the EFFECT SIZE it requires, not only the seed count, and must say\
+    \ what happens when seeds cannot move.\n"
+  h103-baseline-sanity: 'Source audit vs the authors'' MATLAB. The two REGISTERED baselines are FAITHFULLY
+    PORTED, not broken: mfboPreProcessParams.m:229-239 puts MF-GP-UCB, Illus-MF-GP-UCB, GP-UCB and MF-MI-Greedy
+    in the inflated-prior branch (maxY+2*rangeY, author''s comment ''works best for UCB''), so our unconditional
+    form is correct for both methods we implement. NOT our bug -- h83 stands; only the frozen protocol''s
+    PASS is hollowed out. Nearly published the opposite: two lines of that MATLAB read alone imply MI-Greedy
+    should get meanY, and the branch four lines above names it explicitly. CLOSES the ''baselines under-optimise,
+    cause unresolved'' open question.
+
+    '
+  h101-head-shrinkage: 'EXPLORATORY, zero compute, h90 Borehole. **BOUNDARY AVERSION IS A SPREAD FAILURE,
+    NOT A CENTRING FAILURE.** S2 FAILED and the failure is the finding: the head relocates its centre
+    toward the CORRECT bound in all four sensitive dims (offsets .456/.327/.290/.325) while sitting at
+    the domain centre in the insensitive ones (.082, a 4.3x difference). The head knows where to go. S1/S3
+    MET: the output cloud is 3-6x TIGHTER than uniform in every dimension (SD/uniform .18-.30, sd of the
+    ratio .044). Reach is governed by residual gap/sd -- dim0 lands 0.84 sd from its bound and reaches
+    70%; dims 3/5/6 land 2.0-3.3 sd away and reach 0.2-2%. Gaussian prediction reproduces the ordering
+    with mean error 0.066 over FOUR points (a ranking, not a law). NEITHER registered mechanism was right
+    -- the answer, correct centring plus insufficient spread, was not in my two-way framing. Second time
+    today a two-way framing excluded the truth. CHANGES THE PRESCRIPTION from h96''s implied architecture
+    rewrite: the head already gets 83-98% of the way. Two cheap levers -- sharpen centring via a sensitivity-weighted
+    L_loc (preferred, one loss change), or widen the output (no longer obviously wrong, since h95/h96
+    showed more dispersion came with BETTER regret).
+
+    '
+  h96-roi-relocation: "EXPLORATORY, zero compute. **MECHANISM FOUND, WITH SEVERE LIMITS.** The ROI works\
+    \ by RELOCATING the query cloud toward x* in the dimensions carrying the variance -- not by concentrating\
+    \ it. Sensitivity-weighted distance, all four benchmarks, ROI-Q10 vs no-ROI:\n  Borehole  WORKED -3.49\
+    \      relocation PRESENT -0.0144, closer 5/5\n  Hartmann  FAILED            relocation ABSENT  +0.0070,\
+    \ closer 3/5\n  Ackley    -0.09 negligible  relocation ABSENT  +0.0088, closer 1/5\n  Currin    +0.11\
+    \ HARMED      relocation ABSENT  -0.0007, closer 2/5\nRelocation tracks the outcome 4/4; DISPERSION\
+    \ ANTI-TRACKS IT (down 10.6% on Hartmann where the ROI failed, up 9.5% on Borehole where it worked),\
+    \ so dispersion is NEITHER NECESSARY NOR SUFFICIENT. Hartmann was registered as the falsifier BEFORE\
+    \ computing; Ackley/Currin predicted before looking (absent on both: right; negative on Currin: WRONG).\
+    \ The PRIMARY measure was named in the protocol as the sensitivity-weighted distance, chosen from\
+    \ findings.md:3174's prior finding, before seeing numbers: weighted gives 5/5 on Borehole, unweighted\
+    \ an ambiguous 3/5. First time the h85-P4 rule (name the deciding measure in advance) changed a result.\
+    \ LIMITS, load-bearing: **exactly ONE positive case** -- three negatives are cheap agreement and one\
+    \ benchmark where the ROI works without relocating would sink it. And it **does NOT explain HARM**:\
+    \ Currin got worse with relocation at zero. Open question, not absorbed. BOUNDS THE GAIN: on Borehole\
+    \ the ROI improves reach in dim 0 (81.6% of variance, 0.701->0.747) and barely moves dims 3/5/6 (0.049/0.003/0.007\
+    \ vs MF-MES's 0.49/0.34/0.70). That is why it closes 37% of the gap and cannot close more -- the residual\
+    \ is boundary aversion, which an ROI cannot fix because it selects WHERE to look, not what the head\
+    \ can emit. Makes the output-parameterisation experiment the highest-value next lever, with a specific\
+    \ quantitative target for the first time.\n"
+  h95-roi-waste-mechanism: 'EXPLORATORY, zero compute, on h90''s Borehole runs. Bars registered 20:53:57
+    before computing. **THE ROI IMPROVES THE AVERAGE QUERY BY DISPERSING MORE, NOT LESS.** Mean HF query
+    regret falls 4.15 pts on 5/5 (M3 MET), waste fraction falls where waste exists (3/3 nonzero cases,
+    roughly halved) but M1 FAILED on a bar I designed badly -- the measure has a floor at zero and 2/5
+    seeds sat on it in both arms, so ">=4/5 strictly better" was unmeetable. Recorded as FAILED rather
+    than rewritten after seeing data. **M2 FAILED IN THE OPPOSITE DIRECTION AND THAT IS THE FINDING**:
+    the ROI INCREASES dispersion (+0.010, higher on 4/5) while improving both regret and mean query quality.
+    The concurrent session measured it independently under a different statistic and got the same sign
+    (+9.5% overall, +14.3% on HF). This contradicts the premise this investigation was handed -- "proposals
+    are 3x more dispersed" invites "concentrate them", and on the one benchmark where an intervention
+    demonstrably works it did the opposite. With h88 (MF-DRO''s wider queries give a BETTER global surrogate),
+    two independent lines now say **dispersion is a correlate of MF-DRO''s failure, not its cause.** Any
+    future fix justified by reducing dispersion must explain this. Normalization caveat: both arms sit
+    at ~0.25x the dispersion of a uniform draw, so this is a change WITHIN an already-concentrated regime.
+
+    '
+  h90-borehole-confirm: '**ROI ARM COMPLETE, P1 MET.** The Borehole ROI gain SURVIVES fresh seeds 47-51:
+    paired mean **-3.49**, sd 2.66, ROI better **4/5** (-6.05, -1.87, -3.97, -5.77, +0.22), against -4.22
+    and 5/5 on the development seeds -- 83% retention. Combined n=10: -3.85, 9/10. Drop-one-seed mean
+    stays negative in all five. P2 MET (margin shrank, as predicted). P3 MET (still does NOT beat MF-MES:
+    12.25 vs 6.40). THE FIRST INTERVENTION THIS SESSION TO PASS A CLEAN FRESH-SEED CONFIRMATION. Pre-registration
+    verified by timestamp, not asserted: bars committed 18:54:17, earliest result of any arm 19:31:10,
+    earliest treatment result 19:54:20. Amendment 4 changed control flow only; bar expressions byte-identical
+    across the diff. NORTH STAR UNCHANGED -- MF-DRO still beats no baseline; the gain closes about a quarter
+    of the MF-MES gap and is Borehole-only (Hartmann -1.62 3/5 flip withdrawn, Ackley -0.09 1/5, Currin
+    +0.11 0/5 HARMED). REFINE-100 arm still running -- h90''s P4, the third seed set for teacher refinement.
+
+    '
+  h89-hffloor-confirm: 'COMPLETE, 25 runs, 0 failures. TWO VERDICTS. (a) HF FLOOR: **WITHDRAWN**. At fresh
+    seeds 52-56 the across-seed sd went UP (2.08 -> 3.17, P1 PRIMARY FAILED) and the paired mean got WORSE
+    by 1.60 pts (P2 FAILED), better 1/5. P3 MET (collapse recurs, streaks 4/11/6) but P4''s correlation
+    is -0.84, the WRONG SIGN -- the floor HARMS the most-collapsed seeds (seed 54: 0.76% -> 9.07%). Mechanism
+    inverted, not just unconfirmed. (b) TEACHER REFINEMENT: **SURVIVES at 36% of its size**. Paired -2.11
+    pts, better 4/5 (P5 PRIMARY MET). P6 FAILED (needed <= -2.9), so per the registered falsifier **h85''s
+    -5.85 is SUPERSEDED; -2.11 is the figure.** P8 MET: does NOT close the gap to MF-MES (12.91% vs 10.07%
+    at matched seeds, comparator re-run at seeds 52-56 because h83''s 6.40% is from 42-46 and those seeds
+    are 3.67 pts easier).
+
+    '
+  h85_P4_CORRECTED: 'h85''s P4 (cost) is **FAILED**, not met. The bar said "wall-clock cost under 2x";
+    TOTAL wall-clock on Borehole is 2.07x (82.4 -> 170.7 min). It was first reported MET at 1.97x using
+    PER-QUERY wall-clock, a measure the bar never named and the one that happened to pass. Rule now standing:
+    when a bar admits more than one measure, report BOTH and name which the verdict turns on, before computing
+    either.
+
+    '
+  SECOND WITHDRAWAL OF THE DAY: 'Both the ROI''s Hartmann flip (h84 4/5 -> h87 2/5) and the HF floor''s
+    variance result (h85 -> h89) met their bars at n=5 on one seed set, were recorded as provisional WITH
+    correct caveats attached, and died at fresh seeds. The confirmation discipline is what separates real
+    results from these; the caveats did not. TEACHER REFINEMENT (Borehole -5.85, 5/5) SHOULD BE ASSUMED
+    NOT TO REPLICATE until h89''s Borehole arm and/or session B''s h90 report. [RESOLVED: h89 confirmed
+    it in DIRECTION (4/5) but at 36% of size -- -2.11, not -5.85. h90 adds a THIRD seed set, 47-51.]
+
+    '
+  h94-roi-at-inference: 'PROTOCOL LOCKED, NOT LAUNCHED, implementation held OUT of src/ as a patch. Follows
+    from a CODE AUDIT, not an experiment: **the ROI has never been applied to a real query.** use_roi=True
+    restricts only simulate_mf_trajectory''s teacher pool; the real query is action_head(h).clamp(0,1)
+    at mf_dro.py:3090 and no ROI symbol appears anywhere between that call and the query being issued
+    (only fidelity overrides). Every ROI number in this project is therefore a SECOND-ORDER effect through
+    a lossy imitation channel -- teacher proposes in-ROI -> actions_x -> L_loc MSE -> the head''s weights
+    shift -- not the DRO paper''s Sec 4.2 constraint on WHERE YOU QUERY. This is the best structural explanation
+    on hand for the ROI''s signature (real but small on Borehole, negligible on Ackley, harmful on Currin,
+    withdrawn on Hartmann): an intervention filtered through imitation should be weak and inconsistent.
+    It fits h88''s reframing -- MF-DRO builds a BETTER global surrogate than MF-MES and fails to convert
+    it into queries; the ROI aims at that conversion step and then never touches it. DESIGN: Borehole
+    seeds 47-51, arms A=NO-ROI and B=ROI-Q10 REUSED from h90, C=ROI-PROJECT (snap to nearest in-ROI candidate)
+    and D=SNAP-CONTROL (snap to nearest of an UNFILTERED pool) run fresh. 10 new runs. **Arm D is the
+    point of the design**: it separates quantizing the DT''s output onto a finite pool -- a crude relative
+    of the EXCLUDED pool+argmax mechanism -- from restricting it to the ROI. If D explains C, the honest
+    conclusion is that the excluded mechanism resurfaced, not that the ROI works, and it will be reported
+    in those words. P1 (C vs D, the discriminator) is registered as GENUINELY UNCERTAIN: seven of eight
+    mechanism claims this session were refuted. P5 checks the manipulation took at all (>50% of queries
+    actually snapped) before P1/P3 are allowed to mean anything. L_LOC DIAGNOSTIC (EXPLORATORY, zero compute,
+    registered before computing): **D1 CONFIRMED -- the imitation channel really is lossy.** The head
+    never converges onto the teacher: L_loc falls only 0.048 -> 0.038 over a run and ends 0.55 away in
+    L2, 19.5% of the d=8 domain diameter, every query. Better than a "predict the per-dim mean" baseline
+    by AT MOST 2.2x, and less than that because the teacher''s MES-argmax actions concentrate. D2 REFUTED
+    IN DIRECTION (ROI-on L_loc is 22% LOWER, not larger) but CONFOUNDED -- the ROI concentrates the target,
+    which lowers MSE without better tracking; the patch now logs Var(actions_x) so the ratio becomes interpretable.
+    D3 holds: L_loc is a training loss over rollout actions, NOT the gap at the real query, so it supports
+    h94''s premise without establishing it. P5 still settles that. CODE COMPLETE, 0 results on disk: worker.py
+    refuses to run if src/ lacks the patch (an unpatched run would write a file labelled ROI-PROJECT that
+    is really ROI-Q10); analyse.py evaluates P5 first, refuses every bar on incomplete arms, and prints
+    the pool-mechanism warning itself if D helps while C fails to beat it. **RUNNING: 10 workers, seeds
+    47-51 both arms, 0 FAILs.** Launched only after an 8-job crash: NameError ''t'' (run()''s loop variable,
+    not in scope inside _propose_next_query). G1 passed and was structurally INCAPABLE of catching it
+    -- with the flag off the hook short-circuits. New standing gate G3: execute the ON path end-to-end
+    at minimal scale with the side effect OBSERVED before launch. G3 then passed and showed the DT''s
+    raw proposal is NEVER admissible (snapped 11/11, mean distance 0.73 vs the 0.55 student-teacher gap),
+    so h94 tests ''nearest in-ROI pool member to the DT''s output'' -- still not pool+argmax, but to be
+    volunteered, not defended. Confound named before results: SNAP-CONTROL snaps 0.54 vs 0.73, so P1 cannot
+    separate ''the ROI helps'' from ''moving further helps''. TWO GATES: G1 bit-identity under use_roi=False
+    -- NOT YET PERFORMED, the first attempt exceeded 2 min (MF-DRO trains 4000 iterations before its first
+    real query); the second ran from two scratchpad COPIES of the tree so live src/ was never touched,
+    at a cheap config, and was KILLED at ~7 min because the concurrent session went 14 -> 15 workers and
+    made mine the 16th on a 15-core cap. Third attempt running under a self-limiting wrapper that aborts
+    if the count exceeds 14. No H94 result may be reported before G1 passes. G2: workers <=5 and h90 complete
+    (it supplies A and B).
+
+    '
 open_questions:
-  - Does the ROI applied to the QUERY (h94 C) beat the ROI applied to the
-    TEACHER (h84/h90 B)? The audit says the latter is a lossy proxy for the
-    former; no experiment has ever tested the former.
-  - Is any h94 gain attributable to the ROI, or to snapping onto a finite pool
-    (arm D)? The second would be the excluded mechanism, not a contribution.
-  - Does a controlled ROI raise mean HF query quality (h84 P1)?
-  - Does query quality translate to lower final regret (h84 P3, stated separately)?
-  # CLOSED by h103 (source audit). Kept, struck through, rather than deleted.
-  # - MI-Greedy and MF-GP-UCB under-optimise on Ackley/Hartmann (beat their own
-  #   initial design 0.8-3.0 times out of 20-40 HF queries). Cause unresolved;
-  #   candidate is the reference's inflated prior mean maxY+2*rangeY.
-  - "ANSWERED (h103): the under-optimisation is FAITHFUL, not a defect. Both
-    registered baselines are UCB-family, and mfboPreProcessParams.m:229-239 puts
-    MF-GP-UCB, Illus-MF-GP-UCB, GP-UCB and MF-MI-Greedy in the inflated-prior
-    branch (maxY + 2*rangeY) with the author's own comment 'works best for UCB'.
-    Our unconditional form is correct because both methods we implement fall in
-    that branch. The prior drives exploration and suppresses exploitation, which
-    at ~20-25 HF queries reads as almost no improvement over the initial design.
-    NOT our bug -- the h83 comparison stands, and only the frozen protocol's
-    PASS is hollowed out. What remains open is a LITERATURE question, not a code
-    one: whether the reference's own budget regime makes that prior reasonable
-    there. It changes no number here, only how charitably the baselines should
-    be described."
-  - "Boundary aversion: causal test (change the output parameterisation) not run."
-
-# ---------------------------------------------------------------------------
-# 2026-08-28 -- h116 / h117 (this session)
-# ---------------------------------------------------------------------------
+- Does the ROI applied to the QUERY (h94 C) beat the ROI applied to the TEACHER (h84/h90 B)? The audit
+  says the latter is a lossy proxy for the former; no experiment has ever tested the former.
+- Is any h94 gain attributable to the ROI, or to snapping onto a finite pool (arm D)? The second would
+  be the excluded mechanism, not a contribution.
+- 'ANSWERED for Borehole (h129 P4, and it FALSIFIED my prediction): yes. Mean HF query score 0.381 ->
+  0.495, effect 2.66, 5/5, seeds 42-46. Larger effect than the HF count reduction (1.55). Open for Hartmann,
+  which is where the founding diagnosis measured the waste and where the ROI does not help.'
+- Does query quality translate to lower final regret (h84 P3, stated separately)?
+- 'ANSWERED (h103): the under-optimisation is FAITHFUL, not a defect. Both registered baselines are UCB-family,
+  and mfboPreProcessParams.m:229-239 puts MF-GP-UCB, Illus-MF-GP-UCB, GP-UCB and MF-MI-Greedy in the inflated-prior
+  branch (maxY + 2*rangeY) with the author''s own comment ''works best for UCB''. Our unconditional form
+  is correct because both methods we implement fall in that branch. The prior drives exploration and suppresses
+  exploitation, which at ~20-25 HF queries reads as almost no improvement over the initial design. NOT
+  our bug -- the h83 comparison stands, and only the frozen protocol''s PASS is hollowed out. What remains
+  open is a LITERATURE question, not a code one: whether the reference''s own budget regime makes that
+  prior reasonable there. It changes no number here, only how charitably the baselines should be described.'
+- 'Boundary aversion: causal test (change the output parameterisation) not run.'
 h116_relevance_blindness:
   status: COMPLETE. Locked prediction NOT supported (gate 0.17 / 0.10, needed 1.0).
   compute: zero new runs (re-analysis of h83).
   code_facts_verified:
-    - "ko_gp.py:312 RBFKernel(ard_num_dims=self.d) -- the KO surrogate IS ARD."
-    - "mf_dro.py:251 lengthscale.mean().item() -- the ARD vector is averaged away."
-    - "That is the only point lengthscales enter the pipeline; per-dimension
-       relevance is discarded. exactGP.py is isotropic but is NOT on the KO path."
+  - ko_gp.py:312 RBFKernel(ard_num_dims=self.d) -- the KO surrogate IS ARD.
+  - mf_dro.py:251 lengthscale.mean().item() -- the ARD vector is averaged away.
+  - That is the only point lengthscales enter the pipeline; per-dimension relevance is discarded. exactGP.py
+    is isotropic but is NOT on the KO path.
   amendments:
-    - "1: stored x has no common coordinate scale (Borehole raw, box widths to
-       5.25e4; Hartmann unit cube). First run measured the domain box, not the
-       policy. Filed after seeing the numbers; says so. Originals kept as SUPERSEDED."
-    - "2: n>=15 non-init HF query floor. Removes 4/5 Hartmann seeds."
+  - '1: stored x has no common coordinate scale (Borehole raw, box widths to 5.25e4; Hartmann unit cube).
+    First run measured the domain box, not the policy. Filed after seeing the numbers; says so. Originals
+    kept as SUPERSEDED.'
+  - '2: n>=15 non-init HF query floor. Removes 4/5 Hartmann seeds.'
   exploratory_result_needing_replication:
-    borehole_weighted_over_unweighted_dispersion_ratio: [2.95, 3.22, 2.96, 3.67, 5.53]
+    borehole_weighted_over_unweighted_dispersion_ratio:
+    - 2.95
+    - 3.22
+    - 2.96
+    - 3.67
+    - 5.53
     effect_abs_mean_log_over_sd: 4.84
-    reading: >
-      MF-DRO and MF-MES spread HF queries by the same TOTAL amount on Borehole
-      (1.06x) but MF-DRO's is 3.96x larger weighted by variance share. The excess
-      sits in the dimensions that matter. "Blind to relevance" is the WRONG
-      description -- the allocation is the systematic inverse of MF-MES's, not
-      random. Accurate wording: fails to localise along the dimensions that
-      determine the objective.
+    reading: 'MF-DRO and MF-MES spread HF queries by the same TOTAL amount on Borehole (1.06x) but MF-DRO''s
+      is 3.96x larger weighted by variance share. The excess sits in the dimensions that matter. "Blind
+      to relevance" is the WRONG description -- the allocation is the systematic inverse of MF-MES''s,
+      not random. Accurate wording: fails to localise along the dimensions that determine the objective.
 
+      '
 h117_dispersion_misallocation:
   status: RUNNING (launched 2026-08-28).
   claims: Borehole_8D seeds 52-56, MF-DRO + MF-MES, 10 runs. Compute 5 workers.
-  purpose: confirmatory replication of the h116 exploratory measure on seeds that
-           played no part in choosing it.
-  gate_G0_RESULT: "PASS -- 83 queries, 0 differing, Ackley_10D MF-DRO seed42 vs h83. Patches inert by EXECUTION."
-  gate_G0_blocking: >
-    Ackley_10D MF-DRO seed42 on this working tree must reproduce h83's stored
-    trace bit-identically. The tree carries uncommitted h94 (roi_inference_mode
-    hook, _roi_snap) and h102 (loc_loss) patches, inert by inspection only --
-    and inspection is what missed h94's NameError. G0 failure VOIDS h117.
-  prediction_locked: "wR/uR >= 2.0 in >=4/5 seeds AND |mean log|/sd >= 2.0."
+  purpose: confirmatory replication of the h116 exploratory measure on seeds that played no part in choosing
+    it.
+  gate_G0_RESULT: PASS -- 83 queries, 0 differing, Ackley_10D MF-DRO seed42 vs h83. Patches inert by EXECUTION.
+  gate_G0_blocking: 'Ackley_10D MF-DRO seed42 on this working tree must reproduce h83''s stored trace
+    bit-identically. The tree carries uncommitted h94 (roi_inference_mode hook, _roi_snap) and h102 (loc_loss)
+    patches, inert by inspection only -- and inspection is what missed h94''s NameError. G0 failure VOIDS
+    h117.
 
+    '
+  prediction_locked: wR/uR >= 2.0 in >=4/5 seeds AND |mean log|/sd >= 2.0.
 intervention_NOT_launched:
-  ard_weighted_L_loc_SUPERSEDED: >
-    Weight L_loc by ARD-derived per-dimension relevance. Motivated by the three
-    code facts, but supported only by an EXPLORATORY result. Blocked on h117.
+  ard_weighted_L_loc_SUPERSEDED: 'Weight L_loc by ARD-derived per-dimension relevance. Motivated by the
+    three code facts, but supported only by an EXPLORATORY result. Blocked on h117.
 
+    '
 h116_CORRECTION_same_day:
-  withdrawn: >
-    "MF-DRO misallocates dispersion across dimensions." Seven of eight Borehole
-    dims give sd ratio 0.97 weighted AND unweighted. The whole effect is dim 0.
-  actual_finding: >
-    Borehole dim 0 (r_w, S1 0.858) has a BOUNDARY optimum. MF-MES pins to it:
-    100% of HF queries at z0>=0.9, sd 0.001-0.013. MF-DRO drifts: 84-97%, sd
-    0.032-0.104. MF-DRO spends 8.9% of HF queries (3.2-16.5%) off the boundary,
-    MF-MES 0.0%, and those queries are strictly wasted -- best off-boundary y is
-    below mean on-boundary y in 5/5 seeds.
+  withdrawn: '"MF-DRO misallocates dispersion across dimensions." Seven of eight Borehole dims give sd
+    ratio 0.97 weighted AND unweighted. The whole effect is dim 0.
+
+    '
+  actual_finding: 'Borehole dim 0 (r_w, S1 0.858) has a BOUNDARY optimum. MF-MES pins to it: 100% of HF
+    queries at z0>=0.9, sd 0.001-0.013. MF-DRO drifts: 84-97%, sd 0.032-0.104. MF-DRO spends 8.9% of HF
+    queries (3.2-16.5%) off the boundary, MF-MES 0.0%, and those queries are strictly wasted -- best off-boundary
+    y is below mean on-boundary y in 5/5 seeds.
+
+    '
   status: EXPLORATORY on h83 seeds 42-46. h117 predictions 4-6 test it on 52-56.
-  next_intervention_candidate: >
-    Not ARD-weighted L_loc. The output parameterisation: action_head(h).clamp(0,1)
-    cannot represent a boundary optimum without saturating, which is the
-    already-registered and never-run boundary-aversion causal test.
+  next_intervention_candidate: 'Not ARD-weighted L_loc. The output parameterisation: action_head(h).clamp(0,1)
+    cannot represent a boundary optimum without saturating, which is the already-registered and never-run
+    boundary-aversion causal test.
 
+    '
 h116_QUALIFICATION_baseline_confound:
-  fact: >
-    mf_mes_takeno.py:297 optimize_acquisition = 2048-pt Sobol pool -> top-10 ->
-    box-constrained L-BFGS-B. MF-DRO's query is action_head(h).clamp(0,1)
-    regressed on 600 i.i.d.-uniform teacher candidates (_draw_raw = torch.rand),
-    with NO continuous refinement anywhere.
-  consequence: >
-    A box-constrained quasi-Newton method converges onto active constraints, so
-    MF-MES's 0.0% off-boundary rate is largely its optimiser, not better search.
-    The 8.9% wasted-budget deficit SURVIVES as an end-to-end method comparison.
-    "The DT is boundary-averse" does NOT survive -- the arms differ by
-    construction in exactly the way that produces the contrast.
-  new_open_question: >
-    How much of MF-DRO's deficit is the ABSENCE OF CONTINUOUS REFINEMENT rather
-    than the DT, the ROI, or the loss? No experiment separates them. NOTE: a
-    refinement-based fix imports the baseline's machinery and falls under the
-    same objection as use_candidate_scoring=True -- it would replace the
-    contribution, not repair it. Argue that BEFORE running it.
-  method_lesson: >
-    I published the 8.9%-vs-0.0% comparison before reading how the baseline
-    picks its query. The number was right, the implied mechanism was not.
-    Checking how the OTHER arm works is part of interpreting a gap.
+  fact: 'mf_mes_takeno.py:297 optimize_acquisition = 2048-pt Sobol pool -> top-10 -> box-constrained L-BFGS-B.
+    MF-DRO''s query is action_head(h).clamp(0,1) regressed on 600 i.i.d.-uniform teacher candidates (_draw_raw
+    = torch.rand), with NO continuous refinement anywhere.
 
+    '
+  consequence: 'A box-constrained quasi-Newton method converges onto active constraints, so MF-MES''s
+    0.0% off-boundary rate is largely its optimiser, not better search. The 8.9% wasted-budget deficit
+    SURVIVES as an end-to-end method comparison. "The DT is boundary-averse" does NOT survive -- the arms
+    differ by construction in exactly the way that produces the contrast.
+
+    '
+  new_open_question: 'How much of MF-DRO''s deficit is the ABSENCE OF CONTINUOUS REFINEMENT rather than
+    the DT, the ROI, or the loss? No experiment separates them. NOTE: a refinement-based fix imports the
+    baseline''s machinery and falls under the same objection as use_candidate_scoring=True -- it would
+    replace the contribution, not repair it. Argue that BEFORE running it.
+
+    '
+  method_lesson: 'I published the 8.9%-vs-0.0% comparison before reading how the baseline picks its query.
+    The number was right, the implied mechanism was not. Checking how the OTHER arm works is part of interpreting
+    a gap.
+
+    '
 h118_roi_boundary_waste:
   status: COMPLETE. Locked prediction NOT supported (effect 0.62, needed 1.0).
   compute: zero new runs (re-analysis of h90, Borehole seeds 47-51).
-  gate_miss: "ROI-Q10 vs NO-ROI: 4/5 seeds but effect 0.62 (0.76 at the 0.95 cut)."
-  exploratory: >
-    REFINE-100 (use_roi=False, teacher_refine_samples=100) puts 54.2% of HF
-    queries on the boundary vs NO-ROI 14.7% (non-overlapping per-seed ranges) and
-    cuts waste 6.79 pts, effect 1.90, 5/5. It clamps local Gaussians to the box
-    (mf_dro.py:1543); torch.rand never reaches the corner in 8D. A FILTER CANNOT
-    CREATE MASS THE PROPOSAL DISTRIBUTION NEVER HAD -- which also explains
-    MF-MES's boundary behaviour (box-constrained L-BFGS-B).
-  KEY_NEGATIVE: >
-    ROI-Q10 and REFINE-100 reach the same final value (271.64 vs 271.03) while
-    differing 2.8x in wasted budget; r(waste, final y) = -0.255 over 15 runs.
-    The boundary waste is real, reproducibly fixable, and does NOT buy
-    performance. h116 must not be read as the reason MF-DRO loses.
-  consequence_for_primary_question: >
-    Two mechanistic candidates for the ROI's Borehole benefit are now ruled out
-    by pre-registered tests: dispersion (h116) and boundary resolution (h118).
-    The channel remains UNIDENTIFIED.
+  gate_miss: 'ROI-Q10 vs NO-ROI: 4/5 seeds but effect 0.62 (0.76 at the 0.95 cut).'
+  exploratory: 'REFINE-100 (use_roi=False, teacher_refine_samples=100) puts 54.2% of HF queries on the
+    boundary vs NO-ROI 14.7% (non-overlapping per-seed ranges) and cuts waste 6.79 pts, effect 1.90, 5/5.
+    It clamps local Gaussians to the box (mf_dro.py:1543); torch.rand never reaches the corner in 8D.
+    A FILTER CANNOT CREATE MASS THE PROPOSAL DISTRIBUTION NEVER HAD -- which also explains MF-MES''s boundary
+    behaviour (box-constrained L-BFGS-B).
 
+    '
+  KEY_NEGATIVE: 'ROI-Q10 and REFINE-100 reach the same final value (271.64 vs 271.03) while differing
+    2.8x in wasted budget; r(waste, final y) = -0.255 over 15 runs. The boundary waste is real, reproducibly
+    fixable, and does NOT buy performance. h116 must not be read as the reason MF-DRO loses.
+
+    '
+  consequence_for_primary_question: 'Two mechanistic candidates for the ROI''s Borehole benefit are now
+    ruled out by pre-registered tests: dispersion (h116) and boundary resolution (h118). The channel remains
+    UNIDENTIFIED.
+
+    '
 h119_roi_channel_screen:
   status: COMPLETE. EXPLORATORY SCREEN -- generated a hypothesis, not a result.
-  finding: >
-    5 of 7 pre-enumerated quantities separated on h90 (Borehole, seeds 47-51).
-    C1-C3 are ONE fact (fixed cost budget links them): the ROI buys 9% fewer HF
-    queries (93.2->84.6) and >2x the LF queries (14->31), 5/5 seeds. C4: converges
-    at 75% of budget vs 94%. C5: HF queries better by 0.274 init-design sd.
-    C6 -- the founding diagnosis's OWN statistic -- did NOT separate (0.62).
-  hypothesis_generated: >
-    The ROI is a FIDELITY-MIX lever, not a spatial-search lever. Consistent with
-    dispersion (h116) and boundary resolution (h118) both failing: those are
-    spatial channels.
+  finding: '5 of 7 pre-enumerated quantities separated on h90 (Borehole, seeds 47-51). C1-C3 are ONE fact
+    (fixed cost budget links them): the ROI buys 9% fewer HF queries (93.2->84.6) and >2x the LF queries
+    (14->31), 5/5 seeds. C4: converges at 75% of budget vs 94%. C5: HF queries better by 0.274 init-design
+    sd. C6 -- the founding diagnosis''s OWN statistic -- did NOT separate (0.62).
 
+    '
+  hypothesis_generated: 'The ROI is a FIDELITY-MIX lever, not a spatial-search lever. Consistent with
+    dispersion (h116) and boundary resolution (h118) both failing: those are spatial channels.
+
+    '
 h120_roi_fidelity_reallocation:
   status: UNRUNNABLE AS LOCKED. No verdict issued.
-  reason: >
-    h84's ROI-OFF control exists only at seeds 42-43 (ckpt AND finals agree).
-    All four locked predictions need >=4/5. I verified h84's configs, budget,
-    commit provenance and dirty flags before locking but NOT arm completeness.
-  no_independent_set_exists: >
-    Only h84 (n=2) and h90 (n=5) pair a no-ROI control with an ROI arm inside one
-    experiment. h90 GENERATED the hypothesis so cannot confirm it. h86 has
-    ROI-Q10 at 42-46 but no control. Cross-experiment pairing is banned.
-  n2_descriptive_only: >
-    P1/P1b directionally consistent (2/2). P3 count-matched quality +16.7 raw y
-    (2/2) -- close to the uncounted +16.1, so h119's C5 is NOT merely an artefact
-    of averaging over fewer queries. P2 went the WRONG way (1/2), contradicting
-    h119's C4. P4 negative control moved in both seeds, flagged in advance.
-  QUEUED_COMPUTE: >
-    Borehole_8D ROI-OFF seeds 44,45,46 under h84's exact config (~83 min each).
-    NOT launched: machine at 15/15. Must run on code empty-diff against
-    af5ec31b1 over src/ dro_runner.py benchmarks.py -- the working tree carries
-    the uncommitted h94/h102 patches, so CHECK, do not assume.
+  reason: 'h84''s ROI-OFF control exists only at seeds 42-43 (ckpt AND finals agree). All four locked
+    predictions need >=4/5. I verified h84''s configs, budget, commit provenance and dirty flags before
+    locking but NOT arm completeness.
 
+    '
+  no_independent_set_exists: 'Only h84 (n=2) and h90 (n=5) pair a no-ROI control with an ROI arm inside
+    one experiment. h90 GENERATED the hypothesis so cannot confirm it. h86 has ROI-Q10 at 42-46 but no
+    control. Cross-experiment pairing is banned.
+
+    '
+  n2_descriptive_only: 'P1/P1b directionally consistent (2/2). P3 count-matched quality +16.7 raw y (2/2)
+    -- close to the uncounted +16.1, so h119''s C5 is NOT merely an artefact of averaging over fewer queries.
+    P2 went the WRONG way (1/2), contradicting h119''s C4. P4 negative control moved in both seeds, flagged
+    in advance.
+
+    '
+  QUEUED_COMPUTE: 'Borehole_8D ROI-OFF seeds 44,45,46 under h84''s exact config (~83 min each). NOT launched:
+    machine at 15/15. Must run on code empty-diff against af5ec31b1 over src/ dro_runner.py benchmarks.py
+    -- the working tree carries the uncommitted h94/h102 patches, so CHECK, do not assume.
+
+    '
 h121_diagnosis_waste_audit:
   status: COMPLETE. P1 PASS, P2 PASS, P3 FAIL (3/5, needed 4/5).
   compute: zero new runs (h83 re-analysis).
-  headline_reproduces_exactly: >
-    Hartmann MF-DRO waste per seed [0.0, 0.0, 75.0, 16.7, 12.5]%, MEAN 20.83%.
+  headline_reproduces_exactly: 'Hartmann MF-DRO waste per seed [0.0, 0.0, 75.0, 16.7, 12.5]%, MEAN 20.83%.
     The recorded 20.8% is the mean and reproduces to 2 s.f.
-  headline_is_fragile: >
-    n_HF per seed = 8, 24, 12, 6, 8. Two of five seeds waste NOTHING. The 75%
-    seed is 9/12 queries; the 16.7% seed is 1/6. Median 12.5%. Dropping seed 44
-    gives 7.3%. Always quote mean AND median AND sample sizes.
-  THE_MISMATCH: >
-    Waste by benchmark (MF-DRO median): Hartmann 12.5%, Borehole 3.2%,
-    Ackley 2.5%, Currin 0.0%. Every demonstrated ROI benefit is Borehole-only
-    (h111: fails on Hartmann and Ackley at two tightness settings spanning 2x).
-    THE ROI WORKS WHERE THE WASTE IS SMALLEST AND FAILS WHERE IT IS LARGEST.
-    It is not addressing the diagnosis it was introduced to address.
-  score_statistic_did_not_reproduce: >
-    Recorded 0.336 vs 0.747; my normalisation gives 11.844 vs 15.276 on the same
-    runs. Definition mismatch, NOT a claimed discrepancy -- the ordering
-    reproduces. The normalisation behind 0.336/0.747 is not recoverable from
-    what is written down.
-  standing: >
-    Four mechanisms examined for the ROI's Borehole benefit. Dispersion: ruled
-    out. Boundary resolution: ruled out. Fidelity mix: unconfirmed, 3 runs in
-    flight. And the deficit it was meant to fix is on a different benchmark.
 
+    '
+  headline_is_fragile: 'n_HF per seed = 8, 24, 12, 6, 8. Two of five seeds waste NOTHING. The 75% seed
+    is 9/12 queries; the 16.7% seed is 1/6. Median 12.5%. Dropping seed 44 gives 7.3%. Always quote mean
+    AND median AND sample sizes.
+
+    '
+  THE_MISMATCH: 'Waste by benchmark (MF-DRO median): Hartmann 12.5%, Borehole 3.2%, Ackley 2.5%, Currin
+    0.0%. Every demonstrated ROI benefit is Borehole-only (h111: fails on Hartmann and Ackley at two tightness
+    settings spanning 2x). THE ROI WORKS WHERE THE WASTE IS SMALLEST AND FAILS WHERE IT IS LARGEST. It
+    is not addressing the diagnosis it was introduced to address.
+
+    '
+  score_statistic_did_not_reproduce: 'Recorded 0.336 vs 0.747; my normalisation gives 11.844 vs 15.276
+    on the same runs. Definition mismatch, NOT a claimed discrepancy -- the ordering reproduces. The normalisation
+    behind 0.336/0.747 is not recoverable from what is written down.
+
+    '
+  standing: 'Four mechanisms examined for the ROI''s Borehole benefit. Dispersion: ruled out. Boundary
+    resolution: ruled out. Fidelity mix: unconfirmed, 3 runs in flight. And the deficit it was meant to
+    fix is on a different benchmark.
+
+    '
 BUG_roi_anneal_never_annealed:
   found: 2026-08-28
-  defect: >
-    mf_dro.py:1266 computes _prog = n_real_iter / T_real with T_real =
-    config.bo_iterations = 4000 (h84 and h90 workers both). Runs terminate on a
-    COST budget of 200, reaching ~104 HF observations on Borehole and ~18 on
-    Hartmann, so _prog never exceeds 0.026 and the annealed q barely moves.
-  realized: >
-    Borehole q 0.4989 -> 0.4883 (moved 1.1 pts of a configured 45). Hartmann
-    0.4993 -> 0.4980 (moved 0.13 pts). ROI-ANN is a CONSTANT-q~0.49 arm.
-  corroboration: >
-    findings.md already recorded the arm as "ROI-ANN (q~0.49)" -- the realized
-    value was measured and written down without the configured 0.50->0.05 being
-    questioned. The arithmetic reproduces it to two decimals.
-  voids: >
-    Every claim about an "annealed"/"scheduled" ROI. They describe the LOOSEST
-    constant ROI ever run here (q~0.49 vs Q10's 0.10 and Q05's 0.05).
-  STILL_OPEN: >
-    The paper's beta_t schedule has NEVER been tested. And since acceptance is
-    monotone INCREASING in beta while GP-UCB's beta_t GROWS with t, a faithful
-    beta_t makes the ROI WIDEN over time -- the reverse of ROI-ANN's intended
-    tightening and the reverse of this project's q=0.10/q=0.05 programme.
-  fix_deferred: >
-    Shared tree; h113/h117/h120 in flight. Editing now would add a third dirty
-    file and muddy provenance of runs whose bit-identity gate just passed.
+  defect: 'mf_dro.py:1266 computes _prog = n_real_iter / T_real with T_real = config.bo_iterations = 4000
+    (h84 and h90 workers both). Runs terminate on a COST budget of 200, reaching ~104 HF observations
+    on Borehole and ~18 on Hartmann, so _prog never exceeds 0.026 and the annealed q barely moves.
 
+    '
+  realized: 'Borehole q 0.4989 -> 0.4883 (moved 1.1 pts of a configured 45). Hartmann 0.4993 -> 0.4980
+    (moved 0.13 pts). ROI-ANN is a CONSTANT-q~0.49 arm.
+
+    '
+  corroboration: 'findings.md already recorded the arm as "ROI-ANN (q~0.49)" -- the realized value was
+    measured and written down without the configured 0.50->0.05 being questioned. The arithmetic reproduces
+    it to two decimals.
+
+    '
+  voids: 'Every claim about an "annealed"/"scheduled" ROI. They describe the LOOSEST constant ROI ever
+    run here (q~0.49 vs Q10''s 0.10 and Q05''s 0.05).
+
+    '
+  STILL_OPEN: 'The paper''s beta_t schedule has NEVER been tested. And since acceptance is monotone INCREASING
+    in beta while GP-UCB''s beta_t GROWS with t, a faithful beta_t makes the ROI WIDEN over time -- the
+    reverse of ROI-ANN''s intended tightening and the reverse of this project''s q=0.10/q=0.05 programme.
+
+    '
+  fix_deferred: 'Shared tree; h113/h117/h120 in flight. Editing now would add a third dirty file and muddy
+    provenance of runs whose bit-identity gate just passed.
+
+    '
 h120_CONFIRMED_2026_08_28:
-  correction_to_amendment_1: >
-    "No independent 5-seed set exists" was WRONG. h83's plain MF-DRO IS the
-    no-ROI control under another name: h83 MF-DRO vs h84 ROI-OFF is bit-identical
-    at both overlapping seeds (137 and 132 queries, 0 differing, three commits).
-  verdicts: >
-    P1 PASS (HF 94.0->84.8, -9.20, effect 1.55, 5/5). P1b PASS (LF 12.6->31.0,
-    +18.40, 1.58, 5/5). P3 PASS (count-matched HF y +17.05, effect 3.54, 5/5 --
-    LARGER than the unmatched +15.16, so not a convergence artefact).
-    P2 FAIL (time-to-incumbent 0.29, 3/5; the screen had 1.35, 5/5 -- limb
+  correction_to_amendment_1: '"No independent 5-seed set exists" was WRONG. h83''s plain MF-DRO IS the
+    no-ROI control under another name: h83 MF-DRO vs h84 ROI-OFF is bit-identical at both overlapping
+    seeds (137 and 132 queries, 0 differing, three commits).
+
+    '
+  verdicts: 'P1 PASS (HF 94.0->84.8, -9.20, effect 1.55, 5/5). P1b PASS (LF 12.6->31.0, +18.40, 1.58,
+    5/5). P3 PASS (count-matched HF y +17.05, effect 3.54, 5/5 -- LARGER than the unmatched +15.16, so
+    not a convergence artefact). P2 FAIL (time-to-incumbent 0.29, 3/5; the screen had 1.35, 5/5 -- limb
     dropped). P4 as predicted at 0.98, the weakest form of that verdict.
-  established: >
-    The ROI reallocates fidelity -- buys ~9 fewer HF queries and ~18 more LF --
-    and each HF query it buys is better. It is an account of WHAT the ROI changes,
-    not why that lowers regret; no arm manipulates the mix directly.
 
+    '
+  established: 'The ROI reallocates fidelity -- buys ~9 fewer HF queries and ~18 more LF -- and each HF
+    query it buys is better. It is an account of WHAT the ROI changes, not why that lowers regret; no
+    arm manipulates the mix directly.
+
+    '
 h113_composition_peer:
-  result: "ROI -3.86, L1 -2.21, BOTH -5.96. BOTH vs ROI -2.10 (sd 1.05, 10/10)."
-  reading: >
-    L1 delivers its full standalone effect with the ROI present (-2.10 vs -2.21,
-    differ by 0.11). TWO mechanisms, not one reached two ways. First structural
-    constraint on the mechanism question. Does NOT make the method competitive:
-    9.82 vs MF-MES seed-matched 6.00.
-  bears_on_fidelity: >
-    Adding L1 moves the mix BACK (+1.9 HF, -3.5 LF) while improving regret 2.10.
-    Fidelity mix is the ROI's channel and is NOT L1's.
-  caveat_checked: >
-    Their cells are drawn per-seed-set from different experiments (explicit paths,
-    not globbing). I tested the BASE substitution (h83 MF-DRO for h90 NO-ROI) and
-    it is bit-identical. Sound.
+  result: ROI -3.86, L1 -2.21, BOTH -5.96. BOTH vs ROI -2.10 (sd 1.05, 10/10).
+  reading: 'L1 delivers its full standalone effect with the ROI present (-2.10 vs -2.21, differ by 0.11).
+    TWO mechanisms, not one reached two ways. First structural constraint on the mechanism question. Does
+    NOT make the method competitive: 9.82 vs MF-MES seed-matched 6.00.
 
-h123_betat_widening: REGISTERED, not launched. Needs the cost-progress fix;
-  holding off src/ while 10 runs are live. Locked prediction is a NULL.
+    '
+  bears_on_fidelity: 'Adding L1 moves the mix BACK (+1.9 HF, -3.5 LF) while improving regret 2.10. Fidelity
+    mix is the ROI''s channel and is NOT L1''s.
 
+    '
+  caveat_checked: 'Their cells are drawn per-seed-set from different experiments (explicit paths, not
+    globbing). I tested the BASE substitution (h83 MF-DRO for h90 NO-ROI) and it is bit-identical. Sound.
+
+    '
+h123_betat_widening: REGISTERED, not launched. Needs the cost-progress fix; holding off src/ while 10
+  runs are live. Locked prediction is a NULL.
 h125_tightness_dose_response:
   status: COMPLETE. **MY LOCKED NULL IS REFUTED.**
-  contrast: >
-    ROI-Q10 (measured realized q=0.100 exactly, every seed both benchmarks) vs
-    ROI-ANN (0.493/0.498). A 5x range, paired within seed, n=5.
-  results: >
-    Borehole final_regret 35.882->44.900, +9.018, effect 5.69, 5/5 -- the largest
-    effect measured in this project. Borehole waste 1.28 5/5. Hartmann regret
-    1.01 4/5. Hartmann waste no separation (0.10). Three of four separate.
-  why_the_prior_was_wrong: >
-    "Tightness is a null axis" rested on h97/h107/h110 (0.05 vs 0.10) and h111
-    (2x). EVERY cited study is a 2x contrast or narrower. At 5x it is not null.
-  dose_response_shape: >
-    Flat below q=0.10; steep degradation by q=0.5. The useful region is q<=0.10.
-    NO data below 0.05, so nothing supports "tighter is always better".
-  ANSWER_TO_PRIMARY_QUESTION: >
-    First affirmative one. The ROI's tightness IS a real lever; loosening to
-    ~0.5 costs 9 regret points on Borehole. Prior work missed it by testing 2x.
-  consequence_h123: >
-    Its locked null cited the refuted prior AND tests the harmful direction.
-    Amended before launch, original prediction left visible, direction flipped to
-    "ROI-WIDEN is WORSE". Tension recorded: GP-UCB's beta_t grows (widens);
-    measurement says widening hurts.
+  contrast: 'ROI-Q10 (measured realized q=0.100 exactly, every seed both benchmarks) vs ROI-ANN (0.493/0.498).
+    A 5x range, paired within seed, n=5.
 
+    '
+  results: 'Borehole final_regret 35.882->44.900, +9.018, effect 5.69, 5/5 -- the largest effect measured
+    in this project. Borehole waste 1.28 5/5. Hartmann regret 1.01 4/5. Hartmann waste no separation (0.10).
+    Three of four separate.
+
+    '
+  why_the_prior_was_wrong: '"Tightness is a null axis" rested on h97/h107/h110 (0.05 vs 0.10) and h111
+    (2x). EVERY cited study is a 2x contrast or narrower. At 5x it is not null.
+
+    '
+  dose_response_shape: 'Flat below q=0.10; steep degradation by q=0.5. The useful region is q<=0.10. NO
+    data below 0.05, so nothing supports "tighter is always better".
+
+    '
+  ANSWER_TO_PRIMARY_QUESTION: 'First affirmative one. The ROI''s tightness IS a real lever; loosening
+    to ~0.5 costs 9 regret points on Borehole. Prior work missed it by testing 2x.
+
+    '
+  consequence_h123: 'Its locked null cited the refuted prior AND tests the harmful direction. Amended
+    before launch, original prediction left visible, direction flipped to "ROI-WIDEN is WORSE". Tension
+    recorded: GP-UCB''s beta_t grows (widens); measurement says widening hurts.
+
+    '
 METRIC_DEFINITION_resolved_2026_08_28:
-  frozen_metric: "Final simple regret at matched cost (PROTOCOL.md)."
-  READ_POINT_MATTERS_MORE_THAN_UNITS: >
-    Result files store TWO cost curves. cost_curve is post-init (2 -> ~201,
-    budget 200); cumulative_cost_curve includes the initial design (42 -> 241
-    Borehole, -> 294 Hartmann). Reading "at cost 200" on the cumulative curve
-    truncates every run at ~2/3 of its budget. This is NOT a rescaling: h125's
-    Borehole effect moves 5.69 -> 1.65, Hartmann's 0.58 -> 0.02.
-  correct_read_point: "cost_curve @ 200 -- the budget the worker terminates on."
-  units: >
-    Frozen metric is % of optimum. known_optimal_value = -3.32237 (Hartmann),
-    -309.5756 (Borehole). Percentage = 30.1x raw on Hartmann. EFFECT SIZES ARE
-    INVARIANT to this scaling; only quoted magnitudes change.
-  overshoot_is_negligible: >
-    cost_curve end-cost mean 200.29 (17 Borehole runs), 201.18 (17 Hartmann),
-    max 205. Under 2.5%. The peer's attribution of the scale gap partly to
-    overshoot is NOT supported; units alone explain it. Their "178x" is a
-    near-zero-denominator artefact (third such today).
-  h125_VERIFIED_SAFE: >
-    Under matched cost via cost_curve @200: +9.018 raw, effect 5.69, 5/5 --
-    unchanged. In frozen units +2.91% of optimum, sd 0.51%, same effect.
-  h120_unaffected: >
-    Uses HF/LF counts and count-matched mean HF y; no regret field. P2 would be
-    overshoot-sensitive but P2 FAILED, so nothing claimed rests on it.
-  convention_going_forward: "State the read point alongside the statistic: 'raw @cost_curve 200'."
+  frozen_metric: Final simple regret at matched cost (PROTOCOL.md).
+  READ_POINT_MATTERS_MORE_THAN_UNITS: 'Result files store TWO cost curves. cost_curve is post-init (2
+    -> ~201, budget 200); cumulative_cost_curve includes the initial design (42 -> 241 Borehole, -> 294
+    Hartmann). Reading "at cost 200" on the cumulative curve truncates every run at ~2/3 of its budget.
+    This is NOT a rescaling: h125''s Borehole effect moves 5.69 -> 1.65, Hartmann''s 0.58 -> 0.02.
+
+    '
+  correct_read_point: cost_curve @ 200 -- the budget the worker terminates on.
+  units: 'Frozen metric is % of optimum. known_optimal_value = -3.32237 (Hartmann), -309.5756 (Borehole).
+    Percentage = 30.1x raw on Hartmann. EFFECT SIZES ARE INVARIANT to this scaling; only quoted magnitudes
+    change.
+
+    '
+  overshoot_is_negligible: 'cost_curve end-cost mean 200.29 (17 Borehole runs), 201.18 (17 Hartmann),
+    max 205. Under 2.5%. The peer''s attribution of the scale gap partly to overshoot is NOT supported;
+    units alone explain it. Their "178x" is a near-zero-denominator artefact (third such today).
+
+    '
+  h125_VERIFIED_SAFE: 'Under matched cost via cost_curve @200: +9.018 raw, effect 5.69, 5/5 -- unchanged.
+    In frozen units +2.91% of optimum, sd 0.51%, same effect.
+
+    '
+  h120_unaffected: 'Uses HF/LF counts and count-matched mean HF y; no regret field. P2 would be overshoot-sensitive
+    but P2 FAILED, so nothing claimed rests on it.
+
+    '
+  convention_going_forward: 'State the read point alongside the statistic: ''raw @cost_curve 200''.'
