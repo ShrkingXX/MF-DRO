@@ -10270,7 +10270,9 @@ pre-registered tests, I had no third mechanism to pre-register. Rather than
 invent one to dress a search as confirmatory, I declared a screen and fixed the
 candidate list — seven quantities — in a commit before computing any of them.
 
-Five separated on h90 (Borehole, NO-ROI vs ROI-Q10, seeds 47-51, paired):
+Five of the seven quantities separated on h90 (Borehole, NO-ROI vs ROI-Q10,
+seeds 47-51, paired) — but see the count correction below the table: they are
+only **three independent** quantities.
 
 | | quantity | NO-ROI | ROI-Q10 | \|m\|/sd | dir |
 |---|---|---|---|---|---|
@@ -10282,8 +10284,12 @@ Five separated on h90 (Borehole, NO-ROI vs ROI-Q10, seeds 47-51, paired):
 | C6 | frac HF worse than best init | 0.057 | 0.030 | 0.62 | 3/5 |
 | C7 | early/late dispersion contraction | 3.069 | 3.298 | 0.50 | 3/5 |
 
-C1-C3 are ONE fact, not three: a fixed cost budget with HF=2 and LF=1 links
-them mechanically. The fact is that **the ROI buys less high fidelity** — 9%
+**Counted honestly, three of five independent quantities separated, not five
+of seven** (correction adopted from the peer session). C1-C3 are ONE fact, not
+three: a fixed cost budget with HF=2 and LF=1 links them mechanically. The
+independent list is: fidelity mix (separated), time-to-incumbent (separated),
+HF quality (separated), frac-worse-than-init (did not), early/late contraction
+(did not). The fact is that **the ROI buys less high fidelity** — 9%
 fewer HF queries, redirected into more than twice as many LF ones.
 
 Note C6. That is the founding diagnosis's own statistic — the fraction of HF

@@ -62,3 +62,29 @@ first K HF queries, K = the smaller of the two arms' counts within each seed).
 
 Pending that, the fidelity-reallocation account is a hypothesis with no
 confirmatory support.
+
+---
+
+## CORRECTION (2026-08-28, on the peer session's challenge): the count
+
+This write-up leads with "five of seven separated". That overstates the
+evidence and is corrected.
+
+C1, C2 and C3 are one fact under a fixed cost budget, as this analysis already
+said in prose — but the headline count did not carry that through. Counting
+independent quantities:
+
+  1. fidelity mix           (C1 = C2 = C3)   SEPARATED
+  2. time-to-incumbent      (C4)             SEPARATED
+  3. HF query quality       (C5)             SEPARATED
+  4. frac worse than init   (C6)             did not separate (0.62)
+  5. early/late contraction (C7)             did not separate (0.50)
+
+**Three of five independent quantities separated**, not five of seven. Under
+rule 3 of the protocol ("with seven correlated quantities at n=5, several
+clearing a descriptive bar is expected under no effect"), the honest denominator
+is five, and 3/5 is materially weaker evidence than 5/7 reads as.
+
+The screen's conclusion is unchanged — it was always "this generates a
+hypothesis, nothing here is a result" — but the strength attributed to it is
+reduced. Every downstream mention should say three of five.
