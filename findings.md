@@ -11431,6 +11431,26 @@ flagged the ceiling honestly but still let Ackley carry weight as the "most
 extreme control that moved least"; on a censored cell that comparison is not
 available.
 
+**CORRECTION to my own refutation argument (peer's counter, accepted).** I
+argued that the three uncensored benchmarks refute the midpoint-regularisation
+hypothesis by their ORDERING: effects 1.65, 0.41, 0.78 against distances 0.383,
+0.307, 0.300. Formally non-monotone, so formally it passes. But **Currin and
+Hartmann are 0.006 apart in distance** (0.307 vs 0.300). Reading a rank order off
+a gap that small is the same defect as a near-zero denominator — an inference
+whose supporting difference is too small to carry it.
+
+**The argument that does hold needs no ordering and no Ackley.** Currin and
+Hartmann sit on the SAME side of the midpoint at effectively the SAME distance
+(controls 0.193 and 0.200), and the ROI moves them in OPPOSITE directions:
+Currin -0.0295, away from 0.5; Hartmann +0.0561, toward it. A pull-to-the-middle
+hypothesis requires both to move up. It gets the SIGN wrong, which no ordering
+argument is needed to see.
+
+Calibrated honestly: Currin's effect is 0.41, below a 0.5 sd bar, so "moves
+away" is not separable from "does not move". Both readings refute the
+hypothesis, but the defensible claim is the weaker one — **distance from the
+midpoint does not determine the shift, in sign or in size.**
+
 **And headroom does not rescue a mechanical account.** Ranked by HF queries
 affordable (25, 40, 67, 100) the effects run 0.78, 0.49, 0.41, 1.65. Ranked by
 how close each control sits to its ceiling (100%, 94%, 46%, 40%) they run 0.49,
