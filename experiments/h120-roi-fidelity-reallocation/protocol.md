@@ -170,3 +170,41 @@ a stored MF-DRO trace bit-identically, so the residual "same filenames is not
 same bytes" gap flagged above is now closed by measurement on the current
 content. The three ROI-OFF runs are not void. The compute bet declared above
 was not called.
+
+
+---
+
+## AMENDMENT — these are h84 ARM COMPLETIONS, not a separate experiment.
+## Filed before any result file from these runs existed.
+
+PROBLEM I CREATED. These ROI-OFF runs write into this experiment's results
+directory, while the ROI arms they must be compared against live in h84. Pairing
+across those directories is exactly the CROSS-EXPERIMENT PAIRING this project
+bans, and the ban exists for good reason: different experiments can differ in
+code, config, spec or budget in ways that are invisible at analysis time.
+
+DECLARED EXCEPTION, with grounds. These runs are not a different experiment;
+they are the missing seeds of an h84 arm, produced by:
+
+  - the SAME worker file (`code/worker.py` is a byte copy of h84's),
+  - the SAME arm config, `dict(use_roi=False)`,
+  - the SAME `bo_iterations=4000`, `BUDGET=200.0`, and benchmark SPEC,
+  - a tree that passed h117's GATE G0 today (83 queries, 0 differing) and whose
+    use_roi=False path h105 separately measured byte-identical (md5 ff70f008c0ac).
+
+HOW THIS IS HANDLED. On completion the JSON files are COPIED into
+`experiments/h84-roi-strategy/results/` (and `results/ckpt/`) so that h84 holds
+one complete arm and the analysis reads a single experiment directory. A
+manifest `experiments/h84-roi-strategy/results/COMPLETED_ARMS.md` records, for
+each copied run: which experiment launched it, when, its git commit, its
+`code.dirty` state, and this justification. The originals stay in place so the
+launch record is not rewritten.
+
+WHAT WOULD INVALIDATE THIS. If any copied run's recorded `code.commit` turns out
+to differ from h84's in a way that is NOT empty-diff over
+`src/ dro_runner.py benchmarks.py`, the merge is withdrawn and the runs are
+reported separately as their own experiment with the pairing caveat stated. This
+is checked at merge time, per run, and the check is recorded in the manifest.
+
+I am declaring this BEFORE seeing any of these runs so that the exception cannot
+be shaped by what they show.
