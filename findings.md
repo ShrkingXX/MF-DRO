@@ -13484,3 +13484,45 @@ switching h123's primary comparator to FIX2 and the peer correctly refused it as
 result-shaped. If FIX2 is itself a schedule, the objection was right for a second
 and better reason: **h123 would have been comparing a schedule against a
 schedule** while calling one of them a constant.
+
+### The wall-clock anomaly is resolved from EXISTING data, and FIX2 is confirmed time-varying
+
+`roi_summary.n_draws` records how many 2000-point draws were needed to fill the
+600-candidate pool. That implies an **effective** acceptance during filling,
+`0.3 / n_draws`, which can be compared against the reported run-mean:
+
+| arm | mean accept | draws predicted | draws measured | ratio | **effective accept** |
+|---|---|---|---|---|---|
+| Q10 Borehole | 0.0999 | 3.00 | 3.51 | 1.17 | 0.0855 |
+| Q05 Borehole | 0.0500 | 6.00 | 6.55 | 1.09 | 0.0458 |
+| **FIX2 Borehole** | 0.2141 | 1.40 | **6.52** | **4.65** | **0.0460** |
+| **FIX2 Hartmann** | 0.1288 | 2.33 | **17.02** | **7.31** | **0.0176** |
+
+**Quantile arms behave as their mean predicts (ratio 1.09-1.17). FIX2 needs 4.7x
+and 7.3x more draws than its mean acceptance implies.** Acceptance under a fixed
+beta is therefore strongly time-varying within a run, and pool-filling cost is
+set by its LOW-acceptance iterations, not its mean.
+
+**This resolves the anomaly and rescues a runtime model** — not 1/mean-q, which
+was refuted, but 1/**effective**-q:
+
+| arm | mean q | effective q | wall min |
+|---|---|---|---|
+| ANN | 0.493 | 0.3000 | 94.6 |
+| Q10 | 0.100 | 0.0855 | 117.4 |
+| FIX2 | 0.214 | **0.0460** | 137.4 |
+| Q05 | 0.050 | **0.0458** | 142.8 |
+
+Spearman against wall-clock: **mean q gives -0.80, effective q gives -1.00.**
+
+And the confirmation that makes it more than curve-fitting: **FIX2's effective
+acceptance (0.0460) matches Q05's (0.0458) to three decimals, and their
+wall-clocks are 137.4 and 142.8 minutes.** FIX2 costs what a q=0.05 arm costs
+because, during pool-filling, that is effectively what it is.
+
+**What this settles for the peer's h139, and what it does not.** It confirms
+belief (3)'s mechanism — FIX2's cost tracks its tightest moments — and confirms
+that FIX2's acceptance is genuinely time-varying rather than a noisy constant.
+**It gives no DIRECTION**: `n_draws` is aggregated over the run, so it cannot say
+whether the tight phase is early or late. That is exactly what h139's P1 tests
+and what the per-iteration tagging will show.
