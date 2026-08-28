@@ -270,3 +270,24 @@ Skip arguments are passed as separate literal arguments, not via an unquoted
 variable expansion -- the concurrent session's 26-worker over-launch came from
 zsh not word-splitting an unquoted expansion, so 16 skip-triples arrived as ONE
 argv element and every job launched.
+
+## Amendment 6 — G3 added AFTER an 8-job failure it would have prevented
+
+Chronology stated plainly: the 8-job launch under Amendment 5 crashed with a
+NameError on every job (see findings.md). This gate is added AFTER that failure,
+not before it, and is not backdated.
+
+**G3. THE ON PATH MUST BE EXECUTED BEFORE LAUNCH.** For any change whose
+treatment is gated by a new config flag, the flag must be switched ON and the
+code path run end-to-end at minimal scale, with the intended side effect
+OBSERVED -- not merely the absence of a crash. For h94 that means: run both
+`project` and `snap_control` at a tiny budget and confirm `roi_inf_log` is
+non-empty and records snaps.
+
+Rationale: G1 (bit-identity, OFF path) passed and could not catch an ON-path
+error by construction. P5 (manipulation check) only reports at the end of a full
+run and reports nothing at all when the run crashes. The two gates in place both
+had blind spots on the same path.
+
+G3 must pass before h94 relaunches. Its result will be recorded here whichever
+way it goes.
