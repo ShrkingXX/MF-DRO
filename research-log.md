@@ -1453,3 +1453,58 @@ stated as established, with a conclusion drawn from it. It had been withdrawn in
 the findings file hours earlier and the withdrawal never propagated to the
 outward-facing deliverable. That is the same defect the peer had fixed in the
 other direction earlier tonight, with inline markers at the point of claim.
+
+---
+
+## H105, H97, H102 — a pass, a tuning result, and a refuted mechanism
+
+Three results landed tonight and two are already back under test. Logging them
+together because what connects them matters more than any one.
+
+**H105 discharged the last qualification on the project's only passing
+pre-registered claim.** A peer session established that PROTOCOL.md registers two
+baselines on one benchmark at ten seeds, never amended, and that h83 ran five. I
+verified the file myself rather than take it on report, then supplied the missing
+five. Cost: about two minutes, because the registered baselines are the cheapest
+methods in the comparison and MF-DRO and MF-MES already existed at those seeds.
+The test passes at the full sample by a factor of six.
+
+The gate nearly voided it and the gate was wrong, which is the part worth
+keeping. My code-drift check failed all four methods because `mf_dro.py` changed
+between the contributing commits — but that change lives entirely inside the
+`use_roi=True` branch, and a control run never enters it. The criterion that
+matters is whether the *executed* path changed; hashing it showed byte-identity
+across every commit involved. That also retroactively validated three earlier
+n=10 conclusions that had pooled across the same commits, which neither session
+had checked. **A gate that fires on the wrong criterion is worse than no gate: it
+would have discarded a valid experiment and taught us nothing.**
+
+**H97 answered a question that had sat open all day.** Every ROI result this
+project reports uses an acceptance rate of 10%, chosen because it was the first
+calibrated value tried. Halving it beats it — −1.52 paired, 4/5 — and the margin
+clears a bar I fixed before the runs at the level two existing settings 2.1x
+apart had *failed* to clear. So the setting was never tuned and every ROI figure
+here understates the effect.
+
+**H102 refuted its own mechanism, and that is the most useful thing it did.** I
+predicted an L1 loss would make the head reach domain boundaries more often,
+calling it "close to definitional" from the median-versus-mean argument. It
+reaches them *less*, on four of five seeds. The argument depends on more than
+half the teacher's target mass sitting at a bound, and I never checked that
+clause — targets are overwhelmingly interior, so the median is interior too and
+L1's robustness suppresses the very outliers that occasionally pulled an L2
+prediction outward.
+
+The registered consequence is that P2 says nothing about boundary aversion in
+either direction, and I applied it rather than reaching for the reading where a
+−2.08 regret gain becomes evidence for the hypothesis it was chosen to test. The
+gain is real, clears the bar, and is **unexplained**.
+
+**What connects them.** H97 and H102 are both single-seed-set, and this session
+has watched −5.85 become −2.11, a 4/5 become 2/5, and two claims withdrawn
+outright on exactly that re-test. Both are now running at the original seeds
+(H107, H108) before anything is built on either. H108 carries one prediction
+aimed at me rather than the method: it forecasts the boundary direction from
+H102's *measurement* where H102 forecast it from an *assumption*. If that
+succeeds where the assumption failed, Lesson 23 is working rather than being
+recited; if it fails too, the lesson is insufficient and I will say so.
