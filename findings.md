@@ -9304,3 +9304,51 @@ premise in the protocol **before** these numbers existed: h111 tests *a second
 tightness setting, not a better one*. That makes this null more informative than
 it would otherwise be — two settings failing, rather than one setting failing at
 a value that might have been wrong.
+
+## Hartmann's ROI measurements: what they DO and do NOT rule out
+
+The peer flagged, correctly, that Hartmann's ROI results are unresolvable at
+n=5. Verified here, and it sharpens into a bounded statement neither of us made.
+
+    Hartmann   Q05 - no-ROI   mean -0.52  sd 6.32   per-seed -9.52 +8.02 +1.00 +0.15 -2.26
+               an effect must reach |mean| >= 3.16 to clear a 0.5-sd bar here
+    Borehole   Q05 - no-ROI   mean -5.79  sd 3.97   ratio 1.46
+               an effect must reach |mean| >= 1.98
+
+### The precise statement
+
+**Hartmann CAN resolve a Borehole-sized effect, and does not see one.** Borehole's
+ROI effect is 4-6 points; Hartmann's resolution floor is ~3.2. An effect of
+Borehole's magnitude would clear Hartmann's bar (5.79 against 3.16, ratio 0.92)
+and no such effect appears -- q=0.10 gave -1.62 and q=0.05 gives -0.52.
+
+So the defensible claim is bounded rather than absolute:
+
+  RULED OUT on Hartmann: an ROI effect as large as the one Borehole shows.
+  NOT RULED OUT: any effect below ~3.2 points, which n=5 there cannot see.
+
+### This corrects both of us
+
+**The peer's version** -- "neither -1.62 nor -0.52 should be cited as evidence in
+either direction" -- is too strong. They are weak evidence in one direction:
+they exclude a large effect. That is exactly the inference a wide interval
+supports.
+
+**My version was worse.** h104 concluded "on Hartmann the ROI does essentially
+nothing", from a mean query regret of -0.001 whose per-seed values were -8.31,
++2.02, -1.10, -0.54, +7.92 -- a spread of the same character. I reported an
+unresolvable measurement as a measured zero. The h104 entry stands as written
+for its waste finding but its "does essentially nothing" phrasing overstates
+what n=5 on Hartmann can support.
+
+### What survives for the Borehole-only claim, which is the load-bearing one
+
+It survives, and h111 strengthened it: two tightness settings spanning 2x both
+fail to produce a Borehole-sized effect on Hartmann or Ackley. **Borehole-only
+is a property of the heuristic, not an artifact of an untuned threshold** -- and
+that was a real test the claim had not previously faced.
+
+What it cannot say is that the ROI does NOTHING elsewhere. It says the ROI does
+nothing ELSEWHERE THAT IS AS LARGE AS WHAT IT DOES ON BOREHOLE. Detecting a
+2-point Hartmann effect would need roughly n=40 at that spread, which nobody is
+going to run.
