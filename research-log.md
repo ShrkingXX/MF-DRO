@@ -1822,3 +1822,44 @@ Relaunched after importing the worker module and asserting ARMS['ROI-Q02'] is
 exactly {'use_roi':True,'roi_beta_mode':'quantile','roi_target_accept':0.02},
 with ROI-Q10 and ROI-OFF unchanged and BUDGET/SPEC intact. All five runs alive
 and checkpointing.
+
+## 2026-08-28 — h129, the mechanism narrows and four of six predictions fail
+
+Opened by confirming the read point the peer had queried: h83's `sr_curve`
+computes `cost_cum - init_cost`, verified empirically (axis ends 200.60 Borehole
+/ 201.20 Hartmann against raw `cost_cum` 240.60 / 294.20). Every number I have
+reported is at full post-init budget. Adopted the peer's sharper rule — name the
+READ POINT, not just the statistic — since unit mismatches leave effect sizes
+invariant while read-point choice moves effects 3x to 30x.
+
+Registered h129 before h127 had a single result file, then ran it down:
+
+  P3  h128 q=0.493 HF frac 0.839 +- 0.012   PASSES but uninformative
+  P4  quality flat on Borehole              FALSIFIED — quality rises, effect 2.66
+  P5  quality improves on Hartmann too      FAILS — effect 0.02, no dissociation
+  P6  Ackley shifts down                    FAILS and REFUTES P5's reading
+  P1/P2  h127 q=0.30                        PENDING
+
+Two conclusions of mine were overturned by my own tests. **"The interventions
+that work act elsewhere" is wrong for Borehole query quality** — the ROI moves
+the channel the founding diagnosis prescribed, effect 2.66 at 5/5, and the peer's
+count-matched h120 P3 agrees from an independent statistic. And **the fidelity
+mechanism is Borehole-specific** (effects 1.65 / 0.78 / 0.49 across three
+benchmarks), so it belongs beside the benefit it was meant to explain rather than
+above it.
+
+Two errors of my own, both worth keeping:
+
+- A units error INSIDE a locked protocol: P4 invoked the 0.59 separability bar,
+  which is in regret points, against a normalised score at 0.381. A criterion
+  that could not fire. The peer had confessed the identical class an hour before.
+- A two-point unification: I proposed the ROI "regularises the fidelity mix
+  toward the middle" from two benchmarks whose controls sat on opposite sides of
+  0.5. **No arrangement of two such points could have failed to suggest it.** The
+  third benchmark was in the repository the whole time and inverts the ordering.
+
+The founding diagnosis reproduces exactly on its own benchmark (0.336, 0.208),
+and Hartmann affords 11.6 HF queries per run against Borehole's 94.0 — so its
+headline statistics are per-run means over about twelve numbers.
+
+Report merged onto the peer's concurrent republish and updated.

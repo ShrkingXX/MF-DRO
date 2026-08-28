@@ -1,3 +1,4 @@
+<!doctype html><html><head><!-- frame-runtime --><base href="/_f/1787921184-6a2c/"><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.DvsaCnS7.js","assets":"assets.8Gk803W0.js","comments":"comments.GLuHR3zP.js","db":"db.h-3sndFg.js","downloads":"downloads.C3GSvEDP.js","embed":"embed.CxGAyc-v.js","mcp":"mcp.Bvma3qD7.js","network":"network.B5UA9Su4.js","permissions":"permissions.BNySkLV5.js","room":"room.BMMoe2BY.js","sample":"sample.BW2Uysoh.js","self":"artifact.DvsaCnS7.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.CQm3TZ9K.js","comments":"_comments.DELvYLUh.js","translate":"_translate.5HCW4BJh.js"}</script><script>(function(){"use strict";var J=["light","dark","system"],Q=/^[A-Za-z0-9_-]{1,64}$/,H=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,ee=new Set(["class","hidden","value","checked"]);function te(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||ee.has(t)}var Me="http://www.w3.org/1999/xhtml",re="http://www.w3.org/2000/svg",ne=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),oe=new Set(["script","style"]);function se(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!ne.has(t):e.namespaceURI===re?!oe.has(t):!1}var ae=new Set(["html","head","body","frameset"]);function ie(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&ae.has(e.localName)}function ce(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!Q.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!H.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!H.test(r))return!1}return!0}function le(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let s=0;s<n.length;s++)if(!t(n[s]))return!1;return!0}function ue(e){return e===null||typeof e!="object"?!1:le(e.__frame_patch,ce)}function fe(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function pe(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function de(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&J.includes(r)}var A=/^[\w.-]+\.js$/;function me(e,t,r){return r?"inert":typeof t=="string"&&A.test(t)?e?[t]:"inert":e?"inert":"framed"}function he(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function _e(){return{post:()=>{},on:()=>()=>{}}}var O="__frame_scroll",ve=150,ye=310,we=160,be=3e4;function Ee(){let e=0,t=!1,r=!1,n=!1,s=0,a=null;const l=i=>{try{sessionStorage.setItem(O,JSON.stringify({y:i}))}catch{}},d=()=>{if(clearTimeout(e),a===null)return;const i=a;a=null,l(i)},v=()=>{if(t){t=!1;return}r=!0,a=scrollY,clearTimeout(e),e=setTimeout(d,ve)};try{addEventListener("scroll",v,{passive:!0}),addEventListener("pagehide",d)}catch{}const y=()=>{let i;try{i=sessionStorage.getItem(O)}catch{return null}if(i===null)return null;let m;try{m=JSON.parse(i)}catch{m=null}const u=m?.y;if(!(typeof u=="number"&&Number.isFinite(u)&&u>=0)){try{sessionStorage.removeItem(O)}catch{}return null}return u};let S=!1;const h=i=>{try{const m=scrollY;scrollTo({top:i,left:0,behavior:"instant"}),s=i,n=!0,clearTimeout(e),a=null,l(i);const u=scrollY;u!==m&&(t=!0),u!==i&&!S&&(S=!0,addEventListener("load",()=>{try{if(scrollY===u){const k=y();h(k!==null?k:s)}}catch{}},{once:!0}))}catch{}},w=()=>{try{return!!location.hash}catch{return!0}};let o=!1;const f=()=>{try{if(o||innerWidth>ye||innerHeight>we)return;o=!0;const i=Date.now(),m=()=>{try{removeEventListener("resize",m)}catch{}if(Date.now()-i>be||r||w())return;const u=y();h(u!==null?u:s)};addEventListener("resize",m)}catch{}};let _=!1,b=!1;return{restore(){if(_||(_=!0,w()))return;const i=y();i!==null&&(h(i),f())},promoted(){if(b||(b=!0,w()))return;const i=y();i!==null?(h(i),f()):n&&h(s)}}}function ge(e,t,r,n){let s=null;try{s=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:v=>v})??null}catch{}const a=window.Worker,l=a?.prototype,d=Object.freeze({Worker:a,workerOn:l?.addEventListener,workerPost:l?.postMessage,workerTerminate:l?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:s,origins:t});r(e).then(v=>v?.bootTopLevel?v.bootTopLevel(d,n):n.settle()).catch(()=>n.settle())}var Oe="modulepreload",Ce=function(e){return"/"+e},je={},Ae=function(t,r,n){let s=Promise.resolve();function a(l){const d=new Event("vite:preloadError",{cancelable:!0});if(d.payload=l,window.dispatchEvent(d),!d.defaultPrevented)throw l}return s.then(l=>{for(const d of l||[])d.status==="rejected"&&a(d.reason);return t().catch(a)})},Re=window===top,q=Object.getOwnPropertyDescriptor(window,"claude"),T=me(Re,window.__FRAME_PREAMBLE?.topLevel,q?.writable===!1),C=typeof T=="object"&&T[0],p=C?_e():he();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let s=0;s<r.length;s++){const a=r[s];try{e(t,a,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[a]}catch{}try{e(t,a,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[a]=="function"&&n++}if(n&&T==="framed")try{p.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Se=1e4,W=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function $(e){for(const t of W)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var L=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),j=window.__FRAME_PREAMBLE?.transforms,N=window.__FRAME_PREAMBLE?.comments,I=window.__FRAME_PREAMBLE?.translate;function R(e){return Ae(()=>import("/_runtime/"+e),void 0)}function K(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:D,pipe:()=>({wrap:(r,n)=>(...s)=>{try{return n(...s)}catch(a){return Promise.reject(a)}}})}}var P=null,E=null;function Y(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var B=!1;function ke(e,t){const r=[];for(const n of e.elements){const s=document.querySelector(`[data-id="${n.target}"]`);if(!s){p.post({__frame_patch_miss:{seq:e.seq}},t);return}if([...Object.keys(n.attrsSet??{}),...n.attrsRemoved??[]].some(a=>!te(a))){p.post({__frame_patch_miss:{seq:e.seq}},t);return}if(n.text!==void 0&&(!se(s)||ie(s))){p.post({__frame_patch_miss:{seq:e.seq}},t);return}for(const[a,l]of Object.entries(n.attrsSet??{}))if(!G(s,a)){try{s.setAttribute(a,l)}catch{}X(s,a,l)}for(const a of n.attrsRemoved??[])G(s,a)||(s.removeAttribute(a),X(s,a,null));typeof n.text=="string"&&(s.textContent=n.text),r.push(n.target)}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:r}}))}catch{}}function X(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function G(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function V(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,B=!0):B&&(delete t.dataset.theme,t.style.colorScheme="",B=!1)}var M=new Map;function Te(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function U(){for(const e of M.values())e.done||(e.nulled=!0,e.r(null))}var Le=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),D=(e,t)=>{const r=M.get(e);if(!r||r.done){r?.nulled&&E&&p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},E);return}const n=typeof t=="function"?Object.setPrototypeOf(t,Le):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function Z(){const e=q?.value??{};Y(window,"claude",e);for(const t of Object.keys(L)){if(e[t]!==void 0){Y(e,t,e[t]);continue}M.set(t,Te())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(L,r))return Promise.resolve(null);const n=M.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(T==="framed"){const e=j&&A.test(j)?R(j).catch(()=>{}):Promise.resolve(void 0),t=o=>{if(o.type==="auxclick"&&o.button!==1)return;const f=o.target,_=f&&f.closest?f.closest("a[href],area[href]"):null;if(!_)return;const b=_.getAttribute("href");if(!b)return;let i;try{i=new URL(b,document.baseURI)}catch{return}if((i.protocol==="http:"||i.protocol==="https:")&&i.origin!==location.origin){o.preventDefault();const m=(_.getAttribute("target")??"").toLowerCase(),u=o.type==="auxclick"||o.metaKey||o.ctrlKey||o.shiftKey||o.altKey||!["","_self","_top","_parent"].includes(m);p.post({__frame_nav:!0,url:i.href,newTab:u},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=o=>{o.isTrusted&&(r.pointer=!0)},s=o=>{o.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",s,{capture:!0,passive:!0}),e.then(o=>{o?.wireNav&&(o.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",s,!0),o.wireEngagement?.(r))});let a=null;try{a=Ee()}catch{}Z();let l=null,d=null,v=0;const y=p.on((o,f)=>{$(f)&&fe(o)&&(l=o.__frame_init,E=f,y(),clearTimeout(v),d?.())});p.post({__frame_connect:!0},"*");const S=new Promise(o=>{d=o,v=setTimeout(()=>{y(),o()},Se)}),h=document.readyState==="loading"?new Promise(o=>document.addEventListener("DOMContentLoaded",()=>o(),{once:!0})):Promise.resolve();h.then(()=>{try{a?.restore()}catch{}});const w={cb:null};p.on((o,f)=>{if($(f)&&pe(o)){try{a?.promoted()}catch{}w.cb?.()}}),S.then(async()=>{if(!l||!E){U();return}V(l.theme);const o=E;let f=!1,_=!1;p.on((c,x)=>{if(x!==o)return;de(c)&&V(c.__frame_theme.theme),ue(c)&&ke(c.__frame_patch,o);const g=c?.__fc_mode;g&&typeof g=="object"&&!f&&N&&A.test(N)&&(f=!0,R(N).then(z=>z.install?.(o,g.on===!0)).catch(()=>{}));const F=c?.__ft_cmd;F&&typeof F=="object"&&!_&&I&&A.test(I)&&(_=!0,R(I).then(z=>z.install?.(o,F)).catch(()=>{}))});const b=Object.keys(l.capabilities??{}).filter(c=>Object.hasOwn(L,c)).map(c=>[c,L[c]]).filter(c=>typeof c[1]=="string"&&A.test(c[1])),i=await Promise.allSettled(b.map(([,c])=>R(c))),m=await e,u=E;if(m?.buildBoot||p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},u),m?.buildBoot)try{P=m.buildBoot(l,m.TRANSFORMS??{},{shellOrigin:u,mount:D},c=>p.post({__frame_cap_telemetry:c},u))}catch{p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},u),P=K(l,u)}else P=K(l,u);const k=c=>p.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:c}},u),Pe=P;i.forEach((c,x)=>{const g=b[x][0];if(c.status!=="fulfilled"){k(g);return}try{c.value?.install?.(Pe)}catch{k(g)}}),U(),await h,p.post({__frame_ready:!0},E),e.then(c=>c?.installSizeReporter?.(u,w))})}else C&&(Z(),ge(C,W,R,{settle:U,mount:D}))})();</script><!-- /frame-runtime --><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
 <title>Why MF-DRO Loses</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -104,6 +105,47 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
       <span class="chip">h117 &middot; 10 runs in flight</span>
   </div>
 </header>
+
+  <section>
+    <p class="kicker">28 Aug &middot; the first thing that works</p>
+    <h2>The setting matters after all &mdash; we had only ever moved it a little</h2>
+    <div class="col">
+    <p class="lede">For weeks the working assumption in this project was that the region&rsquo;s
+    tightness does not matter. Three separate experiments had compared an acceptance rate of 5% against
+    10% and found nothing; a fourth found nothing across a two-fold range on other benchmarks. Both of
+    us wrote it down as a dead axis.</p>
+    <p>Every one of those comparisons is <strong>two-fold or narrower</strong>. Reading the realized
+    acceptance out of the stored run summaries &mdash; rather than trusting what each arm was named
+    &mdash; turned up a pair five-fold apart, both hitting their target to three decimal places on
+    every seed. Compared properly:</p>
+    </div>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>benchmark</th><th>measure</th><th class="n">tight (10%)</th><th class="n">loose (49%)</th><th class="n">difference</th><th class="n">effect</th><th class="n">seeds</th></tr></thead>
+      <tbody>
+        <tr><td>Borehole 8D</td><td>final regret</td><td class="n win">35.88</td><td class="n lose">44.90</td><td class="n lose">+9.02</td><td class="n lose"><strong>5.69</strong></td><td class="n">5/5</td></tr>
+        <tr><td>Borehole 8D</td><td>wasted budget</td><td class="n win">3.0%</td><td class="n lose">6.2%</td><td class="n lose">+3.3pts</td><td class="n">1.28</td><td class="n">5/5</td></tr>
+        <tr><td>Hartmann 6D</td><td>final regret</td><td class="n win">0.197</td><td class="n lose">0.303</td><td class="n lose">+0.105</td><td class="n">1.01</td><td class="n">4/5</td></tr>
+        <tr><td>Hartmann 6D</td><td>wasted budget</td><td class="n">0.196</td><td class="n">0.192</td><td class="n">&minus;0.004</td><td class="n">0.10</td><td class="n">2/5</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="col">
+    <p>An effect of 5.69 across five seeds out of five is the largest measured anywhere in this project,
+    and it went unseen because nobody had moved the lever far enough. I registered this expecting a
+    null, on exactly the reasoning above, and was wrong.</p>
+    <p class="lede">Putting the old results together with the new ones gives a shape rather than a
+    slope: <strong>flat below 10%, steeply worse by 50%.</strong> That is the first affirmative answer
+    this investigation has produced &mdash; the region&rsquo;s tightness is a real lever, the useful
+    setting is at or below 10%, and loosening it to half the domain costs nine points of regret on the
+    one benchmark where the method is competitive at all.</p>
+    <p>Two cautions travel with it. Nothing here says tighter is always better: there is no data below
+    5%, and 5% against 10% is genuinely flat. Five runs are now testing 2% to find out whether the
+    plateau extends or whether over-restriction has its own cost &mdash; a five-fold contrast this
+    time, chosen because that is the range now known to have power. And this is still Borehole, where
+    the wasted budget was smallest to begin with; the mismatch two sections down has not gone away.</p>
+    </div>
+  </section>
 
   <section>
     <p class="kicker">28 Aug &middot; the framing, not the method</p>
@@ -1533,6 +1575,90 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+<section>
+  <p class="kicker">Mechanism &middot; a correction to my own conclusion</p>
+  <h2>It does aim the expensive queries better &mdash; I had said it did not</h2>
+  <div class="col">
+  <p>I have been reporting that the interventions which work act somewhere other than the channel the
+  original diagnosis named. That diagnosis said MF&ndash;DRO wastes expensive queries on low&ndash;value
+  regions, and prescribed better aim. I predicted, in a locked protocol, that the region of interest
+  would leave aim untouched and simply fire less often. <strong>That prediction failed, and the
+  correction runs in the diagnosis&rsquo;s favour.</strong></p>
+  <p>Measured with the diagnosis&rsquo;s own scoring formula, on Borehole, five seeds, paired:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>What was measured</th><th>No region</th><th>Region, q=0.10</th><th>Change</th><th>Effect</th><th>Seeds</th></tr></thead>
+    <tbody>
+      <tr><td>Average expensive&ndash;query score</td><td>0.381</td><td>0.495</td><td class="win">+0.114</td><td class="win">2.66</td><td>5 of 5</td></tr>
+      <tr><td>Number of expensive queries</td><td>94.0</td><td>84.8</td><td>&minus;9.2</td><td>1.55</td><td>5 of 5</td></tr>
+      <tr><td>Share landing worse than the start</td><td>7.9%</td><td>3.0%</td><td>&minus;4.9pt</td><td>0.98</td><td>5 of 5</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Aim improves more than volume falls.</strong> The quality effect is the largest in the
+  table, and a peer session reached the same conclusion from a different statistic &mdash; holding the
+  number of expensive queries fixed and comparing their average value, which rules out the possibility
+  that the queries only look better because there are fewer of them. Two independent measures agree.</p>
+  <p>The control column also reproduces the founding diagnosis exactly on its own benchmark: an average
+  score of 0.336 and 20.8% of expensive queries landing worse than the starting design, against the
+  0.336 and 20.8% it published.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">The error inside the prediction</p>
+    <p>My protocol offered two ways to judge the result, and they disagreed. The second invoked a
+    separability threshold of 0.59 &mdash; which is measured <em>in regret points</em>, while the score
+    it was applied to is normalised and sits at 0.381. Meeting that threshold would have required the
+    score to more than double. <strong>I registered a criterion that could not fire.</strong> A peer
+    session had confessed the same class of error an hour earlier and I repeated it immediately. The
+    shared cause is not carelessness about units but that a number repeated often enough in a project&rsquo;s
+    own record stops looking like a quantity with units at all. Both sessions now quote it as
+    &ldquo;0.59 regret points&rdquo;, never &ldquo;the 0.59 bar&rdquo;.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Scope &middot; the mechanism, not just the benefit</p>
+  <h2>The budget&ndash;shifting explanation holds on one benchmark of three</h2>
+  <div class="col">
+  <p>The region of interest also changes how the budget splits between cheap and expensive evaluations,
+  and that had looked like the explanation for why it helps. Tested at matched settings and matched
+  seeds across three benchmarks, it is not a property of the method:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Benchmark</th><th>No region</th><th>Region</th><th>Shift</th><th>Effect</th><th>Distance from an even split</th></tr></thead>
+    <tbody>
+      <tr><td>Ackley 10D</td><td>0.957</td><td>0.924</td><td>&minus;0.033</td><td>0.49</td><td>0.457</td></tr>
+      <tr><td>Borehole 8D</td><td>0.883</td><td>0.739</td><td class="win">&minus;0.144</td><td class="win">1.65</td><td>0.383</td></tr>
+      <tr><td>Hartmann 6D</td><td>0.200</td><td>0.256</td><td>+0.056</td><td>0.78</td><td>0.300</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p>The shift points <em>down</em> on one benchmark and <em>up</em> on another. On the strength of
+  those two I proposed that the region pulls the budget split toward the middle from whichever side it
+  starts &mdash; a tidy unification. The third benchmark, which had been sitting in the repository the
+  whole time, breaks it: <strong>the most lopsided starting point moves the least</strong>, exactly
+  inverting what the idea predicts.</p>
+  <p>The error is worth naming because it was not arithmetic. <strong>Any two points on opposite sides
+  of a midpoint will look like a pull toward that midpoint.</strong> There is no arrangement of two such
+  points that would have failed to suggest it. The evidence could not have come out any other way, which
+  is what made it feel conclusive.</p>
+  <p>So the budget&ndash;shifting mechanism belongs on Borehole, alongside the benefit it was meant to
+  explain. What survives across benchmarks is the aim improvement in the section above.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">Six predictions, four failures</p>
+    <p>This round locked six predictions before running anything. Two are still waiting on runs; one
+    passed; <strong>three failed, and one of those actively refuted the idea behind it.</strong> The
+    single pass is the one I trust least &mdash; my stated uncertainty band was narrower than the data
+    supports by a factor of 1.8, so a band twice as wide would have &ldquo;passed&rdquo; equally well.
+    It is recorded as consistent, not as confirmation.</p>
+  </div>
+</section>
+
 <footer>
   <div class="col">
   <p>All figures regenerated from the 100 h83 runs. Simple regret is recomputed from each run&rsquo;s
@@ -1541,3 +1667,5 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </footer>
 </div>
+
+</body></html>
