@@ -6756,3 +6756,66 @@ Both are cheap and neither is the architecture rewrite h96's framing suggested.
 Registering the preference now: gap-reduction is the better first test, because
 it is one loss change and it does not risk the exploration/exploitation balance
 the way an injected-noise term would.
+
+## H98: centring tracks the ROI dose over three levels. T2 passed MECHANICALLY and is HOLLOW at the top.
+
+EXPLORATORY, zero compute, h84's Borehole arms, seeds 42-46. T1-T4 registered
+at c10bf1d before computing.
+
+    arm        accept   regret   OFFSET   GAPSD   REACH
+    ROI-OFF    1.0000     0.00    0.347    2.29   0.178
+    ROI-ANN    0.4934    -1.31    0.355    2.02   0.199
+    ROI-FIX2   0.2141    -4.81    0.364    1.64   0.231
+    ROI-Q10    0.0999    -4.22    0.374    1.66   0.248
+
+    T1 MET   -- centring is NOT monotone in tightness (tightness ranks Q10 first,
+                GAPSD ranks FIX2 first)
+    T2 MET   -- GAPSD ranking == regret ranking, 4/4 including FIX2 > Q10
+    T3 FAILED-- REACH ranks Q10 first, not FIX2 (predicted: noisier tail statistic)
+    T4 not triggered -- GAPSD spread 0.65, not flat
+
+### T2's headline is an artifact of comparing arm means. I checked, and it dies.
+
+T2's whole interest was that GAPSD reproduced the FIX2 > Q10 inversion, which
+tightness alone cannot explain. The arm means differ by 0.02 (1.64 vs 1.66)
+against a regret difference of 0.59 points, so I tested whether 0.02 is
+separable. **It is not:**
+
+    GAPSD, FIX2 minus Q10, per seed:  +0.155  +0.118  -0.189  -0.204  +0.028
+    paired mean -0.018, sd 0.169, FIX2 better 2/5, ratio |mean|/sd = 0.11
+
+**The two arms are tied.** The mechanical bar passed because argsort imposes a
+total order on four numbers regardless of whether adjacent ones are
+distinguishable. T2 is recorded as MET, as registered, and simultaneously as
+UNINFORMATIVE at the position that motivated it.
+
+This is the M1 bar-design failure in a new costume: **a ranking bar over k items
+will always produce a ranking, and passing it says nothing unless adjacent items
+are separable.** Standing rule added: an ordering bar must be paired with a
+separability check on the adjacent pairs that carry its meaning.
+
+### What survives, and it is still worth having
+
+The three DISTINGUISHABLE levels are monotone and unanimous:
+
+    tight (FIX2/Q10) vs ANN   paired -0.377, better 5/5
+    ANN              vs OFF   paired -0.278, better 5/5
+
+So GAPSD -- h97's predictor, the head's centring in the sensitive dimensions --
+improves monotonically as the ROI tightens from OFF to ANN to tight, and regret
+improves in the same order (0, -1.31, ~-4.5). **Centring mediates the ROI's dose
+over the range where the dose is actually resolvable at n=5.** What it does not
+do is tell FIX2 from Q10, and neither, on this evidence, does regret.
+
+T4 was not triggered: GAPSD is not flat, so h96/h97 are not merely descriptions
+of a single on/off comparison.
+
+### Consequence for the primary question
+
+"How much ROI do you want" now has a partial answer on Borehole: more, down to
+roughly the 0.2 acceptance level, after which the measurements available cannot
+distinguish settings. The earlier framing that q=0.10 was the right operating
+point was never established against q~0.21 -- **they are tied on both regret and
+mechanism**, and the fixed-beta arm reaches the same place with an uncontrolled
+acceptance rate that drifts 250x within a run. Calibration's case remains what
+it always was: controllability across benchmarks, not superiority on Borehole.
