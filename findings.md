@@ -11058,3 +11058,53 @@ unless stated otherwise. This is cheaper than reconciling afterwards, and the
 reconciliation is not always as clean as these four were — a mismatch whose ratio
 happens to look constant would have been mistaken for a scaling convention and
 never questioned.
+
+### The fourth mismatch, RESOLVED — and it splits into one harmless part and one that matters
+
+The peer and I had the same three Hartmann contrasts at scales ~40x apart. Their
+attribution was two factors: units, and a read-point difference caused by runs
+overshooting the cost budget. **The first is right and explains essentially all
+of it. The second is not supported by the data.**
+
+**Units (the whole story).** The frozen metric is expressed as a percentage of
+the optimum; `known_optimal_value` is -3.32237 for Hartmann, so a percentage is
+100/3.32237 = **30.1x** the raw value. Recomputing my own numbers in those units:
+
+  my paired q=0.10 vs control, rel%:  -1.891, sd 3.252, effect 0.58
+  their reported figure:              -2.05,  sd 3.22,  effect 0.64
+
+Same number to within interpolation detail. The gap was units, nothing more.
+
+**Overshoot: measured, and negligible.** `cost_curve` (the post-init budget the
+worker actually terminates on) ends at a mean of **200.29** across 17 Borehole
+runs and **201.18** across 17 Hartmann runs, max 205. That is under 2.5%, and it
+cannot produce a 40x discrepancy or an unstable ratio. The "178x" quoted for
+q=0.05 comes from dividing by a mean that rounds to 0.00 — an unstable ratio
+arising from a near-zero denominator, which is the same artefact already
+catalogued twice today, not evidence of overshoot.
+
+**What DOES matter, and neither of us had named it: which cost curve.** Files
+store two. `cost_curve` is post-init (2 -> ~201, budget 200). `cumulative_cost_curve`
+includes the initial design (42 -> 241 on Borehole, and -> 294 on Hartmann).
+Reading "at cost 200" on the cumulative curve truncates every run at roughly
+two-thirds of its budget, and that is NOT a rescaling — it changes conclusions:
+
+| contrast | via cost_curve @200 | via cumulative @200 |
+|---|---|---|
+| h125 Borehole Q10 vs ANN | +9.018, effect **5.69**, 5/5 | +8.355, effect **1.65**, 5/5 |
+| Hartmann q=0.10 vs control | -0.063, effect **0.58** | -0.008, effect **0.02** |
+
+**h125's headline is SAFE.** Under matched cost via `cost_curve` @ 200 the
+Borehole result is unchanged — effect 5.69, 5/5 — because overshoot there is
+0.29 of 200. In frozen units the same result reads **+2.91% of optimum, sd
+0.51%**, and the effect size is identical because effect size is invariant to
+that scaling.
+
+**That invariance is the general point.** Every unit-only mismatch today
+(sd vs MAD aside) left effect sizes untouched and changed only quoted
+magnitudes, so no verdict ever turned on one. The read-point choice is different
+in kind: it moves effects by 3x and 30x. **Naming the statistic is necessary;
+naming the read point is what actually protects a conclusion.**
+
+Going forward, numbers here are stated as "raw @cost_curve 200" unless marked
+otherwise, and the read point is named alongside the statistic.
