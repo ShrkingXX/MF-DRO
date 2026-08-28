@@ -916,3 +916,36 @@ METRIC_DEFINITION_resolved_2026_08_28:
 
     '
   convention_going_forward: 'State the read point alongside the statistic: ''raw @cost_curve 200''.'
+
+ROI_BENEFIT_verified_from_raw_curves_2026_08_28:
+  read_point: "raw regret @ cost_curve 200; rel% of optimum 309.5756 (Borehole)."
+  seeds_42_46: "-4.22%, effect 1.74, better 5/5. Control SUBSTITUTED (h83 MF-DRO for h84 ROI-OFF)."
+  seeds_47_51: "-3.49%, effect 1.31, better 4/5. h90 holds BOTH arms in one experiment -- no substitution."
+  finding: >
+    The recorded "3.5-4.2 pts" is NOT an interval -- it is the spread across
+    these two seed sets, and they land at its two ends. First recomputation from
+    hf_regret_curve rather than inheritance.
+  caveat_worth_carrying: >
+    The CLEANER set (h90, no substitution) is the WEAKER one: 1.31 at 4/5 vs
+    1.74 at 5/5. The headline rests more on the substituted-control set. h120's
+    three ROI-OFF runs (seeds 44-46, in flight) test that substitution directly.
+
+h128_correction:
+  overstated: "Called P2 'never a prediction at all'."
+  correct: >
+    The identity governs the means only. Per-seed sign counts and effect sizes
+    survive it, so "3/5 better, effect 0.54" was real. The COMPOSITION CLAIM was
+    empty, not the test. (Peer's refinement, accepted.)
+
+peer_h129_P3_answered:
+  their_prediction: "loose-arm post-init HF COUNT fraction 0.839 +/- 0.012"
+  measured: "0.8300 (per seed 0.8440, 0.9608, 0.7391, 0.7544, 0.8519)"
+  verdict: >
+    Inside the band by 0.003. Shift vs control -0.0529, sd 0.0492, sem 0.0220 --
+    resolution far too coarse to be a confirmation. Recorded as
+    consistent-but-uninformative, which their pre-registered caveat makes
+    available rather than a retrofit.
+  statistic_identified_first: >
+    Their control 0.8829 matches the COUNT fraction exactly, not the COST
+    fraction (0.9372). Naming which fraction was the difference between an
+    answer and a plausible wrong number.
