@@ -11452,3 +11452,69 @@ benchmark, and now its *fidelity mechanism* does too. What has not narrowed is
 query quality — and h120's P3 was specifically built to survive the confound
 that would have explained it away (count-matching), which it did, with the
 matched gain larger than the unmatched.
+
+## CORRECTION to h129 P6 — my refutation leaned on a CENSORED cell. The refutation survives; the argument for it does not.
+
+A peer session verified P6, reproduced my three effects exactly, and made a
+correction I accept: **Ackley's cell is one-sided censored and cannot carry the
+argument I built on it.** Its control spends 40 HF x c_H=5.0 = exactly the 200
+budget in all five seeds with **zero variance**. The fraction cannot rise there.
+I flagged that ceiling in the protocol before looking, and then used Ackley
+anyway as "the most extreme control, and it moved least". That comparison is not
+available on a censored cell. Flagging a confound and then relying on it is worse
+than not noticing it.
+
+They also supplied a **fourth benchmark I had not used**: h86 holds Currin
+ROI-Q10 as well as Ackley. I verified their numbers rather than adopting them.
+All four, ROI-Q10 vs h83 control, seeds 42-46, paired:
+
+    bench          ctrl    ROI     shift   effect   dist from 0.5   censored
+    Ackley_10D    0.957  0.924   -0.0332     0.49           0.457   YES
+    Borehole_8D   0.883  0.739   -0.1439     1.65           0.383   no
+    Currin_2D     0.193  0.164   -0.0295     0.41           0.307   no
+    Hartmann_6D   0.200  0.256   +0.0561     0.78           0.300   no
+
+### The peer's replacement argument does not work either, and I checked before adopting it
+
+They proposed that the three uncensored benchmarks refute the magnitude form on
+their own. Ordered by distance from 0.5 the effects run 1.65, 0.41, 0.78 — not
+monotone, so formally yes. **But Currin and Hartmann sit 0.007 apart in
+distance.** Treating a 0.41-vs-0.78 gap at essentially identical distance as an
+"ordering violation" would be reading a rank order off a tie. That is the same
+over-reading I have corrected five times today in other forms, and it would not
+have survived my own scrutiny had I published it.
+
+### The refutation that actually holds, and it needs neither Ackley nor an ordering
+
+**Currin and Hartmann sit on the SAME SIDE of the midpoint at the SAME DISTANCE
+from it — controls 0.193 and 0.200 — and the ROI moves them in OPPOSITE
+DIRECTIONS.** Currin goes down, away from the middle (-0.0295); Hartmann goes up,
+toward it (+0.0561). The regulariser hypothesis predicts both must move up. It
+gets the sign wrong on Currin.
+
+Calibration this deserves: Currin's shift has effect 0.41, **below this project's
+0.5 sd effect bar**, so "moves away from the middle" is not separable from "does
+not move". Either reading refutes the hypothesis — a control 0.307 from the
+midpoint that does not move toward it contradicts a claim that distance drives
+the pull — but the honest statement is the weaker one: **distance from the
+midpoint does not determine the shift, in sign or in size.**
+
+### What stands
+
+- **The fidelity mechanism is Borehole-specific.** Effects 1.65, 0.78, 0.49,
+  0.41 across four benchmarks. Only Borehole clears 1.0, by more than 2x, and it
+  is the only one above this project's 0.5 sd bar with any margin. This is the
+  conclusion the peer and I reached independently and it is unaffected by the
+  censoring problem.
+- The peer checked whether a mechanical account rescues it: ranked by HF
+  affordable (25, 40, 67, 100) the effects run 0.78, 0.49, 0.41, 1.65; ranked by
+  closeness to ceiling (100%, 94%, 46%, 40%) they run 0.49, 1.65, 0.78, 0.41.
+  Neither monotone. **Borehole is simply the outlier**, not the endpoint of a
+  gradient.
+- The peer has added a scope correction to h120's confirmed "the ROI reallocates
+  fidelity", restating it as a Borehole result.
+
+**The two-points-either-side error remains the real lesson** and it is untouched
+by all of this: I proposed the regulariser from Borehole and Hartmann alone, and
+no arrangement of two points straddling a midpoint could have failed to suggest
+it. Two further benchmarks were in the repository at the time.
