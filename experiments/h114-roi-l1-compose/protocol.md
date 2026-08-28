@@ -1,74 +1,50 @@
-# H114 — do the two surviving Borehole interventions COMPOSE?
+# H114 — WITHDRAWN BEFORE LAUNCH: the peer's h113 is the same experiment, better designed
 
-LOCKED BEFORE ANY RUN. 10 runs: Borehole ROI-Q05 + L1-LOSS at seeds 42-51.
-ID claimed via tools/claim_id.sh. **Arm checked against the results tree first**
-(`ls experiments/*/results/*L1*Q05*` -> none) -- the rule adopted after I nearly
-duplicated the peer's h111.
+**NOT RUN. NO RESULTS.** Second near-duplication in two ticks, recorded rather
+than deleted.
 
-## Why
+I registered ROI+L1 composition on Borehole at seeds 42-51. The concurrent
+session launched **h113** -- the same experiment, 10 runs, already in flight --
+while I was writing this protocol.
 
-Two interventions survived replication on Borehole, both from independent
-sessions, both mechanistically unexplained, and both improving regret without
-moving the quantity their proposed mechanism operates on:
+## Its design choice is better than mine, and the reason is my own retraction
 
-    ROI-Q05   -5.40  sd 2.98  10/10   (mechanism: relocation, not concentration)
-    L1-LOSS   -2.21  sd 1.78   9/10   (mechanism: boundary reach -- bar NOT cleared)
+    my h114     ROI-**Q05** + L1
+    its h113    ROI-**Q10** + L1
 
-The peer raised the question neither of us had examined: **if there is a shared
-explanation, it is here.** Nobody has run them together.
+I picked q=0.05 as "the best setting". **My own h110, two hours earlier, showed
+q=0.05's advantage over q=0.10 is seed-set dependent** -- -1.57, -1.52, then
++0.30 -- and I wrote in findings.md that "its advantage is not established". Then
+I built a new experiment on it anyway.
 
-## The two hypotheses make DIFFERENT point predictions
+The peer chose q=0.10 explicitly because of that retraction: the setting with
+the strongest evidence rather than the one that briefly looked better. **It
+applied my own finding more carefully than I did.**
 
-Measured on the same 10 seeds against the same controls (control mean 15.78):
+## Why my new rule did NOT catch this, which matters
 
-    ADDITIVE (independent channels)  combined ~ 15.78 - 5.40 - 2.21 = **8.17**
-    OVERLAPPING (one channel)        combined ~ the better alone     = **10.38**
+After h111 I adopted: grep the results tree for the arm before writing the
+protocol. I did exactly that -- `ls experiments/*/results/*L1*Q05*` -> none.
 
-    separation 2.21 points, against a paired sd of ~3 -> ratio ~0.74 at n=10,
-    which clears a 0.5-sd bar. **This experiment can distinguish them.**
+**It could not have worked.** h113 was launched DURING my tick, so the tree was
+empty when I checked; and h113 uses Q10+L1, which my Q05 glob would not have
+matched even afterwards. A results-tree check finds COMPLETED work. It cannot
+find work that is concurrent or differently parameterised.
 
-## And the additive prediction lands on top of the baseline
+**What would have caught it: the peer told me an hour ago that nobody had looked
+at whether these compose.** That is a peer naming an open question they find
+interesting -- which is a strong signal they may act on it. The peer understood
+this from its side and said so explicitly: "claiming this before you start it,
+since I flagged it to you an hour ago and that is exactly how h111 nearly got
+duplicated."
 
-**MF-MES on these seeds is 8.24.** The additive prediction is 8.17. So if the
-two effects compose, MF-DRO+ROI+L1 essentially TIES the strongest comparator on
-the one benchmark where MF-DRO has a real deficit.
+**Standing rule, replacing the one from h112 as insufficient: when a peer flags
+a question as open and worth doing, message before designing, not after.** A
+results-tree grep is necessary and catches finished work; only an announcement
+catches concurrent work.
 
-That is a large claim and it is registered here as a PREDICTION OF A HYPOTHESIS,
-not as an expectation. If it comes out that way it must be re-verified at fresh
-seeds before it is reported as anything, per this project's record with results
-that looked decisive at n=5 or n=10 and did not survive.
+## Not launching anything into the free slots
 
-## Predictions
-
-**C1 (PRIMARY, GENUINELY UNCERTAIN). The combined arm's mean is closer to 8.17
-than to 10.38.** Registered with NO direction preferred. Both mechanisms are
-unexplained, so there is no principled basis to expect independence or overlap,
-and I decline to manufacture one.
-
-**C2. The combined arm beats EACH intervention alone, paired, on >= 7/10 with
-|mean| >= 0.5 sd against the better of the two (ROI).** Registered POSITIVE but
-weakly -- it holds under additivity and fails under full overlap, so it is
-largely a restatement of C1 and is reported alongside rather than as independent
-support.
-
-**C3 (NEGATIVE). The combined arm does NOT beat MF-MES paired on >= 6/10.**
-Registered NEGATIVE deliberately: the mean-based additive prediction ties MF-MES,
-but this project has repeatedly found mean-based and paired verdicts to
-disagree, and MF-MES's own spread on these seeds is large. **The paired count
-must be reported with any mean comparison.**
-
-**C4 (GATE). Measured accept_frac in [0.045, 0.055] on all 10 runs, and the L1
-flag verifiably active** -- L_loc should sit near 0.36 as the peer measured for
-L1, against ~0.033-0.038 under MSE. If either fails, C1-C3 are uninterpretable.
-Both are OBSERVED quantities, not config read-backs.
-
-## Falsifier
-
-If C1 favours overlap, the two interventions act through one channel, and the
-"two unexplained mechanisms" framing collapses to one unexplained mechanism with
-two implementations -- which would be the more informative outcome for the
-write-up.
-
-## Gate
-
-2 workers running. 10 more takes it to 12, inside 15.
+Five slots are free. Running Q05+L1 alongside its Q10+L1 would test whether
+composition depends on tightness -- a second-order question resting on a
+comparison I retracted. The right move is to wait for h113 and read it.
