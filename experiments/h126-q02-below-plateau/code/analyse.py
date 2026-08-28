@@ -35,7 +35,12 @@ print(f"  q=0.10 mean regret {b.mean():7.3f}   ({100*b.mean()/OPT:.3f}%)")
 print(f"  control mean       {c.mean():7.3f}   ({100*c.mean()/OPT:.3f}%)")
 print(f"  paired q02-q10 {d.mean():+7.3f} raw = {100*d.mean()/OPT:+.3f}%  sd {d.std(ddof=1):.3f}  |m|/sd {e:.2f}  q02 better {n_better}/{len(kept)}")
 sep = (n_better>=4 or (len(kept)-n_better)>=4) and np.isfinite(e) and e>=1.0
-print(f"\n  P1 predicted NO difference -> {'FAILED: they separate' if sep else 'CONFIRMED: no separable difference'}")
+# Verdict NAMES are part of the registration. "CONFIRMED" for a predicted null
+# reads as established equality when it means only that n=5 cannot distinguish
+# them -- the most flattering reading, produced by wording rather than data.
+# Renamed before any h126 result existed. (Peer's h137 lesson: their gate
+# partitioned correctly and still returned the word "TIED" for "not separable".)
+print(f"\n  P1 predicted NO difference -> {'REFUTED: they separate' if sep else 'NOT SEPARABLE at n=5 (this is NOT evidence of equality)'}")
 print(f"  (P2 pre-committed readings: q02 BETTER = useful region extends below 0.05, needs fresh-seed")
 print(f"   confirmation; q02 WORSE = the curve is U-shaped and over-restriction has its own cost.)")
 for lbl,v in [("q=0.02 vs control",a-c),("q=0.10 vs control",b-c)]:
