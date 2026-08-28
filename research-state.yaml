@@ -85,7 +85,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-28  # 00:0x, H104 -- EVERY ROI effect is Borehole-specific; h94 running
+last_updated: 2026-08-28  # 01:0x, h94 COMPLETE; n=10 table; h106 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -298,6 +298,60 @@ queued_experiments:
     CONSEQUENCE: q=0.10 was never established as better than q~0.21 -- tied on
     regret AND mechanism. Calibration's case stays controllability across
     benchmarks, not superiority on Borehole.
+  N10_TABLE_all_four_benchmarks: >
+    **THE HEADLINE, at n=10, seed-matched, explicit paths (no globbing).**
+    Sources: h83 for 42-46; h89 CONTROL + h91 for Hartmann 52-56; h89 CONTROL +
+    h92 for Borehole 52-56; h93 for Currin and Ackley 52-56. Verified
+    independently in this session; every figure reproduces the peer's table.
+      benchmark    vs             n   MF-DRO  base   paired  median  better
+      Hartmann_6D  MF-MES        10    5.32   6.84   -1.52   +0.22   5/10  TIE
+      Ackley_10D   SF-DRO        10    3.62   3.46   +0.17   +0.11   5/10  TIE
+      Currin_2D    MF-MI-Greedy  10    0.01   0.00   +0.01   +0.00   3/10  NIL
+      Borehole_8D  MF-MES        10   15.42   8.24   +7.18   +8.30   2/10  LOSS
+    **TIED ON TWO, NIL ON ONE, LOSING ON ONE.** Supersedes both "not the best
+    method on any benchmark" (n=5) and my own "one cell tested, three untested".
+    Hartmann REVERSED between n=5 and n=10 (7.99 vs 6.62 -> 5.32 vs 6.84); mean
+    and median disagree in sign there, so TIE is the honest word, not a win.
+    Borehole is the one real deficit and the robust one -- its median EXCEEDS
+    its mean, so unlike Hartmann it is not one seed.
+    CAVEATS: no p-values and none appropriate. Ackley's comparator SF-DRO is
+    this method's own single-fidelity ablation, not an external baseline. Currin
+    is saturated (both within 0.01% of optimum).
+  h94-roi-at-inference-COMPLETE: >
+    10/10, 0 failures. **P5 FAILED (snapped 0.009 vs a >0.5 bar), so C and D are
+    INCONCLUSIVE by the protocol's own text** -- the DT's raw output was already
+    admissible 99.1% of the time. P1/P2/P3/P4 all read MET and are NOT being
+    used: P1's mean is 0.16 of its sd, and P3 compares C against B, the SAME
+    configuration 0.9% of queries apart.
+    THE FINDING THAT REPLACES THE INTENDED ONE: the ROI accepts 9.9% of uniform
+    draws and the DT proposes inside it 99.1% of the time -- **10x enrichment
+    over chance, without being told the ROI exists at inference.** So a
+    query-side ROI cannot help much because THE CONSTRAINT IS ALREADY SATISFIED,
+    not because the imitation channel is lossy. Reconciles with L_loc: imitating
+    a REGION is easier than imitating a POINT, and only the region is what the
+    ROI constrains.
+    WITHDRAWN: Amendment 7's "the DT's proposal is NEVER admissible (11/11)",
+    which came from a smoke test at bo_iterations=60/num_epochs=1 and does not
+    hold at 4000/10.
+    DELIVERED INSTEAD: a fresh-RNG replication of the teacher-side ROI at the
+    same seeds -- h90 -3.49 (4/5), h94 -3.86 (5/5), pooled n=10 **-3.68 at
+    9/10**, agreeing to 0.72 pts per seed. Three independent Borehole
+    measurements now: h84 -4.22, h90 -3.49, h94 -3.86.
+    SNAP-CONTROL fired (100% by design) and IS interpretable: same mean as the
+    ROI, THREE TIMES the spread (sd 3.98 vs 1.28), producing both the project's
+    best Borehole result (5.78, below MF-MES's 6.40) and one worse than doing
+    nothing. Quantizing onto a finite pool is a lottery, not a hidden source of
+    the ROI's gain.
+  h106-roi-closes-the-gap: >
+    RUNNING, 5 runs, Borehole ROI-Q10 at seeds 52-56. Seed-matches the ROI arm
+    to the n=10 comparison for the first time (ROI was at 42-46 and 47-51; the
+    comparison uses 42-46 and 52-56). Asks whether the one intervention that
+    works reduces the one deficit that is real. Q1 requires the paired mean to
+    be >= HALF its own paired sd -- the first bar this session to state an
+    effect size, after four passed on counts and signs alone. Q2 registered
+    NEGATIVE (the ROI should NOT close the gap). Q3 checks the two seed-set
+    halves agree within 2 pts, and is also the standing check on code drift,
+    since comparability with h84's pre-patch arm is REASONED not measured.
   h104-hartmann-waste: >
     EXPLORATORY, zero compute, h84's Hartmann arms. **EVERY MEASURED EFFECT OF
     THE ROI IS BOREHOLE-SPECIFIC.** The commission's diagnosis is Hartmann-based
