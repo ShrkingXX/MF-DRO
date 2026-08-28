@@ -8136,3 +8136,50 @@ tied; three cells at n=5 and untested against resampling.**
 
     On the other three benchmarks MF-DRO is not the best method, at n=5 per
     cell, with no resampling test performed.
+
+## All four cells are at n=10, and the consolidated picture is settled
+
+**EXPLORATORY** consolidation, no new runs. A peer session rewrote the north star
+as "one cell at n=10 and tied, three cells at n=5 and untested against
+resampling". **That is not the state of the evidence — every cell has a second
+seed set**, and I had not assembled them in one place either:
+
+      benchmark     vs              n   MF-DRO   base   paired   median   better
+      Hartmann_6D   MF-MES         10     5.32   6.84    -1.52    +0.22    5/10
+      Borehole_8D   MF-MES         10    15.42   8.24    +7.18    +8.30    2/10
+      Currin_2D     MF-MI-Greedy   10     0.01   0.00    +0.01    +0.00    3/10
+      Ackley_10D    SF-DRO         10     3.62   3.46    +0.17    +0.11    5/10
+
+Sources, all explicit: h83 for 42-46; h89's CONTROL + h91 for Hartmann 52-56;
+h89's CONTROL + h92 for Borehole 52-56; h93 for Currin and Ackley 52-56.
+
+**Read across, at n=10 on every benchmark:**
+
+  - **Hartmann — TIE.** 5/10, median +0.22, and the mean favours MF-DRO only
+    through one seed.
+  - **Ackley — TIE.** 5/10, median +0.11, paired mean +0.17.
+  - **Currin — NIL.** 3/10 but the gap is 0.01% of the optimum; both methods
+    have solved it.
+  - **Borehole — the one real deficit.** 2/10, paired +7.18, and unlike the
+    others the median (+8.30) *exceeds* the mean, so it is not one bad run.
+
+Every figure reproduces a result already established independently — Hartmann's
+5/10 from h91, Borehole's 8/10-against from h92, Currin and Ackley from h93. What
+is new is only that they now sit in one table with explicit provenance.
+
+**So the corrected claim is stronger than "untested": MF-DRO is tied on two
+benchmarks, indistinguishable on a third, and loses on one — all at n=10.**
+
+### A methods error I made getting here, worth recording
+
+My first attempt globbed `experiments/*/results/{bench}__{method}__seed{s}.json`
+and took the first match. It returned **Hartmann MF-DRO at 42-46 as 12.06 when
+h83 gives 7.99** — it had silently picked a different experiment's run of the
+same nominal configuration, on different code.
+
+That is precisely the cross-experiment comparability hazard this file already
+documents (h75 vs h83 differ by 9.28 points on identical seeds), reproduced by me
+in the tooling built to check it. **Convenience globbing across experiment
+directories is unsafe in this repo and the table above uses explicit paths only.**
+It surfaced because Hartmann's h83 value is one I happen to know by heart; a
+benchmark I knew less well would have passed unnoticed.
