@@ -23,6 +23,7 @@ done
 if [ "$1" = "--list" ]; then
   ps -eo args 2>/dev/null \
     | grep -oE "experiments/h[0-9]+[^/]*/code/worker(_mes)?\.py +[A-Za-z_0-9]+ +[A-Za-z0-9-]+ +[0-9]+" \
-    | sed 's|experiments/||; s|/code/worker\(_mes\)\?\.py||' | sort
+    | sed -E 's|experiments/||; s|/code/worker(_mes)?\.py||' | sort
+  exit 0
 fi
 echo "$n"
