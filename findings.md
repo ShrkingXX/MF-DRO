@@ -10059,3 +10059,46 @@ predictions 4-6 on the off-boundary fraction, filed before any h117 run finished
 zero should be reported as an absolute quantity. "18x" and "3.96x weighted" are
 both true and both nearly uninterpretable; "8.9% versus 0.0% of HF budget" is
 the same fact and is actionable.
+
+### QUALIFICATION, same day: MF-MES's 0.0% is largely structural
+
+`src/baselines/mf_mes_takeno.py:297` — `optimize_acquisition` is
+"Sobol pool -> top-K -> L-BFGS-B refinement": a 2048-point Sobol pool, the top
+10 kept, then **box-constrained L-BFGS-B** continuous refinement (`minimize(...,
+method="L-BFGS-B")`, bounds = the domain box).
+
+MF-DRO's query is `action_head(h).clamp(0,1)`, a regression trained on teacher
+actions drawn from `roi_candidates`, which come from `_draw_raw()` —
+`torch.rand`, i.i.d. uniform, pool size 600 by default (`n_roi_candidates`).
+There is no continuous refinement anywhere in that path.
+
+A box-constrained quasi-Newton method converges ONTO active constraints. So
+MF-MES sitting at z0 = 1.000 with sd 0.001 is close to structurally guaranteed
+by its optimiser, and is NOT evidence that it searches better. Meanwhile the
+best z0 a 600-point uniform pool can offer in 8 dimensions — conditioned on the
+other seven coordinates also being good — is nowhere near the boundary corner.
+
+**What survives and what does not:**
+
+- SURVIVES: MF-DRO spends 8.9% of its HF budget on queries that could never
+  become the incumbent. That is a real deficit measured end to end, and it is
+  the honest method-vs-method comparison.
+- WITHDRAWN: any reading in which MF-MES's 0.0% demonstrates better search, or
+  in which the gap diagnoses the Decision Transformer specifically. The
+  comparison is a continuously-refined box-constrained optimiser against a
+  finite-pool regression. Those differ by construction.
+- OPEN, and now the sharper question: how much of MF-DRO's deficit is the
+  ABSENCE OF CONTINUOUS REFINEMENT rather than anything about the DT, the ROI,
+  or the loss? No experiment in this project separates them.
+
+**This constrains the fix, and awkwardly.** Adding continuous refinement to
+MF-DRO would import precisely the baseline's machinery, and falls under the
+same objection as `use_candidate_scoring=True`: it would restore performance by
+replacing the contribution rather than by fixing it. Any refinement-based
+remedy has to be argued against that standard before it is worth running, not
+after.
+
+**Method lesson.** I published the 8.9%-vs-0.0% comparison before checking how
+the baseline selects its query. The number was right; the mechanism I implied
+was not. Checking how the OTHER arm works is part of interpreting a gap, not an
+optional follow-up.

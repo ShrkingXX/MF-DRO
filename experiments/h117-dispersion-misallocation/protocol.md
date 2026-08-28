@@ -124,3 +124,25 @@ DIRECTION and rough SCALE, not magnitude.
 
 Predictions 1-3 in the parent protocol stand unchanged, but their INTERPRETATION
 is now "dim 0 boundary-locking failure", not "allocation across dimensions".
+
+---
+
+## AMENDMENT 2 (2026-08-28) — baseline confound. Filed before any h117 run finished.
+
+`mf_mes_takeno.py:297` refines its query with box-constrained L-BFGS-B over a
+2048-point Sobol pool. MF-DRO has no continuous refinement: its query is a
+regression onto 600 i.i.d.-uniform teacher candidates (`_draw_raw`, torch.rand).
+
+A box-constrained quasi-Newton method lands ON active constraints, so MF-MES's
+0.0% off-boundary rate is largely a property of its optimiser.
+
+Predictions 4-6 are UNCHANGED and still worth measuring -- they quantify a real
+end-to-end deficit. But the conclusion h117 may draw is narrowed: a PASS shows
+MF-DRO reproducibly fails to reach a boundary optimum and pays HF budget for it.
+It does NOT license "the DT is boundary-averse" or "MF-MES searches better",
+because the two arms differ by construction in exactly the way that produces
+this contrast.
+
+Separating "absence of continuous refinement" from "something about the DT/ROI/
+loss" requires an arm this protocol does not contain and which is not registered
+anywhere. Noting it as the open question rather than smuggling it into h117.
