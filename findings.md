@@ -10785,3 +10785,70 @@ That is the controllability result, now measured across arms rather than argued:
 **beta is not a tightness knob; acceptance is, and only the quantile
 parameterisation exposes it.** It also means ROI-FIX2 is not a rung on any
 ladder — it is a floating quantity that happens to average 0.21 and 0.13.
+
+
+---
+
+## h125 — tightness is NOT a null axis. My locked null is refuted.
+
+I registered a null and predicted it confidently, citing the same grounds the
+peer session had stated independently. Both of us were wrong, for a reason that
+is embarrassingly simple.
+
+Contrast, chosen from MEASURED acceptance rather than arm names: ROI-Q10
+(realized q = 0.100 exactly, every seed, both benchmarks) against ROI-ANN
+(realized q = 0.493 / 0.498). **A 5x range**, paired within seed, n=5.
+
+| benchmark | measure | q=0.100 | q~0.495 | paired | \|m\|/sd | dir | |
+|---|---|---|---|---|---|---|---|
+| Borehole | final_regret | 35.882 | 44.900 | **+9.018** | **5.69** | 5/5 | SEPARATES |
+| Borehole | waste_frac | 0.030 | 0.062 | +0.033 | 1.28 | 5/5 | SEPARATES |
+| Hartmann | final_regret | 0.197 | 0.303 | +0.105 | 1.01 | 4/5 | SEPARATES |
+| Hartmann | waste_frac | 0.196 | 0.192 | -0.004 | 0.10 | 2/5 | no |
+
+**Effect 5.69 at 5/5 is the largest measured anywhere in this project.**
+
+### Why the prior was wrong
+
+"Tightness has been a null axis wherever measured properly" rested on
+h97/h107/h110 (q = 0.05 vs 0.10) and h111 (two settings spanning 2x). **Every
+one of those is a 2x contrast or narrower.** The axis was never null; the lever
+had not been moved far enough to see it.
+
+Read together they give a dose-response SHAPE, not a slope:
+
+> flat below q = 0.10, steep degradation by q = 0.5.
+
+That is a real answer to the primary question, and the first affirmative one:
+**the ROI's tightness is a genuine lever, the useful region is q <= 0.10, and
+loosening to ~0.5 costs 9 regret points on the benchmark where the ROI works.**
+Nothing here says tighter is always better — there is no data below 0.05, and
+0.05 vs 0.10 is flat.
+
+### The contrast is clean
+
+Both arms are quantile-calibrated and differ only in acceptance target. Beta
+differs (1.86 vs 2.81 on Borehole) but that is downstream, not a confound: the
+bisection solves for whatever beta hits the requested acceptance, so beta
+differing IS the mechanism by which q differs.
+
+ROI-ANN is only a q~0.495 arm because its annealing never ran (today's bug). It
+is used purely as the loose rung. **h125 tests no schedule.**
+
+### Multiplicity, honestly
+
+Four tests, three separated. The protocol pre-committed to treating a single
+clearance as weak; three of four is not that case, and the primary is an order
+of magnitude above the bar. The two marginal ones (Hartmann regret 1.01,
+Borehole waste 1.28) are directionally consistent support, not independent
+findings.
+
+### What it costs h123
+
+h123's locked null cited the now-refuted prior as its grounds, and the widening
+direction it tests is exactly the harmful one. Amended before launch, with the
+original prediction left visible. The tension is worth stating rather than
+resolving by preference: GP-UCB's `beta_t` grows, which widens this ROI;
+measurement says widening costs 9 points. Both can hold, since the theory governs
+a confidence bound's validity rather than the usefulness of the induced
+acceptance set as a filter on the teacher's training distribution.

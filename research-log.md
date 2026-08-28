@@ -1772,3 +1772,25 @@ denominator the termination condition doesn't use), and the widening direction
 recorded explicitly as inverting every ROI experiment either session has run.
 Locked prediction is a null, since tightness has been a null axis wherever
 measured properly. Not launched; still holding off src/ with 10 runs live.
+
+## 2026-08-28 — h125 refutes a prior both sessions held
+
+Found that `roi_summary.accept_frac` is stored in every final result file (not
+the ckpts, which is why it had gone unread). Measured the realized tightness of
+every ROI arm instead of trusting arm names — the discipline the ROI-ANN naming
+bug demands.
+
+Quantile mode hits 0.100 exactly on every seed of both benchmarks. Fixed beta=2.0
+realizes 0.036-0.265, a 7x swing. Corrects findings' recorded "ROI-FIX2 realises
+24.9%", which was one seed. And ROI-ANN measures 0.493/0.498 against the
+0.494/0.498 I derived this morning — the annealing bug confirmed by measurement.
+
+Then registered h125 predicting a NULL and was refuted. Q10 (q=0.100) vs ANN
+(q~0.495) is a 5x contrast: Borehole regret +9.018, effect 5.69, 5/5.
+
+The prior failed because every study behind it was 2x or narrower. Together they
+give a shape: flat below 0.10, steep degradation by 0.5. That is the first
+affirmative answer to the primary question this project has produced.
+
+Amended h123 before launch: its grounds are gone and it tests the harmful
+direction. Original prediction left visible.

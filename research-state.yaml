@@ -1027,3 +1027,27 @@ h113_composition_peer:
 
 h123_betat_widening: REGISTERED, not launched. Needs the cost-progress fix;
   holding off src/ while 10 runs are live. Locked prediction is a NULL.
+
+h125_tightness_dose_response:
+  status: COMPLETE. **MY LOCKED NULL IS REFUTED.**
+  contrast: >
+    ROI-Q10 (measured realized q=0.100 exactly, every seed both benchmarks) vs
+    ROI-ANN (0.493/0.498). A 5x range, paired within seed, n=5.
+  results: >
+    Borehole final_regret 35.882->44.900, +9.018, effect 5.69, 5/5 -- the largest
+    effect measured in this project. Borehole waste 1.28 5/5. Hartmann regret
+    1.01 4/5. Hartmann waste no separation (0.10). Three of four separate.
+  why_the_prior_was_wrong: >
+    "Tightness is a null axis" rested on h97/h107/h110 (0.05 vs 0.10) and h111
+    (2x). EVERY cited study is a 2x contrast or narrower. At 5x it is not null.
+  dose_response_shape: >
+    Flat below q=0.10; steep degradation by q=0.5. The useful region is q<=0.10.
+    NO data below 0.05, so nothing supports "tighter is always better".
+  ANSWER_TO_PRIMARY_QUESTION: >
+    First affirmative one. The ROI's tightness IS a real lever; loosening to
+    ~0.5 costs 9 regret points on Borehole. Prior work missed it by testing 2x.
+  consequence_h123: >
+    Its locked null cited the refuted prior AND tests the harmful direction.
+    Amended before launch, original prediction left visible, direction flipped to
+    "ROI-WIDEN is WORSE". Tension recorded: GP-UCB's beta_t grows (widens);
+    measurement says widening hurts.
