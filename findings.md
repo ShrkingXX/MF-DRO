@@ -6930,3 +6930,50 @@ it: x*_1 = 0 and no arm's incumbent gets past ~0.48, with the ROI making it
 slightly worse (-0.018). That is boundary aversion the ROI cannot touch. Its
 cost is small only because dim 1 carries ~0.1% of the variance -- so it is a
 clean illustration of the mechanism and NOT an explanation of the residual gap.
+
+**Correction to the entry above, after independent verification.** A peer session
+resolved the discrepancy — both measures are correct and measure different
+things. Theirs is the fraction of the whole HF query *cloud* landing near x*;
+mine is the *incumbent's* coordinate. Simple regret is the incumbent's value, so
+mine is the one that bears on the ceiling claim, and they have corrected their
+published account accordingly.
+
+But **my own framing was also misleading**, and their sensitivity-weighting shows
+why. I wrote that the ROI's "four largest gains are all boundary dimensions
+(7, 3, 5, 4)". True of the raw gains, and beside the point: a gain in a dimension
+carrying no variance changes nothing. Independent Sobol first-order indices
+(N=4000, Saltelli estimator, computed here rather than taken on report):
+
+      dim   share%   raw ROI gain   weighted contribution
+        5     4.53      +0.040           +0.00181
+        3     4.30      +0.042           +0.00181
+        0    84.29      -0.001           -0.00084
+        7     1.17      +0.063           +0.00073
+        6     5.70      +0.011           +0.00063
+        4     0.01      +0.033           +0.00000
+        2     0.00      -0.011           -0.00000
+        1     0.00      -0.018           -0.00000
+      total weighted gain +0.00414
+
+**The real gains are dims 3 and 5.** Dim 4 — one of my "four largest" — carries
+0.01% of the variance and contributes exactly nothing. **And my dim-1 residual
+does not explain the gap either:** dim 1 carries ~0% first-order variance, so
+every method failing to reach its boundary optimum costs nothing. It illustrates
+the mechanism and cannot be the account of the residual, which is the peer's
+point and it is correct.
+
+**One place my numbers differ from theirs.** They put dim 7 at 0.1% and called it
+noise alongside dim 4. Independent Sobol gives dim 7 **1.17%** — ten times their
+figure, and the fourth-largest weighted contributor, comparable to dim 6. Their
+midpoint-freezing method understates dimensions whose effect is symmetric about
+0.5, which they flagged themselves; dim 7 looks like a case of it. Dim 4 is
+genuinely negligible; dim 7 is not.
+
+**Caveat on my own method:** these are FIRST-ORDER indices and ignore
+interactions, which Borehole has. They rank main effects, and the total weighted
+gain (+0.0041) agrees with the peer's independent route (+0.0042), but neither
+is a full variance decomposition.
+
+**Standing lesson:** an unweighted per-dimension table points at whichever
+dimension moved most, not whichever mattered most. I published one and drew the
+wrong dimensions from it.
