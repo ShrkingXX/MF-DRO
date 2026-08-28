@@ -118,3 +118,57 @@ is checked at merge time, per run, and the check is recorded in the manifest.
 
 I am declaring this BEFORE seeing any of these runs so that the exception cannot
 be shaped by what they show.
+
+---
+
+## TERMINATED (2026-08-28), before completion. Reason recorded in full.
+
+h122 was launched to complete h84's Hartmann `ROI-OFF` control so that
+"does an ROI help on Hartmann" could be tested for the first time. **That
+premise was wrong**, and the peer session caught it.
+
+### Why the premise was wrong
+
+The comparison does not need h84's ROI-OFF arm at all. h83's plain `MF-DRO` is
+the same arm under a different name — jointly established bit-identical (137 and
+132 queries, 0 differing, three commits) — and it is COMPLETE at 5/5 seeds on
+Hartmann. So a five-seed control has existed the whole time.
+
+Recomputed here independently against that control (Hartmann, seeds 42-46,
+paired, `final_regret`):
+
+| arm | realized q | mean | paired vs control | sd | effect | better |
+|---|---|---|---|---|---|---|
+| control (h83 MF-DRO) | — | 0.251 | — | — | — | — |
+| h84 ROI-Q10 | 0.100 | 0.197 | -0.05 | 0.11 | 0.48 | 3/5 |
+| h111 ROI-Q05 | 0.050 | 0.248 | -0.00 | 0.22 | 0.01 | 2/5 |
+| h84 ROI-ANN | 0.498 | 0.303 | +0.05 | 0.08 | 0.69 | 1/5 |
+
+**Three tightness settings spanning 10x, all against a complete five-seed
+control, none separable.** "Does an ROI help on Hartmann" is measured, and the
+answer is no at every setting tried.
+
+### And h122's runs would have been reproductions, not new data
+
+h122 runs `Hartmann_6D ROI-OFF` at seeds 44, 45, 46 with h84's worker. Since
+ROI-OFF and MF-DRO are the same arm and h83 holds MF-DRO at those exact seeds,
+these runs would reproduce existing traces bit-for-bit. That has some value as a
+substitution check on Hartmann, but it is a verification, not a control.
+
+### Decision
+
+Terminated at ~40 minutes into ~113-minute runs, freeing 3 slots. The machine is
+at 15/15 and the peer's h127 has 7 unspawned runs measuring q~0.30 — a point on
+the dose-response curve that nobody has measured. Three slots spent on a
+reproduction while an unmeasured point waits is the wrong allocation.
+
+Cost of the decision, stated plainly: ~2 worker-hours already spent are
+discarded. Continuing would have cost ~3.6 more for a verification.
+
+### What is NOT retracted
+
+The h120 Borehole ROI-OFF runs (seeds 44-46) CONTINUE. They serve a different
+purpose registered in h120 Amendment 3: they test the MF-DRO/ROI-OFF
+substitution at the three Borehole seeds where it is currently untested, and a
+failure there would void h120's confirmed result. That is a live check on a
+load-bearing claim, not a reproduction for its own sake.
