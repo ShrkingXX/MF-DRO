@@ -8524,3 +8524,69 @@ everything.
 cheap (a new benchmark family plus arms), and it is the honest answer to "why
 does this only work on Borehole" — which is currently unanswerable rather than
 merely unanswered.
+
+## H102: an L1 loss improves regret while reaching bounds LESS — P1 refuted, and the gain is unexplained
+
+**CONFIRMATORY.** P1/P2/P3 and the separability bar registered before any run;
+the patch was smoke-tested on a sandbox copy of `src/` first.
+
+      G3 GATE: final L_loc = 0.1188-0.1302 on all five seeds, against h90's MSE
+      runs at 0.033-0.038. The L1 objective is OBSERVED active, not read back
+      from config.
+
+      seed   L1 reg   MSE reg    diff   L1 bound%   MSE bound%
+        47    12.97     17.60   -4.63        2.99         4.67
+        48    14.40     15.67   -1.27        4.95         6.22
+        49    14.50     14.52   -0.02        5.65         6.39
+        50    14.21     18.88   -4.67        4.60         3.20
+        51    12.24     12.05   +0.19        4.20         5.94
+
+      regret:      paired mean -2.08, sd 2.41, L1 better 4/5
+      bound frac:  paired mean -0.81 pts, L1 higher only 1/5
+
+      P1 (L1 reaches bounds MORE, >=4/5):  **FAILED**
+      P2 (no direction registered):        L1 better by 2.08, CLEARS the 0.59 bar
+
+### P1 failed, and the protocol says what that means
+
+I registered P1 as POSITIVE and called it "close to definitional given
+median-vs-mean". **It is false, and in the opposite direction**: the L1 arm
+reaches boundaries *less* often, on 4 of 5 seeds.
+
+The registered consequence applies and I am applying it rather than reaching for
+the favourable reading: **the intervention did not do the thing it was chosen
+for, so P2 says nothing about boundary aversion in either direction.** h102 does
+NOT show that boundary aversion is or is not the residual's cause. That question
+is exactly where it was.
+
+### Where my reasoning broke
+
+The argument was: an L2 loss fits the conditional mean, which is pulled inward
+from a bound; an L1 loss fits the median, which sits *at* the bound once half the
+mass is there. **The conditional clause is the whole argument and I never checked
+it.** If the teacher's targets in a dimension are mostly interior — which they
+are, since even the ROI arm only reaches a bound 6.45% of the time — then the
+median is interior too, and L1's robustness actively *suppresses* the extreme
+targets that occasionally pulled an L2 prediction to a bound. Under that reading
+the sign I observed is the expected one.
+
+That is a post-hoc explanation and is labelled as such. What is registered is
+only that the prediction failed. **This is the eighth mechanism prediction
+refuted in this investigation, and the third refuted by measuring the
+distribution a mechanism operates on rather than assuming its shape** —
+the same failure as Lesson 23, which this file already records.
+
+### The regret gain is real, clears the bar, and is unexplained
+
+−2.08 points at 4/5 clears the same |mean| > 0.59 AND ≥4/5 bar that h97's
+tightness result cleared, and that two settings 2.1x apart failed to clear. So
+something about training the head under L1 helps on Borehole.
+
+**No mechanism is claimed.** The one I proposed is refuted. Two caveats stand:
+
+  1. **One seed set.** Every single-seed-set result re-tested this session has
+     lost something. h107 is currently re-testing h97's result for exactly this
+     reason; h102 needs the same treatment before anything is built on it.
+  2. **Changing the loss changes training globally.** The protocol recorded this
+     before results: a regret change cannot be attributed to boundary behaviour
+     without P1 passing, and P1 did not.
