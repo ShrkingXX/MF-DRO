@@ -1,62 +1,43 @@
-# H111 — is the ROI's benchmark-specificity a TUNING artifact?
+# H112 — WITHDRAWN BEFORE LAUNCH: duplicate of the peer's h111
 
-LOCKED BEFORE ANY RUN. 5 runs: Hartmann_6D ROI-Q05 at seeds 42-46.
+**NOT RUN. NO RESULTS. This directory exists to record a near-duplication.**
 
-## The question nobody has asked
+I designed this experiment -- Hartmann ROI-Q05 at seeds 42-46, to test whether
+the ROI's Borehole-specificity is a TUNING artifact rather than a benchmark
+property -- wrote its protocol with registered bars, and was about to launch 5
+runs.
 
-Every ROI effect measured in this project is Borehole-specific (h104): regret,
-relocation, waste reduction, query quality all appear there and are absent on
-Hartmann -- the benchmark the commissioning diagnosis was actually drawn from.
+**The concurrent session had already done it**, as `h111-q05-generality`, and
+had done it BETTER: Hartmann *and* Ackley, 10 runs, with Ackley already complete
+5/5 and Hartmann at 3/5 with the last two running. Its protocol makes the same
+argument I did and adds an observation I had missed -- that Hartmann's -1.62 at
+q=0.10 "clears the magnitude bar while the split does not reach 4/5, which is
+the shape of an effect too weak to resolve at n=5, not the shape of no effect."
 
-**But every Hartmann ROI run used q=0.10.** h84 tested ROI-Q10, ROI-FIX2 and
-ROI-ANN there; h87 confirmed the failure at fresh seeds. **q=0.05 has never been
-run on Hartmann.**
+I caught it only because `tools/claim_id.sh` handed me h112 and I noticed 3
+Hartmann ROI-Q05 runs already on disk while checking what existed.
 
-That gap matters because of this project's own central argument. A CONSTANT beta
-gives wildly different acceptance across benchmarks -- 12.6% to 100% -- which is
-why beta_t must be calibrated. **The same reasoning applies one level up: a
-constant TARGET ACCEPTANCE may be as benchmark-inappropriate as a constant
-beta.** q=0.10 was never chosen by measurement anywhere; it was the first value
-tried, on Borehole.
+## The gap this exposes, which the ID tool does not close
 
-So: does the ROI fail on Hartmann, or does q=0.10 fail on Hartmann?
+`claim_id.sh` makes ID collisions impossible. **It does nothing about WORK
+duplication.** I followed the protocol discipline correctly -- claimed an ID,
+wrote bars before running -- and still nearly spent 5 runs reproducing an
+experiment already 80% complete. The check that would have caught it is not
+"is this number free" but "does this experiment already exist", and nothing in
+the workflow asks that.
 
-## Design
+**Standing rule added: before writing a protocol, grep the results tree for the
+arm you intend to run.** One command:
 
-    arm         Hartmann_6D, ROI-Q05, seeds 42-46          5 NEW runs
-    comparator  h84's Hartmann ROI-Q10 at 42-46            reuse, explicit path
-    control     h83's Hartmann MF-DRO at 42-46             reuse, explicit path
+    ls experiments/*/results/{BENCH}__{ARM}__seed*.json
 
-Config is h97/h107/h110's ROI-Q05 exactly (use_roi=True, quantile beta_t,
-roi_target_accept=0.05). Runs on code h109 verified bit-identical.
+I ran exactly that command in the same tick -- but only AFTER writing the
+protocol, as part of checking what comparators existed. Two minutes earlier and
+this directory would not exist.
 
-## Predictions (effect sizes stated)
+## Also recorded: my protocol was mislabelled
 
-**S1 (PRIMARY). q=0.05 does NOT rescue Hartmann: paired vs no-ROI, |mean| < 3.0
-OR ratio < 0.5.** Registered POSITIVE -- i.e. I expect the ROI to fail here too.
-Grounds: h104 measured NO waste reduction and NO query-quality gain on Hartmann
-at q=0.10 (-0.013 and -0.001), and h96 found NO relocation there. Three separate
-mechanism measurements say nothing is happening, and tightening a region that is
-not helping should not obviously start helping.
-
-**S2 (THE DISCRIMINATOR, registered NEGATIVE). If S1 is REFUTED -- if q=0.05
-delivers on Hartmann what q=0.10 did not -- then the ROI's Borehole-specificity
-is a TUNING artifact, not a benchmark property**, and every "Borehole-only"
-statement in findings.md needs rewriting. That would be the most consequential
-result of this investigation and must be re-verified at fresh seeds before it is
-believed anywhere.
-
-**S3. Hartmann's measured acceptance lands in [0.045, 0.055].** The gate, in
-h97's form: OBSERVED accept_frac, not the requested target. If calibration
-cannot hit 0.05 on Hartmann, S1/S2 are uninterpretable and say so.
-
-## Why this is worth 5 runs
-
-If S1 holds, "the ROI is Borehole-specific" survives a real attempt to break it,
-which it has not yet faced -- the claim currently rests on one setting never
-chosen by measurement. If S1 fails, the central limitation of this
-investigation dissolves. Either way the answer is worth more than the runs.
-
-## Gate
-
-2 workers running. 5 more takes it to 7, inside 15.
+The file written here was titled "H111" -- the peer's actual ID -- because I had
+drafted the number before claiming one. The tool gave me h112. A protocol
+carrying another experiment's ID is exactly the ambiguity the h42/h44 collisions
+created, arrived at by a different route.
