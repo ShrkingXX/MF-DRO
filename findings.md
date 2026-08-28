@@ -5751,3 +5751,12 @@ shows the student does not reproduce the teacher; it does NOT show where the
 real query lands relative to the ROI. h94's P5 (fraction of real queries that
 actually required snapping) remains the measurement that settles that, and no
 h94 verdict will be drawn from L_loc.
+
+**Bounding the audit's damage.** The five drift-affected experiments other than
+h84 (h57, h58, h59, h62, h63) are cited 73 times in this file but **zero times in
+research-state.yaml and zero times in the published report**. Nothing currently
+load-bearing rests on them; they are historical narrative. The exposure is to a
+future reader — or a paper draft — lifting an absolute number out of those
+sections and setting it beside a current one. The rule above covers that case,
+and this note says where the risk actually lives rather than leaving the audit's
+"6 affected" unqualified.
