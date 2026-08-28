@@ -386,8 +386,12 @@ queued_experiments:
       Q3 HALVES   42-46 -4.22 | 52-56 -3.93 | split 0.30
     Q1 is the FIRST bar this session to state an effect size and meet it (four
     earlier bars passed on counts/signs at ratios 0.16, 0.38, ~0).
-    Q3 also corroborates the REASONED code-comparability claim: the halves ran on
-    different code and agree to 0.30, and 42-46 reproduces h84's -4.22 exactly.
+    Q3 is a SEED-STABILITY result ONLY. **It does NOT establish code
+    comparability** -- h106 ran seeds 52-56 only and reads 42-46 from h84's
+    stored files, so "reproduces h84's -4.22" is an IDENTITY, and the 0.30 split
+    confounds patch effect with seed effect. Comparability remains REASONED, not
+    measured; the peer's h109 (re-run ROI-Q10 at seeds 42-43 on current code vs
+    stored traces, use_roi=TRUE) is the control that settles it.
     PAIRED, both statistics: MF-DRO+ROI still loses to MF-MES 3/10, mean +3.10,
     median +3.46. The ROI TIGHTENS the arm (sd 2.37 -> 1.78) while MF-MES sits at
     4.68 (range 0.83-15.44) -- better on average, far less reliable.

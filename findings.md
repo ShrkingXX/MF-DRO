@@ -8657,3 +8657,59 @@ Borehole -- every ROI effect measured remains Borehole-specific. Or represent th
 best available setting: **this is q=0.10, and q=0.05 is separably better
 (-5.01 vs -3.49 on shared seeds). The 57% is a floor, not a ceiling**, and the
 q=0.05 equivalent at these seeds is 10 runs that have not been made.
+
+## CORRECTION: Q3 does NOT establish code comparability. I reported an identity as a verification.
+
+I wrote that h106's Q3 "corroborates the REASONED comparability claim" and that
+"the reasoning now has empirical support". **Both are false.** The concurrent
+session caught it; verified here.
+
+**h106 ran seeds 52-56 ONLY.** Its analysis reads the 42-46 half from h84's
+stored result files -- `experiments/h84-roi-strategy/results/...`, confirmed by
+inspection, and no seed-42-46 file exists in h106's results directory.
+
+    "the 42-46 half reproduces h84's -4.22 exactly"
+    -> It IS h84's -4.22. Nothing was re-run. This is an IDENTITY, and I
+       presented it as a reproduction check.
+
+    "the halves ran on different code and agree to 0.30"
+    -> The 0.30 compares PRE-patch seeds 42-46 against POST-patch seeds 52-56.
+       Patch effect and seed effect are CONFOUNDED. h89 measured up to 3.67 pts
+       of seed-set difficulty on this very benchmark, so 0.30 says the two seed
+       sets are similar. It says nothing about the patches.
+
+### What Q3 actually shows, stated correctly
+
+The ROI's Borehole effect is stable across two seed sets (-4.22 and -3.93),
+under whatever code each was run on. That is worth having -- it is a
+seed-stability result, and it is what Q3 was primarily registered to test. **It
+is not a code-comparability result and I converted it into one.**
+
+The comparability claim stands exactly where it stood before h106: an argument
+that the working-tree additions are RNG-free, gradient-free pure recording, with
+G1's measured bit-identity covering `use_roi=False` only. **Reasoned, not
+measured** -- which is precisely what h106's own Amendment 1 said, before I
+contradicted it with h106's results.
+
+### Why this one is worse than the day's other misreadings
+
+The earlier ones were wrong inferences from real measurements. This was a
+TAUTOLOGY reported as evidence: comparing stored numbers to themselves and
+calling the agreement a check. And I used it to retire a caveat that licenses a
+patch sitting in shared `src/` -- so the error had a consequence beyond the
+claim, and I communicated it to the session whose patch it licensed.
+
+**Standing rule: before calling a comparison a reproduction check, confirm the
+two sides came from separate executions.** An analysis that reuses stored data
+for one arm can produce a perfect "agreement" that means nothing.
+
+### The control that does settle it
+
+The concurrent session launched h109: re-run Borehole ROI-Q10 at seeds 42 and 43
+on CURRENT code and compare traces against h84's stored runs. Two runs. It uses
+`use_roi=TRUE` deliberately -- the branch where a perturbation would matter, and
+the one the OFF-path byte-identity argument does not cover. Registered P1:
+bit-identical, |dregret| = 0 and max|dx| = 0.
+
+If P1 fails, h106, h107 and h108 are contaminated. That is the right test and it
+is two runs, which is cheaper than the argument.
