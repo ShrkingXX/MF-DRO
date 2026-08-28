@@ -696,6 +696,89 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
 </section>
 
 <section>
+  <p class="kicker">Mechanism &middot; what the region actually does</p>
+  <h2>It works by moving the queries, not by tightening them</h2>
+  <div class="col">
+  <p>The diagnosis this investigation was handed says the method&rsquo;s proposals are three times
+  more dispersed than the baseline&rsquo;s &mdash; which invites the fix <em>concentrate them</em>. On the
+  one benchmark where the region of interest demonstrably works, it did the opposite.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Benchmark</th><th>Region&rsquo;s effect on regret</th><th class="n">Dispersion</th><th class="n">Relocation toward the optimum</th></tr></thead>
+    <tbody>
+      <tr><td>Borehole</td><td class="win">worked, &minus;3.49</td><td class="n">+9.5% <strong>up</strong></td><td class="n win">present &minus;0.0144, 5/5</td></tr>
+      <tr><td>Hartmann</td><td>failed, withdrawn</td><td class="n">&minus;10.6% <strong>down</strong></td><td class="n">absent +0.0070, 3/5</td></tr>
+      <tr><td>Ackley</td><td>negligible, &minus;0.09</td><td class="n">&mdash;</td><td class="n">absent +0.0088, 1/5</td></tr>
+      <tr><td>Currin</td><td>saturated, see below</td><td class="n">&mdash;</td><td class="n">absent &minus;0.0007, 2/5</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Dispersion moves the wrong way twice over.</strong> The region <em>reduced</em> dispersion
+  on the benchmark where it failed, and <em>raised</em> it on the benchmark where it worked. So
+  concentration is neither necessary for the gain nor sufficient to produce one &mdash; a claim that is
+  checkable per benchmark, rather than a causal one this sample size could not support.</p>
+  <p><strong>Relocation tracks the outcome instead.</strong> Where the region helped, it moved the query
+  cloud closer to the optimum <em>in the dimensions that carry the output variance</em>, and let it
+  spread out there. Excluding low-value regions is not the same operation as narrowing: what is left
+  over is nearer the target and is not a point.</p>
+  <p>Measuring that required care. Distance to the optimum is logged, but the plain unweighted version
+  reverses the true ordering on this benchmark &mdash; the method sits close to the optimum in four
+  dimensions carrying 0.4% of the variance. Weighting by measured sensitivity gives 5 of 5 seeds;
+  the logged metric gives an ambiguous 3 of 5 and would have said there is no effect. Which measure
+  decides was written into the protocol before either number existed.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">The load-bearing limit</p>
+    <p>There is <strong>exactly one positive case</strong>. Three benchmarks agreeing that nothing
+    happened is cheap; the whole structure rests on Borehole. One benchmark where the region works
+    without relocating would sink it.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">Mechanism &middot; the ceiling</p>
+  <h2>The model knows where to go. Its aim is too tight to get there.</h2>
+  <div class="col">
+  <p>The region closes 37% of the gap to the baseline and cannot close more. The reason is specific
+  enough to name the next experiment.</p>
+  <p>Four of Borehole&rsquo;s eight dimensions carry 99.6% of the output variance, and the optimum sits
+  <em>on the domain boundary</em> in all four. The obvious story is that the model cannot emit
+  boundary coordinates. That story is wrong:</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th class="n">Dim</th><th class="n">Share of variance</th><th class="n">Target</th><th class="n">Where it aims</th><th class="n">Spread</th><th class="n">Gap in std devs</th><th class="n">Reaches target</th></tr></thead>
+    <tbody>
+      <tr><td class="n">0</td><td class="n">81.6%</td><td class="n">1.00</td><td class="n">0.956</td><td class="n">0.052</td><td class="n">0.84</td><td class="n win">70%</td></tr>
+      <tr><td class="n">3</td><td class="n">4.6%</td><td class="n">1.00</td><td class="n">0.827</td><td class="n">0.086</td><td class="n">2.01</td><td class="n">2%</td></tr>
+      <tr><td class="n">5</td><td class="n">5.4%</td><td class="n">0.00</td><td class="n">0.210</td><td class="n">0.063</td><td class="n">3.32</td><td class="n">0.2%</td></tr>
+      <tr><td class="n">6</td><td class="n">8.0%</td><td class="n">0.00</td><td class="n">0.175</td><td class="n">0.061</td><td class="n">2.88</td><td class="n">0.2%</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>It aims at the right boundary in every one of the four.</strong> In the dimensions that
+  do not matter it sits at the centre of the domain, exactly as it should. What it cannot do is cover
+  the last fifth of the range, because its output cloud is three to six times tighter than a uniform
+  draw in <em>every</em> dimension. Reach follows the gap measured in standard deviations: the one
+  dimension whose aim lands within a single deviation of its boundary hits it 70% of the time; the
+  three that land two to three deviations away essentially never do.</p>
+  <p>This makes the next step cheaper than it looked. The aim is already 83&ndash;98% of the way there,
+  so the lever is either to sharpen the aim in the dimensions that matter, or to widen the spread
+  &mdash; and widening is no longer the obviously bad idea it would have been, given that more
+  dispersion arrived alongside better regret above.</p>
+  <h3>How much region do you want?</h3>
+  <p>Three tightness settings were run. Aim quality improves as the region tightens, unanimously
+  across seeds at each step, and regret improves in the same order. But the two tightest settings are
+  <strong>tied</strong> &mdash; they differ by 0.02 against a per-seed spread of 0.17, and the ranking
+  that separates them is noise. A ranking test over four items always produces a ranking; it means
+  nothing unless neighbouring entries are actually distinguishable, and here they are not.</p>
+  </div>
+</section>
+
+<section>
   <p class="kicker">All four benchmarks &middot; two seed sets each</p>
   <h2>One deficit of four, not four</h2>
   <div class="col">
@@ -739,17 +822,23 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   <h2>What is running and what is open</h2>
   <div class="col">
   <ul>
-    <li><strong>The Borehole confirmation is complete and is reported above.</strong> At three of five
-    pairs it was running weaker and was not unanimous; the analysis script refuses to print a verdict
-    below five pairs, and none was read until all five were in. The final result met every threshold.
-    The same run supplies teacher refinement with a <em>third</em> independent seed set, still in
-    flight.</li>
-    <li><strong>The next experiment is written and deliberately not launched.</strong> It applies the
-    region of interest to the query rather than to the teacher &mdash; the version the paper actually
-    defines. Its implementation is held outside the source tree as a patch, because another session has
-    workers running and jobs still to launch, and a newly started worker would import an edited file
-    mid-experiment. Its bit-identity check has <em>not</em> been run; no result from it may be reported
-    until that passes.</li>
+    <li><strong>The confirmation run finished 15 of 15.</strong> Both the region result reported
+    above and teacher refinement, whose third independent seed set came in at &minus;3.29 with all five
+    seeds improving &mdash; beating both readings that had been registered for it in advance. Its
+    <em>cost</em> bar remains failed at 1.25&ndash;2.07&times;; surviving on regret does not repair that.</li>
+    <li><strong>The next experiment is now running</strong> &mdash; ten runs applying the region to the
+    query rather than to the teacher, the version the paper actually defines. It failed on its first
+    launch: eight jobs, eight crashes, a variable referenced outside the scope it lives in. The
+    bit-identity check that had passed beforehand was <em>structurally unable</em> to catch it, because
+    with the feature switched off the new code never executes. A gate on the off path is not a gate on
+    the on path; that is now a standing rule, added after the failure rather than backdated.</li>
+    <li><strong>One thing about it is already known and unwelcome.</strong> The model&rsquo;s raw proposal
+    is never inside the region &mdash; every query gets replaced, by more than the distance separating
+    the student from its teacher. So the experiment tests &ldquo;the nearest admissible point to the
+    model&rsquo;s output&rdquo;: the model supplies a direction, a candidate set supplies the point. That is
+    still not the excluded select-from-a-pool mechanism, since no acquisition ranks the candidates, but
+    it is not &ldquo;the model decides and the region constrains&rdquo; either, and it is recorded before any
+    result rather than defended after one.</li>
     <li><strong>Its primary prediction is registered as genuinely uncertain</strong>, which is a change of
     posture rather than a hedge. Eight mechanism claims have been registered in this investigation and
     seven were refuted. The one that held was the only one derived from a measurement taken before the
