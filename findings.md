@@ -12473,3 +12473,58 @@ quantile arms cannot.
 five seeds.** Recording it as an observation with its provenance so that if it is
 ever tested, the record shows it was noticed before it was predicted — and not
 dressed up as a finding in the meantime.
+
+## The Hartmann lead is DEAD — killed independently, and for reasons better than my own gate
+
+The peer tested my unregistered lead on **both** benchmarks rather than only the
+one it came from:
+
+    bench      ROI - control     sd    effect   ROI better
+    Hartmann        +0.424    0.854      0.50       3/5
+    Borehole        -0.139    0.133      1.04       1/5
+
+Two kills, either sufficient:
+
+1. **The Hartmann mean is carried by one seed.** Per-seed +1.791, -0.198, +0.427,
+   -0.386, +0.486. Drop seed 42 and +0.424 becomes **+0.082**.
+2. **On Borehole the sign reverses** — the ROI tracks its target *worse* than the
+   control (1/5) — on a contrast **more separable (1.04)** than the Hartmann one
+   the lead was proposed from.
+
+My own P4 had already failed it, but weakly: 3-of-4 arms and a pooled 0.47. The
+peer's test is decisive where mine was equivocal, because it varied the
+**benchmark** rather than the arm — and the lead's whole claim was about a
+benchmark. **I replicated across the dimension that could not refute it.** Testing
+four arms on the same five seeds could show the effect was not one arm's artefact;
+only the other benchmark could show the sign doesn't hold.
+
+The main h134 finding is untouched and reproduced exactly: Borehole control
++0.078 (1/5 worse), Hartmann control -1.003 (4/5 worse), contrast effect 1.10.
+
+## The bar-calibration failure is not fixable by a rule, so it is now in a tool
+
+Three bar-design failures today (h131 P1's gap, h134 P4's gap, h132 P4's void
+clause), plus two calibration failures where a threshold was computed on one
+quantity and registered against another — mine (0.40 from first-iteration values,
+registered against first-third means) and the peer's (regret@100 against
+normalised late-gain).
+
+**The peer's diagnosis is right and it is uncomfortable: the genus is not
+actionable as a rule.** "Name the quantity" does not fire when you have not
+noticed two quantities are in play. What caught theirs was an arithmetic
+coincidence; what caught mine was the gate failing anyway. **Neither was
+vigilance**, and we had both written the rule down hours earlier.
+
+Two instruments, since notes have now demonstrably failed five times:
+
+- **`tools/check_gate.py`** — verifies a registered PASS condition and FALSIFIER
+  **partition** the outcome space, and names the uncovered band. Self-tested
+  against the two real gaps: it reports `effect in [0.5, 0.9975]` for h131 P1 and
+  `arms in [2, 2]` for h134 P4.
+- **`--calibrated-by`** on the same tool, implementing the peer's rule: **a
+  registered bar should carry the command that computed its calibrating value,
+  not the value.** Then applying a bar to a different quantity becomes a diff
+  rather than a judgement call. It warns when the provenance is absent.
+
+The rule these encode: **pass and falsifier must partition, and a threshold must
+carry its provenance.** Neither is a thing to remember.
