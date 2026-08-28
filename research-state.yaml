@@ -33,6 +33,12 @@ concurrent_sessions:
     - "h90-borehole-confirm     # RUNNING (launched 17:45): NO-ROI / ROI-Q10 / REFINE-100, Borehole, seeds 47-51"
     - "h91-mfmes-freshseeds     # DONE: MF-MES Hartmann 52-56 -- deficit is seed-set specific"
     - "h92-mfmes-borehole       # DONE: MF-MES Borehole 52-56 -- deficit is REAL (8/10 pooled)"
+    - h90 RESULT (2026-08-27 ~20:20): ROI Borehole gain SURVIVES. P1/P2/P3 all
+      MET. n=5 mean -3.49 sd 2.66, 4/5. Pooled n=10 mean -3.86, 9/10, 83% of the
+      original effect retained. FIRST intervention to replicate near full size.
+      Secondary (exploratory): ROI cuts across-seed sd 60%, worst case -5.40 pts
+      vs best case -1.51 -- it removes bad outcomes. Does NOT close the gap to
+      MF-MES (12.25% vs 6.40%), exactly as P3 registered.
     - h93-currin-ackley-seeds  # REGISTERED + CODED, NOT LAUNCHED (gated on h90 finishing).
                                # Closes the last gap: Currin and Ackley have never been
                                # measured at a second seed set. If both deficits fail to
@@ -62,12 +68,14 @@ status: >
   seeds, 0 failures) is the headline comparison and its PRIMARY pre-registered
   prediction -- that MF-DRO beats no baseline -- was MET on all four benchmarks.
   The project has since turned from "does it win" to "why does it lose", and
-  that diagnosis is now concrete and mechanistic. Three candidate fixes have been
+  that diagnosis is now concrete and mechanistic. Three candidate fixes were
   tried; two (the ROI's Hartmann flip, the HF floor) were WITHDRAWN after fresh
-  seeds, and the third (teacher refinement) survived but shrank 64% and failed
-  its cost bar. h90 is re-testing the ROI's last standing regret claim (Borehole)
-  and refinement at a third seed set; if both fail, no intervention survives and
-  the answer is uniformly negative.
+  seeds, and teacher refinement survived but shrank 64% and failed its cost bar.
+  **h90 has now CONFIRMED the ROI's Borehole gain at fresh seeds (P1/P2/P3 met,
+  pooled n=10 mean -3.86, 9/10, 83% retention).** The answer to the primary
+  question is therefore POSITIVE on one benchmark: a per-iteration calibrated
+  beta_t does measurably stop MF-DRO wasting budget, halving the gap to MF-MES on
+  Borehole without closing it. h90's refinement arm is still running.
 
 headline_result:
   experiment: h83-main-comparison (100/100 runs, 0 failures)
