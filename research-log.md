@@ -1418,3 +1418,38 @@ nowhere to move.
 That is now three bars this session that turned on their own construction rather
 than on the effect they were testing. It is a cheaper failure than a wrong
 result, but only because someone reads the number underneath the verdict.
+
+## 2026-08-28 ~02:00 — the answer takes shape, and one thing turns out to be unanswerable
+
+The commissioned question now has an answer worth writing down, so I wrote it as
+a seven-part synthesis a paper could lift: what the strategy is (quantile
+calibration on the teacher's pool), what it delivers, whether it stops waste,
+the mechanism, the scope, why the paper's own query-side formulation adds
+nothing, and an explicit list of what is not established.
+
+Two things then arrived that changed it within the hour. The peer's tightness
+experiment showed the setting I had just recommended is not the right one —
+halving the acceptance rate improves the result by more than its own spread, and
+every region number in this project used the first calibrated value anyone tried.
+So the synthesis was amended: the strategy is q=0.05, and the well-replicated
+figure is no longer the best figure. Reassembling the dose curve with that new
+point also corrected an earlier experiment of mine, which had treated the
+fixed-beta arm as a tightness level when its acceptance drifts 250x within a run.
+Among the arms that actually hold a set point, tightness is monotone.
+
+The second thing is a limitation I had been circling without naming. There is
+exactly one benchmark where the region does anything, and it is simultaneously
+the most concentrated, the only one with a boundary optimum nearly everywhere,
+and the only real deficit. Those three co-occur perfectly, so any property unique
+to that benchmark "explains" the pattern. That is why the two mechanism gates I
+tested today died so cleanly — passing a test that requires failing on three
+benchmarks and holding on one is nearly free, and is not evidence. The honest
+statement is that the mechanism is unanswerable from these four benchmarks, not
+merely unanswered, and what would settle it is a synthetic family varying one
+property at a time rather than a fifth benchmark varying all of them.
+
+Also corrected a withdrawn claim that was still live on the published page,
+stated as established, with a conclusion drawn from it. It had been withdrawn in
+the findings file hours earlier and the withdrawal never propagated to the
+outward-facing deliverable. That is the same defect the peer had fixed in the
+other direction earlier tonight, with inline markers at the point of claim.
