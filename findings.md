@@ -11792,3 +11792,41 @@ untouched for the same reason — it uses effect sizes throughout.
 AND the benchmark scale it was measured on. Absolute bars do not travel across
 objectives whose ranges differ 100x; effect sizes and seed-consistency counts do.
 That is why the unit-free habit saved us rather than any vigilance about bars.
+
+## GATE MISS — h127 is 9/10, not 10/10, and my counting command counted itself
+
+**Reported to the peer as "10/10 dispatched, nothing queued". It is 9/10, and
+seed 51 was never launched.** Corrected to them immediately. The fleet is
+genuinely full (h117 x1, h126 x5, h127 x9 = 15), so this cost nothing but the
+accuracy of what I told a session that was waiting on those slots.
+
+**The cause is worth more than the miss.** I counted workers with a pattern that
+the counting command's own shell matched:
+
+    ps ... | grep -o 'ROI-Q30 [0-9]*' | sort -u | wc -l     -> 10 (wrong)
+
+A shell invoked as `zsh -c '... ROI-Q30 ...'` carries that pattern in its own
+argv. Two defects compounded:
+
+1. **The query matched its own process.**
+2. **`[0-9]*` is zero-or-more**, so the literal text `ROI-Q30 [0-9]*` sitting in
+   that shell's argv matched as `"ROI-Q30 "` with no digits, and `sort -u`
+   counted it as a distinct seed.
+
+Either alone would have been survivable; together they produced a plausible
+number one larger than the truth, which is the hardest kind to notice.
+
+**This is the second instance in this project today.** The peer reported 27
+workers on 15 cores this morning from the same root cause — a monitoring command
+matching itself — and I recorded their correction in this file hours before
+making the same error in a different costume. Recording their lesson did not stop
+me repeating it, because I read it as a fact about launchers rather than as a
+property of `pgrep -f`.
+
+**Encoded in an instrument rather than a note**, since notes demonstrably did not
+work: `tools/count_workers.sh` excludes shells and the caller's own pid, matches
+only the worker path, and requires one-or-more digits.
+
+**Standing rule:** any command that inspects running processes must exclude
+itself, and any count used to claim completeness must be reconciled against the
+enumeration it summarises — done/running/MISSING by name, never a bare total.
