@@ -7081,3 +7081,63 @@ moved most, not whichever mattered most. Theirs: a weighted table is only as goo
 as its weights. I needed their weighting to see that my largest raw gains were in
 dimensions that do not matter; they needed my independent estimate to see that
 one of their weights was fabricated from an aggregate.
+
+## H99: weighted headroom does NOT gate the ROI. It is nearly ANTI-correlated.
+
+EXPLORATORY, zero compute. P1-P4 registered at 1c8c53c before computing.
+
+    benchmark    TOTAL weighted headroom   ROI outcome
+    Hartmann      0.1852                   FAILED (withdrawn)
+    Ackley        0.0496                   negligible -0.09
+    Borehole      0.0185                   **WORKED -3.49**
+    Currin        0.0124                   saturated, ~0
+
+    P1 MET     Currin 0.0124, near zero -- the measure's sanity check passes
+    P2 FAILED  highest is Hartmann, not Borehole
+    P3 MET     Borehole dim 0: weight 0.86, headroom 0.0000, product 0.0000
+
+**The ROI works on the benchmark with the SECOND LEAST left to gain, and fails
+on the one with TEN TIMES more.** I registered P2 as risky and said I did not
+expect it to hold; it did not, and the failure is more informative than a pass.
+
+### P4 applies: the relocation table has no mechanism beneath it
+
+Per the registered falsifier, stated plainly rather than smoothed: **"the ROI
+helps where there is weighted headroom" is WRONG.** The four-benchmark
+relocation pattern (h96) remains a true and checkable pattern -- the ROI
+relocates the query cloud on exactly the benchmark where it helps -- but nothing
+established explains WHY it relocates there and not elsewhere. Headroom was the
+obvious candidate and it is eliminated.
+
+### P3 MET, and it kills a prescription of mine
+
+Borehole's dim 0 carries 86% of the first-order variance and its incumbent
+headroom is **0.0000** -- the control arm already lands exactly on target. The
+product is zero.
+
+So **h97's prescription is WITHDRAWN, not merely suspended.** A
+sensitivity-weighted L_loc would place ~86% of its weight on a dimension with no
+headroom whatsoever. It would optimise hardest where nothing can be gained. The
+prescription was derived from a cloud statistic (h97) before the incumbent
+correction, and it does not survive it.
+
+What replaces it is NOT "weight by sensitivity x headroom" either -- H99 just
+showed that product does not predict where the ROI helps across benchmarks. On
+Borehole specifically the product does correctly identify dims 5, 3, 6, 7 as
+where gains are available, and those ARE where the ROI's incumbent gains landed.
+**That is a within-benchmark agreement and a between-benchmark failure**, and the
+honest statement is that we can say where gains are available on a benchmark and
+cannot say which benchmarks an ROI will exploit.
+
+### A hypothesis for the inversion, labelled as such
+
+Speculative and NOT established. The ROI restricts to a region the surrogate
+believes plausible. Where the surrogate is good, that region contains the
+optimum and restriction helps. Where the surrogate is poor -- which is precisely
+where headroom is large, since the method has not found the optimum -- the
+region may EXCLUDE the optimum, and restricting to it is harmful or inert.
+
+This predicts something checkable at zero compute: the ROI's own logged
+diagnostics record `min_dist_to_xstar` and `frac_within_0.2` for the accepted
+region. If the mechanism is right, the ROI region should sit close to x* on
+Borehole and far from it on Hartmann. Registered as H100 rather than asserted.
