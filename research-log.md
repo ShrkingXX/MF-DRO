@@ -2021,3 +2021,37 @@ enters the branch 2580 times, against h86's stored trace.
 Also found the served-copy wrapper back in the shared report file and stripped
 it; content was byte-identical to the peer's live version, which had already
 absorbed my pooled-estimate correction.
+
+## 2026-08-28 (cont.) — h137/h138: the competitive picture, and a budget-changing read-point hazard
+
+**h137 — the best configuration against the strongest baseline, n=10, never asked
+before.** Borehole, seeds 42-51, rel% @cost_curve 200: control 15.780, ROI+L1
+9.822, MF-MES 5.996. `ROI+L1 - MF-MES` = +3.826, sd 5.438, effect 0.70, better
+2/10. **The interventions move MF-DRO from 1/10 to 2/10 against MF-MES and close
+roughly 6 of a ~10-point gap. Real progress, not a competitive win.**
+
+My registered gate returned **TIED** for that, and I did not report it as parity:
+the mean and 8/10 seeds are unambiguous, only the variance-scaled statistic is
+not. **New gate lesson: partitioning is necessary but not sufficient — a residual
+category can be named misleadingly.** It should have read NOT SEPARABLE. The peer
+found the same defect in h126 ("CONFIRMED: no separable difference" for a
+predicted null) and renamed it with 0/5 on disk.
+
+**HAZARD, found by the peer, verified by me.** `cost_curve` is POST-INIT in
+`mf_dro.py` and CUMULATIVE in `mf_mes_takeno.py`. Reading both at the stored
+`cost_curve == 200` gives MF-DRO 200 post-init against MF-MES 160 post-init —
+25% more budget for our own method in a competitive comparison, invisible at the
+read site. **h137 is unaffected because `sr_curve` rebuilds the axis from the
+trace**; verified, MF-MES's sr_curve axis ends 200.00 while its stored field ends
+240.00. This ranks above the day's other read-point errors: the rest were units
+and effect sizes survived them; this one changes budget and flatters us.
+Encoded in `tools/check_axis.py`.
+
+**h138 — the diagnosis's own metric, on the benchmark where the fix works.**
+Borehole n=10: control 0.4049, ROI+L1 0.5771, MF-MES 0.7179. P1 PASSES (+0.1722,
+effect 3.49, 10/10 — largest effect in the project). P2 STILL BELOW (-0.1408,
+effect 1.17, 1/10). **The registered retraction did not trigger: the diagnosed gap
+exists on Borehole too** (0.3130, effect 2.15) against Hartmann's 0.411 — so the
+Borehole work has been attacking a deficit that is genuinely present there, which
+had never been established. "Worse than initial design" runs 6.79% -> 2.16% ->
+0.24%.

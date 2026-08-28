@@ -1012,3 +1012,12 @@ competitive_position: 'h137 (Borehole, seeds 42-51, paired, rel% @cost_curve 200
   TIED but that means NOT SEPARABLE -- do not report as parity; the mean and 8/10 seeds both say behind.
   The interventions move MF-DRO from 1/10 to 2/10 against MF-MES and close ~6 of a ~10-point gap. Real
   progress, NOT a competitive win. Do not quote ''61% of the gap'': that denominator has sd 6.507.'
+diagnosis_metric_status: 'h138 (Borehole, n=10, founding diagnosis''s own score): control 0.4049, ROI+L1
+  0.5771, MF-MES 0.7179. ROI+L1 vs control +0.1722, effect 3.49, 10/10 (largest effect in the project).
+  ROI+L1 vs MF-MES -0.1408, effect 1.17, 1/10 = STILL BELOW. The diagnosed gap EXISTS on Borehole (0.3130,
+  effect 2.15) vs Hartmann''s 0.411, so the Borehole work addresses a real deficit there. frac-worse-than-init
+  6.79% -> 2.16% -> 0.24%. Quote no gap percentage: denominator sd is 47% of its value.'
+axis_hazard: cost_curve is POST-INIT in mf_dro.py and CUMULATIVE in mf_mes_takeno.py (differ by the initial
+  design, 40 on Borehole). Reading both at stored cost_curve==200 gives MF-MES only 160 post-init. ALWAYS
+  use h83 sr_curve, which rebuilds cost_cum - init_cost from the trace. Check with tools/check_axis.py
+  before any cross-method comparison.
