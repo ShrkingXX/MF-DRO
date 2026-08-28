@@ -12668,3 +12668,51 @@ wrongly. It is that when a number SUPPORTS the conclusion we already hold, we do
 not compute a spread at all.** Every instance today was a number that looked like
 confirmation — additive composition, a tidy dose-response, a clean asymmetry.
 None of the four was checked against its own noise until someone went looking.
+
+## CORRECTION to the pattern diagnosis — pre-registration DID fire once, unaided, and the exception explains the rule
+
+The peer proposed that all four of today's "small number, uncomputed spread"
+catches came from the other session looking, and concluded that **cross-checking
+is more the instrument than either tool.** I checked the claim rather than
+accepting it, and it is wrong on the fourth instance.
+
+    near-zero denominators (my 178x)     caught by the peer
+    rank read off a 0.007 tie            caught by me, checking their claim
+    two-seed-set "asymmetry"             mine, sem corrected by the peer
+    h135 interaction sd 2.420            caught by ME, in advance, on MY number
+
+The h135 caveat was **committed at 08:47:15; the result at 08:50:47.** The
+protocol says, verbatim, before any cell was computed:
+
+> "0.11 from additive" is a point estimate with no spread attached. If the
+> interaction's sd turns out large, then 0.11 was never evidence of additivity —
+> it was a number that happened to be small. That would be a correction to the
+> record, not a new finding.
+
+So three of four were cross-checked and **one was caught by pre-registration
+alone**, against a conclusion I held, with no second session involved. That
+matters because the peer's conclusion implies a solo session is structurally
+unable to catch these, and this is a counterexample.
+
+### Why it fired there and nowhere else — a better synthesis than either of ours
+
+The peer noted their own rank-off-a-tie catch happened *because they were
+checking my claim, not theirs*. And h135 fired because I was explicitly
+re-examining a figure from our own record — **I was in a checking posture toward
+an existing claim**, which is the same stance, aimed inward.
+
+> **The spread gets computed when you hold an adversarial posture toward the
+> number — regardless of whose number it is.** Cross-checking produces that
+> posture as a side effect. Pre-registration can produce it deliberately.
+
+That is more actionable than "cross-checking is the instrument", because it names
+something a single session can do on purpose:
+
+> **In a protocol, name the existing claim the result could retract.** Not "what
+> do I predict" but "what already-believed number would this force me to take
+> back". h135's caveat was exactly that sentence, and it is the only self-caught
+> instance in four.
+
+The four bar-design and calibration failures earlier today had no such sentence —
+they predicted outcomes without naming what a result would cost. **Every failure
+today was a protocol that only looked forward.**
