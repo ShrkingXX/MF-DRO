@@ -92,3 +92,36 @@ Swapping the loss changes training **globally**, not only near boundaries. A
 regret change cannot be attributed to boundary behaviour alone without P1's
 mechanism check also passing. That is why P1 and P2 are registered separately and
 why P3 is written as a conjunction.
+
+---
+
+## G3 pre-launch smoke test — PASSED, run before the patch touches `src/`
+
+The peer session's h94 crashed all 8 jobs in 45s on a `NameError` because the ON
+path had never been executed; their bit-identity gate could not catch it, since
+with the flag off the new code never runs. h102 has exactly that exposure, so the
+patch was applied to a **sandbox copy of `src/`** and exercised there.
+
+    loc_loss='mse'  ->  model.loc_loss = 'mse'   L_loc = 0.078530
+    loc_loss='l1'   ->  model.loc_loss = 'l1'    L_loc = 0.219020
+    masked branch (the one training uses):  mse 0.063352   l1 0.195967
+    ratios: 2.79 unmasked, 3.09 masked
+
+Three things confirmed that a config read-back could not have shown:
+
+  1. The flag **reaches the model** — `dt_cfg` forwarding works, which is the
+     exact failure the H20 scar in `mf_dro.py` records.
+  2. **Both** loss branches execute — the masked one is what training actually
+     calls, and it is a separate call site.
+  3. The objective genuinely **changes**, in the predicted direction and by the
+     predicted rough factor. L1 exceeds MSE for sub-unit residuals, which is the
+     same fact the G3 result gate relies on.
+
+Verified after the test that the real `src/` still contains **zero** H102
+markers: the sandbox was a copy and the patch remains un-applied in the tree.
+
+**Process note.** Midway through, `git status` showed `src/policy/mf_dro.py`
+modified and I read it as my own sandbox leaking into the tree. It was not — all
+five pending `src/` hunks are the peer's H94 instrumentation, applied on their
+side. Checking whose change it was took one command; asserting it was mine would
+have been a false alarm about a shared file while 15 workers ran.
