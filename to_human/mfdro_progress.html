@@ -1066,10 +1066,17 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     numbers to themselves. And the agreement between halves confounds any code difference with the
     difference between seed sets, which this work has separately measured at up to 3.67 points on this
     same benchmark.</p>
-    <p>The comparability question is therefore still open, and a two-run control is now in flight to
-    settle it properly: re-run one stored configuration on today's code and compare the traces. The
-    result above does not depend on it &mdash; but if that control fails, this result and two others
-    would need re-running on clean code, which is why it is worth two runs rather than an argument.</p>
+    <p><strong>That question is now settled, and the answer is clean.</strong> A two-run control
+    re-ran one stored configuration on today's code and compared the traces against the originals.
+    Both seeds came back <strong>bit-identical</strong> &mdash; same number of queries, same locations
+    to the last digit, same fidelity at every step, same final score to ten decimal places. The code
+    changes are inert on the path that matters, and this result and three others are unaffected.</p>
+    <p>Worth recording how that got settled, because the earlier version of this paragraph is the
+    counter-example. Two people had converging arguments that the changes were harmless, and both
+    arguments turned out to be right. Spending two runs anyway was still the correct call: neither
+    person could know they were right beforehand, and the cost of being wrong was re-running four
+    experiments and retracting everything drawn from them. <strong>When an argument&rsquo;s failure
+    mode would invalidate work already done, buy the measurement.</strong></p>
   </div>
   </div>
   <div class="callout">
