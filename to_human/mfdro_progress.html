@@ -261,9 +261,9 @@ footer{padding:44px 0 0;color:var(--faint);font-size:.82rem}
   seeds intact.</p>
   <p>This matters for the two retractions above and for what survives them. The interventions were
   all developed on these two benchmarks, and <strong>Borehole is where the method genuinely loses</strong>
-  &mdash; where the ROI helped most, where teacher refinement helped most (&minus;2.11 points at fresh
-  seeds, better on four of five, with its mechanism check independently passing), and where the boundary explanation
-  applies. That work is aimed at something real.</p>
+  &mdash; where the ROI helped most, where teacher refinement helped most (now measured on
+  <em>three</em> independent seed sets &mdash; &minus;5.85, &minus;2.11 and &minus;3.29, better on 14 of 15
+  seeds), and where the boundary explanation applies. That work is aimed at something real.</p>
   <p>But the diagnosis that opened this whole investigation was stated on <em>Hartmann</em> &mdash; &ldquo;wastes
   20.8% of its expensive budget&rdquo; &mdash; and Hartmann is the benchmark whose deficit does not survive
   replication. On the second seed set the same configuration wastes 4.2%.</p>
@@ -692,6 +692,45 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   investigation has already found the same benchmark to differ by up to 3.67 points between seed sets.
   The two numbers are not strictly comparable, and settling it means re-running the baseline on seeds
   47&ndash;51.</p>
+  </div>
+</section>
+
+<section>
+  <p class="kicker">All four benchmarks &middot; two seed sets each</p>
+  <h2>One deficit of four, not four</h2>
+  <div class="col">
+  <p>The headline this investigation started from was that the method beats no baseline on any of
+  four benchmarks. The two weak ones were re-measured earlier; the remaining two have now been
+  measured on a second independent set of five seeds as well. Nothing about that headline was
+  wrong when written &mdash; it is what five seeds showed. Three of its four margins do not survive
+  ten.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>benchmark</th><th>first seeds</th><th>second seeds</th><th>verdict at n=10</th></tr></thead>
+    <tbody>
+      <tr><td>Hartmann 6D</td><td class="n">loses</td><td class="n">reverses</td><td>no difference &mdash; 5/10, median +0.22</td></tr>
+      <tr><td>Borehole 8D</td><td class="n">loses</td><td class="n">loses</td><td><strong>real deficit</strong> &mdash; 8/10, median +8.30</td></tr>
+      <tr><td>Ackley 10D</td><td class="n">+0.40</td><td class="n">&minus;0.07</td><td>no difference &mdash; wins 3 of 5</td></tr>
+      <tr><td>Currin 2D</td><td class="n">+0.01</td><td class="n">+0.01</td><td>nominal only &mdash; see below</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>Currin is a deficit only in sign.</strong> The gap is 0.0155 in the function&rsquo;s own
+  units against an optimum of 13.80, and four of five runs finish at exactly zero. Both methods have
+  solved that benchmark. The scoring rule written in advance calls this a replicated deficit and it
+  is recorded that way rather than rewritten after the fact &mdash; but a gap that persists only
+  because a solved problem cannot score lower is not evidence about the method. For scale, the
+  region-of-interest gain on Borehole is roughly seven hundred times larger.</p>
+  <p>So the method has <strong>one substantive weakness of four benchmarks, not four</strong>. That is
+  a materially different claim, and it is why the experiment was run. The explanation that had been
+  covering one benchmark &mdash; that the method avoids optima lying on the edge of the domain &mdash;
+  stops being a local excuse and becomes the whole account.</p>
+  <p><strong>This is not a rehabilitation.</strong> Borehole&rsquo;s deficit is large, real, and
+  untouched by anything that worked: the region of interest closes 37% of it and teacher refinement
+  does not close it either. Narrowing where the problem lives is useful precisely because it says
+  where to aim next, not because the problem got smaller.</p>
   </div>
 </section>
 
