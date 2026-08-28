@@ -90,3 +90,52 @@ worth putting in a paper.
   confidence parameter with a specific log form; a linear q-ramp is a
   behavioural analogue, not that formula. Named here so no one later reads this
   as having implemented GP-UCB's beta_t literally.
+
+---
+
+## AMENDMENT 1 (2026-08-28) — the grounds for the locked null are REFUTED.
+## Filed before launch; h123 has not run and has no result files.
+
+Section 5 justified the locked null with: "tightness has been a null axis
+everywhere it has been measured properly", citing h97/h107/h110 (q=0.05 vs 0.10)
+and h111 (two settings spanning 2x).
+
+**h125 refuted that.** Every cited study is a 2x contrast or narrower. At 5x —
+ROI-Q10's realized q=0.100 against ROI-ANN's realized q~0.495, paired, n=5 —
+Borehole final_regret moves **+9.018 with effect 5.69 in 5/5 seeds**, the largest
+effect measured anywhere in this project. Hartmann regret separates too (1.01,
+4/5). The axis was never null; the lever had not been moved far enough.
+
+TWO CONSEQUENCES, and I am recording both rather than quietly editing the
+prediction:
+
+1. **The stated grounds are gone.** Leaving "tightness is a null axis" in a
+   locked protocol that a reader will consult after h125 would misrepresent what
+   was known at launch. Struck.
+
+2. **The direction this protocol tests is the one h125 shows is harmful.**
+   Widening the ROI is exactly the 0.10 -> 0.495 move that costs 9 regret points.
+   A faithful `beta_t` grows, which widens the acceptance set, so the prediction
+   for h123 should now be that ROI-WIDEN is WORSE than constant q=0.10 — not
+   merely null.
+
+REVISED PREDICTION (P1'), replacing P1. ROI-WIDEN performs WORSE than ROI-Q10 on
+final_regret, in >= 4/5 seeds with |mean|/sd >= 1.0. This is a direction change
+made BEFORE any h123 run, on the basis of a measurement external to h123, and
+the original P1 stays visible above so the change is auditable.
+
+P2 and P3 stand. If ROI-WIDEN beats ROI-Q10, that is a result against both the
+original and revised predictions and must be reported as such.
+
+## Does h123 still deserve compute?
+
+Yes, and for a better reason than before. There is now a stated tension:
+GP-UCB's theory says `beta_t` GROWS, which widens this ROI; h125 measures that
+widening costs 9 regret points on the one benchmark where the ROI works. Both
+can be true — the theory governs the validity of a confidence bound, not the
+usefulness of the induced acceptance set as a filter on a teacher's training
+distribution. h123 puts a number on the size of that gap, which is the honest
+thing to report about a paper whose notation we did not follow.
+
+What h123 is NOT: a test of whether the paper is wrong. It tests one linear
+q-ramp as a behavioural analogue of `beta_t`, which section 7 already flags.
