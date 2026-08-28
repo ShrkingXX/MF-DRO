@@ -5455,3 +5455,36 @@ is unestimable at n=5, which is itself a finding worth stating.
 
 h90 also carries the ROI's Borehole gain (-4.22), the last untested ROI claim
 and the direct answer to this session's primary question.
+
+### Cross-document consistency audit — all four project documents agree
+
+Checked findings.md, research-state.yaml, research-log.md and the published
+report against five claims that changed during the session:
+
+  check                                findings  state  log  report
+  refinement figure -2.11 present          OK      OK    OK    OK
+  h83 headline stated as standing          OK      OK    OK    OK
+  HF floor recorded as withdrawn           OK      OK    OK    OK
+  ROI Hartmann flip withdrawn              OK      OK    OK    OK
+  P4 cost failure recorded                 OK      OK    OK    OK
+
+WHY THIS AUDIT AND NOT ANOTHER ARITHMETIC ONE. The end-of-session numeric audit
+found all seven headline figures correct, which was reassuring and beside the
+point -- arithmetic was never where this session went wrong. PROVENANCE was.
+Today produced four separate instances of a correction failing to propagate:
+
+  - a stale -5.85 survived one report pass and had to be caught twice
+  - the "lower tail risk" framing survived into the published page
+  - h85's P4 passed my own reporting and was caught by a background turn
+  - research-state.yaml carried -5.85 three times with -2.11 absent, hours
+    after findings.md had been corrected
+
+Every one was found by re-checking, none by remembering. In a session with two
+withdrawals, one superseded magnitude and one corrected bar, the failure mode is
+not getting a number wrong -- it is a document still asserting the old one.
+
+LIMIT OF THIS CHECK: it verifies that each document CONTAINS the corrected
+claim, not that it contains no contradicting one elsewhere. Historical sections
+in findings.md and research-log.md legitimately preserve superseded figures as
+the record of what was measured; the CURRENT STATE banner and the in-place
+SUPERSEDED markers are what keep those from being read as live.
