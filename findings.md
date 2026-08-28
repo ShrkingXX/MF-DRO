@@ -9526,3 +9526,54 @@ variance and will dominate any unweighted average of a per-dimension statistic.
 Hartmann's dispersion figures (-10.6%, used in the necessary/sufficient argument)
 are the peer's and were computed the same unweighted way. They need the same
 check before that argument is quoted further.
+
+## H115: the comparator fill, and it refutes the arithmetic that motivated it
+
+**COMPARATOR FILL, 5/5, no prediction registered.** Borehole MF-MES had never
+been run at seeds 47-51 — half of h113's design — so h113 could only have been
+compared against MF-MES at *different* seeds.
+
+      42-46  (h83)        mean  6.40  sd 5.94
+      47-51  (h115, NEW)  mean  5.59  sd 4.82
+      52-56  (h89/h92)    mean 10.07  sd 2.39
+
+**MF-MES's own score on Borehole varies by 4.5 points across seed sets** — larger
+than the ROI's entire effect (−3.86). That is the reason the fill was necessary
+and not merely tidy.
+
+### It changes the conclusion it was run to enable
+
+A peer computed that if h113 comes out additive, the combined arm would land
+"essentially on top of MF-MES", using MF-MES = 8.24. On **h113's actual seeds**
+that figure is **6.00**:
+
+      h113's pairing   (42-46 + 47-51):  6.00
+      peer's pairing   (42-46 + 52-56):  8.24
+      difference from the seed set alone: 2.24 pts
+
+On h113's exact ten seeds, with the same controls the analysis will use:
+
+      base                 15.78
+      ROI alone            11.92   (−3.86)
+      L1 alone             13.57   (−2.21)
+      additive prediction   9.71
+      shared bottleneck    11.92
+      MF-MES (seed-matched) 6.00
+
+**Even perfect additivity leaves the combined arm 3.71 points behind MF-MES.**
+The "it would tie the strongest comparator" reading was an artefact of pairing
+against MF-MES at seeds h113 does not use.
+
+This is the seed-matching error again — the one I flagged in a peer's
+6.40-vs-12.25 comparison, then had to avoid in my own per-dimension table, and
+which has now appeared a third time in an informal calculation neither of us
+would have caught without the runs. **A comparator quoted from a different seed
+set is not a comparator.**
+
+### What h113 can and cannot now show
+
+  - It **can** show whether the two interventions compose, share a channel, or
+    interfere. That was always the question and it is unaffected.
+  - It **cannot** show MF-DRO reaching MF-MES on Borehole. Neither outcome of
+    h113 gets there, and that is known *before* the results, so no reading of
+    them can drift toward it.
