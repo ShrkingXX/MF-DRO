@@ -6856,3 +6856,77 @@ measuring different quantities — theirs is a sensitivity-weighted distance, mi
 is the incumbent's per-dimension coordinate — so this is a definition mismatch to
 resolve, not a contradiction to score. Raised with them rather than asserted
 either way.
+
+## CORRECTION to the "why the ROI cannot close more than 37%" account
+
+The concurrent session reported per-dimension Borehole numbers that did not
+reconcile with mine. They are a definition mismatch, not an error by either of
+us -- I reproduced BOTH measures on the same h90 runs and both come out exactly
+as each of us reported. But **theirs is the one that bears on regret, and mine
+led me to publish the wrong ceiling account.**
+
+    dim  share%   A: query-cloud reach within 0.05 of x*      B: incumbent coordinate
+                  no-ROI    ROI    diff                       no-ROI   ROI    diff
+      0   81.6     0.701   0.747  +0.046                       1.000  0.999  -0.001
+      1    0.1     0.002   0.005  +0.002                       0.477  0.459  -0.018
+      2    0.1     0.382   0.321  -0.061                       0.927  0.916  -0.011
+      3    4.6     0.020   0.049  +0.029                       0.884  0.926  +0.042
+      4    0.1     0.000   0.000  +0.000                       0.546  0.580  +0.033
+      5    5.4     0.002   0.003  +0.001                       0.853  0.893  +0.040
+      6    8.0     0.002   0.007  +0.005                       0.904  0.915  +0.011
+      7    0.1     0.000   0.000  +0.000                       0.801  0.864  +0.063
+
+A = fraction of ALL post-init HF queries landing within 0.05 of x* in that dim.
+B = the INCUMBENT's coordinate, 1 - |x_d - x*_d|, incumbent = argmax y.
+
+### Why B is the right one and A is not
+
+**Simple regret is the value of the INCUMBENT.** It does not care where the
+query cloud sits; it cares about the single best point found. Measure A
+describes the cloud. I used a cloud statistic to explain a ceiling on an
+incumbent statistic, which does not follow.
+
+### What I published, and what is actually true
+
+  PUBLISHED (findings.md and the report): "the ROI helps in dim 0, the dimension
+  MF-DRO was already largely reaching, and barely moves dims 3/5/6, which is why
+  it closes only 37% of the gap and cannot close more."
+
+  ACTUALLY: on the incumbent, **dim 0 has NO HEADROOM IN EITHER ARM** -- it sits
+  at 1.000 without the ROI and 0.999 with it. And dims 3/5/6 are where the ROI
+  moves the incumbent MOST among the dims that matter (+0.042, +0.040, +0.011),
+  not least.
+
+**The ceiling is real but its cause is the opposite of what I wrote.** The ROI
+cannot close more because **81.6% of the output variance sits in a dimension
+where both arms are already perfect.** Every improvement available to any method
+lives in the remaining 18.4%, and the ROI does capture part of it. Weighting the
+incumbent gains by sensitivity:
+
+    dim 5 +0.0022, dim 3 +0.0019, dim 6 +0.0009, dim 0 -0.0008, total +0.0042
+
+The two largest RAW incumbent gains, dim 7 (+0.063) and dim 4 (+0.033), are
+worth essentially nothing -- 0.1% of variance each. Any per-dimension table
+without sensitivity weights will point at them.
+
+### And a cross-seed-set comparison I criticised and then made myself
+
+The published claim set my dims-3/5/6 reach at seeds 47-51 against **MF-MES's
+0.49/0.34/0.70 from h83, which is seeds 42-46.** There is no Borehole MF-MES run
+at 47-51 anywhere in the repo -- I checked every experiment directory. h89
+measured up to 3.67 pts of seed-set difficulty difference on this benchmark, and
+I had flagged exactly this flaw in the concurrent session's 6.40-vs-12.25
+comparison **four hours before reproducing it in my own.**
+
+The MF-MES column is withdrawn from the per-dimension claim. Restoring it needs
+MF-MES re-run at 47-51, which is 5 runs and is not currently justified by
+anything that depends on it.
+
+### What survives
+
+The account that the ROI selects WHERE to look rather than WHAT the head can
+emit still stands, and the concurrent session's dim-1 observation strengthens
+it: x*_1 = 0 and no arm's incumbent gets past ~0.48, with the ROI making it
+slightly worse (-0.018). That is boundary aversion the ROI cannot touch. Its
+cost is small only because dim 1 carries ~0.1% of the variance -- so it is a
+clean illustration of the mechanism and NOT an explanation of the residual gap.
