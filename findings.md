@@ -6453,3 +6453,47 @@ low-value regions. What can now be said, with the qualifications above:
     cannot fix.
   - h94 (the ROI applied to the QUERY, as the paper defines it) is designed,
     implemented, bit-identity-gated and unrun.
+
+## H90 COMPLETE: refinement holds at a third seed set, and my decay framing was wrong
+
+**CONFIRMATORY.** P4/P5 registered in h90's addendum with zero results on disk.
+
+      seed   REFINE   no-ROI    diff
+        47    14.04    17.60   -3.56
+        48    13.72    15.67   -1.95
+        49    14.02    14.52   -0.50
+        50    12.87    18.88   -6.01
+        51     7.62    12.05   -4.44
+      n=5  paired mean -3.29  better 5/5
+      P4 (>=3/5 and negative mean)  MET
+      P5 (still not competitive)    MET
+
+Three independent seed sets now:
+
+      42-46 (h85)   -5.85   5/5
+      52-56 (h89)   -2.11   4/5
+      47-51 (h90)   -3.29   5/5
+      pooled: 14/15 seeds better; set means -3.75, sd 1.91
+
+**My registered framing was refuted, and in the favourable direction.** I offered
+two readings before the run: STABLE (~-2.1, 4/5) or DECAYING (~-1.0, 3/5 or
+worse), and set P4's bar low because "each new seed set costs the claim" looked
+like the honest prior. The result is **-3.29 at 5/5 — stronger than both**. Two
+points looked like a decay; the third shows they were seed-set variation around
+roughly -3.75. The within-set spread here (sd 2.14) is comparable to the
+between-set spread (sd 1.91), which is exactly what variation rather than trend
+looks like.
+
+That is worth stating against my own record: I have spent this session correcting
+claims that read better than the data supported, and this is the opposite error —
+a bar set too low because I over-generalised "fresh seeds cost claims something"
+from three instances into a rule. Three of four interventions did lose something
+at fresh seeds. Refinement did not, twice.
+
+**Both surviving interventions now have three-seed-set support on Borehole**: the
+calibrated ROI (9/10 across two sets, 83% retention) and teacher refinement
+(14/15 across three). Neither makes MF-DRO competitive, and P5 registered that in
+advance.
+
+**Still failed, unchanged:** refinement's cost bar (P4 in h85) remains FAILED at
+1.25-2.07x against a <2.0x limit. Surviving on regret does not repair that.

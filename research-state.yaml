@@ -40,6 +40,13 @@ concurrent_sessions:
         size. Secondary (exploratory): ROI cuts across-seed sd 60%, worst case
         -5.40 pts vs best case -1.51 -- it removes bad outcomes. Does NOT close
         the gap to MF-MES (12.25% vs 6.40%), exactly as P3 registered.
+    - >-
+        h90 COMPLETE 15/15. ROI Borehole gain CONFIRMED (P1/P2/P3 met, pooled
+        n=10 mean -3.86, 9/10, 83% retention). Teacher refinement CONFIRMED at a
+        THIRD seed set (-3.29, 5/5, P4/P5 met); across three sets 14/15, set
+        means -3.75 sd 1.91. My registered DECAY reading is REFUTED -- -5.85 /
+        -2.11 / -3.29 is seed-set variation, not a trend, and the bar I set was
+        too low. Refinement's COST bar stays FAILED (1.25-2.07x vs <2.0x).
     - h93-currin-ackley-seeds  # REGISTERED + CODED, NOT LAUNCHED (gated on h90 finishing).
                                # Closes the last gap: Currin and Ackley have never been
                                # measured at a second seed set. If both deficits fail to
