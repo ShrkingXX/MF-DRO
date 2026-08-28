@@ -6086,3 +6086,78 @@ formed from h90. A peer's h94 patch adds that logging. And normalisation matters
 in raw units the proposal sd reads ~1000 and is meaningless, because Borehole's
 domain spans 0.1 to 52530 across coordinates. Both arms sit at ~0.25x the
 dispersion of a uniform draw, so both are concentrated in absolute terms.
+
+## H95: the ROI improves the AVERAGE query, and it does so by dispersing MORE, not less
+
+EXPLORATORY, zero new compute, on h90's completed Borehole runs. Bars registered
+at 20:53:57 (commit 904a94f) before any number was computed.
+
+    WASTE FRACTION (post-init HF queries worse than the best initial HF value)
+      seed 47  0.216 -> 0.114     seed 50  0.000 -> 0.000
+      seed 48  0.040 -> 0.021     seed 51  0.000 -> 0.000
+      seed 49  0.026 -> 0.014
+      paired mean -0.027, ROI better 3/5           M1 FAILED
+
+    DISPERSION (mean per-dim std of HF query locations, normalized)
+      paired mean +0.010, ROI better 1/5           M2 FAILED
+
+    MEAN QUERY REGRET (%)
+      26.80->21.28  26.91->23.29  26.47->21.75  28.55->25.53  25.39->21.54
+      paired mean -4.15, ROI better 5/5            M3 MET
+
+### M1 failed on a bar I designed badly, and the bar is what failed
+
+The waste fraction has a FLOOR AT ZERO and two of five seeds already sat on it:
+seeds 50 and 51 wasted no HF queries in EITHER arm. My bar demanded >= 4/5
+strictly negative differences on a measure where 2/5 seeds had nothing to
+improve. Where waste existed the ROI removed roughly half of it, 3 times out of
+3 (0.216->0.114, 0.040->0.021, 0.026->0.014), and it never made waste worse.
+
+**I am recording the FAILED verdict as registered rather than rewriting the bar
+after seeing the data.** But the falsifier's purpose was to stop a null result
+being reframed as success, and this is not a null result -- M3, which has no
+floor, met 5/5 with a 4.15-point improvement in mean query regret.
+
+The defensible sentence is therefore NOT the one the falsifier forbids and NOT
+an unqualified success claim. It is: **the ROI improves the average HF query
+substantially (-4.15 pts, 5/5) and halves wasted queries wherever waste exists
+(3/3), on Borehole.**
+
+STANDING RULE ADDED: **a bar on a bounded measure must state what happens when
+seeds sit on the bound.** "Better on >= 4/5" is unmeetable when 2/5 cannot
+improve, and I wrote that bar without checking the measure's range first.
+
+### THE RESULT THAT MATTERS: dispersion is not the lever
+
+The ROI **increases** proposal dispersion (+0.010, higher on 4/5) while
+improving regret by 3.49 points AND mean query quality by 4.15 points. The
+concurrent session measured the same thing independently and got the same sign:
++9.5% overall, +14.3% on HF queries.
+
+**This contradicts the premise this investigation was handed.** The founding
+diagnosis reads "its proposals are 3x more dispersed", which invites the fix
+"concentrate them". On the one benchmark where an intervention demonstrably
+works, it did the OPPOSITE and worked anyway.
+
+Consistent with h88, which found MF-DRO's wider queries produce a BETTER global
+surrogate than MF-MES's concentration -- dispersion was never straightforwardly
+waste. Two independent measurements now say the same thing: **dispersion is a
+correlate of MF-DRO's failure, not its cause.** Any future fix justified by
+"reduce dispersion" needs to explain this result first.
+
+The concurrent session adds a normalization warning worth keeping: on Borehole
+raw coordinate ranges span 0.1 to 52530, so an unnormalized proposal sd reads
+~1000 and is meaningless. Both arms sit at ~0.25x the dispersion of a uniform
+draw, so the ROI's increase is a change WITHIN an already-concentrated regime,
+not a move toward random search.
+
+### Disclosure about M2's pre-registration
+
+M2 ("dispersion falls") was committed at 20:53:57 with no knowledge of the
+answer. The concurrent session's message reporting the opposite sign arrived in
+the same tool result as that commit -- so the registration was blind, but I knew
+the likely answer BEFORE running my own script. The bar was not altered
+afterward and the two measurements are independent (different definitions: mean
+per-dim std of HF query locations here, overall and HF-only proposal sd there).
+Recording the sequence because "registered before computing" and "registered
+before knowing" came apart here, and only the first is strictly true.
