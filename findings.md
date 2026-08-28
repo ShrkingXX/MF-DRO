@@ -12206,3 +12206,67 @@ ROI-Q10, because changing it after seeing which arm wins is result-shaped no
 matter who measured it, and because a ramp-vs-FIX2 contrast differs in both
 schedule and parameterisation while ramp-vs-Q10 differs in schedule alone. FIX2
 is added as a secondary at zero cost.
+
+## THE HEADLINE NUMBER, pooled — and the "clean set is weaker" asymmetry is within noise
+
+EXPLORATORY synthesis, but of a kind that resists selection: **both seed sets are
+reported, neither is chosen**, and everything is recomputed at one read point
+(rel% @cost_curve 200, paired).
+
+    SUBSTITUTED  h84 ROI-Q10 vs h83 MF-DRO,  seeds 42-46
+      per-seed  -3.78  -2.49  -1.56  -5.71  -7.57
+      mean -4.224   sd 2.433   effect 1.74   better 5/5
+
+    CLEAN        h90 ROI-Q10 vs h90 NO-ROI,  seeds 47-51
+      per-seed  -6.05  -1.87  -3.97  -5.77  +0.22
+      mean -3.489   sd 2.663   effect 1.31   better 4/5
+
+    POOLED n=10  mean -3.857   sd 2.436   effect 1.58   better 9/10
+
+**The pooled figure is the defensible headline: −3.86% of optimum, effect 1.58,
+9 of 10 seeds.** It clears the 0.5 sd effect bar by more than 3x. The control
+substitution it partly rests on was verified bit-identical at 5/5 Borehole seeds
+(h120 Amendment 3), so pooling is legitimate rather than a convenience.
+
+### The asymmetry that worried us both is not real
+
+The peer flagged — correctly, as a caution — that the *cleaner* seed set is the
+*weaker* one (1.31 at 4/5 against 1.74 at 5/5), and that anyone writing "3.5-4.2%"
+is quoting a two-set spread as if it were an interval. The first half of that
+stands. **The implied asymmetry does not:**
+
+    substituted - clean = -0.735   against a pooled sem of 1.613   ratio 0.46
+
+**The two sets differ by less than half a standard error.** They are consistent
+with one another, and the apparent "the clean one is weaker" is sampling noise in
+n=5 halves, not a property of the substitution. So the correct statement is not
+"the headline rests more on the substituted set" — it is **"there is one estimate,
+−3.86% at n=10, and the two halves agree."**
+
+This is the third time today a difference between two of our own numbers turned
+out to be smaller than the noise on either. It is the same family as the
+near-zero-denominator ratios and the rank-order-off-a-tie: **a gap between two
+estimates is not a finding until it is compared against the spread of the
+estimates it separates.**
+
+## DISCIPLINE — I proposed a result-shaped comparator change, and the peer was right to refuse
+
+Having just measured that FIX2 carries the largest effect size on record, I
+suggested h123's primary comparator should become FIX2 rather than Q10. **That is
+selection on a result**, and it is not made external by the fact that I measured
+it and they registered the protocol — if anything that is worse, because it
+launders the choice through a second session.
+
+Their refusal is correct and their two scientific reasons are better than my
+suggestion: the arms are **tied head-to-head**, so "incumbent best" describes a
+smaller variance rather than a larger benefit; and **FIX2 is not a
+constant-tightness arm** — its acceptance is an outcome ranging 0.162-0.265 across
+seeds — so a quantile ramp against FIX2 differs in *both* schedule and
+parameterisation, while against Q10 it differs in schedule alone. **The registered
+comparator is the better-controlled one.**
+
+FIX2 is added as a reported secondary, which costs nothing and lets h123 speak to
+the point without the primary having been chosen after the fact.
+
+Worth recording that my own "different objects" observation was the argument
+against my own proposal, and I did not notice.
