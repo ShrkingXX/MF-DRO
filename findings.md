@@ -12528,3 +12528,46 @@ Two instruments, since notes have now demonstrably failed five times:
 
 The rule these encode: **pass and falsifier must partition, and a threshold must
 carry its provenance.** Neither is a thing to remember.
+
+### Tooling: two gate instruments, and an honest accounting of what they caught
+
+Both sessions produced five bar-design or calibration failures today and **zero
+were caught by noticing in advance** — every one surfaced when a result landed
+awkwardly or when the other session checked. That ratio is the argument for
+instruments over discipline, and two now exist in `tools/`:
+
+- `check_gate.py` verifies a registered PASS and FALSIFIER **partition** the
+  outcome space and names any uncovered band.
+- `--calibrated-by` requires a bar to carry **the command that computed its
+  calibrating value**, not the value, so applying it to a different quantity
+  shows up as a diff.
+
+**Ran `check_gate.py` against my own five live gates. It caught no protocol
+defect.** The gaps it first reported were artefacts of how I stated the gates to
+it — I typed a malformed one-sided version of h123's two-sided M1 band, and gave
+h117 P4 a falsifier narrower than the protocol implies. Both protocols partition
+under their natural reading. Recorded because crediting the tool with a catch it
+did not make would overstate what today's evidence supports.
+
+**The exercise did force out a real inconsistency**: h117's P1 passes at >=4/5
+while its P4 requires exactly 5/5, with no reason stated. Closed before seed56
+landed (h117 Amendment 3) — P4's falsifier is <5, justified by P4 being
+directional against a control value of exactly 0.0%, where the direction should
+hold in every seed, unlike P1's ratio with real spread.
+
+**Of the two instruments, `--calibrated-by` is the more valuable**, and not
+because it came from my suggestion. The partition check fires on a MALFORMED
+gate, which requires having written the gate down carefully enough to feed it.
+`--calibrated-by` catches a WELL-FORMED gate pointed at the wrong quantity —
+which is the failure that got both sessions today (my regret@100 vs normalised
+late-gain; their 0.40 calibrated on first-vs-last iteration and registered
+against first-third-vs-last-third means) and which no amount of care caught
+either time.
+
+### Why the cheap replication axis wins by default
+
+The peer replicated a benchmark-level claim across four ARMS on the same five
+seeds — an axis that could not refute it. The fix is not "replicate along the
+axis the claim is about", though that is true. It is that **the available axis
+wins unless something forces the question "what is this claim actually about?"**
+Same shape as the calibration failures: the rule exists and does not fire.
