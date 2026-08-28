@@ -7637,3 +7637,64 @@ The concurrent session's framing of my own point, which is sharper than mine:
 names the bias better than "we over-corrected" -- and the correction to it is not
 to trust flattering claims more, but to apply the same scrutiny in both
 directions, which is what produced both halves of this entry.
+
+## CORRECTION to my own headline critique: h83 did this right. The drift was in the shorthand.
+
+I wrote that the project "quietly raised the bar and then reported failure
+against the raised bar as if it were the registered one", and called it
+goalpost-moving. **That is unfair to h83 and I withdraw it in that form.**
+
+`experiments/h83-main-comparison/protocol.md:81` registers:
+
+    PRIMARY. MF-DRO does NOT beat the BEST baseline on any of the four
+    benchmarks
+
+That is precise, it is correct, and it was correctly evaluated as MET. h83 did
+not move any goalpost. It registered a negative prediction about being the
+WINNER, and being the winner is exactly what MF-DRO is not, on all four.
+
+### What actually went wrong, which is smaller and still worth fixing
+
+**A one-word drift in the shorthand.** "Does not beat the BEST baseline" became
+"beats no baseline" in the CURRENT STATE banner and in the report's section
+heading. Dropping "best" converts a true claim about ranking into a false claim
+about pairwise wins -- MF-DRO beats 3 of 4 comparators on Hartmann, Currin and
+Ackley.
+
+The drift is mine and this file's, not h83's.
+
+### What remains, and it is the part that matters
+
+**The user-owned frozen PROTOCOL.md registers a DIFFERENT test that has never
+been evaluated or reported anywhere in this project.**
+
+    | Benchmark    | Hartmann 6D |
+    | Baselines    | MF-MI-Greedy, MF-GP-UCB |
+    | Success test | MF-DRO mean+SE strictly below best-baseline mean-SE |
+    | Amendments   | None. |
+
+That test PASSES: 10.60 < 35.55. It is the top-level pre-registration, it is
+owned by the user rather than written by the loop, and its result has gone
+unreported for the whole project. That is a real omission and it stands.
+
+It is also, per the previous entry, nearly uninformative -- both registered
+baselines beat their own initial design 2 and 3 times in ~22-25 HF queries, and
+the port is faithful (h103), so they are weak rather than broken.
+
+### The accurate summary, third revision
+
+    h83's registered prediction: MET, correctly. MF-DRO is not the best method
+    on any of the four benchmarks.
+
+    PROTOCOL.md's registered test: PASSES, never previously reported, at half
+    the registered seed count, against two faithfully-ported baselines that
+    barely optimise at this budget.
+
+    The shorthand "beats no baseline": FALSE, mine, now corrected everywhere.
+
+### Note to self, since this is the second time today
+
+I corrected a false claim by making an unfair one. The claim that the project
+had been careless in one direction was true of the banner and false of h83, and
+I did not separate them before writing it down. **Check whose claim it is before
+characterising the motive behind it.**
