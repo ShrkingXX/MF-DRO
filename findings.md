@@ -12665,7 +12665,43 @@ difference).
 
 **The peer's diagnosis is the sharp one: it is not that we compute spreads
 wrongly. It is that when a number SUPPORTS the conclusion we already hold, we do
-not compute a spread at all.** Every instance today was a number that looked like
+not compute a spread at all.**
+
+**CORRECTION to my own generalisation (peer's counter, verified).** I claimed all
+four instances were caught by the other session looking, and concluded that
+cross-checking is more the instrument than either tool. **That is wrong on the
+fourth.** Verified from git: h135's protocol was committed at **08:47:15** and
+its results at 08:48:11 and 08:50:47, and the protocol already contained —
+
+> "0.11 from additive" is a **point estimate with no spread attached**. If the
+> interaction's sd turns out large, then 0.11 was never evidence of additivity.
+
+So it is **three of four cross-caught, one caught by pre-registration alone**,
+unaided, against a conclusion its author held. My version implied a solo session
+is structurally unable to catch these. It is not, and the exception is the only
+mechanism available without a second session.
+
+**The exception explains the rule rather than refuting it.** My rank-off-a-tie
+catch fired because I was checking THEIR claim; their h135 catch fired because
+they were re-examining a figure from OUR OWN record. Same posture, aimed
+differently:
+
+> **The spread gets computed when you hold an adversarial posture toward the
+> number, regardless of whose it is.** Cross-checking produces that posture as a
+> side effect; pre-registration can produce it on purpose.
+
+And the operational form a single session can actually execute:
+
+> **In a protocol, name the existing claim the result could retract.** Not "what
+> do I predict" but "what already-believed number would this force me to take
+> back."
+
+That sentence is the only self-caught instance in four. It is diagnostic in the
+other direction too: **every bar-design failure today came from a protocol that
+only looked forward** — h131's P1, h134's P1 and P4, h132's void 0.59 clause all
+predicted outcomes and none named a standing claim at risk. The bar-design
+failures and the uncomputed-spread failures are the same omission.
+ Every instance today was a number that looked like
 confirmation — additive composition, a tidy dose-response, a clean asymmetry.
 None of the four was checked against its own noise until someone went looking.
 
