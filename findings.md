@@ -9806,3 +9806,58 @@ lessons that had already been written down and then violated:
 A rule in a findings file is read by whoever remembers to look. A refusal in a
 function is enforced on whoever calls it. **Where a failure has recurred after
 being documented, the documentation is not the fix.**
+
+## The founding diagnosis's "3x more dispersed" is CORRECT — and the unweighted measure was HIDING it on Borehole
+
+Recomputed with `tools/perdim.py`, HF queries, seeds 42-46, MF-DRO vs MF-MES:
+
+    Hartmann_6D   UNWEIGHTED  0.0974 vs 0.0280   **3.48x**   paired ratio 2.14
+                  WEIGHTED    0.0945 vs 0.0259   **3.65x**   paired ratio 2.76
+    Borehole_8D   UNWEIGHTED  0.0783 vs 0.0738   **1.06x**   paired ratio 0.21
+                  WEIGHTED    0.0631 vs 0.0169   **3.73x**   paired ratio 1.96
+
+**The commission's diagnosis is right.** MF-DRO is ~3.5-3.7x more dispersed than
+MF-MES on BOTH benchmarks, and weighting makes the Hartmann figure slightly
+stronger rather than weaker.
+
+### And this time the unweighted measure CONCEALED a difference
+
+Every previous instance ran one way: an unweighted average manufactured a
+difference that was not there in the dimensions that matter. **Borehole reverses
+that.** Unweighted, MF-DRO and MF-MES look identically dispersed (1.06x, paired
+ratio 0.21 -- nothing). Weighted, MF-DRO is 3.73x more dispersed at ratio 1.96.
+
+The reason is the mirror image of the earlier cases: MF-MES concentrates hard in
+the dimensions that matter (weighted sd 0.0169 against its unweighted 0.0738)
+and wanders freely in the ones that do not. Averaging over all eight dimensions
+averages its discipline away.
+
+**So an unweighted per-dimension average is not biased in a known direction. It
+can invent a difference or erase one**, depending on where each method spends
+its variance -- which is worse than a consistent bias, because no correction
+factor exists and the sign cannot be anticipated.
+
+### What this does to the mechanism story
+
+It sharpens it considerably, and every piece is now measured the same way:
+
+    MF-DRO IS over-dispersed where it matters       3.7x on Borehole, 3.65x on Hartmann
+    The ROI does NOT reduce that                    weighted -0.0013, ratio 0.33
+    The ROI improves Borehole regret anyway         -3.5 to -4.2, 9-10/10
+
+**The founding diagnosis identified a real property and the wrong lever.** The
+over-dispersion is genuine, large, present on both benchmarks, and persists
+untouched while the intervention that works delivers four points. That is a
+stronger statement than "dispersion is not the lever" because it no longer rests
+on dispersion being unmeasurable or unmoved-in-general -- it rests on a large
+real gap that the successful intervention demonstrably does not close.
+
+### A prediction this makes, registered
+
+If over-dispersion in the sensitive dimensions were the binding constraint, an
+intervention that DID close it should outperform the ROI. Nothing tested has
+closed it: not the ROI (-0.0013), not L1 (+0.0045, ratio 0.56, the wrong sign).
+**No intervention in this project has reduced weighted dispersion at all**, so
+the diagnosis's prescription has never actually been tried -- which is a
+different position from its having been tried and failed, and the write-up
+should say so.
