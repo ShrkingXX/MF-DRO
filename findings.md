@@ -11,7 +11,11 @@
 #   names (mean+SE 10.60 < best-baseline mean-SE 35.55) -- at 5 seeds, where the
 #   protocol registers 10. It is NOT the best method on any of the four
 #   benchmarks once MF-MES and SF-DRO are included, and neither is in the frozen
-#   protocol. The former wording, "MF-DRO beats no baseline on any of the four
+#   protocol. [UPDATED by H105: at the registered n=10 the frozen test PASSES by
+#   6x, and Hartmann's ordering FLIPPED -- MF-DRO 5.32 vs MF-MES 6.84 on the
+#   mean, a TIE paired (5/10, median +0.22). "Not the best on any benchmark" is
+#   no longer supported on Hartmann. Three cells remain at n=5, untested.]
+#   The former wording, "MF-DRO beats no baseline on any of the four
 #   benchmarks", is FALSE on the protocol's own definition and is superseded --
 #   see "THE HEADLINE IS WRONG AS WORDED" below. Any occurrence of it later in
 #   this file predates that correction. TWO fixes were announced and then
@@ -8074,3 +8078,61 @@ ROI-PROJECT's across-seed spread is 0.51 against ROI-Q10's 1.28 -- two runs of
 the same configuration differing 2.5x in reliability. At n=5 the sampling error
 on a standard deviation is enormous, and I have been caught three times today
 reading structure into small-sample spread. Recorded, not interpreted.
+
+## H105 (peer-run, verified here): the registered test PASSES at n=10, and Hartmann's ordering FLIPPED when the sample doubled
+
+Recomputed independently from the run files with h83's frozen metric. Every
+figure reproduces the concurrent session's report exactly.
+
+    Hartmann, seeds 42-46 + 52-56, the protocol's registered n=10
+    MF-DRO         n=10  mean  5.32  SE 1.58  ->  mean+SE  6.90
+    MF-MI-Greedy   n=10  mean 50.72  SE 7.85  ->  mean-SE 42.87   [REGISTERED]
+    MF-GP-UCB      n=10  mean 55.26  SE 6.17  ->  mean-SE 49.09   [REGISTERED]
+    MF-MES         n=10  mean  6.84  SE 1.47                      [not registered]
+
+    FROZEN SUCCESS TEST: 6.90 < 42.87  ->  **PASSES, by a factor of six,
+    at the full registered sample.**
+
+**My "half the registered seed count" caveat is discharged.** It was the
+strongest qualification I had on the pass and it is gone.
+
+### The part that matters more: doubling the sample REVERSED the Hartmann ordering
+
+    n=5  (h83, seeds 42-46)   MF-DRO 7.99  vs  MF-MES 6.62   -> MF-MES better
+    n=10 (adds 52-56)         MF-DRO 5.32  vs  MF-MES 6.84   -> MF-DRO better
+
+On the paired comparison it is a **tie**: MF-DRO better on 5 of 10, median
+**+0.22** (favouring MF-MES), mean -1.52 (favouring MF-DRO) driven by seed 54 at
+-15.09 against a paired sd of 6.24. Mean and median disagree in sign.
+
+**The honest word is indistinguishable.** Not "MF-DRO beats MF-MES" -- one seed
+carries the mean. Not "MF-DRO is not the best method on Hartmann" either, which
+is what this file has said all evening and is no longer supported.
+
+The concurrent session reported both statistics rather than choosing, and said
+so explicitly: reporting the mean alone would be the same asymmetry I named
+earlier tonight, in the flattering direction. That is the right call and I have
+followed it here.
+
+### This casts a shadow over the whole four-benchmark table
+
+**h83's headline table is n=5 per cell. Exactly one cell has now been doubled,
+and its ordering flipped.** Currin, Borehole and Ackley remain at n=5, and
+nothing licenses assuming their orderings are more stable than Hartmann's was.
+This project has already documented paired sd swinging 0.45 -> 7.45 between seed
+sets on this benchmark.
+
+So the four-benchmark verdict should be read as: **one cell measured at n=10 and
+tied; three cells at n=5 and untested against resampling.**
+
+### Corrected north-star statement, fourth revision
+
+    The frozen protocol's registered test PASSES at its full registered sample,
+    by a factor of six, against both baselines it names.
+
+    Against MF-MES -- a stronger comparator the protocol does not name -- MF-DRO
+    and MF-MES are INDISTINGUISHABLE on Hartmann at n=10 (5/10 paired, median
+    and mean disagreeing in sign).
+
+    On the other three benchmarks MF-DRO is not the best method, at n=5 per
+    cell, with no resampling test performed.
