@@ -163,3 +163,39 @@ establish, after inspection alone missed h94's NameError.
 h117's ten Borehole runs are cleared to count. This also discharges the
 dependency recorded in h120 Amendment 2: the three ROI-OFF control runs are no
 longer contingent on an unverified tree.
+
+---
+
+## AMENDMENT 3 (2026-08-28) — P4's verdict boundary, closed BEFORE the last run
+## landed. seed56 was still executing when this was written.
+
+Ran the peer's `tools/check_gate.py` against my own registered gates. The gaps it
+first reported were artefacts of how I stated them TO the tool, not defects in
+the protocol — P1/P2/P3 and P4/P5/P6 each partition their outcome space under the
+natural reading. I record that so the tool is not credited with a catch it did
+not make.
+
+**But it forced a real inconsistency into view.** P1 passes at **>= 4 of 5**
+seeds. P4 requires **5 of 5 exactly**. Two gates in one protocol using different
+consistency thresholds, with no stated reason for the difference.
+
+Under the natural reading a 4/5 result FAILS P4, and I am fixing that reading
+NOW, in writing, while seed56 is still running and no h117 number exists:
+
+  **P4 FALSIFIER: fewer than 5 of 5. A 4/5 result is a FAIL, not a partial pass
+  and not an indeterminate.**
+
+Why P4 is stricter than P1, stated late but stated before the data: P4 is a
+DIRECTIONAL claim about a quantity whose control value is exactly 0.0% — MF-MES
+spent 0.0% of its HF queries off-boundary in all five h83 seeds. Against a floor
+of zero, "MF-DRO exceeds" should hold in every seed or the direction is not what
+was claimed. P1's threshold concerns a ratio with genuine seed-to-seed spread,
+where 4/5 is the appropriate bar.
+
+That reasoning should have been in the protocol when P4 was written. It was not,
+and a reader would have been entitled to ask why the two differ.
+
+**No number is being fitted here.** h117's analysis script was committed at
+2309876, before this amendment, and implements P4 as `(d>0).sum() == len(rows)` —
+i.e. it already treats 4/5 as a fail. This amendment states in prose what the
+committed code already does.
