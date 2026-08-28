@@ -94,23 +94,11 @@ status: 'NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 
   halving the gap to MF-MES on Borehole without closing it. h90''s refinement arm is still running.
 
   '
-headline_result:
-  experiment: h83-main-comparison (100/100 runs, 0 failures)
-  metric: relative regret at cost 200 (ABSOLUTE simple regret on Ackley, whose optimum is 0)
-  table: 'Currin_2D      MI-Greedy 0.00 | MF-DRO 0.01 | GP-UCB 0.06 | MF-MES 0.35
-
-    Hartmann_6D    MF-MES 6.62    | MF-DRO 7.99 | SF-DRO 10.33 | MI-Greedy 47.12 | GP-UCB 56.67
-
-    Borehole_8D    MF-MES 6.40    | GP-UCB 8.88 | MF-DRO 15.82 | MI-Greedy 28.44
-
-    Ackley_10D     SF-DRO 3.43    | MF-DRO 3.83 | MF-MES 4.28 | MI-Greedy 7.71 | GP-UCB 8.60
-
-    '
-  bars:
-    PRIMARY: MET on all four -- MF-DRO beats no baseline by the stated bar (lower mean AND >=4/5 seeds).
-      On Ackley its mean is lower than MF-MES but it wins only 2/5 seeds.
-    SECONDARY: NOT MET -- SF-DRO (10.33%) does not beat MF-DRO (7.99%) on Hartmann.
-    TERTIARY: MET -- MI-Greedy LF fraction <10% on all four (1.5/9.7/1.0/3.3%).
+headline_result: 'Borehole ROI q=0.10 vs no-ROI, rel% @cost_curve 200, paired, POOLED n=10 across both
+  seed sets: mean -3.857, sd 2.436, effect 1.58, better 9/10. Substituted set (42-46) -4.224/1.74/5-of-5;
+  clean set (47-51) -3.489/1.31/4-of-5; the two differ by 0.46 sem, i.e. they agree. Substitution verified
+  bit-identical at 5/5 (h120 Amendment 3), so pooling is legitimate. Do NOT quote ''3.5-4.2%'' -- that
+  is a two-set spread, not an interval.'
 diagnosis:
   summary: 'MF-DRO finds a competitive BEST point but wastes far more budget getting there. Scoring each
     post-init HF query (y-best_init)/(y_opt-best_init):
