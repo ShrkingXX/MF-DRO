@@ -849,3 +849,26 @@ h116_CORRECTION_same_day:
     Not ARD-weighted L_loc. The output parameterisation: action_head(h).clamp(0,1)
     cannot represent a boundary optimum without saturating, which is the
     already-registered and never-run boundary-aversion causal test.
+
+h116_QUALIFICATION_baseline_confound:
+  fact: >
+    mf_mes_takeno.py:297 optimize_acquisition = 2048-pt Sobol pool -> top-10 ->
+    box-constrained L-BFGS-B. MF-DRO's query is action_head(h).clamp(0,1)
+    regressed on 600 i.i.d.-uniform teacher candidates (_draw_raw = torch.rand),
+    with NO continuous refinement anywhere.
+  consequence: >
+    A box-constrained quasi-Newton method converges onto active constraints, so
+    MF-MES's 0.0% off-boundary rate is largely its optimiser, not better search.
+    The 8.9% wasted-budget deficit SURVIVES as an end-to-end method comparison.
+    "The DT is boundary-averse" does NOT survive -- the arms differ by
+    construction in exactly the way that produces the contrast.
+  new_open_question: >
+    How much of MF-DRO's deficit is the ABSENCE OF CONTINUOUS REFINEMENT rather
+    than the DT, the ROI, or the loss? No experiment separates them. NOTE: a
+    refinement-based fix imports the baseline's machinery and falls under the
+    same objection as use_candidate_scoring=True -- it would replace the
+    contribution, not repair it. Argue that BEFORE running it.
+  method_lesson: >
+    I published the 8.9%-vs-0.0% comparison before reading how the baseline
+    picks its query. The number was right, the implied mechanism was not.
+    Checking how the OTHER arm works is part of interpreting a gap.
