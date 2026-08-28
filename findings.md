@@ -12169,3 +12169,40 @@ file.
 **And this sharpens what h123 should compare against.** If FIX2 is already an
 implicit schedule and it is the best arm on record, then the informative contrast
 for an explicit `beta_t` is **h123 vs FIX2**, not h123 vs Q10.
+
+### ROI-FIX2 carries the project's largest effect size, and it is not a tightness setting
+
+Verified independently. Borehole, seeds 42-46, paired vs the ROI-OFF control,
+rel% of optimum @`cost_curve` 200:
+
+| arm | realized q | benefit | sd | effect | better |
+|---|---|---|---|---|---|
+| ROI-Q10 | 0.100 (pinned) | -4.224% | 2.433 | 1.74 | 5/5 |
+| **ROI-FIX2** | 0.214 (outcome, range 0.162-0.265) | **-4.814%** | **1.030** | **4.67** | 5/5 |
+| ROI-ANN | 0.493 | -1.311% | 2.440 | 0.54 | 3/5 |
+
+**4.67 is the largest effect size measured anywhere in this project.** But
+head-to-head FIX2 and Q10 are **TIED**: -0.589%, sd 1.707, effect 0.35, better
+in 3/5, per-seed -0.37/-1.35/-3.10/+0.80/+1.07. FIX2's advantage over the
+control is not a bigger benefit — it is an sd 2.4x smaller. Both facts belong in
+any statement of this.
+
+**And FIX2 is not a constant-tightness arm.** `roi_beta_sqrt=2.0` is fixed; the
+0.214 is a run-mean OUTCOME. A fixed beta gives a *time-varying* acceptance rate,
+because the accepted set depends on posterior width. So **"FIX2 at q=0.21" and
+"a quantile arm targeting q=0.21" are different objects** — and FIX2 may already
+be an implicit schedule, of unmeasured direction, that happens to be the best arm
+on record.
+
+**A failure mode distinct from today's naming errors.** I excluded FIX2 from
+h125's primary contrast precisely BECAUSE its acceptance floats over a 7x range,
+recorded that as the reason, and then read it as a rung at "q=0.21" in the h133
+ordering anyway. Not a mislabelled statistic — **a known fact I failed to
+propagate to the next analysis.** The peer caught it one level up from where I
+had already noticed it.
+
+Consequence recorded in h123 Amendment 5: the registered primary comparator stays
+ROI-Q10, because changing it after seeing which arm wins is result-shaped no
+matter who measured it, and because a ramp-vs-FIX2 contrast differs in both
+schedule and parameterisation while ramp-vs-Q10 differs in schedule alone. FIX2
+is added as a secondary at zero cost.
