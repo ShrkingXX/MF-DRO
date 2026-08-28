@@ -227,3 +227,54 @@ cannot be kept while an unfavourable one is blamed on implementation.
 This is the check that would have caught ROI-ANN's bug on its first run: that
 arm's realized acceptance never moved from ~0.49 across a configured 0.50->0.05
 anneal, and nobody compared configured against realized until today.
+
+---
+
+## AMENDMENT 4 (2026-08-28) — M1 replaced with a SHARP check. Filed before launch.
+
+The peer proposed strengthening M1 to **byte-identity** between ROI-WIDEN and
+ROI-Q10 early in the run, and asked which of byte-identity or indistinguishability
+should be the registered gate, since only one can be.
+
+**Neither, and for a structural reason.** Byte-identity is unavailable to a RAMP
+at any start value. Their h132 is a STEP — q=0.10 until cost 100, then off — so
+its arms are genuinely identical before the switch and byte-identity is exactly
+right there. A ramp's q differs from the first iteration onward, so the two arms
+diverge immediately by construction, whether the ramp starts at 0.05 or at 0.10.
+This is not a design choice I can make differently; it follows from ramp vs step.
+
+But their underlying objection to M1 as written was correct: **"regret must not
+differ by more than the seed-to-seed spread" is a bar with a hole in it** — the
+same defect as h131's indeterminate P1 and the h113 gate. Vague criteria decide
+nothing, and the hole only becomes visible when a result lands in it.
+
+### M1 REPLACED. New gate, sharp and one-sided:
+
+ROI-WIDEN's **run-mean realized `roi_summary.accept_frac` must fall in
+[0.25, 0.30]**.
+
+Grounds: the ramp is q_t = 0.05 -> 0.50, linear in cost progress, so its
+cost-weighted mean is (0.05 + 0.50)/2 = **0.275**. The quantile calibration is
+measured to hit its target to three decimals at q = 0.05, 0.10 and 0.493, so
+realized acceptance is a precise instrument here, not a noisy one. A +/- 0.025
+window is wide relative to that precision and narrow relative to the failure
+modes.
+
+**This gate would have caught the ROI-ANN bug on its first run.** That arm was
+configured 0.50 -> 0.05 — cost-weighted mean also 0.275 — and its realized
+accept_frac is **0.4934**, which is its START value, not its mean. The schedule
+never advanced. Checking configured-mean against realized-mean is exactly the
+comparison nobody made for four months.
+
+**If M1 fails, the schedule did not run and h123's comparison is void regardless
+of direction.** Retained from Amendment 3, and now with a criterion that can
+actually fail.
+
+### Note on what M1 cannot check
+
+`roi_summary` stores run-level aggregates only (`n_records`, `accept_frac`,
+`beta_sqrt`, `n_distinct`, `n_draws`) — there is no stored acceptance
+trajectory. So M1 tests the ramp's MEAN, not its SHAPE. A schedule that jumped
+straight to 0.275 and stayed there would pass. That is a real limitation and it
+is stated rather than papered over; catching shape would require logging the
+per-iteration series, which is a code change I am not making mid-experiment.
