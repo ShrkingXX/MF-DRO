@@ -6326,3 +6326,72 @@ all-proposal column carries the claim.
 H96 concluded the ROI works by RELOCATING the query cloud, and it too is
 Borehole-only. The same objection applies with equal force, so it is registered
 as a prediction rather than left as an assumption -- see H96 Amendment 1.
+
+## H96 Amendment 1: relocation TRACKS the ROI's outcome across benchmarks. Dispersion ANTI-tracks it.
+
+EXPLORATORY, zero new compute beyond function evaluations. H1/H2/H3 registered
+at 9bb1439 before computing, with Hartmann named in advance as the falsifier.
+
+### H3 first, as registered — Hartmann's sensitivity profile, MEASURED
+
+Same midpoint-freezing procedure findings.md:3183 used for Borehole, 3000
+samples:
+
+    dim 1: 53.0%   dim 5: 28.3%   dim 4: 18.8%   dims 0, 2, 3: 0.0%
+
+Different in kind from Borehole's (dim0 81.6%). Top-2 share is 81.2%, so
+weighted and unweighted distance DIVERGE on Hartmann too -- the metric-choice
+caveat travels, and using the logged unweighted distance would have been wrong
+on both benchmarks.
+
+CAVEAT on the procedure: freezing at the MIDPOINT understates any dimension
+whose effect is symmetric about 0.5, which is the likeliest reading of three
+dims scoring exactly 0.0%. The shares are a ranking, not a decomposition, and
+that is all they are used for here.
+
+### H1 MET — relocation is ABSENT on the benchmark where the ROI failed
+
+    Hartmann, ROI-Q10 vs no-ROI, seeds 42-46, weighted distance to x*
+      +0.0307  -0.0105  +0.0237  -0.0082  -0.0008
+      paired mean +0.0070, ROI closer 3/5   -> slightly FARTHER on average
+
+### The cross-benchmark table, which is the actual result
+
+    benchmark   ROI outcome         dispersion        relocation (weighted d*)
+    Hartmann    FAILED / withdrawn  -10.6%  DOWN 4/5  ABSENT  +0.0070, 3/5
+    Borehole    WORKED  -3.49       + 9.5%  UP   4/5  PRESENT -0.0144, 5/5
+
+**Relocation tracks the outcome. Dispersion anti-tracks it.**
+
+Where the ROI worked it moved the query cloud closer to x* in the sensitive
+dimensions and spread it out. Where it failed it did the reverse on both counts
+-- tightened the cloud and left it no closer. The prescription the founding
+diagnosis implies ("proposals are 3x more dispersed, so concentrate them") is
+precisely what the ROI did on the benchmark where it did NOT help.
+
+So the ROI's mechanism, as far as two benchmarks can establish it, is: **exclude
+low-value regions so the surviving mass lands nearer the optimum in the
+dimensions that carry the variance.** Whether the cloud tightens or spreads is
+incidental.
+
+### Limits, which are severe and must travel with this
+
+**n=2 benchmarks.** A quantity that tracks an outcome across two points is a
+hypothesis with one successful risky test, not a law. It was a genuinely risky
+test -- H1 was registered before computing, and Hartmann could easily have shown
+relocation-with-failure, which would have demoted the account to a Borehole
+description (H2, registered and not triggered).
+
+n=5 seeds per benchmark, no p-values. Correlational: nothing here manipulates
+relocation independently of the ROI. Hartmann's no-ROI arm reuses h83 for seeds
+44-46 under a reproduction control passing at 0.000e+00. And the Borehole half
+still carries its own bound -- the ROI relocates in dim 0 and barely moves dims
+3/5/6, which is why it closes only 37% of the gap.
+
+### The next test this implies
+
+Ackley (-0.09, 1/5) and Currin (+0.11, 0/5, HARMED) are the two benchmarks where
+the ROI does essentially nothing or hurts. The account predicts relocation
+should be absent on both, and on Currin possibly NEGATIVE. That is a third and
+fourth point on the table at zero compute, and unlike everything above it is a
+prediction made before looking.
