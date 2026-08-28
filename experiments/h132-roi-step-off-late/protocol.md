@@ -99,3 +99,42 @@ those**, because only it removes the restriction while holding everything else
 fixed. P4 therefore cannot confirm the mechanism — it can only fail to find the
 signature the mechanism requires, which would weaken h132's premise before its
 runs are spent.
+
+---
+
+## AMENDMENT 2 — what this result could RETRACT (added before launch)
+
+Every protocol I wrote today looked only forward: it predicted outcomes and never
+named a standing claim the result could cost me. That omission is common to all
+four of today's failures, and the one time a protocol *did* name such a claim
+(h135's caveat on "0.11 from additive") was the only instance where I caught my
+own uncomputed spread rather than the peer catching it.
+
+So, before h132 runs, the claims **I currently hold that its result could
+force me to withdraw**:
+
+1. **"The ROI's late stall is caused by over-restriction."** If ROI-STEP does not
+   beat constant q=0.10 at cost 200, the stall exists (h133's extreme contrast is
+   solid) but my causal account of it is wrong. I would have to withdraw the
+   over-restriction reading and, with it, the motivation I handed the peer for
+   h123's widening direction.
+
+2. **"h132 P4's `L_loc` signature supports the training-distribution account."**
+   That result is correlational by my own registration. If the step arm shows no
+   regret recovery, the `L_loc` finding becomes a description of the DT
+   converging, not of a distribution collapsing — and I should say so rather than
+   keeping it as ambiguous support.
+
+3. **"Escaping q~0.10 is what matters" (h133).** h133 is correlational across
+   arms whose tightness ran the whole time. If the step arm fails while h123's
+   ramp succeeds, then *late* tightness was never the operative variable and
+   h133's step-not-gradient reading was about whole-run tightness only.
+
+4. **My prediction to the peer** that a widening schedule should recover part of
+   the 3.588% erosion. h123 adjudicates that, not h132 — but a null here is
+   evidence against it and I should not quietly let h123 carry the verdict alone
+   if h132 goes the wrong way first.
+
+**None of these are hedges.** Each names a specific sentence in findings.md that
+would need striking, so that a null produces a retraction rather than a
+reinterpretation.
