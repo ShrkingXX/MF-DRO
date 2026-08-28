@@ -1038,11 +1038,23 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   work that demanded a size rather than a count of seeds, and the first to clear one. Four earlier bars
   passed on counts alone at ratios of 0.16, 0.38, and effectively zero; this one was written after those
   failures and states what it requires.</p>
-  <p>A second check earned more than it was asked for. The two seed sets were run months apart in
-  project-time and on <em>different code</em>, so the halves were compared to detect either seed
-  dependence or drift. They agree to <strong>0.30 points</strong>, and the older half reproduces its
-  original figure exactly &mdash; which retires a comparability assumption that had been argued rather
-  than measured.</p>
+  <p>A second check compared the two seed sets against each other. They agree to
+  <strong>0.30 points</strong>, so the improvement is stable across seeds rather than an artefact of
+  the particular five it was first found on.</p>
+  <div class="callout">
+    <p class="kicker">Correction, same day &mdash; this paragraph claimed more than the check can bear</p>
+    <p>It first said that check also retired a comparability assumption, because the two halves ran on
+    different code and the older one &ldquo;reproduces its original figure exactly&rdquo;. <strong>That
+    was an identity, not a test.</strong> Only the newer five seeds were actually re-run; the older
+    half is the stored data from the original experiment, so comparing it to that experiment compares
+    numbers to themselves. And the agreement between halves confounds any code difference with the
+    difference between seed sets, which this work has separately measured at up to 3.67 points on this
+    same benchmark.</p>
+    <p>The comparability question is therefore still open, and a two-run control is now in flight to
+    settle it properly: re-run one stored configuration on today's code and compare the traces. The
+    result above does not depend on it &mdash; but if that control fails, this result and two others
+    would need re-running on clean code, which is why it is worth two runs rather than an argument.</p>
+  </div>
   </div>
   <div class="callout">
     <p class="kicker">What it does not do</p>
