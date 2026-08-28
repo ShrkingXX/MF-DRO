@@ -85,7 +85,7 @@ question: >
   high-fidelity budget, and can the paper's own ROI heuristic fix it?
 branch: mfdro-hartmann-autoresearch
 phase: deepening
-last_updated: 2026-08-28  # 03:0x, H106 COMPLETE -- 57% of the one real deficit removed, 10/10
+last_updated: 2026-08-28  # 04:0x, best setting closes 62%; h109 (gate) + h110 running
 
 status: >
   NORTH STAR SETTLED NEGATIVE. h83 (100 runs, 5 methods x 4 benchmarks x 5
@@ -378,6 +378,45 @@ queued_experiments:
     best Borehole result (5.78, below MF-MES's 6.40) and one worse than doing
     nothing. Quantizing onto a finite pool is a lottery, not a hidden source of
     the ROI's gain.
+  BEST_SETTING_closes_62pct: >
+    On seeds 42-46 -- **the only seed set carrying all four arms** (no-ROI, Q10,
+    Q05, MF-MES), enabled by the peer's h107 -- seed-matched n=5:
+      no-ROI 15.82 | Q10 11.59 | Q05 10.02 | MF-MES 6.40
+      gap to MF-MES: no-ROI +9.41 -> Q10 +5.19 (45% closed) -> Q05 +3.62 (62%)
+    h106 reported 57% for q=0.10 on ITS n=10 set; here the same setting gives
+    45%. Different seed sets, not a discrepancy -- and that 45-vs-57 spread for
+    ONE setting is the caution against reading any closure percentage precisely.
+    Q05 vs Q10 here is -1.57 (4/5), reproducing h97's -1.52 and h107's -1.57 to
+    within 0.05.
+    PAIRED, which must accompany the percentage: Q05 still loses to MF-MES 2/5,
+    median +4.79.
+  ROI_lifts_the_whole_distribution: >
+    EXPLORATORY, h106's n=10 arms, compared as ORDER STATISTICS -- deliberately
+    NOT corr(no-ROI, gain), which is corr(X, X-Y) and positive by construction;
+    this project already discarded a tail-risk claim built on that form.
+      worst 19.19->14.73 (-4.46) | 75th -4.62 | median -4.30 | 25th -3.72
+      best  10.52-> 8.08 (-2.44)
+    Every quantile improves 3.7-4.6 except the best run at 2.4. Worst gains
+    1.83x what best gains. **A mean shift with a mild gradient, NOT a tail fix.**
+    TEMPERS my own 'the ROI tightens the arm' (sd 2.37->1.78), used in
+    findings.md, the report and a peer message: the tightening is a BYPRODUCT of
+    that gradient, not variance control, and reading it as the latter would
+    repeat the overreach of the withdrawn tail-risk claim.
+  h110-q05-seedmatched: >
+    RUNNING, 5 runs, Borehole ROI-Q05 at seeds 52-56 -- gives q=0.05 the
+    seed-matched n=10 treatment h106 gave q=0.10. Both comparators already exist
+    there (MF-MES h92, no-ROI h89 CONTROL). **CONDITIONAL ON h109**: same patched
+    code, so a P1 failure contaminates it exactly as it does h106/h107/h108. That
+    dependency is registered in its protocol and printed by its analysis header.
+    Bars state effect sizes (R1: mean <= -3.0 AND ratio >= 0.5); R4 requires the
+    paired count vs MF-MES to be printed with the mean-based percentage.
+  h109-patch-repro-control: >
+    RUNNING (peer's), 2 runs, THE GATE on every post-patch result. Re-runs
+    Borehole ROI-Q10 at seeds 42-43 on current code against h84's stored traces;
+    P1 = bit-identical. **Its construction was verified here BEFORE it reports**:
+    config identical to h84's except exp_name, which mf_dro.py never reads (only
+    src/policy/dro.py, the single-fidelity class, for logging/resume paths). So a
+    P1 failure is a real patch signal, not a config artifact.
   h106-roi-closes-the-gap: >
     **COMPLETE, 5/5, 0 failures. ALL THREE BARS MET.** Calibration gate observed
     on every run (accept 0.0998-0.0999 vs a 0.10 target; n_distinct 600).
