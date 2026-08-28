@@ -8960,3 +8960,38 @@ ten seeds the L1 loss moves boundary-reaching by an amount indistinguishable fro
 zero, while reliably improving regret. Whatever L1 is doing, **it is not acting
 through the boundary channel** — and the boundary-aversion hypothesis remains
 untested by anything in this session.
+
+## h109 early read: traces bit-identical through ~98 queries. And a partial-vs-complete error I caught.
+
+NOT the verdict -- h109's final result files do not exist yet and are
+authoritative. This is a live-checkpoint read, recorded because the gate matters
+and because of how I nearly misread it.
+
+    seed 42: first 98 post-init queries  0 fidelity mismatches, max|dy| = 0,
+             cost at query 98: h84 211.0 vs h109 211.0
+    seed 43: first 97 post-init queries  0 fidelity mismatches, max|dy| = 0,
+             cost at query 97: h84 229.0 vs h109 229.0
+
+Index-matched, the re-runs on today's patched `src/` are reproducing h84's
+stored traces exactly. That is what P1 predicts.
+
+### The error I made getting there, which is the day's recurring one
+
+I first noticed that h84's seed-42 run has **115** post-init queries while
+h109's checkpoint showed **96 at cost 207**, and read that as a possible
+divergence in fidelity mix -- the kind of signal that would mean my h106 and
+h110 results are contaminated.
+
+**It was a partial run compared against a completed one.** h109 is not finished;
+of course its query count is lower. Index-matched at the same query, the costs
+agree to the digit (211.0 and 211.0). The apparent discrepancy was entirely an
+artifact of comparing different amounts of the same trajectory.
+
+That is the same shape as reporting an identity as a check (h106's Q3), reading
+a smoke test at 60 iterations as if it were 4000 (h94's Amendment 7), and
+splitting an aggregate into per-item figures (the dim-7 error). **Compare like
+against like, and confirm the two sides are at the same point in whatever
+process generated them.**
+
+`tools/compare_traces.py` will run on the final files when they land, and its
+verdict -- not this one -- is what h106, h107, h108 and h110 hang on.
