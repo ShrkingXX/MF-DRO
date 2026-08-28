@@ -9149,3 +9149,60 @@ done / running / **MISSING**, rather than counting completed files against a
 total.
 
 Both runs are now launched and all ten are accounted for.
+
+## H110 COMPLETE: q=0.05 works, but its ADVANTAGE OVER q=0.10 is seed-set dependent
+
+5/5, 0 failures, on code verified clean by h109. All four bars MET — and the
+line that matters is not one of them.
+
+    R1 PRIMARY  Q05 vs no-ROI  mean -4.71  sd 3.36  ratio 1.40  9/10   MET
+    R2          gap closed: q=0.10 57%, q=0.05 66%                     MET
+    R3 NEGATIVE Q05 10.71 vs MF-MES 8.24, still behind                 MET
+    R4          paired vs MF-MES: Q05 better 4/10, LOSES 6/10, med +1.43  MET
+
+    Q05 vs Q10 head-to-head at this n=10:
+      mean -0.63  sd 2.34  ratio 0.27  better 6/10   **NOT SEPARABLE**
+
+### The finding: the tightness advantage does not hold on the third seed set
+
+    Q05 - Q10   42-46 (h107)   -1.57  ratio 0.67   Q05 better 4/5
+                47-51 (h97)    -1.52  ratio 1.26   Q05 better 4/5
+                52-56 (h110)   **+0.30  ratio 0.14   Q05 better 2/5**
+
+    pooled 42-46+47-51   -1.54  ratio 0.88  8/10
+    pooled 42-46+52-56   -0.63  ratio 0.27  6/10
+
+**q=0.05 beat q=0.10 on two seed sets and did not on the third.** The two that
+agreed did so almost exactly (-1.57 and -1.52), which is precisely what made the
+claim look solid — and is exactly the pattern this project has been burned by
+before: the ROI's Hartmann flip agreed across settings before dying at fresh
+seeds, and a paired sd of 0.45 became 7.45 on another seed set.
+
+### This qualifies a claim I put in the synthesis and sent to the peer
+
+I wrote that "the strategy is quantile-calibrated beta_t at **q = 0.05**, not
+0.10", and told the concurrent session the same. **The correct statement is
+weaker**: q=0.05 is at least as good as q=0.10 everywhere measured, better on
+two of three seed sets, and indistinguishable from it when pooled on the
+seed-matched n=10. Its advantage is not established.
+
+What IS established, and unchanged: **both settings work.** Q05 vs no-ROI is
+-4.71 at 9/10 with ratio 1.40 here, -5.01 (5/5) at h97 and -5.79 (5/5) at h107.
+Q10 vs no-ROI is -4.08 at 10/10 (h106). The ROI helps; which calibration target
+to use is open between 0.05 and 0.10.
+
+### R2 passed and should not be leaned on
+
+R2 (66% vs 57%) is MET, and I registered it WEAKLY in advance for exactly this
+reason. That 9-point difference IS the -0.63 head-to-head mean expressed as a
+fraction of a ~9.4-point gap, and the head-to-head is not separable. **A
+gap-closure percentage inherits the separability of the difference underneath
+it**, and this one has none. Registering R2 weakly is the only reason this reads
+as a caveat rather than a discovery.
+
+### R4 did its job
+
+Paired, **Q05 loses to MF-MES on 6 of 10 seeds with a median gap of +1.43**,
+while the mean-based figure reads "66% of the gap closed". R4 existed to force
+those onto the same page. The honest headline is: the ROI removes most of the
+deficit on average and still loses more often than it wins, head to head.
