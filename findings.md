@@ -13181,3 +13181,54 @@ being the 3.096 ratio that identified the peer's units this morning.
 **Assuming a number's provenance is itself a claim**, and it is the one neither
 of today's naming rules covers: statistic, read point, quantity, and now *which
 cells*.
+
+---
+
+## The founding diagnosis reproduces EXACTLY — and my "not recoverable" claim was wrong
+
+h121 recorded that the normalisation behind "mean HF query score 0.336 vs 0.747"
+was **"not recoverable from what is written down"**. That is false and I withdraw
+it. It is written down, in **h84's `analyse.py:score`**:
+
+    score = (y - best_init_HF_y) / (-y_opt - best_init_HF_y)
+
+— the fraction of the remaining gap (best initial HF point to the optimum) that a
+query captures. 1.0 is the optimum, 0 is no better than the best initial point,
+negative is worse than the initial design.
+
+I searched h104's analysis, the protocols, and findings for the definition and
+concluded it was lost. **I did not search the analysis script of the experiment
+the number came from.** The peer found it and used it.
+
+Applying it to h83, seeds 42-46:
+
+| benchmark | MF-DRO score | MF-MES score | gap | MF-DRO worse-than-init |
+|---|---|---|---|---|
+| **Hartmann_6D** | **0.3362** | **0.7470** | 0.411 | **20.83%** |
+| Borehole_8D | 0.3811 | 0.6689 | 0.288 | 7.93% |
+
+**All three founding numbers reproduce to the digit**: 0.336, 0.747, 20.8%. The
+diagnosis is exactly right and was exactly recorded; only its formula had gone
+missing from the prose.
+
+### What this does to my h121/h130 framing
+
+The peer's h138 (n=10) gives Borehole 0.405 vs 0.718, gap 0.313 — consistent
+with my 0.288 at n=5 on the 42-46 half. So:
+
+**The diagnosed quality gap exists on Borehole too, nearly as large as on
+Hartmann** (0.29-0.31 against 0.41). My repeated framing — that the ROI "works
+where the deficit isn't" — is **too strong and is softened**.
+
+What remains true, and it is narrower:
+
+- The **waste** statistic (fraction worse than the initial design) IS strongly
+  Hartmann-concentrated: 20.8% against Borehole's 7.9% at the same seeds, and
+  12.5% vs 3.2% by median (h121).
+- h130 stands unchanged: the ROI **fails to move** the score on Hartmann
+  (effect 0.33) while moving it on Borehole. That is about where the lever
+  works, not about where the deficit is.
+
+So the accurate statement is: **the deficit is present on both benchmarks; the
+ROI only moves it on one.** That is a better position for the project than what I
+had been writing, and it was not established until the definition was recovered.
