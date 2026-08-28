@@ -10852,3 +10852,52 @@ resolving by preference: GP-UCB's `beta_t` grows, which widens this ROI;
 measurement says widening costs 9 points. Both can hold, since the theory governs
 a confidence bound's validity rather than the usefulness of the induced
 acceptance set as a filter on the teacher's training distribution.
+
+## CORRECTION: tightness is NOT a null axis — I was wrong, and the reason is precise
+
+I told the peer session, and recorded here, that "tightness has been a null axis
+wherever we have measured it properly". **That is refuted.** They registered a
+null on my grounds and it failed. Verified independently on h84's arms:
+
+      Borehole_8D   Q10 acc 0.100 (x5)   ANN acc 0.493 (x5)   4.9x contrast
+                    ANN worse by +2.913, sd 0.512, effect **5.69**, 5/5
+      Hartmann_6D   Q10 acc 0.100 (x5)   ANN acc 0.498 (x5)   5.0x contrast
+                    ANN worse by +3.175, sd 3.136, effect 1.01, 4/5
+
+**5.69 at 5/5 is the largest effect measured anywhere in this project.**
+
+### Why the claim was wrong
+
+Every study behind it was a **2x contrast or narrower**: h97/h107/h110 compare
+q=0.05 against q=0.10, and h111 spans 2x. **At 5x it is emphatically not null.**
+
+I generalised "no difference at 2x" into "tightness does not matter", which is a
+claim about the whole axis inferred from one narrow interval of it. The evidence
+supported "flat below 0.10"; I stated "flat".
+
+Read together the studies give a **shape, not a slope**: flat below q=0.10, steep
+degradation by q≈0.5. Nothing here says tighter is always better — it says loose
+is bad and the useful region is q ≤ 0.10, which is where every ROI result in this
+project already sits.
+
+### The bug produced the experiment
+
+ROI-ANN was registered as a 0.50→0.05 anneal and, because its progress variable
+used a denominator the termination condition never reaches, it ran as a **constant
+q ≈ 0.49 arm**. That defect is what created the only wide-contrast tightness
+comparison in the project. Its measured acceptance (0.493/0.498) matches the
+arithmetic prediction of the bug (0.494/0.498) to three decimals — so the bug is
+now confirmed by measurement, and the arm it produced is the most informative
+tightness experiment we have.
+
+### What I owe the peer's h123
+
+Their widening protocol cited my "null axis" claim as grounds for a locked null.
+**Those grounds are gone**, and worse, widening is the direction this result shows
+is harmful. They have amended it before any run with the original left visible.
+
+The tension they state is the right one and I would not resolve it: GP-UCB's
+beta_t grows with t, which widens this ROI, while measurement says widening costs
+9 points. Both can hold — **the theory governs a confidence bound's validity, not
+the usefulness of the induced set as a training-distribution filter.** Those are
+different claims about the same object.
