@@ -65,3 +65,55 @@ eliminates 17,280 of 362,164 posterior calls (4.8%). **This does not close the
 16-29x gap to MF-MES and I am not claiming it will.** The honest framing is that
 the gap is structural — 60 simulated trajectories per BO iteration, each running a
 full MF-MES acquisition — and no bit-identical change reaches it.
+
+---
+
+## AMENDMENT 1 — C3 added at the user's direction, and it changes what this experiment is
+
+**C3: `scipy_norm.pdf` -> explicit `_npdf`.** The protocol above explicitly
+excluded this change because it is not bitwise identical. **The user has directed
+that it be made**, and the correctness question was settled first:
+
+Against a 50-digit `Decimal` reference, `norm.pdf` and the explicit form are
+**equally accurate — a tie in every regime**:
+
+    typical |z|<4     scipy 9.516e-16   explicit 9.516e-16
+    tail 4<|z|<8      scipy 1.828e-15   explicit 1.828e-15
+    extreme |z|>20    scipy 2.827e-14   explicit 2.827e-14
+
+scipy evaluates `norm.pdf` as `exp(_norm_logpdf(x))` — through a log and back —
+which lands 1 ULP from the textbook form (max rel 4.2e-16 measured in place).
+**Neither is more correct. The MES entropy term is mathematically and numerically
+unchanged.** What is forfeited is bit-reproducibility against traces stored
+before the change, not correctness.
+
+**A methodological note against myself:** my first attempt to answer "which is
+more accurate" used `np.longdouble` as a high-precision reference. On this machine
+`np.longdouble` IS float64 (`finfo` eps identical), so the reference was computed
+at the same precision as the values under test and returned a tidy "tie, 0.0
+error" everywhere. The `Decimal` result above is the real one. Third instrument
+failure of the session.
+
+## Revised gate for C1+C2+C3
+
+**The bit-identity gate cannot be assumed to pass any more, and that is by
+design.** Two outcomes, both registered:
+
+**G-PASS.** The C1+C2+C3 tree still reproduces h84's stored trace exactly. Then
+the 1-ULP difference never flipped an argmax over a whole run, and all three
+changes are pure speed-ups with every prior result still comparable. A synthetic
+check found **0 flips in 20,000 argmax comparisons over 200 candidates**, so this
+is plausible — but a run makes ~17,280 acquisition calls and one flip is enough.
+
+**G-FAIL.** The trajectory diverges. Then C3 is **not** a pure efficiency change,
+and per the constraint registered at the top of this protocol it owes a **regret
+comparison at n>=5**, not a timing number. C1+C2 remain separately gateable
+because their own gate is running on the pre-C3 tree.
+
+**I predict G-FAIL**, on the grounds that ~17,280 calls x 200 candidates x 10
+y*-samples is a lot of chances for a last-bit tie to break differently — but the
+0/20,000 synthetic result is real evidence the other way, so I hold this loosely.
+
+**Recording the sequencing so attribution stays clean:** the C1+C2 gate was
+already running when C3 was applied. Python loaded the module at process start, so
+that gate tests C1+C2 only. C3 gets its own gate afterwards.

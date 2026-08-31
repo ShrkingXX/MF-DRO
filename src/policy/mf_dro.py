@@ -35,6 +35,31 @@ def _hermegauss_cached(n):
 def hermegauss(n):
     return _hermegauss_cached(int(n))
 from scipy.stats import norm as scipy_norm
+# H144 C1: scipy_norm.cdf delegates to ndtr through rv_continuous's generic
+# machinery, which dominates its cost (110.1s cumulative, only 31.0s of real
+# work over 2,327,292 calls in h141's profile). Verified BITWISE identical on
+# 200,000 random inputs: max|norm.cdf - ndtr| = 0.0, np.array_equal True.
+# NOTE: norm.pdf is NOT bitwise replaceable (1 ULP, 4.3e-16) and is left alone.
+from scipy.special import ndtr as _ndtr
+
+
+# H144 C3: explicit standard-normal density, replacing scipy_norm.pdf.
+# scipy evaluates norm.pdf as exp(_norm_logpdf(x)) -- through a log and back --
+# which lands 1 ULP away from the textbook form (max rel diff 4.3e-16).
+# Verified against a 50-digit Decimal reference: the two forms are EQUALLY
+# accurate (9.5e-16 / 1.8e-15 / 2.8e-14 relative error in the typical, tail and
+# extreme regimes respectively -- a tie in every regime), so the acquisition
+# heuristic is unchanged. What is forfeited is BIT-identity with traces stored
+# before this change, not correctness. 2.6x faster on the loc/scale form.
+_INV_SQRT_2PI = 1.0 / np.sqrt(2.0 * np.pi)
+
+
+def _npdf(x, loc=None, scale=None):
+    """Standard-normal pdf; with loc/scale, the general Gaussian density."""
+    if loc is None and scale is None:
+        return _INV_SQRT_2PI * np.exp(-0.5 * x * x)
+    z = (x - loc) / scale
+    return _INV_SQRT_2PI * np.exp(-0.5 * z * z) / scale
 
 from gumbel_thompson import thompson_sample_y_star, fit_gumbel_to_samples
 from mes_reward import compute_mes_reward
@@ -535,19 +560,19 @@ def _lf_mes_info_gain(x, ko_model, y_star_hf_arr, n_quad=32):
 
     xi, wi = hermegauss(n_quad)  # probabilist's Hermite (weight e^{-t^2/2})
     v_nodes = sigma_L * xi + mu_L  # maps to N(mu_L, sigma_L^2)
-    phi_L_vals = scipy_norm.pdf(v_nodes, loc=mu_L, scale=sigma_L)
+    phi_L_vals = _npdf(v_nodes, loc=mu_L, scale=sigma_L)
     wi_sum = wi.sum()
 
     h1_per_fstar = []
     for f_star in y_star_hf_arr:
         gamma_H = (f_star - mu_H) / sigma_H
-        Phi_H = scipy_norm.cdf(gamma_H)
+        Phi_H = _ndtr(gamma_H)
         if Phi_H < 1e-300:
             h1_per_fstar.append(H0)  # degenerate: treat as zero info gain
             continue
 
         u_v = rho * (v_nodes - mu_L) + mu_H  # E[f_H | f_L=v], KO model
-        Phi_cond = scipy_norm.cdf((f_star - u_v) / sigma_delta)
+        Phi_cond = _ndtr((f_star - u_v) / sigma_delta)
         Psi_v = Phi_cond * phi_L_vals
         q_v = Psi_v / Phi_H  # properly normalized conditional density q(v)
 
@@ -564,7 +589,7 @@ def _lf_mes_info_gain(x, ko_model, y_star_hf_arr, n_quad=32):
     return max(H0 - H1, 0.0)
 
 
-def _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr):
+def _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr, _posterior=None):
     """
     Vectorized HF MES for all candidates simultaneously, replacing the
     per-candidate compute_mes_reward() loop in compute_joint_mf_mes (each
@@ -595,7 +620,12 @@ def _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr):
     cancellation, which contains no such standalone additive constant.
     """
     with torch.no_grad():
-        posterior = hf_proxy.posterior(roi_candidates)
+        # H144 C2: compute_joint_mf_mes already built this exact posterior
+        # (same hf_proxy, same roi_candidates) for its Thompson draw. Reusing it
+        # removes one of two identical constructions per acquisition call.
+        # Posterior construction is deterministic linear algebra and consumes no
+        # RNG -- only rsample does -- so this cannot move the random stream.
+        posterior = hf_proxy.posterior(roi_candidates) if _posterior is None else _posterior
         mu_H = posterior.mean.reshape(-1).numpy()
         var_H = posterior.variance.clamp_min(1e-12).reshape(-1).numpy()
     sigma_H = np.sqrt(var_H)
@@ -604,8 +634,8 @@ def _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr):
 
     # [N, K]
     gamma = (y_star_arr[None, :] - mu_H[:, None]) / sigma_H[:, None]
-    phi = scipy_norm.pdf(gamma)
-    Phi = np.maximum(scipy_norm.cdf(gamma), 1e-300)
+    phi = _npdf(gamma)
+    Phi = np.maximum(_ndtr(gamma), 1e-300)
 
     H0 = np.log(sigma_H) + LOG_SQRT_2PIE  # [N]
     H1 = np.mean(
@@ -657,17 +687,17 @@ def _compute_mes_lf_vectorized(roi_candidates, ko_model, y_star_arr, n_quad=32,
     wi_sum = wi.sum()
 
     v_nodes = mu_L[:, None] + sigma_L[:, None] * xi[None, :]  # [N, n_quad]
-    phi_L = scipy_norm.pdf(v_nodes, loc=mu_L[:, None], scale=sigma_L[:, None])
+    phi_L = _npdf(v_nodes, loc=mu_L[:, None], scale=sigma_L[:, None])
 
     K = len(y_star_arr)
     H1 = np.zeros(N)
 
     for f_star in y_star_arr:
         gamma_H = (f_star - mu_H) / sigma_H  # [N]
-        Phi_H = np.maximum(scipy_norm.cdf(gamma_H), 1e-300)  # [N]
+        Phi_H = np.maximum(_ndtr(gamma_H), 1e-300)  # [N]
 
         u_v = rho * (v_nodes - mu_L[:, None]) + mu_H[:, None]  # [N, n_quad]
-        Phi_cond = scipy_norm.cdf((f_star - u_v) / sigma_d[:, None])  # [N, n_quad]
+        Phi_cond = _ndtr((f_star - u_v) / sigma_d[:, None])  # [N, n_quad]
 
         Psi_v = Phi_cond * phi_L  # [N, n_quad]
         q_v = Psi_v / Phi_H[:, None]  # [N, n_quad]
@@ -872,11 +902,19 @@ def compute_joint_mf_mes(ko_model, roi_candidates, c_H, c_L, K=10):
     """
     # Shared HF y* samples (used for both HF and LF branches)
     hf_proxy = _build_hf_proxy_model(ko_model)
-    y_star_arr = thompson_sample_y_star(hf_proxy, roi_candidates, K=K)
+    # H144 C2: build the joint HF posterior ONCE and share it between the
+    # Thompson draw and the HF MES term. The body below is thompson_sample_y_star
+    # verbatim (gumbel_thompson.py:16) with the posterior hoisted out; that
+    # function is left untouched because src/baselines also calls it.
+    with torch.no_grad():
+        _post = hf_proxy.posterior(roi_candidates)
+        _samples = _post.rsample(torch.Size([K])).reshape(K, -1)
+        y_star_arr = _samples.max(dim=-1).values.cpu().numpy()
 
     # HF MES at all candidates, vectorized, shared y_star_arr (no more
     # per-candidate independent Thompson resampling).
-    mes_hf_arr = _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr)
+    mes_hf_arr = _compute_mes_hf_vectorized(roi_candidates, hf_proxy, y_star_arr,
+                                            _posterior=_post)
     mes_hf = torch.tensor(mes_hf_arr, dtype=roi_candidates.dtype)
 
     # LF MES at all candidates, vectorized (Takeno 2020 Lemma 3.1).
@@ -1220,7 +1258,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                 _ys = torch.as_tensor(np.asarray(_ys),
                                       dtype=_m.dtype, device=_m.device).reshape(-1)
                 _g = (_ys.view(1, -1) - _m.view(-1, 1)) / _sd.view(-1, 1)
-                _pp = torch.as_tensor(scipy_norm.cdf(-_g.detach().cpu().numpy()),
+                _pp = torch.as_tensor(_ndtr(-_g.detach().cpu().numpy()),
                                       dtype=_m.dtype, device=_m.device).mean(dim=1)
                 if _thr is None:
                     _k = max(1, int(float(roi_top_q) * _pp.numel()))
@@ -1304,7 +1342,16 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         else:
             roi_candidates = _draw_raw()[:_N_POOL]
         if roi_stats is not None:
+            # H123: tag each record with the real-loop iteration it came from.
+            # roi_stats already carries accept_frac AND beta_sqrt per record; the
+            # only thing missing was which iteration produced it, so one tag makes
+            # BOTH recoverable as per-iteration series. Closes M1's shape blind
+            # spot (does a configured ramp actually ramp?) and answers whether
+            # ROI-FIX2's fixed beta is an implicit schedule. Purely additive to a
+            # dict already being built: no control flow, no RNG, no effect on any
+            # value used by the run. Inert on use_roi=False, where roi_stats is None.
             _rec = {'accept_frac': _acc, 'n_surv': int(_surv.shape[0]),
+                    'n_real_iter': int(n_real_iter),
                     'n_draws': _draws,
                     'n_distinct': int(torch.unique(roi_candidates, dim=0).shape[0]),
                     'beta_sqrt': (_beta_used[0] if _beta_used else float(roi_beta_sqrt)),
@@ -2121,6 +2168,8 @@ class DirectMFRegretOptimization:
         # that failure visible instead of silent.
         self.use_roi = getattr(config, 'use_roi', False)
         self.roi_stats = [] if self.use_roi else None
+        # H94 inference-time ROI log (empty unless roi_inference_mode is set)
+        self.roi_inf_log = []
         _kx = getattr(config, 'known_optimal_x', None)
         self._roi_x_star = (torch.as_tensor(_kx, dtype=bounds.dtype)
                             if _kx is not None else None)
@@ -2244,6 +2293,13 @@ class DirectMFRegretOptimization:
             # DecisionTransformer.__init__ and
             # experiments/h4-adaln-rtg-conditioning/protocol.md
             rtg_conditioning=getattr(config, 'rtg_conditioning', 'token'),
+            # H102: 'mse' (default, unchanged) or 'l1'. An L2 loss fits the
+            # conditional MEAN, which is pulled inward from a boundary whenever
+            # any target mass lies away from it; an L1 loss fits the MEDIAN,
+            # which sits AT the bound once half the mass is there. Forwarded
+            # here deliberately -- see the H20 note below for what happens to a
+            # dt_cfg field that is not.
+            loc_loss=getattr(config, 'loc_loss', 'mse'),
             # H20 BUG FIX: this was NEVER forwarded, so DecisionTransformer's
             # `getattr(config, 'use_linear_score_head', True)` always saw a
             # dt_cfg without the attribute and silently defaulted to True.
@@ -2864,6 +2920,22 @@ class DirectMFRegretOptimization:
                       f"lambda_fid*L_fid={self.dt.lambda_fid * L_fid_d.item():.6f}",
                       flush=True)
 
+        # H94/D2: the per-dimension variance of the teacher's actions -- the
+        # "predict the per-dim mean" baseline, in the SAME per-element units as
+        # L_loc. L_loc/var is then the fraction of the teacher's action variance
+        # the head fails to explain; >=1 means no better than predicting the
+        # mean. Without this, comparing L_loc across ROI arms is uninterpretable
+        # (the ROI concentrates actions_x, which lowers MSE on its own -- see
+        # findings.md, D2 refuted-but-confounded). PURE RECORDING: no RNG, no
+        # effect on any tensor that feeds training.
+        try:
+            if actions_x is not None:
+                _ax = actions_x.detach().float().reshape(-1, actions_x.shape[-1])
+                self._last_actions_x_var = float(_ax.var(dim=0, unbiased=False).mean())
+            else:
+                self._last_actions_x_var = float('nan')
+        except Exception:
+            self._last_actions_x_var = float('nan')
         L_loc_final = L_fid_final = 0.0
         for epoch in range(self.config.num_epochs):
             self.dt_optimizer.zero_grad()
@@ -3165,6 +3237,14 @@ class DirectMFRegretOptimization:
         # [0.05,0.15], r in [0,1] instead of [100,50000]). See
         # REVISION_LOG.md.
         x_t = self.bounds[0] + (self.bounds[1] - self.bounds[0]) * x_t.double()
+        # H94: inference-time ROI. Default None -> this block is a no-op and
+        # every existing configuration (use_roi False OR True) is bit-identical.
+        _ri_mode = getattr(self.config, 'roi_inference_mode', None)
+        if _ri_mode in ('project', 'snap_control'):
+            # NOTE: `t` (run()'s loop counter) is NOT in scope here -- this method
+            # is called BY run(), it does not share its frame. len(iteration_log)
+            # is the number of completed real iterations, i.e. this query's index.
+            x_t = self._roi_snap(x_t, _ri_mode, len(self.iteration_log))
 
         # Semi-amortized GP-refinement ablation (see _refine_proposal's own
         # docstring): warm-starts gradient ascent on EI from the DT's
@@ -3176,6 +3256,81 @@ class DirectMFRegretOptimization:
             x_t = self._refine_proposal(x_t, ell_t)
 
         return x_t, ell_t
+
+    def _roi_snap(self, x_raw, mode, t):
+        """H94: apply the DRO paper's ROI to the REAL QUERY, not to the teacher.
+
+        `use_roi=True` restricts only simulate_mf_trajectory's candidate pool;
+        the real query is action_head(h).clamp(0,1) and never sees the ROI (see
+        findings.md, "the ROI has never been applied to a real query"). This
+        applies DRO Sec 4.2's X_hat = {x | UCB(x) >= max_x' LCB(x')} where the
+        paper applies it.
+
+        THE RULE THIS OBEYS: the ROI declares which points are ADMISSIBLE and
+        never ranks them. The replacement point is the admissible point nearest
+        to the DT's OWN output in Euclidean distance -- no acquisition function
+        is evaluated anywhere in this method. If the DT's proposal is already
+        admissible it is returned untouched.
+
+        mode="project"      snap only when the proposal is outside the ROI.
+        mode="snap_control" snap ALWAYS, to an UNFILTERED uniform pool. This is
+            the control that separates "quantizing onto a finite pool" (a crude
+            relative of the excluded pool+argmax mechanism) from "restricting to
+            the ROI". It snaps at least as often as "project" does, so it
+            OVER-estimates the snapping effect -- biased against the hypothesis
+            that the ROI is what matters.
+
+        x_raw is RAW domain-scale, matching self.bounds and hf_posterior.
+        """
+        import torch as _t
+        d = self.bounds.shape[1]
+        N = int(getattr(self.config, 'n_roi_candidates', 600))
+        span = self.bounds[1] - self.bounds[0]
+        cand = self.bounds[0] + span * _t.rand(N, d, dtype=self.bounds.dtype)
+        rec = {'iter': int(t), 'mode': mode, 'snapped': False,
+               'n_admissible': N, 'accept_frac': 1.0, 'dist': 0.0}
+
+        if mode == 'project':
+            ko = self.ko_ensemble[0]
+            with _t.no_grad():
+                m, v = ko.hf_posterior(cand)
+                mx, vx = ko.hf_posterior(x_raw.reshape(1, -1))
+            m = m.reshape(-1); sd = v.reshape(-1).clamp_min(1e-12).sqrt()
+            mx = mx.reshape(-1)[0]; sdx = vx.reshape(-1).clamp_min(1e-12).sqrt()[0]
+            # Quantile-calibrated beta_t, identical in form to the rollout's
+            # (acceptance is monotone in beta, so bisection is valid). The
+            # paper writes beta with a subscript t; a constant cannot set
+            # tightness -- measured acceptance swings 250x within one run.
+            q = float(getattr(self.config, 'roi_target_accept', 0.10))
+            lo, hi = 1e-3, 50.0
+            for _ in range(40):
+                bm = 0.5 * (lo + hi)
+                a = ((m + bm * sd) >= (m - bm * sd).max()).float().mean().item()
+                if a < q: lo = bm
+                else:     hi = bm
+            b = 0.5 * (lo + hi)
+            thr = (m - b * sd).max()
+            keep = (m + b * sd) >= thr
+            rec['accept_frac'] = float(keep.float().mean())
+            rec['n_admissible'] = int(keep.sum())
+            # Already admissible -> the DT's choice stands, untouched.
+            if bool((mx + b * sdx) >= thr):
+                self.roi_inf_log.append(rec); return x_raw
+            if int(keep.sum()) == 0:
+                # Vacuous ROI: no admissible point exists in the draw. Snapping
+                # to nothing is not defined, so the proposal stands. Recorded
+                # rather than silently treated as "already admissible".
+                rec['empty_roi'] = True
+                self.roi_inf_log.append(rec); return x_raw
+            adm = cand[keep]
+        else:
+            adm = cand
+
+        dn = ((adm - x_raw.reshape(1, -1)) / span).norm(dim=1)
+        j = int(dn.argmin())
+        rec['snapped'] = True; rec['dist'] = float(dn[j])
+        self.roi_inf_log.append(rec)
+        return adm[j]
 
     def _refine_proposal(self, x_init, ell_t):
         """
@@ -3340,6 +3495,11 @@ class DirectMFRegretOptimization:
             else:
                 L_loc, L_fid, fid_mean, fid_std = self._train_dt(batch)
                 self._last_train_stats = (L_loc, L_fid, fid_mean, fid_std)
+            # H94/D2 companion to L_loc_per_iter (pure recording).
+            if not hasattr(self, 'actions_x_var_per_iter'):
+                self.actions_x_var_per_iter = []
+            self.actions_x_var_per_iter.append(
+                float(getattr(self, '_last_actions_x_var', float('nan'))))
             if _snap_at is not None and t == _snap_at and self._dt_snapshot is None:
                 import copy as _copy
                 self._dt_snapshot = _copy.deepcopy(self.dt)
