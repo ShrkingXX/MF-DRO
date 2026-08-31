@@ -13735,3 +13735,61 @@ have stood unchallenged in the record.
 Monotone in q. The middle point was predicted from the outer structure before any
 of its runs existed, and its benefit and fidelity mix both landed inside their
 registered brackets.
+
+## h140 — the training-signal direction SURVIVES its registered test, and one exploratory diagnostic dwarfs everything
+
+CONFIRMATORY, zero compute, registered before computing. Fractional within-run
+change (first third -> last third), control arm, Borehole vs Hartmann, seeds
+42-46, paired.
+
+    diagnostic                        Borehole   Hartmann    H-B    effect
+    P1  grad_coherency                  -0.666     -0.939  -0.273     1.13  PASS
+    P2  action_reward_corr              +1.667     -0.561  -2.228     0.86  FALSIFIED
+    --  rtg_gpbelief_corr               +3.881     -1.031  -4.912     5.54  exploratory
+    --  neg_rtg_frac                    -0.391     +0.300  +0.691     2.01  exploratory
+    --  rtg_frac_between_traj_var       -0.177     -0.031  +0.146     0.81
+    --  L_fid                           -0.202     -0.342  -0.140     0.33
+    --  p_pred_inference                -0.192     -0.357  -0.164     0.27
+    h134 L_loc                          -0.078     +1.003  +1.081     1.10
+
+**P1 PASSES**: gradient coherence degrades more on Hartmann, effect 1.13. **The
+registered retraction does not fire** — my recommendation that the direction for
+improving MF-DRO is the training signal rather than the region heuristic rests on
+a locked prediction that held, not on h134's single statistic.
+
+**P2 FALSIFIED**, and its failure is informative rather than merely negative.
+`action_reward_corr` is *directionally* much worse on Hartmann (-2.228) but at
+effect 0.86 it does not separate. **So the DT's actions are not measurably less
+correlated with the reward they earn.** The head is not flailing. Whatever is
+wrong is upstream of action selection.
+
+### The standout, and the multiplicity discipline it is held to
+
+`rtg_gpbelief_corr` — the correlation between the return-to-go conditioning
+signal and the surrogate's own belief — **rises nearly fourfold across a Borehole
+run and FALLS on Hartmann.** Effect **5.54**, the largest measured anywhere in
+this project.
+
+Read plainly: on Borehole the DT's conditioning signal becomes progressively more
+aligned with what the GP believes; **on Hartmann it decouples.** The model is
+being conditioned on a target that increasingly disagrees with the surrogate.
+`neg_rtg_frac` (2.01) says the same thing from another angle — the share of
+negative return-to-go rises on Hartmann and falls on Borehole.
+
+**This is EXPLORATORY and I registered before looking that it cannot support the
+direction on its own.** Five undirected diagnostics means one will look
+interesting; the honest guard is that only P1 and P2 carried locked directions and
+only P1 passed. That said, 5.54 at n=5 is not the kind of number five draws
+produce by chance, and it is the sharpest lead this project has generated for the
+new direction.
+
+**It needs its own registered test before any heuristic is built on it.**
+
+### What this changes about the direction
+
+h134's disjunction — head cannot learn vs target moves faster than head follows —
+is not resolved by this audit, but it is **narrowed from the third side**: the
+problem is not that the DT's actions are uncorrelated with reward (P2), it is that
+the *conditioning signal* degrades relative to the surrogate. That points at the
+RTG construction on low-HF-budget benchmarks rather than at head capacity or at
+the ROI.
