@@ -14031,3 +14031,56 @@ the effort on DT training cost — epochs, early stopping, incremental training 
 which is **4.7% of the run and cannot yield more than a 1.05x speed-up even if
 eliminated entirely.** The rollout's GP evaluation path is where the 16-29x gap to
 MF-MES lives.
+
+## GATE MISS — I spent five runs on a diagnostic the worker never serialised
+
+h139 P1's five Borehole ROI-FIX2 runs completed and **the analysis refused to
+produce a verdict**, correctly:
+
+    REFUSING: seed42 has no per-record roi_stats (run-level accept_frac=0.2652).
+    P1 needs the per-iteration array; a run-level mean cannot answer it.
+
+The cause is in `h90/worker.py:110`, comment and all:
+
+    # ROI diagnostics: summarise rather than store every rollout's record
+    rs = getattr(mf, "roi_stats", None) or []
+    r["roi_summary"] = dict(n_records=len(rs), accept_frac=_m("accept_frac"), ...)
+
+**The worker deliberately collapses ~6,400 per-record entries to means.** The
+h136-gated `n_real_iter` tag reaches the in-memory records — h136 proved that — and
+then the worker throws the records away.
+
+**What I checked and what I did not.** I verified the patch adds the field (read
+the diff) and that it does not perturb the run (h136, bit-identical, 2580 branch
+entries). **I never verified that the tagged records reach the result file.** Three
+links in the chain; I gated two and assumed the third. That is the same shape as
+reusing a gate that cannot reach the changed line — I checked that the field is
+*written*, not that it is *kept*.
+
+**The guard is what caught it.** The analysis script, committed before the data
+existed, refuses rather than falling back to the run-level mean. Without that
+clause I would have "analysed" `accept_frac = 0.2652` — a single number per run —
+and produced a confident answer to a question it cannot address.
+
+### The runs are not wasted, and this is measurable rather than consoling
+
+They are **bit-identical to h84's FIX2 at all five seeds**, rel% @cost_curve 200:
+
+    seed        42       43       44       45       46
+    h84     11.126   10.927    8.264   11.993   12.696
+    h139    11.126   10.927    8.264   11.993   12.696
+    diff     0.000    0.000    0.000    0.000    0.000
+
+So they **extend h136's identity gate** from one Ackley seed (83 queries) to five
+further Borehole seeds on a different benchmark and arm. The patched tree is now
+verified inert across two benchmarks and six seeds.
+
+They also confirm FIX2's acceptance genuinely varies run to run — per-seed 0.265,
+0.263, 0.165, 0.215, 0.162 — which is the premise h139 exists to test.
+
+### Fix
+
+`h90/worker.py` now also stores `roi_per_iter` (n_real_iter, accept_frac,
+beta_sqrt, n_records). **Purely additive and post-run**: it executes after the
+trajectory is complete and only reads `mf.roi_stats`, so it cannot affect any
+query. It is a no-op on records predating the tag. Re-running h139 P1.

@@ -116,6 +116,32 @@ def run(bench, arm, seed, ckpt_path):
                 beta_sqrt=_m("beta_sqrt"),n_distinct=_m("n_distinct"),
                 n_draws=_m("n_draws"),min_dist_to_xstar=_m("min_dist_to_xstar"),
                 frac_within_02=_m("frac_within_0.2"))
+            # H139: the summary above collapses ~6400 records to means, which
+            # CANNOT answer whether a fixed beta's acceptance rises or falls
+            # across a run -- h139 P1. The h136-gated `n_real_iter` tag makes a
+            # per-iteration series recoverable, so store it (a few hundred
+            # floats, not the full records).
+            #
+            # PURELY ADDITIVE AND POST-RUN: this executes after the trajectory is
+            # complete and only READS mf.roi_stats. It cannot affect any query.
+            # No-op on records that predate the tag.
+            if rs and ("n_real_iter" in rs[0]):
+                _by={}
+                for _d in rs:
+                    _k=int(_d["n_real_iter"])
+                    if _d.get("accept_frac") is not None:
+                        _by.setdefault(_k,[]).append(float(_d["accept_frac"]))
+                _bb={}
+                for _d in rs:
+                    _k=int(_d["n_real_iter"])
+                    if _d.get("beta_sqrt") is not None:
+                        _bb.setdefault(_k,[]).append(float(_d["beta_sqrt"]))
+                _it=sorted(_by)
+                r["roi_per_iter"]=dict(
+                    n_real_iter=_it,
+                    accept_frac=[float(np.mean(_by[i])) for i in _it],
+                    beta_sqrt=[float(np.mean(_bb[i])) if _bb.get(i) else None for i in _it],
+                    n_records=[len(_by[i]) for i in _it])
     finally:
         stop.set()
     c=r.get("hf_regret_curve") or r.get("regret_curve") or []
