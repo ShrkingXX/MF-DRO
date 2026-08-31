@@ -61,3 +61,50 @@ the direction has one locked result behind it. But **if the sharpest diagnostic
 in that audit turns out not to predict outcome, the direction is much weaker than
 I presented it**, and I should say so plainly rather than falling back on the
 grad-coherence result.
+
+---
+
+## AMENDMENT 1 — P4, extend to every qualifying control run (registered before checking which qualify)
+
+P1 passed at rho = -0.600 within Hartmann and -0.600 within Borehole, but at n=5
+the 5% Spearman critical value is ~0.9, so those are consistent with chance. **The
+cheapest way to strengthen or kill the lead is more seeds, and many control runs
+already exist** — h75 (Borehole), h77 (Hartmann), h117 (Borehole), h93, h57.
+
+**I already know the n=5 result. So the inclusion rule is fixed HERE, before I
+check which runs qualify, and every qualifying run is used — no selection.**
+
+### Inclusion criteria (a run is IN iff all four hold)
+
+1. `_meta.method` is an unmodified control arm: `MF-DRO`, `NO-ROI`, or `ROI-OFF`.
+2. `_meta` matches h83's for that benchmark on **all** of `budget`, `c_H`, `c_L`,
+   `n_hf`, `n_lf`. A different initial design or cost ratio is a different object
+   and pooling it is the error that broke h133's ordering.
+3. `rtg_gpbelief_corr_per_iter` is present and has >= 9 entries (so thirds are
+   meaningful).
+4. The run completed — a `results/` file, never a `ckpt/` checkpoint. h126's
+   killed runs are the precedent for why this must be explicit.
+
+**Every excluded run is reported with its reason.** Duplicate seeds across
+experiments are resolved by taking h83's, then the lowest experiment number, and
+the choice is reported.
+
+### P4 (locked)
+
+Within each benchmark separately, across all qualifying runs: **|rho| >= 0.5 with
+the same sign as P1** (worse RTG/GP degradation with worse regret). FALSIFIED if
+|rho| < 0.5.
+
+**This is the real test.** P1 at n=5 could not distinguish the lead from noise;
+with n>=10 per benchmark, |rho| >= 0.5 starts to mean something. If P4 fails on
+both benchmarks the lead is dead and the direction loses its sharpest diagnostic.
+
+**Still no pooling across benchmarks.** P3 flipped sign at n=10 and that remains
+the standing demonstration of why.
+
+### What P4 failing would retract
+
+Everything h142 currently supports: that RTG/GP decoupling is a lever rather than
+an epiphenomenon, and with it the specific mechanism behind my training-signal
+recommendation. h140's P1 (gradient coherence) would still stand, so the direction
+would survive — but on a weaker and less specific footing than I have claimed.
