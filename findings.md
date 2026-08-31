@@ -13912,3 +13912,58 @@ produced a rho which did not survive power.
 training-signal diagnostic predicts outcome, and my recommendation to the user
 that this is the direction for improving MF-DRO is not supported by anything and
 should be withdrawn in full rather than in part.
+
+## h143 FAILS — and I withdraw the training-signal recommendation in full, as registered
+
+CONFIRMATORY. Same inclusion rule, every qualifying run, registered before
+computing. I stated in advance that I expected this to fail.
+
+    benchmark      n     rho      gate |rho|>=0.5    sign
+    Borehole_8D   15   +0.204     FAIL               OPPOSITE to predicted
+    Hartmann_6D   10   -0.152     FAIL               predicted, negligible
+
+**Gradient coherence does not predict regret.** On Borehole the sign is
+*backwards*. So with h142's collapse, **no measured training-signal diagnostic
+predicts outcome at power**:
+
+    diagnostic            between-benchmark effect   predicts regret?
+    rtg_gpbelief_corr                       5.54     NO  (h142 P4)
+    neg_rtg_frac                            2.01     untested
+    grad_coherency                          1.13     NO  (h143)
+    L_loc (h134)                            1.10     untested
+    action_reward_corr                      0.86     n/a, falsified in h140
+
+### The registered retraction, executed
+
+> **WITHDRAWN: my recommendation to the user that "the training signal on
+> low-HF-budget benchmarks" is the direction for improving MF-DRO.** Not softened.
+
+I gave that recommendation two turns ago on h134's `L_loc` rise plus h140's P1.
+Both are real *descriptions* and neither is a demonstrated *lever*. Recommending
+work on a quantity not known to move the outcome is the h117 error, and I made it
+in a direct recommendation to the user.
+
+**The honest position: we do not know why MF-DRO loses on low-HF-budget
+benchmarks.** The correlates are measurable and none of them has been shown to
+matter.
+
+### The limitation of this test, stated so the negative is not overclaimed
+
+Seed-level regret variance may be dominated by factors unrelated to any of these
+diagnostics, so a real but modest mechanism could be swamped. **These results rule
+out "large, seed-level-visible lever", not "mechanism".** A within-run or
+interventional design could still find something a cross-seed correlation cannot.
+
+### What the project's own track record actually supports
+
+Every intervention that has *worked* here was validated **directly on regret**:
+the ROI (-3.86%, 9/10), the L1 loss (-2.21%, 9/10), the composite (-5.96%, 10/10).
+
+Every *mechanism story* has failed to predict regret when tested: boundary waste
+(h118), dispersion (retracted, and it is not even moved by the lever), RTG
+decoupling (h142), gradient coherence (h143).
+
+**Four for four.** The pattern is strong enough to act on: **stop trying to
+identify the mechanism first, and test candidate interventions directly against
+regret at adequate n.** Mechanism has been the expensive road here and it has not
+once paid.
