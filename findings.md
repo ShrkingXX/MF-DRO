@@ -13851,3 +13851,17 @@ It is more seeds on the correlation, or an intervention that manipulates RTG
 directly and measures regret. Building an RTG-recalibration heuristic on rho =
 -0.600 at n=5 would repeat the h117 mistake in a new costume: acting on a real
 measurement before knowing it is a lever.
+
+## h136 GATE PASSES — the logging patch is inert on the path it is actually in
+
+    [done] Ackley_10D ROI-Q10 seed42  83 queries  acc=0.0998  wall=19.7m
+    [GATE PASS] 83 queries, 0 differing
+    roi_summary n_records=2580   (h86 stored: 2580)
+
+Bit-identical `fid`, `x`, `y` at every query against h86's stored trace, on an arm
+that **enters the patched branch 2580 times**. h117's G0 could not have shown
+this — it ran `use_roi=False`, where `roi_stats` is None by construction and the
+patched line is unreachable. Reusing it would have been the h94 failure again.
+
+**The tree is now safe to launch on**, and the ungated-patch hazard recorded in
+the stop-state note is discharged.
