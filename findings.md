@@ -13865,3 +13865,50 @@ patched line is unreachable. Reusing it would have been the h94 failure again.
 
 **The tree is now safe to launch on**, and the ungated-patch hazard recorded in
 the stop-state note is discharged.
+
+## h142 P4 FALSIFIED — the RTG lead does NOT survive power. Retracting what I said about it.
+
+CONFIRMATORY. Inclusion rule registered before checking which runs qualified;
+every qualifying run used, no selection.
+
+    benchmark      n=5 (P1)     all qualifying runs      P4 gate |rho|>=0.5
+    Hartmann_6D      -0.600     -0.188  (n=10)           FALSIFIED
+    Borehole_8D      -0.600     -0.418  (n=15)           FALSIFIED
+
+Exclusions worked as intended: `NOLFINIT` arms out on `n_lf`, `M10` arms out on
+`budget` — different initial designs and budgets are different objects, and
+pooling them would have been the error that broke h133's ordering.
+
+**The sign matches P1 on both benchmarks, and the magnitude fails on both.**
+Adding seeds moved rho toward zero (-0.600 -> -0.188 and -0.600 -> -0.418). **That
+is the signature of a small-sample artefact, not of a real effect being diluted.**
+Borehole's -0.418 at n=15 is not quite nothing; Hartmann's -0.188 at n=10 is.
+
+### The registered retraction fires
+
+Per the protocol, written before any of this was computed:
+
+> **RETRACTED:** that RTG/GP decoupling is a lever rather than an epiphenomenon,
+> and with it the specific mechanism I gave for the training-signal direction.
+
+So the h140 finding stands as a *description* — `rtg_gpbelief_corr` really does
+rise on Borehole and fall on Hartmann at effect 5.54 — while **the claim that this
+difference matters for the outcome does not.** Real, reproducible, and so far as
+n=15 can tell, not a lever.
+
+**This is h117/h118 again, and this time it cost one zero-compute experiment
+instead of a line of work.** The whole value of running the predicts-regret check
+first is visible in the counterfactual: I was one step from designing an
+RTG-recalibration heuristic on rho = -0.600 at n=5.
+
+### What the direction now rests on
+
+**One locked result: h140's P1**, gradient coherence degrading more on Hartmann,
+effect 1.13 at n=5. That is thin — and it is the same n=5 regime that just
+produced a rho which did not survive power.
+
+**So the next test is obvious and I should run it before anything else: does
+`grad_coherency` predict regret?** If it does not, then no measured
+training-signal diagnostic predicts outcome, and my recommendation to the user
+that this is the direction for improving MF-DRO is not supported by anything and
+should be withdrawn in full rather than in part.
