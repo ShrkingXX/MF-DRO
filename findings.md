@@ -13793,3 +13793,61 @@ problem is not that the DT's actions are uncorrelated with reward (P2), it is th
 the *conditioning signal* degrades relative to the surrogate. That points at the
 RTG construction on low-HF-budget benchmarks rather than at head capacity or at
 the ROI.
+
+## h142 — the RTG/GP lead SURVIVES the h118 check, weakly. It is not another boundary waste.
+
+CONFIRMATORY, zero compute, registered before computing. Per-run fractional change
+in `rtg_gpbelief_corr` against final regret (rel% @cost_curve 200, frozen metric),
+Spearman, within benchmark, seeds 42-46.
+
+    Hartmann_6D
+      RTG change   42:-2.40  43:+0.64  44:+0.34  45:-2.18  46:-1.55
+      regret rel%  42:16.41  43: 0.67  44:10.16  45: 5.28  46: 7.42
+      rho = -0.600
+
+    Borehole_8D    rho = -0.600
+    pooled n=10    rho = +0.345   <- NOT primary, and see below
+
+**P1 PASSES on both sign and magnitude.** The sign is the predicted one: worse
+RTG/GP degradation goes with worse regret (a *negative* rho, since more-negative
+degradation pairs with higher regret). Seeds 42 and 43 are the extremes on both
+axes simultaneously on Hartmann.
+
+**And both benchmarks give rho = -0.600 independently**, which is more than either
+alone. Borehole's RTG change is positive on every seed — it *improves* there — so
+the relationship is "more improvement, less regret" rather than "more degradation,
+more regret". Same sign, same magnitude, two benchmarks, different regimes.
+
+### Held to the caveat I registered before looking
+
+**n=5 makes a rank correlation weak by construction.** At n=5 the 5% critical
+value for Spearman is about 0.9; **rho = 0.6 is entirely consistent with chance.**
+I wrote that down in advance precisely so a pass could not be quoted as
+establishing the lever, and I am honouring it: **this is a lead that survived a
+cheap retirement test, not a demonstrated lever.**
+
+Causation is untestable here either way. A run going badly could produce both.
+
+### The pooled analysis flipped sign, exactly as registered
+
+P3 pooled the two benchmarks and returned **+0.345 — the opposite sign to both of
+its own components.** I registered P3 as explicitly not primary because "pooling
+two benchmarks whose RTG behaviour differs in SIGN is the kind of aggregation that
+has produced three artefacts in this project already."
+
+**It produced a fourth.** Had P3 been the headline, the conclusion would have been
+that RTG decoupling predicts *lower* regret — the reverse of what both benchmarks
+independently show. This is the clearest demonstration yet that the pre-registered
+"which analysis is primary" decision does real work, not just the thresholds.
+
+### Where this leaves the direction
+
+The lead is **not** retired. Unlike boundary waste — which h117 confirmed as real
+and h118 then showed predicts nothing — RTG/GP decoupling correlates with outcome
+in the predicted direction on two benchmarks independently.
+
+**But it is not established either**, and the honest next step is not a heuristic.
+It is more seeds on the correlation, or an intervention that manipulates RTG
+directly and measures regret. Building an RTG-recalibration heuristic on rho =
+-0.600 at n=5 would repeat the h117 mistake in a new costume: acting on a real
+measurement before knowing it is a lever.
