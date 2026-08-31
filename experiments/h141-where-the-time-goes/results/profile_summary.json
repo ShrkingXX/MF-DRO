@@ -1,0 +1,31 @@
+{
+  "budget": 70.0,
+  "wall_s": 1469.39443898201,
+  "total_tottime": 1469.367939542,
+  "shares": {
+    "DT training (decisionTransformer)": [
+      69.715972306,
+      4.744623210421372
+    ],
+    "GP / posterior (ko_ensemble, gpytorch, cholesky)": [
+      296.46494617399986,
+      20.176358704709973
+    ],
+    "ROI construction / candidate pool": [
+      24.201576471,
+      1.6470739438172033
+    ],
+    "rollout / simulate": [
+      2.2474207630000005,
+      0.15295153123461497
+    ],
+    "benchmark objective": [
+      0.002116618,
+      0.00014404955648207127
+    ],
+    "other": [
+      1076.73590721,
+      73.27884856026036
+    ]
+  }
+}

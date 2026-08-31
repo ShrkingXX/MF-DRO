@@ -13967,3 +13967,67 @@ decoupling (h142), gradient coherence (h143).
 identify the mechanism first, and test candidate interventions directly against
 regret at adequate n.** Mechanism has been the expensive road here and it has not
 once paid.
+
+## h141 — P1 FALSIFIED. The rollout is 96% of the run, and the DT is 4.7%.
+
+CONFIRMATORY, prediction locked before profiling. Truncated Borehole ROI-Q10
+seed42 (budget 70 of 200), cProfile, 1469s total.
+
+**P1 predicted DT training would be the largest consumer at >= 40%. It is 4.7%.
+P2 predicted the ROI pool second at >= 10%. It is 1.6%. Both falsified.**
+
+    function                      calls    cumulative    of total
+    _generate_rollout_batch          36      1412.97s      96.2%
+      simulate_mf_trajectory      2,160      1412.67s
+      botorch ...posterior      362,164       750.42s
+      thompson_sample_y_star     51,948       602.63s
+      compute_joint_mf_mes       17,280       555.07s
+      rsample                   133,560       415.59s
+    DT training                     ---         69.7s       4.7%  (self-time)
+    ROI candidate pool              ---         24.2s       1.6%  (self-time)
+
+My reasoning for P1 was that a transformer trained 10 epochs per BO iteration must
+dominate a GP with ~130 observations. **The transformer is real but trivial beside
+the rollout**, which runs 60 simulated trajectories per BO iteration, each stepping
+through a full MF-MES acquisition.
+
+**The instrument was also poor and I am recording that.** My self-time bucketing
+put 73.3% in "other" — the patterns missed botorch/gpytorch internals entirely. It
+was the **cumulative** view that answered the question, not the buckets I built.
+A summary statistic I designed obscured the result; the raw ordering revealed it.
+
+### The optimisation target, and it is not what I registered
+
+**362,164 posterior calls in 36 BO iterations — about 10,000 per iteration.** That
+is the hot spot, and the structure suggests why it is attackable:
+
+**The GP does not change during a rollout batch.** All 2,160 trajectories in one
+`_generate_rollout_batch` call are simulated against the *same* posterior. Yet the
+posterior is being reconstructed per call: `exact_prediction` runs 362,164 times
+(599.9s) and `memoize.g` appears 3.18M times, which is the signature of repeated
+setup rather than repeated computation.
+
+So the candidate optimisations are **caching and batching, not algorithmic
+change**:
+
+1. **Batch posterior evaluations across trajectories** — 60 trajectories stepping
+   in lockstep evaluate the same GP at different points; one batched call replaces
+   sixty.
+2. **Hoist the prediction strategy** out of the per-call path, since the training
+   data is fixed for the whole batch.
+3. **Cache `thompson_sample_y_star`** — 51,948 calls at 602s, and the samples
+   depend only on the fixed posterior.
+
+**All three are pure efficiency changes and can be gated on bit-identity**, the
+h136 standard, because none of them alters what is computed — only how many times.
+That matters: the protocol registered that a speed-up which changes the trajectory
+is a different method, not a speed-up.
+
+### Why the falsification was worth registering
+
+The protocol said the prediction "decides which body of optimisation is worth
+starting", and getting it wrong would be informative. It was: I would have spent
+the effort on DT training cost — epochs, early stopping, incremental training —
+which is **4.7% of the run and cannot yield more than a 1.05x speed-up even if
+eliminated entirely.** The rollout's GP evaluation path is where the 16-29x gap to
+MF-MES lives.

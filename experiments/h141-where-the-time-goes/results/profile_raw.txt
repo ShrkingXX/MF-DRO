@@ -1,0 +1,68 @@
+         1019788547 function calls (955452027 primitive calls) in 1469.368 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1264 to 60 due to restriction <60>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000 1469.368 1469.368 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/experiments/h90-borehole-confirm/code/worker.py:58(run)
+        1    0.015    0.015 1469.342 1469.342 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:3423(run)
+       36    0.080    0.002 1412.974   39.249 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:2469(_generate_rollout_batch)
+     2160    1.826    0.001 1412.674    0.654 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:896(simulate_mf_trajectory)
+   362164    3.133    0.000  750.418    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/botorch/models/gpytorch.py:340(posterior)
+   394564    5.304    0.000  651.657    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/models/exact_gp.py:251(__call__)
+    51948    0.545    0.000  602.633    0.012 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/gumbel_thompson.py:16(thompson_sample_y_star)
+   362164    3.954    0.000  599.900    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py:259(exact_prediction)
+    17280    0.930    0.000  555.069    0.032 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:844(compute_joint_mf_mes)
+1392276/910088    1.804    0.000  434.850    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/module.py:30(__call__)
+3182356/2491080    3.216    0.000  433.864    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/utils/memoize.py:54(g)
+   133560    0.786    0.000  415.586    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/botorch/posteriors/gpytorch.py:145(rsample)
+   133560    1.377    0.000  413.630    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/distributions/multivariate_normal.py:198(rsample)
+    51948    1.002    0.000  412.950    0.008 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:466(rsample)
+   133560    1.579    0.000  411.463    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:2577(zero_mean_mvn_samples)
+1141716/779552    1.480    0.000  409.343    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/lazy/lazy_evaluated_kernel_tensor.py:22(wrapped)
+   417388    1.553    0.000  395.346    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/lazy/lazy_evaluated_kernel_tensor.py:342(evaluate_kernel)
+   834776    2.090    0.000  393.838    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/kernels/kernel.py:453(__call__)
+   362164    0.349    0.000  392.993    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/lazy/lazy_evaluated_kernel_tensor.py:408(to_dense)
+   417388    1.697    0.000  384.645    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/kernels/scale_kernel.py:108(forward)
+    40160    0.966    0.000  371.888    0.009 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/models/ko_gp.py:554(hf_posterior)
+850536/211608    1.542    0.000  357.948    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/utils/memoize.py:54(g)
+   417388    1.374    0.000  357.198    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/kernels/rbf_kernel.py:68(forward)
+   181944    0.168    0.000  349.993    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:1236(cholesky)
+   181944    1.407    0.000  348.632    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:468(_cholesky)
+   103896    0.846    0.000  341.064    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:2018(root_decomposition)
+    19440    0.342    0.000  318.190    0.016 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:1332(_rollout_gumbel_b)
+    32508   50.928    0.002  316.922    0.010 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:619(_compute_mes_lf_vectorized)
+     7580    0.080    0.000  287.044    0.038 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:1196(_mu_sd)
+    84456    0.958    0.000  270.227    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:475(posterior)
+   417388    0.303    0.000  262.814    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/kernels/rbf_kernel.py:8(postprocess_rbf)
+   267120  252.987    0.001  252.987    0.001 {built-in method torch.matmul}
+   417388  242.952    0.001  242.952    0.001 {method 'exp_' of 'torch._C._TensorBase' objects}
+163224/133560    0.244    0.000  229.580    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/matmul_linear_operator.py:125(to_dense)
+   362164  126.822    0.000  170.527    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/models/exact_prediction_strategies.py:293(exact_predictive_covar)
+    17316    0.509    0.000  126.763    0.007 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:275(_extract_mf_state)
+    17316    0.148    0.000  124.688    0.007 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:130(_reference_grid_features)
+    15228    0.441    0.000  124.255    0.008 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:745(_gp_candidate_features)
+  2327292   30.981    0.000  110.147    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/scipy/stats/_distn_infrastructure.py:2044(cdf)
+    32508    2.024    0.000   96.563    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:567(_compute_mes_hf_vectorized)
+   417388    1.055    0.000   86.034    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/kernels/kernel.py:306(covar_dist)
+   417388    4.294    0.000   84.440    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/kernels/kernel.py:26(sq_dist)
+   181944    0.132    0.000   67.605    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/utils/cholesky.py:50(psd_safe_cholesky)
+   181944    1.030    0.000   67.473    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/utils/cholesky.py:12(_psd_safe_cholesky)
+   181944   65.172    0.000   65.172    0.000 {built-in method torch._C._linalg.linalg_cholesky_ex}
+    17316    0.248    0.000   55.917    0.003 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:685(_y_star_for_model)
+   362164    4.404    0.000   51.230    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/botorch/models/transforms/outcome.py:363(untransform_posterior)
+599620/495724    2.121    0.000   49.004    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:1723(matmul)
+    32508    0.301    0.000   42.781    0.001 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/models/ko_gp.py:577(lf_posterior)
+15552600/10187712    3.899    0.000   40.461    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:2168(size)
+    17280    0.317    0.000   39.089    0.002 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/models/ko_gp.py:632(make_fantasy_ko)
+14307712/9880048    2.670    0.000   39.035    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:2179(shape)
+   417388   38.372    0.000   38.372    0.000 {method 'clamp_min_' of 'torch._C._TensorBase' objects}
+230616/126720    0.451    0.000   38.235    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/torch/autograd/function.py:501(apply)
+230616/126720    1.272    0.000   37.369    0.000 {built-in method apply}
+   898276   36.235    0.000   36.235    0.000 {method 'contiguous' of 'torch._C._TensorBase' objects}
+1056828/724328    0.619    0.000   36.117    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/linear_operator/operators/_linear_operator.py:2762(__matmul__)
+8596200/4287844    5.982    0.000   34.477    0.000 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/.venv/lib/python3.9/site-packages/gpytorch/lazy/lazy_tensor.py:32(__init__)
+       36    0.001    0.000   32.742    0.910 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/policy/mf_dro.py:2448(_update_ko_ensemble)
+      108    0.025    0.000   32.741    0.303 /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission/src/models/ko_gp.py:417(fit)
+
+
