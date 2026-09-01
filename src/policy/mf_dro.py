@@ -963,6 +963,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             kg_signed=False,
                             kg_topk=1,
                             fantasy_mode='sample',
+                            forced_x=None,
                             n_roi_candidates=200,
                             teacher_refine_samples=0,
                             teacher_refine_noise=0.05,
@@ -1598,6 +1599,29 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                 x_tau, ell_tau, scores = compute_joint_mf_mes(
                     current_ko, _refined, c_H, c_L
                 )
+        # H145 ORACLE-EXPERT OVERRIDE. `forced_x` is a [T, d] raw-domain tensor
+        # of teacher actions supplied from outside (h145 interpolates from a
+        # random x_start to the true x*). When it is None -- the default and
+        # every existing caller -- NOTHING below changes and this function is
+        # bit-for-bit what it was.
+        #
+        # ONLY the LOCATION is replaced. The fidelity is still chosen by the
+        # same cost-normalised MES criterion the real path uses, evaluated at
+        # the forced point, so the fidelity policy is not silently altered too
+        # (the prior _synthetic_expert_worker.py forced HF at every step, which
+        # changes two things at once and makes neither attributable).
+        #
+        # Everything downstream -- state extraction, make_fantasy_ko
+        # conditioning, b_tau, rtg = log(b_tau) - log(b_T), btg, costs -- runs
+        # through the identical code below, which is what licenses the claim
+        # that only trajectory quality differs.
+        if forced_x is not None:
+            x_tau = forced_x[min(tau, forced_x.shape[0] - 1)].to(
+                device=roi_candidates.device, dtype=roi_candidates.dtype)
+            _, ell_tau, scores = compute_joint_mf_mes(
+                current_ko, x_tau.reshape(1, -1), c_H, c_L
+            )
+
         if tau == 0 and scores is not None:
             bes_signal_0 = scores.max().item()
 
