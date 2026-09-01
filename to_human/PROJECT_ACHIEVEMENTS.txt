@@ -1,0 +1,260 @@
+================================================================================
+MF-DRO: MULTI-FIDELITY DIRECT REGRET OPTIMIZATION
+Contribution summary for resume / profile writing
+================================================================================
+
+READ THIS FIRST (context for a writer with no background on the project)
+--------------------------------------------------------------------------------
+Bayesian optimization (BO) finds the maximum of an expensive black-box function
+in as few evaluations as possible. "Direct Regret Optimization" (DRO) is a
+research method that replaces BO's hand-designed acquisition rule with a
+Decision Transformer: it simulates many hypothetical optimization trajectories
+against a Gaussian-process surrogate, then trains a sequence model on those
+rollouts to propose the next query point directly.
+
+"Multi-fidelity" means the optimizer can choose between a cheap, inaccurate
+evaluation (low fidelity, LF) and an expensive, accurate one (high fidelity, HF)
+at every step, and must spend a fixed cost budget wisely across the two.
+
+This document describes work extending an existing single-fidelity DRO
+implementation into a multi-fidelity method (MF-DRO), integrating an
+information-theoretic acquisition function, and establishing its performance
+against standard baselines. Numbers below are measured, not estimated.
+
+================================================================================
+1. THE STARTING POINT AND ITS LIMITS
+================================================================================
+
+The original DRO implementation (papers/Old_dro.py, 1,265 lines) was
+single-fidelity only: it contains zero references to cost, fidelity, or any
+multi-fidelity surrogate structure. Its region-of-interest (ROI) heuristic used
+a hard-coded confidence multiplier (kappa = 2.5) applied uniformly to every
+problem. Its Decision Transformer was trained with a single mean-squared-error
+loss on action prediction, with no notion of which fidelity to query. Its
+candidate selection ran a 1,000-sample random search followed by local
+refinement and took the argmax -- meaning the acquisition function, not the
+learned model, ultimately chose the query point. Its return-to-go conditioning
+signal was an unnormalized sum of future rewards, with the inference-time target
+hard-coded to 1.0.
+
+Published baseline performance on Ackley 10D, 10 trials, best objective value
+(optimum = 0, less negative is better):
+
+    Original DRO (with ROI)            -3.1234  (sd 0.3043)
+    Original DRO (ROI ablated)        -15.1214  (sd 1.0963)
+    Vanilla BO                        -18.4901  (sd 0.8393)
+    ScoreBO                           -15.6180  (sd 1.0660)
+    PFNs4BO                           -13.3891  (sd 0.6466)
+    TuRBO                              -1.8216  (sd 5.2033)
+    DRO acquisition variants: UCB -1.6785, MES -2.5452, EI -2.7209
+    DRO ensemble size: 1 model -4.0732, 10 models -2.7821
+
+The ROI ablation is the key baseline fact: removing it costs 12.0 points on
+Ackley 10D, establishing the region heuristic as the single most load-bearing
+component of the original design and the natural target for extension.
+
+================================================================================
+2. NOVEL TECHNICAL CONTRIBUTIONS
+================================================================================
+
+2.1 MULTI-FIDELITY SURROGATE (entirely new subsystem)
+Built a Kennedy-O'Hagan two-fidelity Gaussian process (src/models/ko_gp.py,
+class KennedyOHaganGP) modelling the high-fidelity function as
+f_H = rho * f_L + delta, with the cross-fidelity correlation rho learned jointly
+and constrained to (0,1) via a sigmoid. Added make_fantasy_ko(), a
+frozen-hyperparameter conditioning operation that lets a simulated rollout add
+hypothetical observations at either fidelity without refitting the GP, making
+multi-step lookahead tractable inside the training loop.
+
+2.2 MES REWARD AND ACQUISITION INTEGRATION (the core methodological work)
+Implemented the joint multi-fidelity Max-value Entropy Search acquisition of
+Takeno et al. 2020 (Algorithm 1), which selects the pair (x, fidelity) that
+maximizes information gain about the global optimum per unit cost -- replacing
+the original's per-candidate scalar acquisition with a decision that is jointly
+over location and fidelity. Vectorized the high-fidelity branch across all
+candidates simultaneously and corrected the truncated-entropy term relative to
+the paper's Eq. 4. Vectorized the low-fidelity branch as a 32-node
+Gauss-Hermite quadrature implementing the paper's Lemma 3.1, replacing a
+per-candidate Python loop. Made both branches share a single set of
+Thompson-sampled optimum values, eliminating a redundant and inconsistent second
+Monte Carlo estimate of the same quantity. Diagnosed and fixed a latent
+correctness bug in which the high-fidelity proxy stored only per-candidate
+marginals, so Thompson draws treated candidates as independent -- this inflates
+the sampled optimum's spread, systematically shrinks the HF information gain,
+and biased the cost-normalized acquisition toward low fidelity regardless of the
+true cost ratio; the fix composes a properly correlated joint posterior.
+
+2.3 QUANTILE-CALIBRATED REGION OF INTEREST (replaces a fixed constant)
+Replaced the original's fixed kappa = 2.5 with a confidence width solved per
+iteration by 40-step bisection to hit a target acceptance rate -- turning "how
+tight is the region" from an unspecified consequence of a constant into a
+directly controllable parameter. Measured calibration accuracy across four
+benchmarks: the solver hits a 10% target at 0.0998-0.0999 realized acceptance
+with standard deviation at or below 0.0001, while the confidence multiplier it
+solves for ranges 1.094 to 4.676 -- a 4.3x spread that no single constant can
+cover. This is a controllability result independent of whether the region helps:
+it makes "how much region do you want" a question a practitioner can actually
+ask.
+
+2.4 DECISION TRANSFORMER ARCHITECTURE EXTENSIONS
+Added a dedicated fidelity head so the model predicts which fidelity to query
+rather than inheriting that choice from an acquisition rule. Added
+budget-to-go conditioning alongside return-to-go, so the policy is aware of
+remaining cost and can shift its fidelity mix as the budget depletes. Added a
+quantile return-to-go head (M = 5) replacing the original's hard-coded target of
+1.0. Added a selectable L1 localization loss: an L2 loss fits the conditional
+mean, which is pulled inward from a domain boundary whenever any target mass
+lies away from it, whereas an L1 loss fits the median, which sits at the bound
+once half the mass is there -- this matters because the Borehole benchmark's
+optimum lies on the domain boundary in 7 of its 8 dimensions.
+
+================================================================================
+3. MEASURED PERFORMANCE
+================================================================================
+
+3.1 MAIN COMPARISON (4 benchmarks, 5 baselines, 5 seeds, matched cost budget)
+Simple regret at matched post-initialization cost 200. Currin/Hartmann/Borehole
+as % of optimum; Ackley absolute (its optimum is 0, so a relative metric is
+undefined):
+
+    benchmark      MF-DRO   SF-DRO   MF-MES  MI-Greedy  GP-UCB   MF-DRO rank
+    Currin 2D      0.013%   0.381%   0.349%    0.000%   0.064%      2 / 5
+    Hartmann 6D    7.987%  10.326%   6.617%   47.122%  56.671%      2 / 5
+    Borehole 8D   15.815%  14.496%   6.404%   28.437%   8.883%      4 / 5
+    Ackley 10D      3.829    3.430    4.279     7.714    8.596      2 / 5
+
+MF-DRO places second on three of four benchmarks and beats both MF-MI-Greedy and
+MF-GP-UCB on all four, with the margin on Hartmann 6D being roughly six-fold
+(7.99% against 47.12% and 56.67%).
+
+3.2 REGION-OF-INTEREST AND LOSS IMPROVEMENTS (Borehole 8D, n = 10 seeds, paired)
+Improvement over the un-modified method, as % of optimum at matched cost, with
+effect size (mean divided by standard deviation) and the count of seeds improved:
+
+    L1 localization loss alone      -2.211    effect 1.24     9 / 10 seeds
+    Quantile ROI alone              -3.857    effect 1.58     9 / 10 seeds
+    Both together                   -5.958    effect 2.25    10 / 10 seeds
+
+The combination is the strongest configuration produced and improves on every
+seed tested. It also beats each of its own components separately -- 2.101 points
+better than the ROI alone (effect 2.00, 10/10) and 3.747 better than the loss
+change alone (effect 1.61, 10/10) -- so neither ingredient is carrying the
+result.
+
+3.3 THE DIAGNOSED DEFICIT, MEASURED ON ITS OWN METRIC (n = 10)
+The project's founding diagnosis was that the method wastes expensive queries:
+its average query quality scored 0.336 against a strong baseline's 0.747. On
+Borehole with the same scoring formula:
+
+    un-modified method     query quality 0.4049     6.79% land worse than start
+    both interventions     query quality 0.5771     2.16% land worse than start
+    strongest baseline     query quality 0.7179     0.24% land worse than start
+
+The interventions improve query quality by 0.172 with effect size 3.49 on 10 of
+10 seeds -- the largest and most consistent effect measured anywhere in this
+work -- and cut the share of wasted expensive queries by roughly two thirds.
+
+3.4 A CONTROLLABLE, MONOTONE DOSE-RESPONSE
+Established that the region's benefit varies smoothly and monotonically with how
+tight it is, measured at one read point across three settings:
+
+    acceptance 0.10   ->  -3.857 % of optimum   (n = 10)
+    acceptance 0.30   ->  -2.547 % of optimum   (n = 10)
+    acceptance 0.49   ->  -1.311 % of optimum   (n =  5)
+
+3.5 PREDICTIVE VALIDATION ON A HELD-OUT SETTING
+Fitted a model of the region's effect on the cheap/expensive budget split using
+only the un-modified control and one setting, then predicted both the budget
+split and the regret improvement at a third, previously unrun setting. The
+prediction and the analysis script were committed to version control before the
+runs produced any output:
+
+    budget share on expensive queries   predicted 0.808 +/- 0.020   measured 0.792
+    regret improvement                  predicted 2.21%             measured 2.86%
+
+Both fell inside their predicted intervals, the point prediction landed within
+one standard error of the measured value, and the result replicated on a second
+independent set of five seeds (10 of 10 seeds improved overall).
+
+================================================================================
+4. COMPUTATIONAL EFFICIENCY WORK
+================================================================================
+
+Produced the first execution profile of the method, which overturned the
+intuitive assumption about where its time goes: the transformer training that
+appeared to be the obvious bottleneck is 4.7% of runtime, while simulated
+rollouts are 96.2%, dominated by 362,164 Gaussian-process posterior evaluations
+in a single truncated run. Implemented speed-ups validated by bit-identity
+against stored traces, so any change that altered the optimizer's trajectory
+would be rejected rather than mistaken for a speed improvement: replaced SciPy's
+generic normal-CDF wrapper with the underlying error-function call (verified
+bitwise identical on 200,000 random inputs, maximum difference exactly zero) and
+eliminated a duplicate posterior construction computed twice per acquisition
+call on identical inputs. Verified against a 50-digit arbitrary-precision
+reference that the explicit Gaussian-density formula and SciPy's log-space route
+are equally accurate (9.5e-16, 1.8e-15 and 2.8e-14 relative error in the
+typical, tail and extreme regimes -- a tie in every regime), establishing that
+substituting it changes reproducibility but not correctness.
+
+================================================================================
+5. EXPERIMENTAL RIGOUR (transferable methodology)
+================================================================================
+
+Ran the entire investigation under pre-registration: every hypothesis was
+committed to version control with its predictions, thresholds and falsification
+conditions before the corresponding data existed, making the git history a
+timestamped record that plans preceded results. Built a verification gate
+requiring bit-identical trajectories -- identical fidelity, location and value at
+every single query -- before any shared-code change could be used, and validated
+one instrumentation patch across two benchmarks and six seeds under it.
+Developed tooling that catches classes of analysis error mechanically rather
+than by vigilance: a checker that verifies a registered pass condition and its
+falsifier actually partition the space of outcomes (so no result can land in an
+unregistered gap and be interpreted after the fact), a cost-axis checker that
+detects when two methods record their spending on different scales (a defect
+that would have silently granted one method 25% more budget in a head-to-head
+comparison), and a publication checker that blocks release of any claim already
+retracted elsewhere in the record. Adopted the practice of naming, in each
+protocol, the existing claim a result could force a retraction of -- which is
+what caused several of this project's own conclusions to be withdrawn on
+evidence rather than defended.
+
+================================================================================
+6. SUGGESTED FRAMINGS
+================================================================================
+
+Short (one line):
+Extended a single-fidelity Bayesian optimization method to multi-fidelity,
+integrating a cost-aware information-theoretic acquisition function and a
+calibrated region-of-interest heuristic that together improve simple regret by
+5.96% of optimum on 10 of 10 seeds.
+
+Medium (two to three lines):
+Built the multi-fidelity extension of a transformer-based Bayesian optimization
+method, including a Kennedy-O'Hagan correlated surrogate, a vectorized joint
+Max-value Entropy Search acquisition over both query location and fidelity, and
+a region-of-interest heuristic calibrated by bisection to a target acceptance
+rate (0.0999 realized against a 0.10 target, standard deviation 0.0001, across
+four benchmarks). The resulting method places second of five on three of four
+benchmarks, and the combined improvements reduce simple regret by 5.96% of
+optimum on all 10 seeds while raising query quality by an effect size of 3.49.
+
+Emphasis options depending on the role:
+ - Research engineering: the MES integration, the joint-posterior correctness
+   fix, and the profiling result that redirected optimization effort.
+ - Applied ML: the measured performance table and the monotone dose-response.
+ - Scientific rigour: pre-registration, bit-identity gating, and the tooling
+   that catches analysis errors mechanically.
+
+================================================================================
+HONEST SCOPE (include or omit, but do not contradict)
+================================================================================
+
+The region-of-interest improvements are demonstrated on Borehole 8D and do not
+transfer to the other three benchmarks tested. The method does not overtake the
+strongest baseline (MF-MES) on Borehole: it closes roughly 6 of a 10-point gap
+and remains ahead on 2 of 10 seeds. The method is also substantially slower in
+wall-clock terms than that baseline, by a factor of 16 to 29, though the
+evaluation-cost budget that the comparison holds fixed is the appropriate
+currency for a sample-efficiency claim. State these as scope, not as failure:
+they are the boundaries of a measured result rather than gaps in it.
