@@ -14084,3 +14084,78 @@ They also confirm FIX2's acceptance genuinely varies run to run — per-seed 0.2
 beta_sqrt, n_records). **Purely additive and post-run**: it executes after the
 trajectory is complete and only reads `mf.roi_stats`, so it cannot affect any
 query. It is a no-op on records predating the tag. Re-running h139 P1.
+
+## h139 P1 HOLDS (effect 5.18, 5/5) — FIX2 NARROWS. My P2 proxy was inverted, and a retraction fires.
+
+CONFIRMATORY. Registered before the data existed; analysis committed before the
+runs. Borehole ROI-FIX2, seeds 42-46, per-iteration acceptance from the
+h136-gated `n_real_iter` tag.
+
+    seed   iters   first-third   last-third     delta
+      42      94        0.4920       0.1320   -0.3600
+      43      97        0.5326       0.0843   -0.4483
+      44      68        0.4510       0.0599   -0.3911
+      45      77        0.3994       0.1210   -0.2784
+      46      74        0.3838       0.0835   -0.3003
+
+    mean -0.3556   sd 0.0687   effect 5.18   declining 5/5   P1 HOLDS
+
+**A fixed beta LOOSENS early and TIGHTENS late**, exactly as the analytic argument
+predicted: early sigma is large, so UCB is high everywhere and max LCB is low and
+the set is wide; as sigma shrinks the set contracts toward `{x | mu >= mu*}`.
+Acceptance runs ~0.88 at the first iteration down to ~0.11 at the last.
+
+### The "accidental beta_t" hypothesis is DEAD
+
+I proposed that ROI-FIX2 — the best-performing arm on record — might be a de
+facto **widening** schedule, i.e. the paper's `beta_t` direction implemented by
+accident in an arm labelled "fixed". **It is the opposite.** FIX2 is a
+**narrowing** schedule, running against the paper's specification, and it is
+still the best arm. Whatever makes it good, it is not that it anticipates
+`beta_t`.
+
+### My own P2 proxy did not merely fail — it was INVERTED
+
+h139 P2 inferred FIX2's hidden trajectory from behaviour and returned a clean
+crossover: FIX2 tracking the tight arm early and the loose arm late, so
+"tight early, loose late". **The direct measurement says loose early (0.49) and
+tight late (0.11).** The proxy got the sign backwards on both halves.
+
+I registered P2's weakness before looking: *"it infers a hidden acceptance
+trajectory from behaviour, and the inference holds only if acceptance drives phase
+behaviour, which h133 put in doubt."* **That caveat is now vindicated in the
+strongest way — acceptance does not drive phase behaviour, and reading one from
+the other reverses it.**
+
+**This is the sharpest instrumentation lesson of the project.** A proxy can be
+worse than uninformative: it can be confidently, cleanly wrong. P2 passed its own
+gate on both phases and pointed exactly opposite to the truth. Nothing about its
+internal consistency signalled the problem — only the direct measurement did.
+
+### The registered retraction fires
+
+From the h139 protocol, written before any of this existed:
+
+> **P1 holds (declines).** Then belief (2) is unexplained: an arm that tightens
+> late does not stall, which contradicts h133's account that late tightness
+> causes the stall. **I would have to withdraw "the stall is caused by late
+> over-restriction"** — the motivation I handed the peer for h123 and the entire
+> premise of my h132.
+
+**WITHDRAWN: "the ROI's late stall is caused by late over-restriction."** FIX2
+tightens to ~0.11 late — as tight as ROI-Q10's constant 0.10 — and h133 measured
+that FIX2 does **not** stall (24.34% late recovery against Q10's 10.51%). An arm
+that is tight late and does not stall refutes the account directly.
+
+So the stall is real (h131: 3.588 rel%, effect 1.40, 5/5) and **its cause is now
+unknown.** h132's step-off design rested on the over-restriction account and its
+premise is gone; it should not be run as specified.
+
+### What is now unexplained, stated rather than papered over
+
+FIX2 and Q10 end at almost the same acceptance (0.11 vs 0.10) yet differ sharply
+in late recovery (24.34% vs 10.51%) and in cost (137.4 vs 117.4 min). **Two arms
+at the same terminal tightness behaving differently means terminal tightness is
+not the operative variable.** What differs is the path: FIX2 arrives there from
+0.88, Q10 sits at 0.10 throughout. That is a real, measured puzzle and I do not
+have an account of it.

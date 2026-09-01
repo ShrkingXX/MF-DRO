@@ -14,20 +14,17 @@ import numpy as np
 
 def trajectory(path):
     r = json.load(open(path))
-    recs = r.get("roi_stats") or r.get("roi_records")
-    if not recs:
+    # The worker aggregates roi_stats by n_real_iter into `roi_per_iter`
+    # (h90/worker.py). Older runs, and any run predating the h136-gated tag,
+    # carry only the run-level `roi_summary` mean -- refuse rather than fall
+    # back to it, since a single number cannot answer P1.
+    rp = r.get("roi_per_iter")
+    if not rp or not rp.get("accept_frac"):
         rs = r.get("roi_summary") or {}
-        raise SystemExit(f"REFUSING: {os.path.basename(path)} has no per-record roi_stats "
+        raise SystemExit(f"REFUSING: {os.path.basename(path)} has no roi_per_iter "
                          f"(run-level accept_frac={rs.get('accept_frac')}). P1 needs the "
                          f"per-iteration array; a run-level mean cannot answer it.")
-    if "n_real_iter" not in recs[0]:
-        raise SystemExit(f"REFUSING: records lack `n_real_iter` -- this run predates the "
-                         f"h136-gated patch. Re-run on the patched tree.")
-    by = {}
-    for rec in recs:
-        by.setdefault(int(rec["n_real_iter"]), []).append(float(rec["accept_frac"]))
-    it = sorted(by)
-    return np.array(it), np.array([np.mean(by[i]) for i in it])
+    return np.asarray(rp["n_real_iter"], float), np.asarray(rp["accept_frac"], float)
 
 def main():
     RES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
