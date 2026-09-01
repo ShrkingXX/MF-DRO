@@ -16,10 +16,13 @@ rollouts to propose the next query point directly.
 evaluation (low fidelity, LF) and an expensive, accurate one (high fidelity, HF)
 at every step, and must spend a fixed cost budget wisely across the two.
 
-This document describes work extending an existing single-fidelity DRO
-implementation into a multi-fidelity method (MF-DRO), integrating an
-information-theoretic acquisition function, and establishing its performance
-against standard baselines. Numbers below are measured, not estimated.
+This document describes the design of MF-DRO, the multi-fidelity formulation of
+Direct Regret Optimization. The prior work was single-fidelity: it had no notion
+of choosing between cheap and expensive evaluations, and no cost budget. The
+contribution is the multi-fidelity method itself -- a reformulated action space,
+reward, state, termination criterion and conditioning signal -- together with
+the cost-aware acquisition function and calibrated region heuristic that
+formulation required. Numbers below are measured, not estimated.
 
 ================================================================================
 1. THE STARTING POINT AND ITS LIMITS
@@ -57,14 +60,50 @@ component of the original design and the natural target for extension.
 2. NOVEL TECHNICAL CONTRIBUTIONS
 ================================================================================
 
-2.1 MULTI-FIDELITY SURROGATE (entirely new subsystem)
+2.0 DESIGNING THE MULTI-FIDELITY FORMULATION OF DRO (the primary contribution)
+The headline contribution is not a component but a method: MF-DRO is the
+multi-fidelity formulation of Direct Regret Optimization, and it did not
+previously exist. Making a Decision-Transformer-based optimizer multi-fidelity
+is not a matter of substituting a two-fidelity surrogate underneath it, because
+every element of the underlying sequential decision problem changes at once:
+
+  ACTION SPACE. The original method's action is a location x in R^d. MF-DRO's
+  action is the pair (x, fidelity), so the policy chooses where to sample and
+  how accurately in a single joint decision -- the source of the original
+  implementation contains no fidelity variable anywhere.
+
+  REWARD. The original labels each rollout step with raw improvement over the
+  incumbent, a quantity that is not comparable across fidelities because a cheap
+  evaluation and an expensive one buy different amounts of information at
+  different prices. MF-DRO labels steps with cost-normalized information gain
+  about the global optimum, which is the only reward under which the two
+  fidelities can be traded off on one scale.
+
+  STATE. The state was redesigned to carry the information a fidelity decision
+  requires and a single-fidelity one does not: the cost ratio between the two
+  fidelities, a rolling window of the last five fidelity choices, and the
+  correlation and hyperparameters of both fidelity components of the surrogate.
+
+  TERMINATION AND CONDITIONING. The episode now ends when a cost budget is
+  exhausted rather than after a fixed iteration count, which makes remaining
+  budget a first-class quantity; the policy is conditioned on budget-to-go
+  alongside return-to-go, a signal with no single-fidelity analogue, so it can
+  shift its fidelity mix as the budget depletes.
+
+  ROLLOUT SEMANTICS. Simulated trajectories must now hypothesize observations at
+  a chosen fidelity and account for their cost, so lookahead itself becomes
+  budget-aware rather than step-counted.
+
+Each subsystem below exists because this redesign required it, not the reverse.
+
+2.1 MULTI-FIDELITY SURROGATE
 Built a Kennedy-O'Hagan two-fidelity Gaussian process (src/models/ko_gp.py,
 class KennedyOHaganGP) modelling the high-fidelity function as
 f_H = rho * f_L + delta, with the cross-fidelity correlation rho learned jointly
 and constrained to (0,1) via a sigmoid. Added make_fantasy_ko(), a
 frozen-hyperparameter conditioning operation that lets a simulated rollout add
 hypothetical observations at either fidelity without refitting the GP, making
-multi-step lookahead tractable inside the training loop.
+budget-aware multi-step lookahead tractable inside the training loop.
 
 2.2 MES REWARD AND ACQUISITION INTEGRATION (the core methodological work)
 Implemented the joint multi-fidelity Max-value Entropy Search acquisition of
@@ -224,14 +263,18 @@ evidence rather than defended.
 ================================================================================
 
 Short (one line):
-Extended a single-fidelity Bayesian optimization method to multi-fidelity,
-integrating a cost-aware information-theoretic acquisition function and a
-calibrated region-of-interest heuristic that together improve simple regret by
-5.96% of optimum on 10 of 10 seeds.
+Designed MF-DRO, the multi-fidelity formulation of a transformer-based Bayesian
+optimization method, reformulating its action space, reward, state and budget
+semantics around a joint location-and-fidelity decision, and improving simple
+regret by 5.96% of optimum on 10 of 10 seeds.
 
 Medium (two to three lines):
-Built the multi-fidelity extension of a transformer-based Bayesian optimization
-method, including a Kennedy-O'Hagan correlated surrogate, a vectorized joint
+Designed the multi-fidelity formulation of a transformer-based Bayesian
+optimization method -- redefining its action space as a joint
+location-and-fidelity choice, its reward as cost-normalized information gain,
+and its episode as a cost budget rather than an iteration count -- and built the
+subsystems that formulation requires, including a Kennedy-O'Hagan correlated
+surrogate, a vectorized joint
 Max-value Entropy Search acquisition over both query location and fidelity, and
 a region-of-interest heuristic calibrated by bisection to a target acceptance
 rate (0.0999 realized against a 0.10 target, standard deviation 0.0001, across
@@ -240,6 +283,8 @@ benchmarks, and the combined improvements reduce simple regret by 5.96% of
 optimum on all 10 seeds while raising query quality by an effect size of 3.49.
 
 Emphasis options depending on the role:
+ - Method design: the multi-fidelity reformulation itself -- this is the
+   strongest single claim and should lead unless the role says otherwise.
  - Research engineering: the MES integration, the joint-posterior correctness
    fix, and the profiling result that redirected optimization effort.
  - Applied ML: the measured performance table and the monotone dose-response.
