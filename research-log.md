@@ -2286,3 +2286,44 @@ accounts have now been tried and discarded on this front alone — RCSL return
 coverage, information-gain-as-ranking, policy distillation — matching the project's
 wider pattern that mechanism stories fit and fail to predict. The next step is not
 a fourth account.
+
+## 2026-09-02 — holistic reflection, prompted by the /loop instruction
+
+**Was the last stretch deepening understanding, or just running arms?**
+
+Honestly: **both, and the failure mode was real.** h145 → h146 → h149 → h151
+were four teacher variants. Each falsified something specific and each named
+its retraction, so none was wasted. But all four varied the same axis (what the
+teacher does) and NONE of them varied the axis that turned out to matter (whether
+the teacher can adapt). I declared the front ANSWERED at h149 on the strength of
+three arms agreeing with each other — and three arms agreeing is exactly what a
+shared confound looks like. It took h152, which the USER proposed, to run the
+control that exposed it.
+
+The lesson is not "run fewer arms". It is that **agreement between arms was
+treated as convergent evidence when it was actually a signature of a common
+confound.** Three teachers landing on the identical 43.94 should have been read
+as suspicious rather than conclusive: identical outcomes from very different
+interventions almost always mean the interventions were not as different as
+believed.
+
+Guard adopted going forward: before recording a front as ANSWERED, name the
+axis every arm HELD FIXED, and run one arm that varies it. h153 is that arm for
+this front.
+
+**Also recorded as a discipline point.** h154 was run specifically to give a
+cheap chance to KILL h153 before it consumed 4 more hours, and its gate included
+"CONTRADICTED → h153's prior drops sharply, written down BEFORE its result
+lands." That is the right shape for a cheap pre-test. Its outcome was MIXED: M1
+confirmed with a complete 5-vs-15 separation, M2's registered direction refuted.
+The M2 failure is kept as a failure; the post-hoc reading that makes it coherent
+is labelled post-hoc and is not counted as support.
+
+**Compute discipline:** 5 workers (h153) + 1 (h154b, finished) ≤ 15 throughout.
+
+**Stale loop prompt:** the /loop text still names h146 and the POOL dose as the
+current front. Both are closed — h146 completed, and the POOL dose was
+deliberately NOT run (h146/h149 showed the outcome is flat in both quality and
+diversity, so every dose point would return 43.94). research-state.yaml now
+carries a `current_front` block at the top so a future tick reads the real state
+rather than the prompt.
