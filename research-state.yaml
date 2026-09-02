@@ -177,6 +177,26 @@ current_front:
     LIMITS: 5 arms, 1 failing, Borehole only; loss/var is a TRAINING statement, the
     tau=0 specificity comes from h180/h182.'
 
+  h186_state_vs_conditioning: 'The DT responds to its CONDITIONING MORE than to its
+    STATE. Probe sweeps 4 states (real, train0/1/2) x 3 RTG values. Borehole
+    unstandardised: conditioning sensitivity 0.0782, STATE sensitivity 0.0122 (6.4x
+    less); standardised 0.1010 vs 0.0028 (36x less); Hartmann 0.0406 vs 0.0069.
+    Scale: seed-to-seed change in the emitted query ~0.82, teacher-RULE swap 0.044.
+    CONFOUND RAISED AND THEN RESOLVED AGAINST MY SUSPICION: I expected the 3 tau=0
+    states to be near-identical, which would have explained the low sensitivity
+    trivially. Measured directly (measure_states.py): 3 distinct states, dim 68,
+    pairwise distance mean 0.5866 (min 0.2862, max 0.8742) against vector norm
+    4.5032 = 13% RELATIVE separation. They are WELL SEPARATED. So the low state
+    sensitivity is REAL -- the DT is handed genuinely distinct states and barely
+    responds. WORDING CORRECTION: "the tau=0 states are near-degenerate" (repeated
+    throughout findings.md) conflates low VARIETY (only 3 distinct states among 60
+    rollouts -- TRUE) with the 3 being similar to each other (FALSE). The mechanism
+    SURVIVES and is SHARPENED: the constant output is a property of the LEARNED
+    SOLUTION, not of information-free inputs. FRAMING CORRECTION: the conditioning is
+    NOT the uniquely dead input, it is the MORE responsive one; "a defect with a fix"
+    is the wrong diagnosis, since h181 showed only ~1.1% of the fix transfers and the
+    state moves the output 6x less. LIMIT: state distances from one run (seed 42).'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

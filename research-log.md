@@ -3638,3 +3638,21 @@ ships.
   the *teacher's* spread stays flat (1.03).
 - Report rewritten around this and republished; stale lede corrected.
 - h184 running (ctrl iter 6, head iter 11), lf_fraction ~0.71 as designed.
+
+## tick 43 — h186: the conditioning is the MORE responsive input, and a wording correction
+
+- **h186 (EXPLORATORY).** Conditioning sensitivity 0.0782 vs **state** sensitivity
+  0.0122 on Borehole (6.4×; 36× after standardisation). The DT responds to its
+  conditioning more than to its state.
+- **Confound raised, then resolved against my own suspicion.** I expected the three
+  τ=0 states to be near-identical, which would explain this trivially. Measured:
+  3 distinct states, dim 68, **pairwise 0.5866 on norm 4.5032 — 13% separation.**
+  Well separated. The low state sensitivity is real.
+- **Wording correction:** "the τ=0 states are near-degenerate", repeated throughout
+  findings.md, conflates low *variety* (3 distinct among 60 — true) with the 3 being
+  similar to each other (false). Mechanism survives, sharpened: the constant output
+  is a property of the *learned solution*, not of information-free inputs.
+- **Framing correction:** the conditioning is not a uniquely broken input. Combined
+  with h181 (~1.1% of the fix transfers), "a defect with a fix" is the wrong
+  diagnosis.
+- h184 running: ctrl iter ~41, head ~69, lf_fraction ≈ 0.74 on both as designed.
