@@ -44,3 +44,19 @@ This arm can only widen or narrow its scope, not undo it.
 ## Compute
 
 5 workers × 1 thread. Machine is otherwise idle (h184 and h187 both complete).
+
+## Where the results land — recorded so the readout is not confused
+
+Reusing h187's worker unchanged has one consequence: `RES` is hardcoded relative to
+**h187's** code directory, so h189's Hartmann runs write to
+
+```
+experiments/h187-no-dt-frozen/results/Hartmann_6D__NODT__seed4*.json
+experiments/h187-no-dt-frozen/results/ckpt/Hartmann_6D__NODT__seed4*.json
+```
+
+not to `h189-no-dt-hartmann/results/`. Only the run **logs** are in h189's directory.
+
+This was noticed at launch and is left as-is deliberately: the alternative is editing
+the worker, which would break the guarantee that h187 and h189 run *identical* code.
+The `Hartmann_6D__NODT__` tag is unambiguous, so nothing is lost but tidiness.
