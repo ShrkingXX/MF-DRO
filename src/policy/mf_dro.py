@@ -2445,6 +2445,7 @@ class DirectMFRegretOptimization:
         self.teacher_action_stats_per_iter = []
         self.h168_probe_per_iter = []
         self._last_batch_tau0_states = None
+        self._h177_btg_probe = None
         self.rtg_frac_between_traj_var_per_iter = []
         self.rtg_gpbelief_corr_per_iter = []
         # Gradient coherency (see _train_dt): cosine similarity of per-
@@ -3291,8 +3292,28 @@ class DirectMFRegretOptimization:
                         _rec.append(dict(state=_sname, rtg=float(_rv),
                                           x=[float(v) for v in _px.reshape(-1)],
                                           ell=int(_pe)))
+                    # H177: the OTHER conditioning input. h168 showed the
+                    # emitted action is essentially independent of RTG (0.0074
+                    # across the full sweep). BTG has never been probed. Same
+                    # state, same real RTG, BTG swept over the range the runs
+                    # actually visit (~26-30 on Hartmann).
+                    _brec = []
+                    for _bv in (getattr(self, '_h177_btg_probe', None) or []):
+                        _bx, _be = self.dt.propose_mf(
+                            state.float(), float(rtg_tgt), float(_bv),
+                            timestep=0,
+                            use_candidate_scoring=self.use_candidate_scoring,
+                            candidate_features=(cand_feats.float()
+                                                if cand_feats is not None else None),
+                            fidelity_sampling=self.fidelity_sampling,
+                            hist=_hist,
+                        )
+                        _brec.append(dict(btg=float(_bv),
+                                           x=[float(v) for v in _bx.reshape(-1)],
+                                           ell=int(_be)))
                     self.h168_probe_per_iter.append(
-                        dict(rtg_target=float(rtg_tgt), probes=_rec))
+                        dict(rtg_target=float(rtg_tgt), btg_now=float(btg_now),
+                             probes=_rec, btg_probes=_brec))
                 except Exception:
                     pass
                 finally:

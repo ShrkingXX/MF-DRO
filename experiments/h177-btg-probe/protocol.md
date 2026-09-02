@@ -56,3 +56,25 @@ SC3 the probed run remains bit-identical to its unprobed twin -- checkable
 
 Hartmann_6D RANDOM-POOL seeds 42-46 -- the same arm h168 used, so the RTG and BTG
 results are directly comparable and SC3 has an exact reference. 5 workers.
+
+## Sanity checks passed, and an early signal recorded before the arm ran
+
+SC1 (the check h169 was lost to): **PASS** — 7 BTG probes per iteration, axis
+populated. SC2 bit-identity of the default path: **PASS** (122.2906675273).
+
+**Early signal, 5 iterations on Borehole, recorded now so it is not reported as a
+discovery later.** The emitted action moves **0.0007 across the whole BTG sweep —
+0.7% of its own distance from the box centre**, against h168's 8.9% for RTG at
+full length:
+
+```
+BTG   20.0  24.0  26.0  28.0  30.0  32.0  36.0
+d      .0982 .0985 .0986 .0987 .0988 .0988 .0989
+```
+
+Note the smoke ran on Borehole where the real `btg_now` is 10.9, so the sweep
+sits entirely *outside* the range that run visits — and the action still barely
+moves. If that holds at full length on Hartmann (where 26–30 is the visited
+range), **P1 fires and both conditioning inputs are inert**.
+
+Five iterations of a barely-trained network is not a verdict and none is taken.
