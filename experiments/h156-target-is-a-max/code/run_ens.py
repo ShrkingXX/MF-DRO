@@ -39,6 +39,24 @@ def greedy_path(ko, pool, c_H, c_L):
     return gumbel_b(cur, pool), torch.stack(xs), els
 
 
+def ucb_path(ko, pool, c_H, c_L, fid_of, beta=2.0):
+    """h157 C6 -- the h155 UCB-LOC teacher, replicated offline. CLOSED-LOOP:
+    location re-decided every step by UCB on the HF posterior of the CURRENT
+    fantasy-conditioned model (mf_dro.py's ucb_loc branch, ucb_loc_beta=2.0),
+    fidelity by the same cost-normalised info-gain criterion at that point."""
+    cur = ko
+    for _ in range(T):
+        with torch.no_grad():
+            mu, var = cur.hf_posterior(pool)
+        x = pool[(mu + beta * var.clamp_min(0).sqrt()).argmax()]
+        e = fid_of(x.reshape(1, -1), cur, pool)[0]
+        y = cur.sample_fantasy(x, "LH"[e], mode="sample")
+        cur = cur.make_fantasy_ko(x.unsqueeze(0),
+                                  torch.tensor([y], dtype=torch.float64), "LH"[e])
+        _ = gumbel_b(cur, pool)
+    return gumbel_b(cur, pool)
+
+
 def replay(ko, pool, xs, els):
     cur = ko
     for x, e in zip(xs, els):
@@ -112,7 +130,7 @@ def main():
                 ens.append(_k)
             ko = ens[0]
             pool = bounds[0] + (bounds[1] - bounds[0]) * torch.rand(POOL_N, d, dtype=torch.float64)
-            c1, c2, c3, c4, c5 = [], [], [], [], []
+            c1, c2, c3, c4, c5, c6 = [], [], [], [], [], []
             per = max(1, a.N // len(ens))
             for _i in range(per * len(ens)):
                 ko = ens[_i // per]                    # 20 rollouts per member
@@ -134,9 +152,10 @@ def main():
                 ridx = torch.randint(0, POOL_N, (T,))
                 rell = [1 if torch.rand(1).item() < 0.25 else 0 for _ in range(T)]
                 c3.append(lb0 - math.log(replay(ko, pool, pool[ridx], rell)))  # C3 random path
+                c6.append(lb0 - math.log(ucb_path(ko, pool, c_H, c_L, fid_of)))  # C6 UCB-LOC
             rec = dict(seed=int(seed), cut=int(cut), N=a.N)
             for nm, v in (("C1_closed", c1), ("C2_open_own", c2), ("C3_open_rand", c3),
-                          ("C4_oracle", c4), ("C5_diverse_good", c5)):
+                          ("C4_oracle", c4), ("C5_diverse_good", c5), ("C6_ucb_loc", c6)):
                 v = np.array(v)
                 rec[nm] = dict(mean=float(v.mean()), sd=float(v.std(ddof=1)),
                                max=float(v.max()), p90=float(np.percentile(v, 90)))
@@ -145,9 +164,9 @@ def main():
                   + "  ".join(f"{n.split('_')[0]}: mean {rec[n]['mean']:+.3f} sd {rec[n]['sd']:.3f} "
                               f"max {rec[n]['max']:+.3f}"
                               for n in ("C1_closed", "C2_open_own", "C3_open_rand",
-                                        "C4_oracle", "C5_diverse_good")), flush=True)
+                                        "C4_oracle", "C5_diverse_good", "C6_ucb_loc")), flush=True)
 
-    out = f"{REPO}/experiments/h156-target-is-a-max/results/tail_e{a.models}r{a.rep}_{a.bench}.json"
+    out = f"{REPO}/experiments/h156-target-is-a-max/results/tail_c6_e{a.models}r{a.rep}_{a.bench}.json"
     json.dump(recs, open(out, "w")); print(f"\nwrote {out}  ({len(recs)} states)")
 
 
