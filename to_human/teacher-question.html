@@ -295,15 +295,34 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
       directly rather than inferred from which runs happened to win.</p>
     </div>
 
+    <div class="note">
+      <h3>The failing runs do not perform badly — they do nothing at all</h3>
+      <p>Every run starts from an initial set of points chosen before the method takes over.
+      Comparing each run's best result against <em>its own</em> starting set:</p>
+      <p><strong>All four failing variants improve on their own starting points in zero of five
+      runs.</strong> The final best value equals the starting best value <em>exactly</em>, on
+      every seed — twenty runs, not one improvement. The control, the first-step-only teacher
+      and the best variant improve in five of five.</p>
+      <p>This also explains a number that has recurred throughout this investigation. Four
+      different failing variants all score exactly 43.94, and it was never clear why they should
+      tie so precisely. <strong>43.94 is the starting set.</strong> They coincide because none of
+      them contributes anything, so all that is left is the design they were handed.</p>
+      <p>And the middle of the box is genuinely a poor place to be: the best value reachable
+      anywhere within a short radius of the centre is 85.8, against 273.0 for the box as a whole.
+      A run confined there cannot beat its own starting points — which is precisely what the
+      zero-of-five result shows.</p>
+    </div>
+
     <div class="open">
       <h3>What this does not settle</h3>
-      <p>Only four of the 28 variants are failures, and all four finish at the same saturated
-      number — so the failing side of the comparison is thin. Nothing here intervenes on the
-      distance directly, so &ldquo;drifting inward causes failure&rdquo; and &ldquo;both follow
-      from something else&rdquo; are not yet separated. And it does <em>not</em> explain why the
-      two benchmarks differ: the first-step-only teacher keeps 95% of the control's distance on
-      one benchmark and 90% on the other, yet costs almost nothing on the first and triples the
-      error on the second. That gap stays open.</p>
+      <p>Drifting inward is now shown to be <em>harmful</em>, not merely a symptom — but what
+      <em>makes</em> a policy drift inward is still open. Nothing here intervenes to prevent the
+      drift and observe the result. The failing side is also thin: four variants out of 28.</p>
+      <p>It does <em>not</em> explain why the two benchmarks differ, and a second attempt at
+      that failed this week too. The idea was that on one benchmark good points simply lie
+      further from the middle, making escape most of the problem. Sampling the two objectives
+      directly refuted it — the effect is fourteen times stronger on the benchmark where the
+      explanation needed it to be <em>weaker</em>. That gap stays open.</p>
       <p>One earlier idea was dropped here on evidence: that the drift compounds through the
       teacher. It does not — every teacher's own moves spread <em>outward</em> over a run,
       including in the runs that fail.</p>
