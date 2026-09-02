@@ -14950,3 +14950,89 @@ of the teachers.
 Borehole. Hartmann's generality evidence is the RANDOM-POOL arm alone. The oracle
 was not re-run there because h145's Hartmann arm was confounded and the fix was not
 worth 5 runs once RANDOM-POOL had answered the scope question.
+
+---
+
+## h152 — the joint-information-gain teacher. The user's reframing, and what it found.
+
+The user pointed out that the teacher should maximise information gain over the
+WHOLE trajectory, not per step. That is not a refinement of the objective — it
+is the objective, exactly. mf_dro.py:1953 labels the return
+
+    rtg[tau] = log(b_tau) - log(b_T)
+
+so the per-step rewards TELESCOPE and rtg[0] = log(b_0) - log(b_T). b_0 is
+fixed at rollout start, therefore
+
+    argmax total information gain  ==  argmin b_T
+
+The return depends only on the TERMINAL posterior and is PATH-INDEPENDENT.
+Maximising joint information gain is a SET-selection problem over the T query
+points, and the existing MES teacher — a per-step argmax — is its GREEDY
+approximation. This is the first teacher tested that could raise rtg_target
+rather than collapse it.
+
+Built a cost-constrained beam search selecting on terminal b_T (elitism, so it
+provably contains the greedy path). SC1/SC2/SC3/SC5 pass.
+
+### Stage 0 — CONFIRMATORY, gate FAILED
+
+21 states, 3 seeds, R=8 replays. Planned lift over greedy +0.5461 (21/21).
+Realised lift under fantasy resampling **-0.1219 (6/21)**. Winner's curse
++0.6680 (21/21). The beam scored each path on ONE fantasy sample path and
+argmin'd over B of them, selecting lucky DRAWS rather than informative DESIGNS.
+
+### h152b — EXPLORATORY, debiased, gate FAILED AGAIN
+
+Selecting by mean log b_T over M=16 fresh replays killed the curse
+(+0.6680 -> +0.0448; selection-beats-elite 0/21 -> 21/21) — **and killed the
+planned lift with it** (+0.5461 -> -0.1218). The entire Stage 0 advantage was
+selection bias. Stage 0's headline ("large in plan, unreachable in
+realisation") is RETRACTED: measured honestly there was never a large joint
+advantage. **The joint-IG teacher is dead on the merits.**
+
+### The control that mattered more than the experiment
+
+Greedy is CLOSED-LOOP (re-decides each step against its own realised fantasy).
+The beam emits a FROZEN plan via forced_x — OPEN-LOOP. Every comparison above
+varied both at once. Freezing greedy's OWN path isolates it:
+
+| | rtg[0] |
+|---|---|
+| greedy CLOSED-loop | **+0.4860** |
+| greedy OPEN-loop (identical rule, frozen) | **+0.3266** |
+| beam OPEN-loop | +0.2869 |
+
+**OPEN-LOOP PENALTY +0.1594**, 0.72 noise floors, 16/21. At matched loop type
+the beam is -0.0397 (wins 10/21) — a dead heat. ~80% of the joint teacher's
+apparent deficit was never the joint teacher.
+
+### Why this reopens a front I had marked ANSWERED
+
+**Every substitute teacher tested is open-loop.** h145 ORACLE and h146
+DIVERSE-GOOD are frozen forced_x paths; h149 RANDOM-POOL re-draws per step but
+ignores the state. Only the control adapts. So "teacher quality" and "loop
+type" were never separated — including in the h149 result I recorded as THE
+ANSWER for this front.
+
+It also predicts the one thing that stayed unexplained: L_loc is LOWER for
+forced teachers (0.018-0.022 vs 0.040) — the DT fits them BETTER and still
+emits worse points. A state-independent teacher is exactly what should be easy
+to fit and useless to imitate.
+
+HONEST CAVEAT: +0.16 rtg is real but modest, and NOT on its own enough to
+explain the 0.976 -> 0.311 rtg_target collapse. The policy-learning claim (a
+frozen teacher teaches a state-independent policy) is SEPARATE and untested.
+
+**h153 (MES-FROZEN) tests it and is registered to retract the h145/h146/h149
+interpretation if it fires.** Same rule, same states, same pool as the control
+— frozen. Quality identical; adaptivity removed.
+
+### Also established, useful beyond this experiment
+
+The reward label's own signal-to-noise is **2.19** (mean +0.486, replay s.d.
+0.222). rtg[0] is a property of the trajectory AND the fantasy draw, and the
+draw carries roughly a third of the spread. Any procedure that OPTIMISES
+against b_T at this noise level is fitting the draw — which is why greedy is
+hard to beat by search: greedy never selects on a realised b_T, so it never
+pays the curse.
