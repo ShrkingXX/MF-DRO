@@ -15219,3 +15219,59 @@ C2/C1 over four measurements: **90.9, 95.5, 95.9, 87.3%** — range 87.3–95.9%
 against an 8.4% noise floor. Freezing costs 4–13% of the tail; the failing arms
 lose 60–75%. The forecast stands (h153 should not collapse its target) but as
 **85–96%**, not the tight 90.9% I quoted when it rested on a single run.
+
+---
+
+## h157 — the 2×2 readout and two BLIND forecasts, committed before either arm reported
+
+This tick stopped auditing the harness. Three ticks of instrument audit had
+converged (it supports scale claims, 8–13% noise) and further auditing was
+returning less each time. Instead: pre-commit the analysis, and use the harness
+for the one thing it has already proved good at — forecasting a running arm.
+
+### Both forecasts committed while h153 and h155 were 0/5 finished
+
+Harness readout, 6 states, N=100, 10-model ensemble, two replicates:
+
+| condition | mean | % of control |
+|---|---|---|
+| control (MES, closed) | 0.9673 | 100.0% |
+| **C2 = h153 MES-FROZEN (open)** | **0.7948** | **82.2%** |
+| **C6 = h155 UCB-LOC (closed)** | **0.9869** | **102.0%** |
+| RANDOM-POOL / ORACLE / DIVERSE-GOOD | 0.250–0.332 | 25.9–34.3% |
+
+**h153 forecast:** 82–96% of the control's rtg_target across five harness
+measurements → ~0.80–0.94, not ~0.31. Performance **near the control**.
+**h155 forecast:** ~102% → ~0.98. Performance **near the control**. NOT
+predicted to sit between the control and the failing arms.
+
+Recorded with h155 at cost 184/240 and 0/5 result files written, so blind.
+
+### The substantive claim this commits to
+
+C6 is a **closed-loop non-MES** teacher and it retains the *whole* tail (102%),
+3.49× the failing band. If that holds in the real run, the operative variable is
+**information gain**, not the loop type and not the MES rule specifically: UCB
+with β=2 targets high-variance points, which is information-seeking, so it earns
+a comparable tail. That is outcome **O1** of the pre-committed table.
+
+### Named retractions, all committed before data
+
+- **h153 fails → O3.** The entire h156 tail account is refuted at its central
+  forecast and comes out of findings.md *and* the published report.
+- **h155 fails while h153 succeeds → O2.** The account narrows to MES-derived
+  teachers and "any information-seeking teacher suffices" is retracted.
+- **Either lands at 25–35 rel% → O4**, inconclusive for that cell. Named so an
+  intermediate number cannot be read toward the nearer hypothesis.
+- h155's realised **HF fraction** is checked against the control's ~0.98 BEFORE
+  its regret is read; a collapse voids that cell whatever the regret says
+  (h60's `thompson` arm collapsed to 2/196 HF and is uninterpretable for this).
+
+### A methodological note worth keeping
+
+The first C6 run was tracking ~36 min against h155's ~21 min ETA, which would
+have made the forecast non-blind. I killed it at 1/9 states — without reading
+its output — and relaunched at 6 states / N=100. **Precision was traded for
+blindness deliberately**, and the forecast is stated as a band rather than a
+number because of it. A coarse blind forecast is worth more than a precise
+retrospective one.

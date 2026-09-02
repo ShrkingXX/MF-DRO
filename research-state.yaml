@@ -32,6 +32,16 @@ current_front:
     replicated but is NOT the operative cause.'
   reinstated: 'h149s mechanism -- reward IS information gain, trajectory quality is
     orthogonal to it -- survives and now has the quantitative bridge it lacked.'
+  h157_forecasts: 'BLIND, committed while both arms were 0/5 finished (h155 at
+    cost 184/240). h153 = harness C2 -> 82-96% of control rtg_target, performance
+    NEAR CONTROL. h155 = harness C6 -> ~102% of control, performance NEAR CONTROL.
+    Failing-arm band is 25.9-34.3%. Both point at outcome O1: the operative
+    variable is INFORMATION GAIN, not loop type and not the MES rule. Retraction
+    map in experiments/h157-2x2-readout/protocol.md (O1-O4), readout code
+    pre-committed in code/readout.py.'
+  harness_status: 'CHARACTERISED and no longer under audit. Supports SCALE claims
+    only: per-arm errors 0.5-31%, noise floor 8-13%. The 3-4x separation it does
+    support sits far outside all of that.'
   running:
   - 'h153 MES-FROZEN (Borehole seeds 42-46, launched 2026-09-02). The control that
     separates QUALITY from ADAPTIVITY: the control MES rule, its own path frozen.
