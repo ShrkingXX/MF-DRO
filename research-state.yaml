@@ -97,6 +97,27 @@ current_front:
     95% of the control''s escape on Borehole and 90% on Hartmann, yet costs 1.07x
     vs 3.15x. The asymmetry STAYS OPEN, as since h175.'
 
+  h182_dynamic_and_inversion: 'TWO further results. (1) DYNAMIC SIGNATURE: ratio of
+    the last sixth''s mean centre-distance to the first sixth''s separates ALL 28
+    MF-DRO Borehole arms COMPLETELY -- failing 0.308-0.424 (n=4), working
+    1.200-1.390 (n=24), gap 0.777. Working arms move AWAY from the centre over a
+    run; failing arms move INTO it. Opposite directions, not degrees. Checked on
+    every arm precisely because the bimodality claim was a 10-arm artifact; this
+    one survives. The FIRST QUERY IS NOT DESTINY: rho(first query, rel%) = -0.707
+    but rho(last-20, rel%) = -0.967, the two correlating at only +0.676 -- the DT
+    is retrained across a run and the arms DIVERGE. (2) TEACHER-vs-DT INVERSION,
+    the sharpest direct confirmation of the front''s answer: HEAD-MES''s teacher
+    averages essentially AT the box centre over all tau (0.092, since 7 of 8 steps
+    are random) while its DT queries sit FAR from it (0.819) and it WORKS (16.96);
+    TAIL-MES inverts exactly (teacher 0.571 far, DT 0.089 at centre, FAILS 43.94).
+    The teacher''s all-tau average is ANTI-predictive; tau=0 predicts. Measured on
+    the pair built to dissociate the two. FEEDBACK-LOOP HYPOTHESIS DROPPED: every
+    teacher EXPANDS including the failing arm''s (1.07-1.15), so the collapse is
+    internal to the DT, not mediated by a degrading teacher distribution. LIMITS:
+    teacher_action_stats exists only on h171/h172 (5 arms, 1 failing) and averages
+    over all tau -- a per-tau slice is a cheap future addition but has no consumer
+    while the front is closing, so it is RECOMMENDED, not implemented.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

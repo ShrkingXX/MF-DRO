@@ -3564,3 +3564,22 @@ ships.
   that disagreed with the control's known 15.82 (and a +0.707 correlation built on
   it); counting target manipulations as rule changes; a ">6 sd" gate justification
   calibrated on 2 seeds that the 4th seed cut to 2.1 sd.
+
+## tick 39 — centre-collapse, and the sharpest confirmation of the front's answer
+
+- **h182 (EXPLORATORY).** The failure mode is collapse to the box centre.
+  ρ(distance from centre, rel%) = **−0.967** over 28 MF-DRO Borehole arms.
+- **Self-correction.** First pass called Borehole *bimodal* with a 0.70-wide gap on
+  10 hand-picked arms; running all arms filled the gap. Sampling artifact, fixed.
+- **Dynamic signature.** w6/w1 centre-distance ratio separates **28/28** arms
+  completely (failing 0.31–0.42, working 1.20–1.39). Verified on all arms *because*
+  of the bimodality error.
+- **Teacher-vs-DT inversion.** HEAD's teacher averages at the centre while its DT
+  sits far and works; TAIL inverts. The teacher's all-τ average is anti-predictive;
+  τ=0 predicts. Direct confirmation of h180 on the dissociating pair.
+- **Feedback-loop hypothesis dropped on evidence** — every teacher expands,
+  including the failing arm's.
+- **The benchmark asymmetry stays open.** My escape-based explanation was refused
+  by its own numbers (HEAD retains 95%/90% of the control's escape yet costs
+  1.07×/3.15×).
+- h181 running, 38/107.
