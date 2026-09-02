@@ -61,3 +61,13 @@ All three are serialised in the run's `_h153` block by the worker.
 Frozen: rel% of |optimum| @cost_curve 200 via h83's sr_curve + grid. n=5,
 Borehole seeds 42-46. **No p-values.** Improvement counted as any post-init HF
 query beating the best initial HF value.
+
+## Scope reduction to preserve blindness (recorded at the time)
+
+The first C6 run (9 states, N=200) was tracking ~36 min against h155's ~21 min
+ETA, so it would NOT have beaten h155 and the forecast would not have been
+blind. Killed and relaunched at **6 states, N=100** before any C6 result was
+read (progress was 1/9 states, output not inspected). This trades precision for
+blindness deliberately: a coarse forecast that is genuinely blind is worth more
+than a precise one that is not. Expect wider noise than the 8-13% floor already
+measured; the forecast is therefore stated as a BAND, not a number.
