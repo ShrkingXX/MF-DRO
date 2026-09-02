@@ -1,0 +1,2 @@
+S=/private/tmp/claude-501/-Users-yurucui-Desktop-DRO-Code-DRO-aistats-submission/066b0360-2a64-4497-9920-3b47bbf67828/scratchpad
+SCRATCH=$S .venv/bin/python experiments/h155-ucb-loc/gate.py 2>&1 | grep -vE "optimum|^Currin|^Hartmann6" | tail -10

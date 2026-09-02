@@ -964,6 +964,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             kg_topk=1,
                             fantasy_mode='sample',
                             forced_x=None,
+                            ucb_loc_beta=2.0,
                             n_roi_candidates=200,
                             teacher_refine_samples=0,
                             teacher_refine_noise=0.05,
@@ -1615,9 +1616,25 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         # conditioning, b_tau, rtg = log(b_tau) - log(b_T), btg, costs -- runs
         # through the identical code below, which is what licenses the claim
         # that only trajectory quality differs.
-        if forced_x is not None:
-            x_tau = forced_x[min(tau, forced_x.shape[0] - 1)].to(
-                device=roi_candidates.device, dtype=roi_candidates.dtype)
+        # H155 UCB-LOC. A CLOSED-LOOP, NON-MES teacher that holds the FIDELITY
+        # channel fixed. h60 showed rollout_policy="thompson" collapses the
+        # fidelity head to ~99% LF (2/196 HF), which confounds any "different
+        # teacher rule" comparison with "different HF/LF mix". So here the
+        # LOCATION is chosen by UCB on the HF posterior -- adaptive, re-decided
+        # every step from the current model, and not MES -- while the FIDELITY
+        # is chosen by the SAME cost-normalised info-gain criterion the forced_x
+        # path below already uses. Only the location rule varies.
+        _ucb_loc = (forced_x is None and rollout_policy == "ucb_loc")
+        if _ucb_loc:
+            with torch.no_grad():
+                _mu, _var = current_ko.hf_posterior(roi_candidates)
+            x_tau = roi_candidates[(_mu + ucb_loc_beta
+                                    * _var.clamp_min(0).sqrt()).argmax()]
+
+        if forced_x is not None or _ucb_loc:
+            if forced_x is not None:
+                x_tau = forced_x[min(tau, forced_x.shape[0] - 1)].to(
+                    device=roi_candidates.device, dtype=roi_candidates.dtype)
             _xf = x_tau.reshape(1, -1)
             # FIDELITY = ACTUAL info gain of HF vs LF AT the forced point.
             #
