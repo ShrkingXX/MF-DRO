@@ -3656,3 +3656,20 @@ ships.
   with h181 (~1.1% of the fix transfers), "a defect with a fix" is the wrong
   diagnosis.
 - h184 running: ctrl iter ~41, head ~69, lf_fraction ≈ 0.74 on both as designed.
+
+## tick 44 — the synthesis, and the arm it calls for
+
+- **SYNTHESIS**: the DT is an **averager of its teacher's first move**. h185
+  (constant predictor) + h186 (ignores well-separated inputs) + h31 (that averager is
+  competitive with the teacher, 7/10 seeds) compose into one account. The founding
+  result follows: a perfect teacher's routes *end* at the optimum but *start*
+  arbitrarily, so the mean of their first moves is the box centre.
+- **Checked before building**: h31 and h55 already targeted "does the DT add
+  anything". h31 has 10 seeds and was read rather than rerun.
+- **h187 registered** (protocol + SC1 committed before launch) to fix h31's three
+  weaknesses — Hartmann, off-metric, fidelity-confounded. Not yet launched: it waits
+  for h184's slots so the registered priority is not slowed.
+- **The smoke test earned its keep**: h31's code no longer runs — `candidate_features`
+  is `None` unless the forbidden `use_candidate_scoring` flag is on. Caught before
+  launch, deviation recorded in the protocol.
+- h184 still running (ctrl 83, head 137).

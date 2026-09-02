@@ -197,6 +197,39 @@ current_front:
     is the wrong diagnosis, since h181 showed only ~1.1% of the fix transfers and the
     state moves the output 6x less. LIMIT: state distances from one run (seed 42).'
 
+  synthesis_dt_is_an_averager: 'THREE results compose into one account. (1) h185: the
+    DT is a per-timestep CONSTANT predictor (loss/var 0.795-1.026 on all 5 arms;
+    variance explained monotone in tau-structure, 0.0% at L=1 by construction).
+    (2) h186: it ignores its inputs and NOT for lack of information -- state
+    sensitivity 0.0122 vs conditioning 0.0782, with the 3 tau=0 states measured 0.5866
+    apart on norm 4.5032. (3) h31 (ALREADY RUN, 10 seeds, Hartmann): no-DT teacher-only
+    0.4781 vs MF-DRO 0.4007, MF-DRO better on 7/10, paired +0.0774, its own reading
+    "not a net negative", Wilcoxon p=0.2324. THE ACCOUNT: the DT reproduces the MEAN of
+    its teacher''s FIRST MOVE, and that average is about as good as running the teacher
+    -- averaging over rollouts is variance reduction on a single decision, and it is
+    ALL the DT does. This makes the founding result unsurprising: a PERFECT teacher''s
+    routes end at the optimum but START wherever the rollout starts, so their first
+    moves are near-arbitrary and their mean is the box centre -- exactly where the
+    failing arms provably end up (h182) and why they never beat their own initial
+    design (0/5 across 20 runs). QUALITY WAS NEVER TRANSMITTED BECAUSE ONLY THE FIRST
+    STEP IS READ AND QUALITY LIVES IN THE ENDPOINT. WEAKEST LEG: h31 is Hartmann, off
+    the frozen metric, and its arms ran at different fidelity mixes (the h174 confound
+    class). h187 is REGISTERED to supply the like-for-like version.'
+
+  h187_registered: 'h187 (CONFIRMATORY, protocol + SC1 committed before launch, NOT YET
+    LAUNCHED -- waiting for h184''s head arms to free slots so the machine stays <=10
+    and h184 is not slowed). The no-DT control on Borehole under the FROZEN metric,
+    seeds 42-46, vs the h83 MF-DRO control (15.82). Gate on paired (teacher - MF-DRO)
+    rel% points against the pre-existing 10.9% worst-case noise floor = 1.72 points:
+    P1 competitive |diff|<=1.72, P2 teacher BETTER diff<-1.72, P3 teacher WORSE
+    diff>+1.72. P2 WOULD MAKE THE DT A NET NEGATIVE against its own teacher on the
+    frozen metric and must be reported plainly if it fires. SC1 PASS (teacher path
+    verified by exactly-binary p_pred). DEVIATION forced by the smoke test: h31 read
+    the pool from candidate_features, which is None now unless use_candidate_scoring is
+    on (forbidden), so this arm draws its own 200 uniform candidates. SC1 also showed
+    p_pred=1.0 every iteration, so the arm may run at lf_fraction ~0 vs MF-DRO''s
+    0.117 -- realised lf_fraction to be read BEFORE the regret.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
