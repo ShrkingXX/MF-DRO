@@ -9,7 +9,9 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")
 sys.path.insert(0, REPO)
 from benchmarks import get_benchmark
 from src.models.ko_gp import KennedyOHaganGP
-from src.policy.mf_dro import compute_joint_mf_mes
+from src.policy.mf_dro import (compute_joint_mf_mes, _build_hf_proxy_model,
+                                _compute_mes_hf_vectorized, _compute_mes_lf_vectorized)
+from gumbel_thompson import thompson_sample_y_star
 from src.policy.joint_ig_teacher import gumbel_b
 
 T = 8
@@ -60,7 +62,25 @@ def main():
     # forced paths take the SAME fidelity rule the arms used: fidelity is not
     # forced, it follows the cost-normalised criterion. Approximated here by the
     # arms' realised HF-heavy mix so the cost profile is comparable.
-    fid_of = lambda P: [1 if torch.rand(1).item() < 0.75 else 0 for _ in range(P.shape[0])]
+    def fid_of(P, ko0, pool):
+        """h156d: the arms' OWN fidelity rule, verbatim (mf_dro.py:1618ff).
+        y* is Thompson-estimated over the FULL pool -- never a one-point pool,
+        which was the h145 v1 degenerate-y* bug. Replaces a hardcoded
+        `1 if rand()<0.75 else 0` coin flip that fit the interpolating
+        conditions badly (C4 Hartmann -31.2%, C5 Borehole -19.3%) while leaving
+        the random condition, which is insensitive to fidelity, fitting well.
+        Note this is evaluated on the START model for the whole path rather
+        than re-derived per step, since the replay conditions sequentially --
+        an approximation, but of the RULE rather than of a coin."""
+        proxy = _build_hf_proxy_model(ko0)
+        ys = thompson_sample_y_star(proxy, pool, K=10)
+        out = []
+        for i in range(P.shape[0]):
+            xf = P[i].reshape(1, -1)
+            mh = float(_compute_mes_hf_vectorized(xf, proxy, ys)[0])
+            ml = float(_compute_mes_lf_vectorized(xf, ko0, ys, n_quad=32)[0])
+            out.append(1 if (mh / c_H) >= (ml / c_L) else 0)
+        return out
     bounds = torch.tensor([hf["domain_min"], hf["domain_max"]], dtype=torch.float64)
     d = bounds.shape[1]; c_H, c_L = float(hf["cost"]), float(lf["cost"])
     recs = []
@@ -87,13 +107,15 @@ def main():
                 c2.append(lb0 - math.log(replay(ko, pool, xs, els)))   # C2 freeze its OWN path
                 lo, hi = bounds[0], bounds[1]
                 xs0 = lo + (hi - lo) * torch.rand(d, dtype=torch.float64)
+                _p4 = _interp(xs0, xstar, T)
                 c4.append(lb0 - math.log(replay(               # C4 ORACLE path
-                    ko, pool, _interp(xs0, xstar, T), fid_of(_interp(xs0, xstar, T)))))
+                    ko, pool, _p4, fid_of(_p4, ko, pool))))
                 _cand = lo + (hi - lo) * torch.rand(GOOD_POOL, d, dtype=torch.float64)
                 x_end = _cand[f_hf(_cand).reshape(-1).argmax()]
                 xs1 = lo + (hi - lo) * torch.rand(d, dtype=torch.float64)
+                _p5 = _interp(xs1, x_end, T)
                 c5.append(lb0 - math.log(replay(               # C5 DIVERSE-GOOD
-                    ko, pool, _interp(xs1, x_end, T), fid_of(_interp(xs1, x_end, T)))))
+                    ko, pool, _p5, fid_of(_p5, ko, pool))))
                 ridx = torch.randint(0, POOL_N, (T,))
                 rell = [1 if torch.rand(1).item() < 0.25 else 0 for _ in range(T)]
                 c3.append(lb0 - math.log(replay(ko, pool, pool[ridx], rell)))  # C3 random path
@@ -110,7 +132,7 @@ def main():
                               for n in ("C1_closed", "C2_open_own", "C3_open_rand",
                                         "C4_oracle", "C5_diverse_good")), flush=True)
 
-    out = f"{REPO}/experiments/h156-target-is-a-max/results/tail5_{a.bench}.json"
+    out = f"{REPO}/experiments/h156-target-is-a-max/results/tail6_{a.bench}.json"
     json.dump(recs, open(out, "w")); print(f"\nwrote {out}  ({len(recs)} states)")
 
 
