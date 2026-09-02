@@ -17021,3 +17021,36 @@ module must do. Only a fully-trained network tests the hypothesis.
 the saturation explanation is wrong and h177's exact zero returns to unexplained
 — the seventh account to fall. The measurement (BTG inert) stands either way;
 only the reason is at stake.
+
+## Checking the fix I proposed before anyone acts on it
+
+findings.md proposed "standardise the conditioning scalars before embedding" as
+the fix for BTG's inertness. **I proposed it without checking it would work** —
+the same over-reach pattern this session has caught repeatedly. Checked now, at
+zero compute.
+
+Observed `btg_now`: mean 28.036, sd 0.785, range 26.08–30.52. Z-scored, that
+range becomes **−2.49 to +3.16**.
+
+| input | relative embedding change |
+|---|---|
+| BTG raw (26.1 → 30.5) | **0.0056** ± 0.0003 |
+| **BTG z-scored (−2.49 → +3.16)** | **1.8817** ± 0.0119 |
+| RTG raw (0.30 → 1.00), reference | 0.4869 ± 0.0369 |
+
+**Standardising makes the BTG embedding 336× more responsive**, and ~4× more
+responsive than RTG's current raw channel. The reason it is so large: z-scoring
+spans the sign change, and `LayerNorm(Linear(1→H)(v))` flips direction across
+v = 0, so the response is maximal there.
+
+### The distinction that matters, and I nearly skipped it
+
+**The fix restores responsiveness. It does NOT follow that responsiveness
+improves regret.** A live BTG channel could help or hurt — the network may be
+better off ignoring a signal it cannot use. Everything established here says the
+conditioning is *inert*, not that it *should* be active.
+
+So the fix is validated as doing what it claims (making the channel responsive)
+and is entirely untested as an improvement. Registered as h179, not launched:
+h178 is still settling whether the saturation account holds on trained weights,
+and this computation used random weights too.
