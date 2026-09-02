@@ -17462,3 +17462,48 @@ counterfactual "what if the conditioning were usable".
 
 **That counterfactual is now an open item, not a settled null** — the honest cost of
 h179 having varied two things at once.
+
+---
+
+## h185 (EXPLORATORY) — the DT is a PER-TIMESTEP CONSTANT PREDICTOR
+
+A predictor that outputs its target's conditional mean has MSE **equal to** the
+target's variance. `L_loc` is the DT's location MSE, `var_total` the variance of the
+teacher's actions — same runs, same units:
+
+| arm | rollout len | rel% | **loss / var** | variance explained |
+|---|---|---|---|---|
+| TAIL-MES | 8 | 43.94 | **0.795** | **20.5%** |
+| HEAD-MES | 8 | 16.96 | **0.916** | 8.4% |
+| ROLLOUT4 | 4 | 15.14 | **0.985** | 1.5% |
+| ROLLOUT2 | 2 | 13.97 | **1.026** | 0.0% |
+| ROLLOUT1 | 1 | 13.69 | **1.022** | 0.0% |
+
+**Every arm sits at the best-constant MSE**, across a 2.5× range of teacher variance.
+
+**And the variance it does explain is exactly the τ-structure.** The ordering is
+monotone in how much timestep-structure each teacher has — 0.0% at rollout length 1,
+where there is only τ=0 and the prediction is 0% *by construction*, rising to 20.5%
+for the arm with the sharpest τ=0 vs τ>0 split. A per-timestep constant predictor
+explains the between-τ variance and none of the within-τ variance. That is the
+observed pattern.
+
+### Why this unifies the front
+
+- The DT learns **one point per timestep**, not a state→action mapping.
+- Inference queries **τ=0 only**, so it emits the teacher's **τ=0 mean** — which is
+  why the teacher's all-τ average is anti-predictive (the HEAD/TAIL inversion) and
+  why swapping the teacher's *rule* moves nothing (different rules share a τ=0 mean).
+- **Performance is set by where that constant lands, not by how much is learned.**
+  TAIL explains the **most** variance and fails **worst**; ROLLOUT1 explains **none**
+  and does **best**.
+- **"Fits better while performing worse"**, recorded as unexplained for weeks, is
+  located: in TAIL the loss falls 20% over the run (0.0480 → 0.0384) while queries
+  contract to 31% of their starting centre-distance (0.290 → 0.089) and **the
+  teacher's own spread stays flat (1.03)**. It fits better *by predicting the mean
+  harder*, and the mean is at the centre.
+
+Limits: 5 arms, one failing, Borehole only (`teacher_action_stats` exists only on
+h171/h172); the loss/var identity is a statement about *training*, with the τ=0
+specificity coming from h180/h182; ratios slightly above 1.0 are expected since the
+best constant is computed post hoc on the same data.

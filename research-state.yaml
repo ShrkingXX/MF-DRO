@@ -159,6 +159,24 @@ current_front:
     counterfactual "what if the conditioning were usable". THAT COUNTERFACTUAL IS NOW
     AN OPEN ITEM, not a settled null.'
 
+  h185_best_constant: 'THE MECHANISM, QUANTIFIED. A predictor emitting its target''s
+    conditional mean has MSE == the target''s variance. Measured loss/var on Borehole:
+    TAIL-MES 0.795, HEAD-MES 0.916, ROLLOUT4 0.985, ROLLOUT2 1.026, ROLLOUT1 1.022 --
+    EVERY arm sits at the best-constant MSE across a 2.5x teacher-variance range. The
+    DT explains 0-20.5% of its teacher''s action variance, and NONE on three of five
+    arms. The variance it DOES explain is monotone in tau-structure: 0.0% at rollout
+    length 1 (only tau=0 exists, so 0% BY CONSTRUCTION), 0.0% at L=2, 1.5% at L=4,
+    8.4%/20.5% at L=8 with a sharp tau=0 vs tau>0 split. That is exactly a PER-TIMESTEP
+    CONSTANT predictor. UNIFIES THE FRONT: the DT learns one point per timestep, not a
+    state->action mapping; inference queries tau=0 so it emits the teacher''s tau=0
+    mean; performance is set by WHERE the constant lands, not by how much is learned
+    (TAIL explains the MOST and fails WORST; ROLLOUT1 explains NONE and does BEST).
+    LOCATES "fits better while performing worse": in TAIL the loss falls 20% over the
+    run while queries contract to 31% of their starting centre-distance and the
+    TEACHER''s spread stays flat (1.03) -- it fits better by predicting the mean harder.
+    LIMITS: 5 arms, 1 failing, Borehole only; loss/var is a TRAINING statement, the
+    tau=0 specificity comes from h180/h182.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
