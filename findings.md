@@ -16809,3 +16809,48 @@ This independently re-scopes h172's actionable result: if the later steps do rea
 work on Hartmann, shortening the rollout there should not be expected to be free
 — and h174's SC1 firing left that untested anyway. The two corrections agree,
 which is some reassurance that neither is an artefact of the other.
+
+---
+
+# h175 — **P1 fails.** The τ=0 mechanism is equally strong on Hartmann, so the scope difference is UNEXPLAINED
+
+| Hartmann arm | d(q, τ0 mean) | d(q, centre) | τ0 → centre | est. SE |
+|---|---|---|---|---|
+| control (works) | **0.1943** | 0.6521 | 0.5329 | 0.0364 |
+| h165 UCB-LOC (works) | **0.1683** | 0.6354 | 0.5518 | 0.0355 |
+| RANDOM-POOL (fails) | 0.1225 | 0.1048 | **0.0605** | 0.0632 |
+| ORACLE (fails) | 0.1569 | 0.1461 | **0.0594** | 0.0633 |
+
+P2 calibrates (0.0605/0.0594 against a **pre-computed** 6D floor of 0.062 — the
+h170 error of setting a threshold below the estimator floor is not repeated).
+P3 holds 4/4.
+
+**P1 fails, in the opposite direction.** Tightness ratio `d(q, τ0)/d(q, centre)`:
+
+```
+Borehole   0.306   0.309
+Hartmann   0.298   0.265
+```
+
+I predicted Hartmann would be *materially larger* — a weaker mechanism, leaving
+room for the later steps to matter. It is slightly **smaller**.
+
+## The consequence: a gap, not an account
+
+The strong form holds on Borehole and fails on Hartmann, and **that is not
+because the τ=0 mechanism is weaker there.** The query lands in the same relation
+to its teacher's first-step mean on both benchmarks; on one that suffices to
+match the control, on the other it does not.
+
+**Recorded as unexplained.** The available evidence would support a story about
+Hartmann's sharper optimum needing refinement that Borehole's does not — which is
+exactly the shape of the five accounts that already fell here, each fitting the
+evidence available at the time. It is not being written down as a finding.
+
+## What did replicate
+
+The residual is the same size on both benchmarks in SE units — **5.0 / 5.0 on
+Borehole, 5.3 / 4.7 on Hartmann**. The τ=0 account's known incompleteness is a
+stable feature of the mechanism, not a Borehole artefact. That is the opposite of
+what a benchmark-specific quirk looks like, and it makes the residual a better
+target for future work than the scope difference.

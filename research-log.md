@@ -3312,3 +3312,40 @@ machinery working as intended, and it is more of what the front produced this
 tick than any new number.
 
 **Compute:** 1-11/15.
+
+## 2026-09-02 (tick 31) — a failed prediction, and the decision not to explain it
+
+**Fixed the published report first.** It stated "only the teacher's first step
+reaches the learner" without qualification, and last tick's correction showed
+that is Borehole-only. The page now leads with the two-benchmark claim (a bad
+first step is fatal) and records that the fifth Hartmann seed reversed the
+stronger one. Publishing a claim I had already corrected internally would have
+been the worst version of this.
+
+**h175 then tested the obvious explanation and it failed.** If the strong form
+works on Borehole and not Hartmann, the natural account is that the tau=0
+mechanism is weaker on Hartmann. Measured tightness ratio: Borehole 0.306/0.309,
+Hartmann 0.298/0.265. **Equally strong, if anything slightly stronger.** P1
+predicted materially larger; observed smaller. R1 fires.
+
+**I am recording the scope difference as unexplained rather than proposing a
+seventh account.** The evidence in hand would comfortably support a story about
+Hartmann's sharper optimum needing refinement that Borehole's does not. That is
+precisely the shape of the five accounts that already fell on this front -- each
+fitted the evidence available at the time and none survived. The honest move at
+this point is to stop generating them.
+
+**Something did replicate, and it is the more useful target.** The tau=0
+account's residual is ~5 SE on BOTH benchmarks (5.0/5.0 Borehole, 5.3/4.7
+Hartmann). A stable incompleteness is a better thing to chase than a
+benchmark-specific gap, because it is a property of the mechanism rather than of
+one function.
+
+**Two process notes.** The estimator floor was computed BEFORE setting P2's
+threshold this time (0.062 in 6D against a 0.15 threshold) -- h170's version had
+the threshold below the floor. And a sed substitution silently left the benchmark
+bounds at 8D; it failed loudly on a shape mismatch rather than producing wrong
+numbers, which is the good failure mode, but it is the second time this session a
+partial string substitution has bitten.
+
+**Compute:** 0-1/15. All arms complete.
