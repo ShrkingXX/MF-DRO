@@ -78,3 +78,22 @@ not launch until that passes on the modified file.
 
 2 arms × 5 seeds = 10 workers × 1 thread ≤ 15. Launched only after h181's five
 workers exit.
+
+## Prerequisite gate: PASSED (recorded before launch)
+
+```
+tools/identity_gate.py
+  reference : 122.29066752728207
+  this build: 122.29066752728207
+  IDENTITY GATE: PASS
+```
+
+Verified **exactly**, not to a tolerance: the pre-patch file was checked out
+(`git stash`) and run, giving `122.29066752728207`; the patched file gives the
+same value to full precision.
+
+Note for future gates: findings.md records this reference as `122.2906675273`,
+which is the same number shown to 13 significant figures. Comparing against that
+rounded value fails a genuinely identical build by ~1.8e-11 — which is exactly
+what happened on the first attempt here. `tools/identity_gate.py` now carries the
+full-precision value and compares exactly.

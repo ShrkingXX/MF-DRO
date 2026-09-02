@@ -3810,6 +3810,29 @@ class DirectMFRegretOptimization:
                           f"({hf_every - 1} consecutive LF, p_pred was "
                           f"{self._last_p_pred:.4f})")
 
+            # REAL-QUERY HF CEILING (h184 arm LFF-*). Mirror of the
+            # `real_hf_every` FLOOR above, in the other direction: once the
+            # run's realised HF fraction reaches `max_hf_fraction`, the next
+            # real query is forced to low fidelity. This exists to move a
+            # benchmark's operating fidelity mix WITHOUT touching c_L/c_H,
+            # which are part of the frozen evaluation and must not change.
+            #
+            # Reads self.iteration_log (one entry per real query, the same
+            # source `lf_fraction` is reported from) rather than
+            # recent_ell_history, which is a deque(maxlen=5) and would give a
+            # 5-sample window instead of the realised fraction.
+            #
+            # Disabled by default (None), so the guard below cannot alter any
+            # existing configuration's behaviour.
+            _max_hf = getattr(self.config, 'max_hf_fraction', None)
+            if _max_hf is not None and ell_t == 1 and self.iteration_log:
+                _n_log = len(self.iteration_log)
+                _n_hf = sum(1 for _l in self.iteration_log if _l['ell_t'] == 1)
+                if _n_hf / _n_log >= float(_max_hf):
+                    ell_t = 0
+                    print(f"iter {t}: HF ceiling override (realised HF frac "
+                          f"{_n_hf / _n_log:.3f} >= {float(_max_hf):.2f})")
+
             if ell_t == 1:
                 y_t = self.f_hf(x_t.unsqueeze(0)).reshape(-1)[0].item()
                 self.data_hf_x.append(x_t.double())
