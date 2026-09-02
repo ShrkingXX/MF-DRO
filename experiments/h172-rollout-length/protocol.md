@@ -58,3 +58,9 @@ h171's own SC1 firing on TAIL.
 Borehole_8D, seeds 42-46, lengths {1, 2, 4}; length 8 is the existing control.
 15 workers is 3 lengths x 5 seeds -- at the cap, so launched only while nothing
 else is running.
+
+## SC passed before launch
+
+Smoke test at `rollout_length=2`: 180 trajectories generated, **all of length
+exactly 2** (min 2, max 2). The parameter reaches `simulate_mf_trajectory` and is
+not silently ignored — the failure mode that cost h169 an arm.
