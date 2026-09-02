@@ -399,9 +399,9 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
   <div class="col">
     <h2>Why a perfect teacher cannot help<span class="chip c-settled">the answer</span></h2>
     <p>Everything above composes into one sentence. <strong>The learner reproduces the average
-    of its teacher's <em>first move</em>, and that average is about as good as running the
-    teacher.</strong> Averaging over many routes is real work — it is variance reduction on a
-    single decision — but it is all the learner does.</p>
+    of its teacher's <em>first move</em> — and on the main benchmark that average is
+    <em>worse</em> than simply running the teacher.</strong> Averaging over many routes is real
+    work, but it is all the learner does, and here it costs rather than pays.</p>
     <p>Now consider what a <em>perfect</em> teacher actually looks like. Its routes
     <em>end</em> at the optimum. But they <em>start</em> wherever the route happens to start.
     All the quality is in the destination; the first steps are close to arbitrary. So the
@@ -433,16 +433,29 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     to keep, the other made routes shorter. Neither changed the rule; both changed what was
     being averaged.</p>
 
-    <div class="open">
-      <h3>The weakest link, and the test now running</h3>
-      <p>The claim that "the average is about as good as the teacher" rests on an older
-      experiment run on a different benchmark, scored on a different measure, with the two sides
-      spending their budgets on different mixes of cheap and expensive evaluations. It found the
+    <div class="note">
+      <h3>The test came back against the method<span class="chip c-retract">corrected</span></h3>
+      <p>An earlier section of this report said the learner's averaging was "about as good as
+      running the teacher". That rested on an older experiment on a different benchmark, scored
+      on a different measure, with the two sides spending their budgets differently. It found the
       learner ahead on seven of ten runs and called it unresolved — which it was.</p>
-      <p>A like-for-like replacement is running now: the same teacher with no learner at all, on
-      the main benchmark, on the frozen measure. Its outcomes were written down first, including
-      the one that would be worst for this project — that the learner is a net <em>negative</em>
-      against the teacher it copies. If that is what comes back, it goes in the report.</p>
+      <p>The like-for-like replacement has now run: the same teacher, <em>no learner at all</em>,
+      on the main benchmark, on the frozen measure. Its possible outcomes were written down
+      first, including the one worst for this project. That is the one that came back.</p>
+      <p><strong>Removing the learner entirely improves the result on every single run</strong> —
+      12.97 against 15.82, better on five of five seeds. The pre-registered bar for calling it a
+      real difference was 1.72; the gap is 2.85.</p>
+      <p>The obvious objection is that the teacher spends its budget differently — more of it on
+      cheap evaluations. That is ruled out by an experiment already run for another purpose:
+      forcing the learner to spend <em>6.4&times;</em> more on cheap evaluations moved its score
+      by 0.06. The teacher's advantage is not about where it spends.</p>
+      <p>One qualifier, so this is not overstated in the other direction: the teacher chooses by
+      searching over two hundred candidate points, while the learner emits a single point
+      directly. That asymmetry <em>is</em> the comparison — it is what replacing search with a
+      learned policy means — but the honest phrasing is that the learner is a net negative
+      against a rule that performs explicit search.</p>
+      <p>The older experiment's opposite finding, on the second benchmark, is not yet
+      reconciled. That run is underway now, on the frozen measure, using the identical code.</p>
     </div>
   </div>
 </section>

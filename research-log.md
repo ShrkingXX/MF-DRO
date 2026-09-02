@@ -3702,3 +3702,22 @@ ships.
 - **The asymmetry is NOT closed.** This is the first of three accounts not refuted, and
   it is partial.
 - h187 still running (5 workers).
+
+## tick 47 — h187: the DT is a net negative. The result the protocol named as worst.
+
+- **h187 P2 fires.** Borehole, frozen metric: **teacher-only 12.97 vs MF-DRO 15.82**,
+  paired **−2.85** (se 1.30), **teacher better on 5/5**, against a pre-registered
+  threshold of 1.72. Removing the Decision Transformer entirely improves the metric.
+- **Fidelity objection ruled out by an arm already run.** h184's LF-forced MF-DRO:
+  a **6.4× change in LF share moves it 0.06 rel% points** (15.82 → 15.76). The
+  teacher's advantage is not about where it spends its budget.
+- **Synthesis leg 3 RETRACTED.** "The averaging is about as good as running the
+  teacher" (from h31: Hartmann, off-metric, unmatched fidelity, 7/10, unresolved) is
+  false on Borehole under the frozen metric. Corrected: the averaging is a **cost**.
+- **Protocol self-correction**: it predicted `lf_fraction ≈ 0` from SC1's first six
+  iterations; realised value is **0.435**.
+- **Report corrected and republished** — it had carried the false claim for one tick.
+- **h189 registered and launched**: h187's worker reused *unchanged* on Hartmann, to
+  settle whether P2 generalises or is Borehole-specific. Until then the claim is
+  scoped to Borehole. Results land in h187's directory (documented in h189's protocol,
+  left as-is to preserve the identical-code guarantee).
