@@ -201,6 +201,8 @@ def run(bench, method, seed, ckpt_path):
     try:
         _tas = getattr(mf, "teacher_action_stats_per_iter", None)
         if _tas: r["teacher_action_stats"] = _tas
+        _p168 = getattr(mf, "h168_probe_per_iter", None)
+        if _p168: r["h168_probe"] = _p168
     except (NameError, AttributeError): pass
     r["_meta"]=dict(bench=bench,method=method,seed=seed,budget=BUDGET,c_H=c_H,c_L=c_L,**sp)
     r["_code"]=CODE

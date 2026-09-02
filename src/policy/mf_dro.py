@@ -2424,6 +2424,7 @@ class DirectMFRegretOptimization:
         # call). Always populated, no config gate -- cheap, no oracle access.
         self.action_reward_corr_per_iter = []
         self.teacher_action_stats_per_iter = []
+        self.h168_probe_per_iter = []
         self.rtg_frac_between_traj_var_per_iter = []
         self.rtg_gpbelief_corr_per_iter = []
         # Gradient coherency (see _train_dt): cosine similarity of per-
@@ -3230,6 +3231,44 @@ class DirectMFRegretOptimization:
                 fidelity_sampling=self.fidelity_sampling,
                 hist=_hist,
             )
+            # H168 CONDITIONING PROBE (read-only, RNG-neutral, OFF by default).
+            # h167 found the failing arms' DT fits its teacher 2.5-4x better than
+            # any constant, yet emits queries within 0.04 of the box centre. That
+            # relocates the failure from training to inference, and the one thing
+            # that differs is the conditioning: rtg_tgt is the extreme upper tail
+            # of the training returns by construction.
+            #
+            # This re-queries the SAME state at a sweep of RTG values and records
+            # each emitted x. propose_mf can consume RNG (fidelity_sampling), so
+            # the generator state is saved and restored around the probe --
+            # without that, an active probe would perturb every later draw and the
+            # arm would stop being comparable to its unprobed twin.
+            # self._h168_probe is None unless a worker sets it, so the default
+            # path is untouched.
+            if getattr(self, '_h168_probe', None):
+                _rng = torch.get_rng_state()
+                try:
+                    _rec = []
+                    for _rv in self._h168_probe:
+                        _px, _pe = self.dt.propose_mf(
+                            state.float(), float(_rv), btg_now,
+                            timestep=0,
+                            use_candidate_scoring=self.use_candidate_scoring,
+                            candidate_features=(cand_feats.float()
+                                                if cand_feats is not None else None),
+                            fidelity_sampling=self.fidelity_sampling,
+                            hist=_hist,
+                        )
+                        _rec.append(dict(rtg=float(_rv),
+                                          x=[float(v) for v in _px.reshape(-1)],
+                                          ell=int(_pe)))
+                    self.h168_probe_per_iter.append(
+                        dict(rtg_target=float(rtg_tgt), probes=_rec))
+                except Exception:
+                    pass
+                finally:
+                    torch.set_rng_state(_rng)
+
             # Record AFTER proposing, so the current step never sees itself.
             self._real_hist.append({'state': state.detach().clone(),
                                      'rtg': float(rtg_tgt), 'btg': float(btg_now)})
