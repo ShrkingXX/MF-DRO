@@ -2327,3 +2327,39 @@ deliberately NOT run (h146/h149 showed the outcome is flat in both quality and
 diversity, so every dose point would return 43.94). research-state.yaml now
 carries a `current_front` block at the top so a future tick reads the real state
 rather than the prompt.
+
+## 2026-09-02 (later) — reflection: the instrument needed auditing, not more arms
+
+This tick ran no new MF-DRO arms. It audited the instrument built last tick, and
+that was the right call: the audit found that h156's headline claim — "all four
+targets reproduced, three within 8%" — was an over-read of a harness with a 6.1%
+noise floor. I would not have found that by running another arm.
+
+**How the noise floor surfaced is worth recording as a method.** h156d was
+designed to change only C4/C5. Because its new fidelity call consumes RNG, it
+incidentally produced a pure replicate of C1/C2/C3. That accident is the only
+reason the noise floor became visible. **A deliberate replicate should have been
+part of h156 from the start** — I quoted four agreement percentages without ever
+measuring the harness's own reproducibility, which is the most basic control an
+instrument owes before its readings are used as evidence.
+
+Guard adopted: any harness whose numbers are going to be compared against real
+runs gets a replicate at a different seed BEFORE its agreements are reported.
+
+**Gate misses this tick, all pre-registered and all honoured:**
+- h156c gate: R2 PARTIAL. Scale generalised to Hartmann; the required test
+  (tracking the narrowing between benchmarks) failed.
+- h156d gate: FAIL. Direction corrected, magnitude unmoved. The AND was
+  pre-stated precisely so this could not be read as a pass, and it is not.
+
+**What did not change:** the h153 forecast. C2/C1 is 90.9 / 95.5 / 90.9 / 93.2%
+across two benchmarks and two replicates — tight against a 6% floor, and
+untouched by the C4/C5 misfit.
+
+**Compute:** 10 workers (h153 ×5, h155 ×5) plus at most 2 short offline jobs,
+never above 12 of 15.
+
+**Runtime honesty:** h153 and h155 are progressing at roughly 1-2 iterations per
+15 minutes per worker and are at 111/240 and 82/240 cost. Per-iteration cost
+grows with the accumulated data, so the remaining time is longer than a linear
+extrapolation suggests. They are not stalled — the workers hold ~99% CPU each.
