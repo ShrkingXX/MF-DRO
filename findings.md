@@ -15576,3 +15576,64 @@ h159 is being allowed to finish rather than killed — it is non-discriminating
 for the accounts, but it validates the harness's C7 forecast (91.5%), and h153
 proved unvalidated harness conditions can be wrong by 2.7×. That is worth one
 arm, and the reason is recorded rather than left implicit.
+
+---
+
+## h162 — the L_loc puzzle resolves, and the learnability framing survives a test
+
+EXPLORATORY, post-hoc, on data already on disk. No new runs.
+
+### A sharper statement of the open hypothesis
+
+"The working arms query model-selected locations" becomes: **the teacher's action
+must be a function of the state the DT can observe.**
+
+| teacher | action is | learnable from state? |
+|---|---|---|
+| control MES | argmax MES(state's model) | yes |
+| h155 UCB | argmax UCB(state's model) | yes |
+| h153 frozen | argmax MES(an *earlier* state's model) | yes |
+| ORACLE | interpolate toward x* | **no** — x* is not in the state |
+| DIVERSE-GOOD | interpolate toward argmax of true-f draws | **no** |
+| RANDOM-POOL | uniform draw | **no** |
+
+### The prediction, and it holds
+
+If the DT is reduced to predicting a near-constant for the unlearnable teachers,
+its own real queries should be far more clustered. Dispersion (mean pairwise
+distance, normalised):
+
+| arm | ALL | HF only | first 100 (n matched) |
+|---|---|---|---|
+| control (works) | 0.2766 | 0.2778 | 0.2819 |
+| h155 UCB (works) | 0.2889 | 0.2998 | 0.2935 |
+| h153 FROZEN (works) | 0.2464 | 0.2565 | 0.2532 |
+| ORACLE (fails) | 0.1891 | 0.2036 | 0.1997 |
+| DIVERSE-GOOD (fails) | 0.1830 | 0.1988 | 0.1945 |
+| RANDOM-POOL (fails) | 0.1115 | 0.1345 | 0.1244 |
+
+Every working arm above every failing arm, in all three slicings. Paired within
+seed, **4 of 5 seeds separate completely**; seed 45 crosses (h153 0.168 below
+ORACLE/DIVERSE 0.184) and that is reported, not smoothed. Pooled and unpaired
+there is no complete separation.
+
+### The L_loc puzzle, unexplained for many ticks, is resolved
+
+`L_loc` is LOWER for the forced teachers (0.018–0.022 vs 0.040) — the DT fits
+them *better* and emits worse points. **Low loss on clustered targets means the
+network is predicting their mean, not learning a mapping.** M2 agrees:
+nearest-neighbour distance as a fraction of dispersion is 0.44 for all three
+failing arms against 0.27–0.32 for the working ones. So does the seed-to-seed
+consistency: failing-arm dispersion s.d. is 0.003–0.015 against 0.066–0.074 —
+they do nearly the same thing regardless of seed, which is what a collapsed
+predictor does.
+
+### Not a mechanism, and pre-named as such
+
+R2 was registered as "survives one test", not "establishes". This is query-level
+statistics at n=5 — the evidence class that produced h150 (published, then
+retracted) and h154's M2 (registered direction, refuted). What it does is remove
+a standing contradiction: the framing made a falsifiable prediction about data
+already collected, and the prediction held under three robustness slicings.
+
+h161 (STALE-PATH) remains the arm that can test the causal claim.
