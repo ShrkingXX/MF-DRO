@@ -3030,3 +3030,38 @@ eight rollout steps would be wasted computation, in a method whose dominant cost
 is rollout generation.
 
 **Compute:** 13/15 (h171 x10, h166 x3).
+
+## 2026-09-02 (tick 22) — the Hartmann 2x2 completes; a refutation becomes two-benchmark
+
+**h166 fired R2 at n=3 and it matters more than a third confirming arm usually
+would.** Its conditioning target is 0.4002 -- in the failing band, far from the
+control's 0.8844 -- while it posts the BEST regret of all four Hartmann arms
+(6.75 against the control's 7.99). That is h153's split reproduced on a second
+benchmark.
+
+The consequence is specific: h153's refutation of the target-collapse account is
+stated in findings.md AND in the published report **without a benchmark
+qualifier**, and until this tick it rested on Borehole alone. It now rests on two
+benchmarks and three independent frozen arms (h153, h161, h166). A claim that was
+over-scoped is now correctly scoped, without having to be weakened.
+
+R3 -- works but the target does NOT collapse, the outcome that would have looked
+like success and carried no evidence -- did not fire. Naming it in advance was
+what would have stopped me reading a null as support.
+
+**The Hartmann 2x2 now shows three of four cells working**, the same structure as
+Borehole. The front's FACTS continue to replicate across benchmarks while its
+EXPLANATIONS continue not to survive -- five have fallen, and the sixth (tau=0)
+is under interventional test right now.
+
+**h165 closed at n=5** (10.58, 5/5). Its HF-fraction confound shrank from 0.353
+to 0.290 and still points against the claim it might have threatened.
+
+**An observation I am deliberately not counting as evidence:** h171's two arms
+are running at very different speeds -- HEAD at cost 113, TAIL at 72 -- because
+TAIL makes seven MES calls per rollout to HEAD's one. If HEAD works, the method's
+dominant cost is being spent on steps that never reach inference. That is a
+statement about wall-clock, not about the mechanism, and it is logged as such
+until h171 reports.
+
+**Compute:** 12/15 (h171 x10, h166 x2).
