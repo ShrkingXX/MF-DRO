@@ -16712,3 +16712,58 @@ HEAD is n=4. Hartmann's per-seed spread is large on every arm (the control alone
 ranges 0.7–16.4), so **HEAD vs control (12.10 vs 7.99) is not resolvable at this
 sample size**. What is resolvable is HEAD vs TAIL — a factor of nearly four — and
 TAIL vs control, a factor of six.
+
+---
+
+# CORRECTION — the "fidelity head independently confirms the τ=0 rule" claim is WITHDRAWN
+
+Chasing a tension raised by h174 (why does Hartmann's L=8 control sit at HF
+0.200 while L=1 sits at 0.776, when both use the same τ=0 rule?) turned up an
+over-claim of mine in h171.
+
+## The confound
+
+h171 reported that the fidelity head *independently* confirms the τ=0 account,
+because TAIL and RANDOM-POOL land at HF **0.217** and **0.256**, near their
+teacher's 25% coin flip:
+
+```python
+ell_tau = 1 if torch.rand(1).item() < 0.25 else 0     # the random teacher
+minimum_hf_fraction = 0.25                            # the system's HF floor
+```
+
+**These are the same number.** The τ=0 account predicts ~0.25 because that is the
+teacher's rule; the system's in-rollout floor also produces ~0.25 because that is
+the constant. The observation cannot distinguish them, so it is **not an
+independent confirmation** and is withdrawn as one.
+
+I called it "a quantity nobody was aiming at". It was a quantity two mechanisms
+aim at identically.
+
+## What the tension itself revealed
+
+The floor is gated `tau > 0` (mf_dro.py:1717): it can never fire at τ=0. So a
+one-step rollout is subject to no floor at all, while an eight-step rollout has
+it applied at seven of its steps. That is part of why L=1 and L=8 differ in
+realised HF on Hartmann, and it is a property of the code rather than of the
+teacher.
+
+## And a structural asymmetry between the two heads
+
+The state carries `recent_hf_frac` — the DT's own last five real fidelity
+choices (mf_dro.py:132, 404). **The fidelity head therefore sits in a feedback
+loop with its own past outputs; the location head does not.** So the τ=0
+argument, which assumes the inference state is fixed by the data rather than by
+the policy's history, is cleaner for location than for fidelity.
+
+## What survives
+
+The τ=0 account's **location** evidence is untouched: h170's distances, h171's
+and h173's query centroids (0.7397/0.0313 on Borehole, 0.5632/0.0404 on
+Hartmann), and the interventional HEAD/TAIL ordering on both benchmarks. None of
+that rests on fidelity.
+
+What is withdrawn is one supporting claim that made the account look better
+confirmed than it is. **Seventh over-claim of this session caught by chasing a
+tension rather than by a gate** — the gates catch what they were pointed at; this
+class needs the tension.
