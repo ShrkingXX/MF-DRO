@@ -62,3 +62,30 @@ Requires the tau=0 serialisation, so it needs fresh runs; the existing results
 predate it.
 
 Compute: 10 workers.
+
+## AMENDMENT — no fresh runs needed, recorded before running
+
+The protocol above says this "requires the tau=0 serialisation, so it needs
+fresh runs". That is wrong and I found a cheaper route before launching.
+
+The tau=0 teacher action is **reconstructible offline** from the existing
+traces: refit the KO model on the data up to iteration t (the h156/h163 harness
+pattern), draw the ensemble members and candidate pools, and take the
+acquisition argmax. That IS the tau=0 teacher action, and averaging over
+members/pools gives its mean — the quantity under test. No new runs, and it can
+be applied to arms that are already complete.
+
+Nothing about the predictions or the retraction map changes. Compute drops from
+10 workers x ~2 hours to one worker for minutes, and the test can use the
+five arms that already exist rather than two fresh ones.
+
+**One caveat this introduces**, stated now: the reconstruction is not the
+literal tau=0 action the run used — it is a fresh draw from the same generating
+process (same model, same rule, different pool/ensemble RNG). So it estimates
+the tau=0 action *distribution*, which is what the mechanism is about, but it
+cannot be compared to the run's own realised draw. The mechanism predicts the
+DT emits the DISTRIBUTION's mean, so this is the right object; but if the
+reconstruction is biased, the test is biased, and the honest check is whether
+the failing arms' reconstructed mean lands on the box centre as theory says
+(P2 -- now serving as a calibration of the reconstruction, not just a
+consistency check).
