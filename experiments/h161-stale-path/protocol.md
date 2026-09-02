@@ -66,3 +66,21 @@ h159's 5 = 10 <= 15. h159 is being allowed to finish rather than killed: it is
 non-discriminating for the accounts but it DOES validate the harness's C7
 forecast (91.5%), and h153 proved unvalidated harness conditions can be wrong by
 2.7x. That is worth one arm.
+
+## Design error caught by the smoke test, before the arm ran
+
+LAG was locked at 2000 rollouts on the assumption that a batch is
+`rollouts_per_iter=200`. The smoke test's STATE-DIAG line shows the batch is
+**n_traj=60**. LAG=2000 is therefore ~**33** of the ~60 real iterations, which
+would have left **more than half the run in warmup**, using the CURRENT path and
+being byte-identical to h153 over that stretch. The manipulation would have been
+diluted to roughly half strength and the arm would have been uninterpretable.
+
+**LAG corrected to 600** (10 iterations at 60 trajectories each), giving ~83%
+of iterations genuinely stale. h161 was killed ~4 iterations in and relaunched.
+SC1 (stale fraction, target >0.9 after warmup) now has a realistic target of
+~0.83 and is recorded as such.
+
+This is exactly what the smoke test was for. It cost ~5 minutes and one worker;
+discovering it from SC1 after the fact would have cost ~10 worker-hours and an
+uninterpretable arm.

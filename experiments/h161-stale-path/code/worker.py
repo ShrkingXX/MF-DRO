@@ -18,7 +18,12 @@ import src.policy.mf_dro as MF
 
 RES = os.path.abspath(os.path.join(H, "..", "results")); h83.RES = RES
 _ORIG_SIM = MF.simulate_mf_trajectory
-LAG = 2000                      # ~10 real iterations at rollouts_per_iter=200
+LAG = 600                       # 10 real iterations: the batch is 60 trajectories
+                                # per iteration (STATE-DIAG n_traj=60), NOT the 200 of
+                                # rollouts_per_iter. LAG=2000 would have been ~33 of the
+                                # ~60 iterations, leaving over half the run in warmup and
+                                # identical to h153. Caught by the smoke test before the
+                                # arm was allowed to run.
 _B = {"paths": [], "n": 0, "stale": 0, "lag_sum": 0, "err": 0.0, "flips": 0, "tot": 0}
 
 
