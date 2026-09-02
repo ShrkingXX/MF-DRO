@@ -14503,3 +14503,67 @@ good endpoints keep exploring, so they keep earning information gain. h146 is
 already running and its `rtg_target` is the sharpest available check. **Registering
 that prediction now, before those runs land: DIVERSE-GOOD's `rtg_target` sits
 nearer the control's 0.976 than the oracle's 0.311.**
+
+## SYNTHESIS — why a better teacher cannot help, and why the control is hard to beat
+
+Three results now compose into one account, and it answers the question this
+research front was opened to answer.
+
+**1. The reward is information gain, not proximity.** `rtg[tau] = log(b_tau) -
+log(b_T)`, `b` = Gumbel scale of the posterior max. Nothing in it measures how
+close a query is to x*.
+
+**2. An oracle path earns almost none of it** (h148). Marching onto x* and staying
+is the best path in x-space and among the worst in information-gain space: queries
+at a known optimum teach the GP nothing, `b_T` never shrinks, 55.2% of steps score
+negative, and the conditioning target collapses **0.976 -> 0.311, effect 32.11**.
+The DT is then told to aim low at every inference step.
+
+**3. The control's teacher is ALREADY optimal in that currency.** MF-DRO's rollout
+teacher selects actions by `compute_joint_mf_mes` — cost-normalised **MES**, i.e.
+argmax of exactly the information gain the reward measures. **The teacher and the
+reward optimise the same quantity.**
+
+Put together: **the rollout teacher is already the best teacher available in the
+metric the system rewards.** Any intervention that makes trajectories "better" on
+a different axis — location, proximity to x*, final y — necessarily makes them
+worse in the rewarded currency, lowers achieved returns, collapses the
+conditioning target, and degrades the policy. h145 is the extreme case of that,
+which is why a *perfect* teacher produced the *largest* degradation.
+
+### What this reframes
+
+**The primary question's premise.** "The DT is trained on rollout-teacher actions
+drawn from roi_candidates, so the ROI is the lever that shapes the training
+distribution" reads as though improving that distribution should improve the
+system. h145 shows the direction of that lever is not "better trajectories", and
+h148 shows why: the distribution is already teacher-optimal in the reward's terms.
+
+**Why the ROI's Borehole gain is not a teacher-quality effect.** It cannot be
+making the teacher better at information gain — the teacher already argmaxes it
+over the candidate pool. Restricting the pool can only reduce the achievable max.
+So the ROI's gain must come from what restriction does to the *distribution* the
+DT sees, not from improving the teacher's own objective. That is consistent with
+every ROI mechanism result: quality up on Borehole only, fidelity mix Borehole
+only, dispersion not moved at all.
+
+### The prediction this makes, already registered
+
+If the account is right, **DIVERSE-GOOD should NOT collapse the target**:
+trajectories heading to *different* good endpoints keep exploring, so they keep
+earning information gain. Registered before those runs land — `rtg_target` near
+the control's 0.976 rather than the oracle's 0.311. h146 is at ~165 of 240.
+
+**If DIVERSE-GOOD's target collapses too**, the account is wrong: it would mean any
+forced path collapses the reward regardless of diversity, and the mechanism would
+be about *forcing* rather than about information gain.
+
+## Instrument — `tools/check_fields.py`, for the failure I repeated five times
+
+Five registered predictions were written against data the pipeline does not
+serialise: `actions_x_var_per_iter` (h140), per-record `roi_stats` (h139, five
+runs spent), `states[0]` and teacher actions (h145 SC5/SC8), realised `rtg[0]`
+(h148). Each was avoidable by opening a result file first. **The rule was written
+down after the second instance and three more followed**, so it is now a tool:
+`check_fields.py <result.json> <field>...` prints PRESENT/ABSENT and, on any
+absence, lists every available key. Run it before locking a protocol.
