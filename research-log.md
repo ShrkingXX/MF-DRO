@@ -3000,3 +3000,33 @@ first measuring what the instrument can resolve. The guard was adopted after
 h156 and not applied here. Re-run at 120 draws, P2 calibrates.
 
 **Compute:** 3 workers (h166 finishing). h170 needed one, for minutes.
+
+## 2026-09-02 (tick 21) — from correlation to intervention
+
+**The right move after h170 was not more correlation.** h170 showed the DT's
+query sits 3.3x closer to its teacher's tau=0 action mean than to the box
+centre. But five accounts have fallen on this front and every one of them fitted
+the correlations available at the time. Another correlational confirmation would
+have been the same trap in a new costume.
+
+**h171 tests the mechanism by intervention**, and the prediction is
+counter-intuitive enough to be worth something: split the rollout so one arm
+takes the acquisition argmax ONLY at tau=0 and random for the other seven steps,
+and the other arm does the reverse. **TAIL-MES is the better teacher on 7 of 8
+steps and is predicted to FAIL.** No trajectory-quality account predicts that
+ordering; the tau=0 mechanism requires it.
+
+R1 (HEAD fails) and R2 (TAIL works) are each individually fatal to the account
+and are named first in the protocol.
+
+**SC2 was run before launch, deliberately, because h169 was lost to skipping
+exactly this check.** Both branches are new code and a mis-wired split would have
+silently produced two copies of the same arm. Measured spreads: head 0.154 at
+tau=0 against 0.286 after; tail 0.289 against 0.183. Mirror images, ratios 0.539
+and 1.577. SC3 bit-identity also passed.
+
+**If R3 holds it is directly actionable**, not just explanatory: seven of every
+eight rollout steps would be wasted computation, in a method whose dominant cost
+is rollout generation.
+
+**Compute:** 13/15 (h171 x10, h166 x3).
