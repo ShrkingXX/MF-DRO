@@ -3482,3 +3482,36 @@ verification of my own explanations rather than new ground, which is the right
 phase to be in and worth saying plainly rather than manufacturing a new front.
 
 **Compute:** 5/15.
+
+## 2026-09-02 (tick 36) — checked a fix I had already published, and found the question I had skipped
+
+**I proposed "standardise the conditioning scalars" as a fix in findings.md
+without checking it would work.** Same over-reach pattern this session keeps
+catching. Checked it at zero compute: z-scoring turns BTG's operating range
+(26.1-30.5) into -2.49 to +3.16, and the relative embedding change goes from
+0.0056 to **1.8817** -- 336x more responsive, and ~4x more than RTG's current raw
+channel. The reason it is so large is that z-scoring spans the sign change, where
+LayerNorm(Linear(1->H)(v)) flips direction.
+
+**The distinction I nearly skipped, and it is the important one.** The fix
+restores RESPONSIVENESS. It does not follow that responsiveness improves regret.
+Six arms on this front have paired a COLLAPSED conditioning target with good
+performance (h153 .323, h161 .327, h166 .382, h171-HEAD .410, h172 L=1 .459,
+h176). If the target carries little information about what a good query is, then
+wiring it in properly could actively HURT.
+
+So h179 is registered with **three** predictions and P3 (regret degrades) written
+as a live outcome rather than a formality. If P3 holds, the honest report is "the
+conditioning is inert, and that is load-bearing" -- not "here is a defect and its
+fix", which is how findings.md currently frames it.
+
+**h179 is queued, not launched**, because h178 has not reported: if the trained
+btg_resp turns out comparable to rtg_resp, the saturation account is refuted and
+h179's premise goes with it. Launching both at once would have been faster and
+would have meant running an arm whose rationale might already be dead.
+
+**Holistic.** This tick produced no new measurement of the system -- it audited a
+claim I had already published and found the unasked question behind it. That is
+the phase the front is in, and it is more useful right now than another arm.
+
+**Compute:** 5/15 (h178 only).
