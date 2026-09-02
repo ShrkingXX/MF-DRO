@@ -54,4 +54,4 @@ if W and F:
     sep = wv.min() > fv.max()
     print(f"  complete separation in predicted direction: {sep}")
     print(f"  direction: {'AS PREDICTED' if wv.mean() > fv.mean() else 'OPPOSITE (R3)'}")
-json.dump(out, open(os.path.join(REPO, "experiments/h162-learnability/../../h164-hartmann-dispersion/results/m1m2.json"), "w"), indent=1)
+json.dump(out, open(os.path.join(REPO, "experiments/h164-hartmann-dispersion/results/m1m2.json"), "w"), indent=1)
