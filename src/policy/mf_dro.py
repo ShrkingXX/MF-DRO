@@ -1565,6 +1565,25 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             cand_idx = (flat_best // 2).item()
             ell_tau = (flat_best % 2).item()
             x_tau = roi_candidates[cand_idx]
+        elif rollout_policy in ("head_mes", "tail_mes"):
+            # H171. The tau=0 mechanism says only the teacher's FIRST step
+            # reaches inference (the DT is always queried at timestep=0, and the
+            # tau=0 training states are near-degenerate -- uniq_tau0_states=3 of
+            # 60). These two arms split the rollout to test that by intervention:
+            #   head_mes  tau=0 MES argmax, tau>0 uniform random
+            #   tail_mes  tau=0 uniform random, tau>0 MES argmax
+            # tail_mes is the better teacher on 7 of 8 steps and is predicted to
+            # FAIL. Fidelity follows whichever branch runs, exactly as it does
+            # for the unsplit policies.
+            _use_mes = (tau == 0) if rollout_policy == "head_mes" else (tau > 0)
+            if _use_mes:
+                x_tau, ell_tau, scores = compute_joint_mf_mes(
+                    current_ko, roi_candidates, c_H, c_L)
+            else:
+                N = roi_candidates.shape[0]
+                x_tau = roi_candidates[torch.randint(0, N, (1,)).item()]
+                ell_tau = 1 if torch.rand(1).item() < 0.25 else 0
+                scores = None
         elif rollout_policy == "random":
             N = roi_candidates.shape[0]
             cand_idx = torch.randint(0, N, (1,)).item()

@@ -58,3 +58,20 @@ SC3 bit-identity of the default path (rollout_policy="mes").
 
 Borehole_8D seeds 42-46, n=5 each, frozen metric, no p-values. 10 workers
 alongside h166's 3 = 13 <= 15.
+
+## Sanity checks PASSED before launch
+
+SC2 (the check h169 was lost to) — the split is wired, and the arms are mirror
+images:
+
+| arm | τ=0 action spread | τ>0 action spread | ratio |
+|---|---|---|---|
+| head_mes | **0.1540** | 0.2856 | 0.539 |
+| tail_mes | **0.2888** | 0.1832 | 1.577 |
+
+head takes a concentrated (MES argmax) first step and disperses after; tail does
+exactly the reverse. head's τ=0 spread is not zero because the MES argmax varies
+across ensemble members and candidate pools — expected, not a defect.
+
+SC3 bit-identity of the default path: **PASS** (regret 122.2906675273).
+SC1 (realised HF fraction) is read from the results, before the regret numbers.
