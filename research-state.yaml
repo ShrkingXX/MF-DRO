@@ -42,6 +42,19 @@ current_front:
   harness_status: 'CHARACTERISED and no longer under audit. Supports SCALE claims
     only: per-arm errors 0.5-31%, noise floor 8-13%. The 3-4x separation it does
     support sits far outside all of that.'
+  h155_RESULT: 'COMPLETE n=5. UCB-LOC 15.13 rel%, improves 5/5, rtg_target 1.0402
+    (106.6% of control; BLIND forecast said 102%, error +4.6pts inside the 8-13%
+    noise floor). HF frac 0.87 vs control 0.88 -> confound check PASSED. Better on
+    4/5 seeds and tracks the control seed-by-seed. RETRACTS "the MES selection rule
+    specifically is what the DT needs" -- the last surviving explanation after h150.'
+  h158_RESULT: 'COMPLETE. POOL dose {16,256,4096} on the harness. MC1/MC2 both PASS
+    (endpoint quality +51%, diversity -34%). Tail FLAT: 31.7/32.4/29.3% of control,
+    span 3.2pts vs 8-13% noise, all inside the failing band. R1 and R2 both fail to
+    fire. The long-registered pipeline dose is now declined ON EVIDENCE.'
+  the_2x2: 'MES/closed = control 15.82 5/5. non-MES/closed = h155 15.13 5/5.
+    non-MES/open = ORACLE/DIVERSE/RANDOM 43.94 0/5. MES/open = h153, RUNNING.
+    Non-MES row: closed-loop WORKS, open-loop FAILS. Operative variable is whether
+    the teacher is INFORMATION-SEEKING, not which rule it uses.'
   running:
   - 'h153 MES-FROZEN (Borehole seeds 42-46, launched 2026-09-02). The control that
     separates QUALITY from ADAPTIVITY: the control MES rule, its own path frozen.

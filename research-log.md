@@ -2466,3 +2466,32 @@ a sub-5-minute window on these runs.
 **Still pending:** h153 and h155 themselves, against the blind forecasts
 committed last tick (82-96% and ~102% of control, both predicting near-control
 performance; O1-O4 retraction map locked in h157/protocol.md).
+
+## 2026-09-02 (tick 6) — the forecast paid off, and the last fallback explanation died
+
+**h155 completed at n=5 and its blind forecast held.** Predicted 102% of the
+control's conditioning target; measured 106.6%, inside the harness's own noise
+floor. Predicted "near the control, and explicitly NOT intermediate"; measured
+15.13 against 15.82, improving 5/5 exactly like the control, better on 4 of 5
+seeds and tracking it seed-by-seed.
+
+That is the payoff for last tick's decision to stop auditing the instrument and
+use it to forecast instead. A harness characterised as "scale claims only"
+turned out to be good enough to call a pipeline result in advance, which is a
+much better use of it than another round of calibration would have been.
+
+**"The MES rule specifically" is retracted.** It survived h150 and had been the
+standing fallback. A UCB teacher matches the control on every measure. The 2x2's
+non-MES row now reads: closed-loop works, open-loop fails.
+
+**The confound check was run before the number was read**, as registered, and
+passed cleanly (HF 0.87 vs 0.88). h60's thompson arm collapsed to 2/196 HF and
+is uninterpretable for this comparison; holding the fidelity channel fixed by
+construction was the right design decision and the data confirms it worked.
+
+**Still able to refute everything:** h153 at 210/240. If it lands at ~43.94,
+outcome O3 fires and the tail account, this retraction, and the report callout
+all come out together. That is written into h157/protocol.md and into the
+published report itself.
+
+**Compute:** 10 workers, dropping to 5 as h155 finished. Never above 12/15.
