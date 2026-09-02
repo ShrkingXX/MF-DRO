@@ -14740,3 +14740,68 @@ be, since the ROI only *restricts the pool the MES argmax runs over* — it neve
 replaces MES as the teacher. That is the one intervention class this result does
 not condemn, which is worth noting given the ROI is the project's only positive
 result.
+
+## h149 FINAL n=5 — CONFIRMED. Three teachers, one floor, and the front is answered.
+
+    arm                    regret   vs control   effect   improved   my hook
+    CONTROL (MES argmax)    15.82        +0.00       --      5/5         no
+    ORACLE (perfect)        43.94       +28.13     4.49      0/5        YES
+    DIVERSE-GOOD            43.94       +28.13     4.49      0/5        YES
+    RANDOM-POOL (uniform)   43.94       +28.13     4.49      0/5         no
+
+**Three teachers spanning the entire quality range — perfect, good-and-diverse,
+and uniformly random — produce the SAME regret to three decimals with the SAME
+effect size.** One of them (RANDOM-POOL) is implemented entirely in pre-existing
+code. The `forced_x` hook is exonerated and h145/h146 stand.
+
+The identical numbers are not a coincidence to be explained away: all three never
+improve on the initial design, so all three report that design's regret. **+28.13
+is a floor, and teacher quality does not move a run off it in either direction.**
+
+## THE ANSWER
+
+> **Better trajectory quality does not improve MF-DRO because the Decision
+> Transformer inherits its teacher's quality *as a policy*, not the outcome quality
+> of the trajectories it is shown.**
+>
+> An oracle path has perfect outcomes and is **not a policy** — it cannot be
+> followed without knowing x*. A random path is a policy and a worthless one. Only
+> MES is an adaptive acquisition rule that is also good. Replace MES with anything
+> else — better *or* worse — and the DT never improves on its random initial
+> design.
+
+Supporting measurements, all Borehole n=5, all at the frozen read point:
+
+  - `rtg_target` collapses 0.976 -> ~0.30 for **every** non-MES teacher (h148,
+    h149), effect 32.11 for the oracle.
+  - `L_loc` is LOWER for the forced teachers (0.018-0.022 vs 0.040): the DT fits
+    them BETTER and still emits worse-than-random points. Training succeeds at
+    learning something unusable.
+  - The failure is binary, not graded: 15/15 non-MES runs never improve; 5/5
+    control runs do.
+
+## Why this does NOT condemn the ROI
+
+The ROI restricts the candidate pool that the MES argmax runs over. **It never
+replaces MES as the teacher.** So the one intervention class this result leaves
+standing is exactly the class the project's only positive result belongs to — and
+that is a consistency check the account passes rather than a convenience.
+
+It also explains, retrospectively, why the ROI's gain could never have been a
+teacher-quality effect (recorded earlier from a different direction): the teacher
+already argmaxes over whatever pool it is given, so restricting the pool cannot
+raise the teacher's own objective.
+
+## Status of this front: ANSWERED
+
+Five experiments, each pre-registered, four with retractions that fired:
+
+    h145  oracle teacher degrades         P1 falsified (opposite direction)
+    h147  RCSL return-coverage variance   P1 falsified (opposite direction)
+    h148  rtg_target collapse             P1 not evaluable; P2 decisive
+    h146  quality vs diversity            P1 falsified; neither is the axis
+    h149  is it my hook?                  fork resolved: exonerated
+
+**Remaining and NOT claimed:** everything here is Borehole. h145's Hartmann arm was
+confounded by fidelity collapse (corr -0.830) and is not quoted. The mechanism is
+benchmark-independent in principle, but that is an argument, not a measurement.

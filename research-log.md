@@ -2226,3 +2226,43 @@ mechanism is about *forcing* rather than information gain.
 **Instrument:** `tools/check_fields.py`, after five registrations against data the
 pipeline does not serialise. The written rule was added after the second instance
 and three more followed.
+
+## 2026-08-31 — FRONT ANSWERED: the DT inherits its teacher's POLICY, not its trajectories' outcomes
+
+Five pre-registered experiments, four with retractions that fired.
+
+    h145  oracle teacher degrades          P1 falsified, opposite direction
+    h147  RCSL return-coverage (variance)   P1 falsified, opposite direction
+    h148  rtg_target collapse               P1 not evaluable; P2 decisive (effect 32.11)
+    h146  quality vs endpoint diversity     P1 falsified; neither is the axis
+    h149  is it my forced_x hook?           fork resolved: EXONERATED
+
+**The result.** Three teachers spanning the whole quality range — perfect,
+good-and-diverse, uniformly random — give **43.94 rel%, +28.13 vs control, effect
+4.49, 0/5 improved**, identical to three decimals. The control gives 15.82 and
+improves 5/5. Teacher quality does not order the outcomes; the identical figures
+are the score for never improving on the initial design.
+
+**The answer.** The DT is a policy distillation of MES. It inherits its teacher's
+quality *as an adaptive rule*, not the outcome quality of the trajectories shown.
+An oracle path is not a policy (it cannot be followed without knowing x*); a random
+path is a worthless one; only MES is both followable and good.
+
+**Process note worth keeping.** Two of the three replacement teachers used a hook I
+wrote, and all failed *completely* — a binary outcome over nine runs, which is as
+much the signature of a broken tool as of a real effect. h149 was run specifically
+on pre-existing code before the conclusion was allowed to stand. Without it the
+whole front would have been a measurement of my own bug.
+
+**Corrections made along the way:** +28.13 read as graded degradation when it is a
+saturation floor; the information-gain currency described as *ranking* teachers
+when it only separates MES from everything else; Hartmann quoted before its
+fidelity confound (corr -0.830) was found.
+
+**Not claimed:** everything is Borehole. The mechanism is benchmark-independent in
+principle, but that is an argument, not a measurement.
+
+**Consistency check the account passes:** it condemns every intervention that
+REPLACES the teacher, and the ROI does not — it restricts the pool the MES argmax
+runs over. The project's only positive result belongs to the one class left
+standing.

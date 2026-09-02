@@ -947,13 +947,14 @@ peer_h129_P3_answered:
     (0.9372). Naming which fraction was the difference between an answer and a plausible wrong number.
 
     '
-current_direction: 'h146 P1 FALSIFIED: DIVERSE-GOOD degrades +28.126, identical to ORACLE to 3dp with
-  zero paired variance. Neither ever improves on its initial design (0/5 each) while control does 5/5,
-  so the metric is SATURATED at a floor -- +28.13 measures ''never improved'', not graded degradation.
-  L_loc is LOWER in both forced arms, so the DT fits forced targets BETTER yet emits worse-than-random
-  points. That is either a real train/inference mismatch or a defect in my forced_x hook. h149 (rollout_policy=''random'',
-  pre-existing path, never touches forced_x) is the fork and is running. NO further arms until it resolves
-  -- the published synthesis rests on h145/h146 and both route through the hook.'
+current_direction: 'FRONT ANSWERED (h145-h149, Borehole n=5). Better trajectory quality does not improve
+  MF-DRO because the DT inherits its teacher''s quality AS A POLICY, not the outcome quality of trajectories.
+  Three teachers spanning perfect / good-and-diverse / uniformly random all give 43.94 rel%, +28.13, effect
+  4.49, 0/5 improved -- identical to 3dp -- while the MES control gives 15.82 and improves 5/5. The identical
+  figures are a saturation floor (never improved on the initial design), not a ranking. h149 used PRE-EXISTING
+  code to exonerate the forced_x hook before the conclusion was allowed to stand. Not claimed beyond Borehole.
+  The ROI is the one intervention class left standing: it restricts the MES argmax''s pool rather than
+  replacing MES.'
 h120_amendment3_DISCHARGED_2026_08_28:
   result: 'Fresh ROI-OFF runs at Borehole seeds 44,45,46 are BIT-IDENTICAL to h83''s stored MF-DRO (137/140/137
     queries, 0 differing), across three different commits (26a9b9cd1, 15203e5cd, ee5ecafcc), all dirty=True,
