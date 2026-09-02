@@ -65,7 +65,13 @@ current_front:
     Contention runs PROTECTIVE here -- h172 ran at 15/15 workers, the session
     high, against a control at unknown lower load, so 6.26x can only be
     understated. L=4 still running; a non-monotone dose is not yet excluded.
-    THIS IS THE FIRST CHANGE TO WHAT THE CODE SHOULD DO to come out of this front.'
+    THIS IS THE FIRST CHANGE TO WHAT THE CODE SHOULD DO to come out of this front.
+    SCOPE: BOREHOLE ONLY. h174 tried L=1 on Hartmann and SC1 FIRED -- it makes 24
+    HF / 34 total queries against the control''s 12 / 120, so it is a different
+    budget allocation, not the same experiment run faster. NO VERDICT there. The
+    Hartmann wall-clock also corrected from a naive 28x to 8.1x per query. Testing
+    it properly needs an arm holding the fidelity mix fixed while shortening the
+    rollout.'
 
   target_anticorrelates_within_a_dose: 'Across h172 the conditioning target falls
     0.9761 -> 0.6380 -> 0.4590 as length falls 8 -> 2 -> 1, while regret IMPROVES

@@ -16631,3 +16631,42 @@ dose: the dose's *shape* is established, and what needs checking is whether the
 extreme survives a different benchmark.
 
 R1 is named: if L=1 fails there, the claim must be scoped in all three places.
+
+---
+
+# h174 — **SC1 fires. No verdict, and the actionable claim stays Borehole-only.**
+
+| arm | HF fraction | post-init queries | HF | LF |
+|---|---|---|---|---|
+| Hartmann control (L=8) | 0.200 | **120** | 12 | 108 |
+| **h174 (L=1)** | **0.776** | **34** | **24** | 10 |
+
+On Hartmann `c_H=8, c_L=1`, so a fidelity shift changes what the budget buys.
+L=1 makes **twice the HF queries and a third of the total** — not the same
+experiment run faster, but a different allocation of the same budget.
+
+**No verdict on whether rollout_length=1 works on Hartmann.** Its regret (7.58
+against the control's 7.99, improving 3/3) is recorded and not interpreted. The
+confound's direction is ambiguous in principle — more HF should help, far fewer
+queries should hurt — so unlike h165 it cannot even be argued to run *against*
+the claim.
+
+### The wall-clock figure needed correcting too
+
+3.3 min against 94.0 is **not** a 28× rollout saving. Per query: control
+94.0/120 = 0.78 min, L=1 3.3/34 = 0.097 min → **8.1×**, and even that is
+cross-run rather than contention-matched. The rest of the gap is simply making a
+third as many queries.
+
+### Borehole is unaffected
+
+h172's SC1 **passed** there (HF 0.939 vs 0.883, comparable query counts), so that
+result stands as a clean like-for-like comparison.
+
+### Scope correction
+
+**The actionable claim is Borehole-only.** findings.md, research-state.yaml and
+the published report all state it without a benchmark qualifier — that is now
+known to be *unscoped* rather than merely untested. Testing it properly needs an
+arm that holds the fidelity mix fixed while shortening the rollout, the same
+device h155 used to isolate the location rule. Registered, not attempted.
