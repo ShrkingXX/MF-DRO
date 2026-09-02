@@ -314,14 +314,23 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     had produced a single result.</p>
     <div class="open">
       <h3>What this settles, and what it costs</h3>
-      <p>Only the teacher's first step reaches the learner. The other seven affect nothing about the
-      real decision &mdash; not where it queries, not whether it improves, not its final regret. They
-      affect only the bill: the seven-step teacher took <strong>1.82&times;</strong> the wall-clock of
-      the one-step teacher, running side by side on the same machine, and did worse.</p>
-      <p>That also explains the original puzzle directly. How good a route is, and how varied, both
-      describe where the route <em>goes</em> &mdash; and only its first step is ever consulted. A
-      perfect route's first step is a random starting point, whose average is the middle of the
-      space.</p>
+      <p><strong>A bad first step is fatal, whatever the rest of the route does.</strong> The
+      seven-step teacher fails completely on both benchmarks tested &mdash; 43.94 against a working
+      15.82 on one, 46.45 against 7.99 on the other &mdash; and its learner queries the dead centre of
+      the search space in both. That is the part that replicates.</p>
+      <p><strong>Whether the other seven steps matter at all depends on the problem, and I got this
+      wrong at first.</strong> On the first benchmark the one-step teacher matched the method itself
+      (16.96 against 15.82), so those seven steps contributed essentially nothing &mdash; they affected
+      only the bill, taking <strong>1.82&times;</strong> the wall-clock side by side on the same machine
+      for a worse result. On the second benchmark the one-step teacher is worse than the method on
+      <em>every</em> seed (25.16 against 7.99). There, the later steps do real work.</p>
+      <p>I reported the stronger claim &mdash; "only the first step matters" &mdash; after four of five
+      runs had finished on the second benchmark. The fifth reversed it. The claim that survives on both
+      is the weaker one above.</p>
+      <p>That still explains the original puzzle. How good a route is, and how varied, both describe
+      where the route <em>goes</em> &mdash; while the first step is what the learner is actually asked
+      to reproduce. A perfect route's first step is a random starting point, whose average is the
+      middle of the space, and that is exactly where its learner ends up querying.</p>
       <p><strong>Still open.</strong> The learner's query lands <em>near</em> its teacher's average
       first move, not exactly on it &mdash; about five standard errors away. Something else is also
       operating, and it has not been identified. A run testing whether the rollout can simply be
