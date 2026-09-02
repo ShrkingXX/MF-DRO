@@ -17337,3 +17337,27 @@ numbers refuse it: HEAD retains **95%** of the control's escape on Borehole and
 **90%** on Hartmann — nearly the same fraction — yet costs **1.07×** there and
 **3.15×** here. Escape orders arms *within* a benchmark and says nothing about the
 difference *between* them. **The asymmetry remains open, as since h175.**
+
+### h182 addendum — the signature is DYNAMIC, and it separates 28/28 arms
+
+Ratio of the last sixth's mean centre-distance to the first sixth's:
+
+| group | n | w6/w1 |
+|---|---|---|
+| failing (rel% > 30) | 4 | **0.308 – 0.424** |
+| working (rel% ≤ 30) | 24 | **1.200 – 1.390** |
+
+**Complete separation, gap 0.777, all 28 MF-DRO Borehole arms.** Working arms move
+*away* from the box centre over the run; failing arms move *into* it — opposite
+directions, not degrees. Checked on all arms precisely because the bimodality
+claim above was a 10-arm sampling artifact; this one survives.
+
+**And the first query is not destiny.** ρ(first query, rel%) = −0.707 but
+ρ(last-20, rel%) = −0.967, with the two correlating at only +0.676. The τ=0
+mechanism explains what the DT emits at a given training state; over a run the DT
+is retrained and the arms *diverge*, one group compounding out of the centre and
+the other into it.
+
+Limits: only 4 failing arms and all sit at the identical 43.94 floor; nothing lies
+between 0.424 and 1.200 so the boundary is untested; and it is correlational — no
+arm intervenes on centre-distance directly.

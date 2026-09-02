@@ -88,3 +88,53 @@ it has been since h175.
 - The direction of causation is untested. Centre-collapse and poor regret could
   both follow from a third cause; nothing here intervenes on distance directly.
 - Last-20-HF-queries is one window, chosen once and not tuned.
+
+---
+
+## The signature is DYNAMIC: failing arms contract, working arms expand
+
+Splitting each run's HF queries into six equal windows and taking the ratio of the
+last window's mean centre-distance to the first's:
+
+| arm | rel% | w1 | w6 | **w6/w1** |
+|---|---|---|---|---|
+| TAIL-MES | 43.94 | 0.290 | 0.089 | **0.308** |
+| RANDOM-POOL | 43.94 | 0.195 | 0.064 | **0.328** |
+| ORACLE-EXPERT | 43.94 | 0.280 | 0.100 | **0.357** |
+| DIVERSE-GOOD | 43.94 | 0.242 | 0.103 | **0.424** |
+| MES-FROZEN | 19.36 | 0.666 | 0.799 | **1.200** |
+| HEAD-MES | 16.96 | 0.645 | 0.819 | **1.270** |
+| control | 15.82 | 0.672 | 0.852 | **1.268** |
+| ROLLOUT1 | 13.69 | 0.709 | 0.864 | **1.218** |
+| ROI-L1 | 9.81 | 0.782 | 0.978 | **1.250** |
+
+**Run over all 28 MF-DRO Borehole arms** — not the hand-picked subset that misled
+the first pass — the separation is complete:
+
+| group | n | w6/w1 range |
+|---|---|---|
+| failing (rel% > 30) | 4 | **0.308 – 0.424** |
+| working (rel% ≤ 30) | 24 | **1.200 – 1.390** |
+
+**Gap 0.777 wide, no overlap, 28/28 arms.** Every arm that works moves *away* from
+the centre over its run; every arm that fails moves *into* it. These are opposite
+directions, not degrees of one thing.
+
+### Why this matters for the front's answer
+
+The first emitted query predicts final regret only moderately (ρ = −0.707), while
+the last-20 centre-distance predicts it strongly (ρ = −0.967), and the two
+correlate at only +0.676. So **the first query is not destiny.** The τ=0 mechanism
+explains what the DT emits at a *given* training state; across a run the DT is
+retrained repeatedly, and the arms diverge — one group compounding its way out of
+the centre, the other compounding its way in.
+
+### Honest limits
+
+- **Only 4 failing arms, and all four sit at the identical 43.94 saturation
+  floor.** The separation is 24-vs-4 with a degenerate failing group; a fifth
+  failing arm at a distinct regret would test it far better than a sixth working one.
+- **Nothing lies between 0.424 and 1.200**, so the location of the boundary — and
+  whether 1.0 is special — is untested.
+- **Correlational.** No arm here intervenes on centre-distance directly, so
+  "collapse causes failure" and "both follow from a third cause" are not separated.
