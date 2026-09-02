@@ -17428,3 +17428,37 @@ anything.
 
 So collapse is **directly harmful**, not diagnostic. What is still untested is what
 *makes* a policy collapse — nothing here intervenes to prevent it and observe.
+
+---
+
+## h181 — the matched control. **P2. The 336× does not transfer; h179's verdict is REVISED.**
+
+CONFIRMATORY, 5/5 Borehole seeds, one-line diff from h179.
+
+| | RTG responsiveness | BTG responsiveness |
+|---|---|---|
+| h179 standardised | 0.1010 | 0.02634 |
+| **h181 control (unstandardised)** | **0.0788** → **P2** | **0.00685** |
+| Hartmann unstandardised (h177/h178) | 0.0404 | 0.00477 |
+| **effect of standardisation** | **1.28×** | **3.84×** |
+
+**The confound was real.** Borehole is **1.9× more responsive than Hartmann before
+any standardisation**, so h179's 0.1010 was mostly the benchmark — exactly why it
+could not be read alone.
+
+**The 336× is module-level and stays module-level.** h178 measured z-scoring
+restoring BTG embedding response 336× at module level; in the running model it buys
+**3.84×** — about **1.1%** of that — leaving BTG at 0.026 against RTG's 0.101 and a
+~0.82 seed-to-seed floor on the emitted query. **Confirmed and not retracted:** BTG
+is effectively inert at inference on *both* benchmarks (0.005–0.007 unstandardised).
+
+### h179's R3 verdict is WITHDRAWN
+
+h179 was read as P2 → **R3**, "the channel is genuinely irrelevant either way". R3
+requires that the channel was *made to work* and still did not help. h181 shows it
+was not made to work. h179 therefore tested a change that barely moved its own
+target, and its flat regret (16.66 vs 15.82) says **nothing** about the
+counterfactual "what if the conditioning were usable".
+
+**That counterfactual is now an open item, not a settled null** — the honest cost of
+h179 having varied two things at once.

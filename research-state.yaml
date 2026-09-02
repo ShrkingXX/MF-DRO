@@ -145,6 +145,20 @@ current_front:
     centre-distance does not discriminate there at all. The Hartmann best arms never
     get within 0.6 of x*. THE ASYMMETRY REMAINS OPEN.'
 
+  h181_and_h179_revision: 'h181 (CONFIRMATORY, 5/5, one-line diff from h179): the
+    unstandardised Borehole control gives RTG responsiveness 0.0788 -> lands in the
+    registered P2 band [0.051,0.152]. Standardisation buys only 1.28x on RTG (per-seed
+    ranges overlap heavily) and 3.84x on BTG. THE CONFOUND WAS REAL: Borehole is 1.9x
+    more responsive than Hartmann BEFORE standardisation (0.0788 vs 0.0404), so
+    h179''s 0.1010 was mostly benchmark. THE 336x DOES NOT TRANSFER: h178''s
+    module-level BTG restoration reaches only ~1.1% in situ, leaving BTG at 0.026 vs
+    RTG 0.101 and a ~0.82 seed floor. CONFIRMED not retracted: BTG is effectively
+    inert at inference on BOTH benchmarks (0.005-0.007 unstandardised). h179''s R3
+    VERDICT IS WITHDRAWN -- R3 required the channel to have been MADE TO WORK and
+    still not help; it was not, so h179''s flat regret says nothing about the
+    counterfactual "what if the conditioning were usable". THAT COUNTERFACTUAL IS NOW
+    AN OPEN ITEM, not a settled null.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
