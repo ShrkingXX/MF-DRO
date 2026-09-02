@@ -264,26 +264,68 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     clustered targets means it is predicting their average, not learning a mapping.</p>
 
     <div class="open">
-      <h3>Since this was written</h3>
-      <p>The stale-model test finished: a route chosen ten iterations out of date works just as well
-      (19.53 against 19.36 for a fresh one, improving on every run). So the route does <em>not</em>
-      need to match the situation the learner is actually in.</p>
-      <p>And the reasoning above turned out to be wrong, instructively. It assumed the learner cannot
+      <h3>Since this was written &mdash; and now settled</h3>
+      <p>The reasoning above was wrong in an instructive way. It assumed the learner cannot
       <em>fit</em> the failing teachers. It fits them fine &mdash; two and a half to four times better
-      than the best possible constant guess, on all three of them. The failure is not in the learning.</p>
+      than the best possible constant guess, on all three. The failure is not in the learning.</p>
       <p><strong>What replaced it.</strong> The learner is only ever asked for a decision at the very
-      first step of a route, and at that first step the situations it trained on are nearly identical
-      to one another &mdash; three distinct ones out of sixty. So it can only reproduce its teacher's
-      <em>average first move</em>. Teachers whose first move is chosen by consulting the model hand it a
-      useful point. Teachers whose first move is a random draw hand it the average of a random draw,
-      which is the middle of the search space and useless. That single number predicts where all seven
-      teachers' learners end up querying.</p>
-      <p>It also explains why the quality and the variety of the routes never mattered: both describe
-      where a route <em>goes</em>, and only its first step is ever consulted.</p>
-      <p><strong>The test that could kill it is running now.</strong> Two teachers: one consults the
-      model only on its first step and moves at random for the other seven; the other does the reverse.
-      The second is the better teacher on seven steps out of eight, and this account requires it to
-      fail. If it does not, the account is wrong.</p>
+      first step of a route, and at that first step the situations it trained on are nearly identical to
+      one another. So it can only reproduce its teacher's <em>average first move</em>. Teachers whose
+      first move is chosen by consulting the model hand it a useful point. Teachers whose first move is
+      a random draw hand it the average of a random draw &mdash; the middle of the search space, and
+      useless.</p>
+      <p><strong>And this was then tested by changing something, not by fitting more numbers.</strong>
+      Two teachers were built: one consults the model <em>only</em> on its first step and moves at
+      random for the other seven; the other does the reverse. The second follows the model on seven
+      steps out of eight and is the better teacher by any conventional measure.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="gh"></div>
+    <div class="gh">Model consulted on step 1 only</div>
+    <div class="gh">Model consulted on steps 2&ndash;8 only</div>
+    <div class="gr">Regret</div>
+    <div class="cell-w">
+      <span class="cell-name">Works</span>
+      <span class="cell-num">16.96</span>
+      <span class="cell-sub">improves 5/5 &middot; like the method itself (15.82)</span>
+    </div>
+    <div class="cell-f">
+      <span class="cell-name">Fails completely</span>
+      <span class="cell-num">43.94</span>
+      <span class="cell-sub">improves 0/5 &middot; the failure floor</span>
+    </div>
+    <div class="gr">Where it queries</div>
+    <div class="cell-w">
+      <span class="cell-name">Out in the space</span>
+      <span class="cell-num">0.740</span>
+      <span class="cell-sub">predicted &gt; 0.5, before either run</span>
+    </div>
+    <div class="cell-f">
+      <span class="cell-name">The middle of the box</span>
+      <span class="cell-num">0.031</span>
+      <span class="cell-sub">predicted &lt; 0.2, before either run</span>
+    </div>
+  </div>
+
+  <div class="col">
+    <p class="caption">Both numbers in each row were forecast and committed before either experiment
+    had produced a single result.</p>
+    <div class="open">
+      <h3>What this settles, and what it costs</h3>
+      <p>Only the teacher's first step reaches the learner. The other seven affect nothing about the
+      real decision &mdash; not where it queries, not whether it improves, not its final regret. They
+      affect only the bill: the seven-step teacher took <strong>1.82&times;</strong> the wall-clock of
+      the one-step teacher, running side by side on the same machine, and did worse.</p>
+      <p>That also explains the original puzzle directly. How good a route is, and how varied, both
+      describe where the route <em>goes</em> &mdash; and only its first step is ever consulted. A
+      perfect route's first step is a random starting point, whose average is the middle of the
+      space.</p>
+      <p><strong>Still open.</strong> The learner's query lands <em>near</em> its teacher's average
+      first move, not exactly on it &mdash; about five standard errors away. Something else is also
+      operating, and it has not been identified. A run testing whether the rollout can simply be
+      shortened is in progress.</p>
     </div>
   </div>
 </section>
