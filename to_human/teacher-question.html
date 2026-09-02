@@ -264,11 +264,26 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     clustered targets means it is predicting their average, not learning a mapping.</p>
 
     <div class="open">
-      <h3>What would overturn this</h3>
-      <p>A teacher whose route is model-chosen but for a <em>stale</em> model — ten iterations out
-      of date. If being model-chosen is enough, it works. If the route must match the state the
-      learner is actually in, it fails. That run is in progress, and it is the only direct test of
-      the account above.</p>
+      <h3>Since this was written</h3>
+      <p>The stale-model test finished: a route chosen ten iterations out of date works just as well
+      (19.53 against 19.36 for a fresh one, improving on every run). So the route does <em>not</em>
+      need to match the situation the learner is actually in.</p>
+      <p>And the reasoning above turned out to be wrong, instructively. It assumed the learner cannot
+      <em>fit</em> the failing teachers. It fits them fine &mdash; two and a half to four times better
+      than the best possible constant guess, on all three of them. The failure is not in the learning.</p>
+      <p><strong>What replaced it.</strong> The learner is only ever asked for a decision at the very
+      first step of a route, and at that first step the situations it trained on are nearly identical
+      to one another &mdash; three distinct ones out of sixty. So it can only reproduce its teacher's
+      <em>average first move</em>. Teachers whose first move is chosen by consulting the model hand it a
+      useful point. Teachers whose first move is a random draw hand it the average of a random draw,
+      which is the middle of the search space and useless. That single number predicts where all seven
+      teachers' learners end up querying.</p>
+      <p>It also explains why the quality and the variety of the routes never mattered: both describe
+      where a route <em>goes</em>, and only its first step is ever consulted.</p>
+      <p><strong>The test that could kill it is running now.</strong> Two teachers: one consults the
+      model only on its first step and moves at random for the other seven; the other does the reverse.
+      The second is the better teacher on seven steps out of eight, and this account requires it to
+      fail. If it does not, the account is wrong.</p>
     </div>
   </div>
 </section>
