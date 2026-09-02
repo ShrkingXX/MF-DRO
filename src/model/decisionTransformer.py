@@ -24,6 +24,9 @@ class DecisionTransformer(nn.Module):
 
         self.input_dim = input_dim
         self.action_dim = action_dim
+        # H102: which loss trains the location head. 'mse' reproduces every
+        # prior run bit-for-bit.
+        self.loc_loss = str(getattr(config, 'loc_loss', 'mse')).lower()
         self.hidden_size = config.hidden_size
         self.max_seq_length = config.max_seq_length
 
@@ -420,13 +423,15 @@ class DecisionTransformer(nn.Module):
             x_pred = self.action_head(h_act)                   # [B,T,d]
             if valid_mask is not None:
                 vm = valid_mask.float()   # [B, T]
+                _lf = F.l1_loss if getattr(self, 'loc_loss', 'mse') == 'l1' else F.mse_loss
                 L_loc = (
-                    F.mse_loss(x_pred, actions_x, reduction='none')
+                    _lf(x_pred, actions_x, reduction='none')
                     .mean(dim=-1)   # [B, T]
                     * vm
                 ).sum() / vm.sum().clamp_min(1)
             else:
-                L_loc = F.mse_loss(x_pred, actions_x)
+                _lf = F.l1_loss if getattr(self, 'loc_loss', 'mse') == 'l1' else F.mse_loss
+                L_loc = _lf(x_pred, actions_x)
             x_pred_out = x_pred
         else:
             # ── CANDIDATE SCORING PATH ──
