@@ -1,79 +1,73 @@
 # ============================================================================
-# CURRENT FRONT  (consolidated 2026-09-02, tick 13)
-# The /loop prompt still names h146 and the POOL dose. BOTH ARE CLOSED --
-# h146 completed, and the POOL dose was run on the harness as h158.
+# CURRENT FRONT  (consolidated 2026-09-02, tick 26)
+# The /loop prompt still names h146 and the POOL dose. Both CLOSED: h146
+# completed; the POOL dose ran on the harness as h158.
 # ============================================================================
 current_front:
   question: 'WHY better trajectory quality does not improve MF-DRO.'
-  status: 'NEGATIVE ANSWER SETTLED. POSITIVE MECHANISM STILL OPEN after two
-    demotions. NOT to be recorded as answered.'
+  status: 'ANSWERED, by intervention (h171). The actionable follow-up (h172) is
+    running. The finer mechanism (tau=0 conditional mean) is supported but has an
+    unexplained ~5 SE residual.'
 
-  settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal to
-    the outcome. h158 swept them on ONE axis with manipulation checks passing:
-    endpoint quality +51%, diversity -34%, training signal moved 3.2 points inside
-    an 8-13% noise floor, non-monotone in both directions, all three dose points
-    inside the failing band. This is stronger than the arm-comparison evidence it
-    replaced, because it moves both variables continuously rather than comparing
-    arms that differ in many ways at once.'
+  THE_ANSWER: 'Only the teacher''s FIRST step reaches inference. The DT is always
+    queried at timestep=0, and at tau=0 the training states are near-degenerate
+    (uniq_tau0_states=3 of 60; the real inference state is bit-identical to one of
+    them), so the DT reproduces roughly its teacher''s AVERAGE FIRST MOVE.
+    Trajectory quality describes where a trajectory GOES; only its first step is
+    ever consulted. A perfect teacher''s first move is a random start point, whose
+    average is the middle of the box.'
 
-  the_2x2_borehole_complete: 'MES/closed = control 15.82 rel%, 5/5, rtg 0.9761 |
-    MES/open = h153 MES-FROZEN 19.36, 5/5, rtg 0.3230 | non-MES/closed = h155
-    UCB-LOC 15.13, 5/5, rtg 1.0402 (and h159 EXPLOIT-LOC beta=0: 19.07, 5/5, rtg
-    0.9411) | non-MES/open = ORACLE/DIVERSE/RANDOM 43.94, 0/5, rtg ~0.30.
-    THREE OF FOUR CELLS WORK. Freezing costs +3.5 rel% and zero improvements;
-    changing the rule costs nothing; only doing BOTH fails.'
+  established_by_intervention: 'h171. HEAD-MES (acquisition on 1 of 8 steps,
+    random for 7) = 16.96 rel%, 5/5, query centroid 0.7397. TAIL-MES (acquisition
+    on 7 of 8, random first) = 43.94 rel%, 0/5, centroid 0.0313. Both halves of a
+    forecast committed at 0/5. The BETTER teacher on 7 of 8 steps FAILS. Neither
+    individually-fatal outcome (R1 HEAD fails, R2 TAIL works) occurred.'
 
-  retracted_so_far:
-  - '"The MES rule specifically is what the DT needs" -- RETRACTED by h155 (a UCB
-    teacher matches the control on every measure).'
-  - '"Target collapse is why the failing arms fail" -- REFUTED by h153, which
-    carries the failing band target (0.323) with the control improvement rate
-    (5/5). Confirmed independently by h159 (target 0.941) and h153 (0.323) landing
-    at 19.07 and 19.36. Withdrawn from findings.md AND the published report.'
-  - '"They fail because they are open-loop / non-adaptive" -- WITHDRAWN by h156.
-    Freezing costs ~9% of the tail; the failing arms lose ~70%. This was itself an
-    over-correction to the previous retraction.'
-  - '"The harness reproduces the observed targets to within 8%" -- WITHDRAWN. The
-    harness has a 6.1% mean / 10.9% worst noise floor, so 8% was barely above
-    noise. It supports SCALE claims only.'
+  settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
+    h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
+    points inside an 8-13% noise floor, non-monotone both ways.'
 
-  current_account: 'EXPLORATORY, post-hoc, NOT established. The teacher action must
-    be a FUNCTION OF THE OBSERVABLE STATE. Working arms query model-selected
-    locations (including h153, whose frozen path was model-selected earlier);
-    failing arms use criteria outside the model (true x*, true-objective argmax,
-    uniform). Predicts the DT collapses to predicting the mean of an unlearnable
-    target -- confirmed as query dispersion: Borehole works 0.2464-0.2889 vs fails
-    0.1115-0.1891 (h162), Hartmann control 0.2144 vs RANDOM 0.1153, 5/5 paired
-    (h164). Resolves the long-standing L_loc puzzle (low loss on clustered targets
-    = predicting the mean, not fitting a mapping). h163 found teacher and student
-    dispersion INVERTED (Spearman -0.900) but its out-of-sample test partly failed,
-    so the claim is a GROUP SEPARATION, not a rank relationship.'
+  the_2x2_both_benchmarks: 'BOREHOLE: control 15.82 5/5 | h153 frozen 19.36 5/5 |
+    h161 stale 19.53 5/5 | h155 UCB 15.13 5/5 | h159 exploit 19.07 5/5 | HEAD
+    16.96 5/5 || failing: ORACLE/DIVERSE/RANDOM/TAIL all 43.94 0/5.
+    HARTMANN: control 7.99 5/5 | h166 frozen 7.93 5/5 | h165 UCB 10.58 5/5 ||
+    RANDOM 65.14 2/5. Three of four cells work on both.'
 
-  harness_rule: 'The offline harness is ACCURATE for closed-loop conditions
-    (C1/C3/C4/C5 validated; C6 forecast 102% -> observed 106.6%; C7 forecast 91.5%
-    -> observed 96.4%) and WRONG for frozen ones (C2 forecast 82-96% -> observed
-    33%, off 2.7x -- the only condition never validated against a finished arm).
-    CONSEQUENCE: no forecast is offered for frozen arms, h161 and h166 included.'
+  six_accounts_five_fell:
+  - '"The MES rule specifically" -- RETRACTED by h155 (UCB matches the control).'
+  - '"Target collapse causes failure" -- REFUTED by h153, confirmed on two
+    benchmarks and five arms (h153 .323, h161 .327, h166 .382, HEAD .410 all have
+    failing-band targets and work).'
+  - '"Open-loop / adaptivity" -- WITHDRAWN by h156 (freezing costs ~9% of the
+    tail; failing arms lose ~70%).'
+  - '"Learnability" -- RETRACTED by h167 (the DT fits the failing teachers 2.5-4x
+    better than any constant).'
+  - '"The inference conditioning" -- EXONERATED by h168 (output moves 0.0074
+    across the full RTG sweep, 357 probed iterations).'
+  - 'SURVIVING: the tau=0 account. Passed h170 quantitatively (3.3x/3.2x on the
+    discriminating arms) and h171 by intervention. Residual ~5 SE unexplained.'
+
+  independent_confirmations: 'The fidelity head obeys the same tau=0 rule on a
+    quantity nobody aimed at: arms whose tau=0 fidelity is a 25% coin flip land at
+    HF 0.217 (TAIL) and 0.256 (RANDOM); all others 0.60-0.90.'
+
+  compute_finding: 'h171 contention-matched (concurrent, same load): HEAD 39.6 min
+    vs TAIL 72.2 min = 1.82x, differing only in MES calls per rollout (1 vs 7).
+    HEAD costs +1.14 rel% against the control. An earlier cross-run "2.1x" was
+    WITHDRAWN as contention-confounded.'
 
   running:
-  - 'h161 STALE-PATH (Borehole 42-46) -- the ONLY causal test of the current
-    account. Frozen path from 600 rollouts earlier (~10 iterations, corrected from
-    2000 after the smoke test showed the batch is 60 traj/iter not 200).
-    model-selected-for-THIS-state predicts failure; model-selected-at-all predicts
-    success. No harness forecast (frozen condition).'
-  - 'h165 Hartmann UCB-LOC -- generality of the strongest positive result. 1/5 done.'
-  - 'h166 Hartmann MES-FROZEN -- completes the 2x2 on a second benchmark; h153s
-    refutation currently rests on one.'
+  - 'h172 rollout-length dose {1,2,4} vs the control''s 8, Borehole 42-46. Tests
+    h171''s actionable implication. Asymmetry registered: a NULL does not refute
+    h171, it only means the saving is not realisable by this lever (shortening
+    also changes the RTG/BTG labels and the DT context length).'
 
-  screens_that_prevented_arms: 'h159 (beta=0, forecast 91.5%) and h160 (beta=-2,
-    forecast 83.7% over 4 reps) were both locked as discriminators and neither is
-    one -- both are still MODEL-SELECTED, so both accounts predict success. h160
-    was NOT launched. ~40 min of screens prevented ~20 worker-hours. h159 was kept
-    only because it validates a harness condition, and its forecast held.'
-
-  deliverables: 'to_human/teacher-question.html -- consolidated front report
-    (artifact 71e91a3e). to_human/mfdro_progress.html -- project-wide record,
-    carries three stacked corrections (artifact a001c2c1).'
+  open:
+  - 'The tau=0 conditional-mean account has a ~5 SE residual (h170): the query is
+    near its teacher''s tau=0 mean, not at it.'
+  - 'TEACHER_POOL rotation is implemented, never activated, and 4 of 5 members are
+    incoherent (LF acquisitions computed on the LF function). Design for a correct
+    MF-EI/PI/UCB written up, not implemented.'
 
 concurrent_sessions:
   compute_owner: 'Whichever session holds the running launcher owns compute. As of this writing that is
