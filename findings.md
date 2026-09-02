@@ -15395,3 +15395,58 @@ quality (h158) and whatever its diversity (h158, h146).
 
 h153 (MES, open-loop) is at 210/240. If it fails at ~43.94, outcome **O3** fires
 and the whole tail account — including this retraction — is withdrawn.
+
+---
+
+## h153 n=1 — PRELIMINARY, and it breaks the forecast I have been quoting for ticks
+
+| | forecast (blind) | observed, seed 43 | verdict |
+|---|---|---|---|
+| rtg_target | 0.83–0.94 (82–96% of control) | **0.3361** (34%) | **FAILED** |
+| rel% | near control, not 43.94 | **20.50** | HELD |
+| improves | ~5/5 | **1/1** | HELD |
+
+All sanity checks pass: SC1 path reproduction exact (0.0), SC2 open-loop penalty
++0.4005, SC3 fidelity flips 0.153, 6060 rollouts wrapped.
+
+### The instrument failed on the one condition nothing could check it against
+
+I reported "C2 retains 90.9% of the tail" for several ticks (90.9, 95.5, 95.9,
+87.3% across four measurements) and built the h153 forecast on it. **The real
+number is 34%** — a factor of ~2.7, far outside the 8–13% noise floor and worse
+than any other condition's error.
+
+SC2 says why: the **real** freeze penalty is **+0.4005** against the **+0.16**
+the same harness measured offline — understated ~2.5×. The harness replays a
+frozen path with fresh fantasies from the same start model; the pipeline derives
+the path from a pass-1 rollout and trains the DT on it across ~60 real
+iterations, so states drift in a way the offline replay never sees.
+
+**C2 was the only harness condition with no already-run arm to validate against.
+Every validated condition held; the unvalidated one broke by 2.7×.** That is the
+lesson, and it generalises: a forecast from this instrument is only as good as
+the nearest condition that was checked against real data.
+
+### The substantive finding is bigger than the miss
+
+rtg_target collapsed to **0.3361** — inside the failing arms' band (0.2965–0.3285)
+— **and performance did not fail**: 20.50 rel%, improving 1/1, against their
+43.94 improving 0/5.
+
+**A collapsed conditioning target does not by itself cause the failure.** The
+tail account's *causal* half — "the failing arms collapse the target, and that is
+why they fail" — is contradicted by this seed. Its *descriptive* half (the
+failing arms genuinely have no informative tail, validated against four real arms
+in h157 and swept on one axis in h158) is untouched.
+
+### What this retracts if it holds at n=5
+
+The causal reading, from findings.md and from the published report. What would
+survive: target collapse is a **correlate** of the failing arms, not their cause,
+and the mechanism is again unidentified. The open-loop penalty would be real and
+**larger** than measured (+0.40), yet still not the explanation.
+
+### n=1. No conclusion drawn.
+
+Seeds 42/44/45/46 running. Recorded now because the forecast miss is already
+established and should not sit unreported while the rest complete.
