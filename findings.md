@@ -14288,3 +14288,59 @@ SC4 checks the default path, SC6 checks RTG provenance, SC7 checks BTG. **Not on
 examined the forced path's fidelity decision** — the single thing my
 implementation actually changed beyond location. I designed checks around the
 parts I had thought hardest about and left the new code path unchecked.
+
+## h145 v2 — THE ANSWER: better teacher trajectories make MF-DRO much WORSE, 10/10
+
+CONFIRMATORY, corrected fidelity criterion (y* over the full pool, HF/LF info gain
+evaluated at the forced location). **SC4 PASSED on the corrected tree** — 137
+queries, 0 differing, final_regret identical — so the effect is attributable to
+the teacher's locations.
+
+    rel% of |optimum| @cost_curve 200, paired, seeds 42-46, lower is better
+
+    Hartmann_6D   oracle 57.15 55.02 22.67 58.55 67.77
+                  control 16.41  0.67 10.16  5.28  7.42
+                  diff   +40.74 +54.36 +12.51 +53.28 +60.35
+                  mean +44.246  sd 19.121  effect 2.31  oracle better 0/5
+
+    Borehole_8D   diff   +30.95 +32.59 +31.91 +27.78 +17.41
+                  mean +28.126  sd  6.270  effect 4.49  oracle better 0/5
+
+    POOLED n=10   mean +36.186  sd 15.879  effect 2.28  oracle better 0/10
+
+**P1 is FALSIFIED on both benchmarks, in the opposite direction, on every single
+run.** A teacher that walks straight to the true optimum degrades final regret by
+28-44 rel% of optimum — larger than every intervention effect this project has
+measured, combined.
+
+### The registered retraction fires
+
+> **RETRACTED:** "the ROI is the lever that shapes the training distribution" as a
+> route to improving MF-DRO.
+
+**Teacher trajectory quality is not merely non-binding — it is anti-correlated
+with outcome.** The ceiling experiment found a floor.
+
+### Borehole is unchanged from v1, which is itself informative
+
+v1 (degenerate y*) gave Borehole +28.126, effect 4.49. v2 gives **+28.126, effect
+4.49 — identical.** The fidelity fix changed nothing there, consistent with
+Borehole never showing the LF collapse. Hartmann moved from +37.39 to +44.25.
+So the y* bug mattered only where the fidelity policy was unstable, and **the
+headline conclusion never depended on it.**
+
+### What this settles, and what it does not
+
+**Settles:** teacher location quality is not what limits MF-DRO. Every ROI variant
+that works — including the Borehole gain — is operating through some channel other
+than "better teacher trajectories". The framing in the project's own primary
+question ("the ROI is the lever that shapes the training distribution") is not
+supported as a route to improvement.
+
+**Does not settle:** *why*. The standing hypothesis is that the DT fits
+state -> action, and an oracle teacher's action depends on x*, which is not in the
+state and not inferable from it — so the relation being fitted is near-constant and
+useless at inference. That would make **imitability**, not quality, the property a
+teacher needs. **It has no registered test and should not be believed yet**, but it
+is now the most consequential open question in this line: if right, it says the ROI
+helps by making teacher actions more *predictable from the state*, not better.
