@@ -87,7 +87,30 @@ current_front:
     performance, and the only one where the two move in OPPOSITE directions inside
     a single controlled manipulation rather than across arms.'
 
+  composed_with_the_ROI: 'h176. ROI-Q10 + rollout_length=1 = 10.81 rel%, 5/5, in
+    24.6 min, against ROI-Q10 at L=8''s 11.59 in 117.4 min -- a 4.77x speedup with
+    the ROI benefit intact. The ROI is applied once per rollout, outside the tau
+    loop, so it shapes the pool tau=0 draws from. CAVEAT: "better" is NOT
+    resolvable (paired sd 2.72 vs mean diff 0.78); the resolvable claims are
+    "survives" and the speedup. And shortening COSTS STABILITY: sd 0.41 -> 2.79.'
+
+  conditioning_is_architecturally_inert: 'h168: the emitted action moves 0.0074
+    across the full RTG sweep (357 iterations). h177: it moves EXACTLY 0.0000
+    across the BTG sweep. Cause found and confirmed on TRAINED weights (h178):
+    raw scalars into Linear(1->H)+LayerNorm SATURATE. Trained response over each
+    scalar''s operating range is 0.5216 (RTG, 0.30-1.00) vs 0.0056 (BTG, 26-30) --
+    92.9x apart, and FLAT across the whole training trajectory. Z-scoring restores
+    BTG to 1.88 at module level (336x), but that is an UPPER BOUND: running stats
+    come from the training distribution (sd 4.32) while inference btg_now spans a
+    narrow slice (sd 0.785).'
+
   running:
+  - 'h179 standardise the conditioning scalars, Borehole 42-46. Tests whether
+    RESPONSIVENESS helps -- a separate question from the mechanism. P3 (regret
+    DEGRADES) is named live: six arms paired a collapsed target with good
+    performance, so wiring in an uninformative signal could hurt. The arm also
+    runs h178''s response probe so a null is attributable (unresponsive channel vs
+    responsive-but-useless).'
   - 'h173 -- h171 HEAD/TAIL on Hartmann, seeds 42-46. The front''s ANSWER is stated
     in findings.md, research-state.yaml and the published report WITHOUT a
     benchmark qualifier, and h171 is Borehole-only. R1: if the ordering does not
