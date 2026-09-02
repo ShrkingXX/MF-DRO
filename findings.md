@@ -15164,3 +15164,58 @@ C2/C1 across two benchmarks × two replicates: **90.9%, 95.5%, 90.9%, 93.2%**.
 Freezing costs 5–9% of the tail; the failing arms lose ~70%. The forecast —
 h153 should NOT collapse its target and should land near the control — now rests
 on four independent measurements. C2 is untouched by the C4/C5 misfit.
+
+---
+
+## h156e — the instrument, characterised honestly. And a gate with a hole.
+
+Hypothesis: every condition was UNDER-predicted (−0.5% to −31%, never over),
+which is a one-sided bias in the instrument, not five facts about the arms. The
+suspected cause was that the real batch draws from `gp_num_models=10` KO-GPs fit
+on identical data and differing by fitting randomness, while my harness used
+ONE. A MAX feeds on exactly that missing variance component. Predicted to hurt
+C4/C5 most, since their within-condition spread is smallest.
+
+### The mechanism was confirmed; the instrument did not improve
+
+| condition | 1 GP | 10-GP ensemble | observed | err before | err after |
+|---|---|---|---|---|---|
+| C1 control | 0.906 / 0.962 | 0.954 / 1.008 | 0.9761 | −4.3% | **+0.5%** |
+| C3 random | 0.274 / 0.257 | 0.403 / 0.365 | 0.2965 | −10.6% | **+29.4%** |
+| C4 oracle | 0.302 / 0.238 | 0.270 / 0.308 | 0.3113 | −13.3% | **−7.1%** |
+| C5 diverse-good | 0.265 / 0.247 | 0.310 / 0.341 | 0.3285 | −22.0% | **−0.8%** |
+
+The prediction landed: C5 went −22.0% → −0.8%, C4 −13.3% → −7.1%, and the
+one-sided bias is gone (errors are now two-sided). **But C3, which previously
+fit, now over-predicts by +29.4%** — above the harness's own 13.2% worst-case
+noise, so real and unexplained. Mean |error| 12.5% → 9.4% while the noise floor
+rose 6.1%/10.9% → 8.4%/13.2%. **Net: not a better instrument.** Not adopted as
+the reference; both versions retained.
+
+### Gate miss, and a gate HOLE
+
+Pre-stated PASS was an AND (mean <10% AND worst <15%). Mean landed at 9.4%,
+worst at 29.4% → **FAIL**. But the FAIL and PARTIAL clauses both required C4/C5
+to stay outside 15%, and they came *inside*. **None of the three clauses matches
+the outcome.** That is exactly what `tools/check_gate.py` exists to catch and I
+did not run it on this protocol. Recorded as a discipline miss; the outcome is
+reported descriptively rather than force-fitted.
+
+### What this instrument actually supports
+
+Across four harness variants: per-arm errors 0.5%–31%, noise floor 8–13%.
+**It supports SCALE claims, not numeric ones.** The finding it does support —
+control 0.79–1.01 against every failing arm 0.24–0.40, a **3–4× gap** on two
+benchmarks across six independent runs — sits far outside every error and noise
+figure above. Wherever findings.md or the report says the harness "reproduces
+the observed targets", read that as reproducing their SEPARATION, not their
+values. The substantive account (the failing arms leave no upper tail for a MAX
+to find, and h149's information-gain mechanism explains why) rests on the
+separation and is unaffected.
+
+### h153 forecast, restated at the right precision
+
+C2/C1 over four measurements: **90.9, 95.5, 95.9, 87.3%** — range 87.3–95.9%
+against an 8.4% noise floor. Freezing costs 4–13% of the tail; the failing arms
+lose 60–75%. The forecast stands (h153 should not collapse its target) but as
+**85–96%**, not the tight 90.9% I quoted when it rested on a single run.
