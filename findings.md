@@ -15972,3 +15972,77 @@ order — the saturation floor is a property of the initial design, not of the
 teachers. h151 already established that the floor itself is Borehole-specific
 (Hartmann's RANDOM-POOL improves on 2 of 4 seeds), which is why the claim is
 scoped rather than general.
+
+---
+
+## h165 (n=4) + h166 (n=1) — the 2×2's separation REPLICATES on Hartmann
+
+| Hartmann_6D arm | rel% | improves | rtg_target | HF frac | n |
+|---|---|---|---|---|---|
+| control MES (closed) | **7.99** | 5/5 | 0.8844 | 0.200 | 5 |
+| **h165 UCB-LOC (closed)** | **11.28** | **4/4** | 0.8478 | 0.353 | 4 |
+| **h166 MES-FROZEN (open)** | **2.22** | 1/1 | **0.3760** | 0.893 | 1 |
+| ORACLE (open, *confounded*) | 52.23 | 4/5 | 0.3622 | 0.261 | 5 |
+| RANDOM-POOL (open) | 65.14 | 2/5 | 0.2924 | 0.281 | 5 |
+
+Working arms 2.22–11.28 against failing arms 52.23–65.14. **The separation is
+not a Borehole artefact.**
+
+### h165: R2 fires, and the confound cuts the helpful way
+
+h165 works on Hartmann (11.28, improving 4/4) — so "a different acquisition rule
+matches the control" generalises, and h155's retraction of *"the MES rule
+specifically"* is not Borehole-only. Note the **ordering flips**: on Borehole
+h155 beat the control (15.13 vs 15.82); on Hartmann it trails it (11.28 vs 7.99).
+
+The pre-registered confound is present. HF fraction 0.353 against the control's
+0.200, and h165 is higher on **all four paired seeds** (0.103/0.056,
+0.926/0.750, 0.284/0.099, 0.099/0.056) — a systematic shift, though both arms
+swing wildly across seeds.
+
+**It does not threaten the conclusion, and the direction is why.** More HF
+queries should *help* — HF is the real objective. h165 buys more HF and performs
+*worse* than the control. So the confound cannot manufacture h165's success; at
+most it explains part of its shortfall. A confound that biases against the claim
+being made is not a reason to withhold the claim, and I am recording that
+reasoning rather than just noting the confound exists.
+
+### h166 (n=1): the split reproduces
+
+2.22 rel%, improving 1/1, with `rtg_target` **0.3760** — in the failing band
+while performing *better than the control*. That is the same split h153 showed on
+Borehole (collapsed target, good performance) which refuted the target-collapse
+account. **n=1; no verdict.** R3 remains live: if it works but the target does
+*not* collapse on the remaining seeds, Hartmann cannot corroborate the refutation.
+
+## Code audit — the paper's ROTATE strategy is implemented, unused, and 4/5 broken
+
+Prompted by a question about adopting the DRO paper's rotating-acquisition
+schema (§D.4: rotate EI/UCB/PI/MES; UCB κ=2.0, EI/PI ξ=0.01, MES 10 samples).
+
+`TEACHER_POOL = ["mes", "cost_ei", "ucb_beta1", "ucb_beta3", "thompson"]` and a
+`use_teacher_pool` flag already exist (mf_dro.py:2569). **No experiment has ever
+set the flag**, and inspection shows why it would be uninterpretable:
+
+```python
+best = max(sim_hf_y)                       # best simulated HF value
+ei_H, ei_L = _ei(mu_H, sigma_H), _ei(mu_L, sigma_L)
+scores = torch.stack([ei_L / c_L, ei_H / c_H], dim=1)
+```
+
+`_ei(mu_L, sigma_L)` asks how much the **LF** function will exceed the best **HF**
+value — two functions on two scales. LF biased high makes LF-EI enormous and the
+teacher goes all-LF; biased low makes it identically zero. `ucb_beta1/3` shares
+the defect (`mu_L + βσ_L` compared directly against `ucb_H/c_H`), and `thompson`
+is independently known broken (h60: fidelity collapsed to 2/196 HF).
+
+**Four of five pool members are incoherent.** MES is the only correct one,
+because `_compute_mes_lf_vectorized` measures `I(y_L(x); y*_H)` — information
+about the **HF** maximum — so both fidelities are in the same currency about the
+same quantity.
+
+Recorded as a defect found by audit, not an experiment. Any future rotation work
+must fix the LF terms first; the design for doing so (MF-EI/PI via rank-1 KO
+variance update plus Gauss–Hermite over `y_L`; MF-UCB via MF-GP-UCB's ζ bound and
+variance threshold, since UCB admits no value-of-information extension) is
+written up in the conversation and not yet implemented.
