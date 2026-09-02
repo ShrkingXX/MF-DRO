@@ -17054,3 +17054,41 @@ So the fix is validated as doing what it claims (making the channel responsive)
 and is entirely untested as an improvement. Registered as h179, not launched:
 h178 is still settling whether the saturation account holds on trained weights,
 and this computation used random weights too.
+
+---
+
+# h178 — **the saturation account is confirmed on trained weights**
+
+| | rtg_resp | btg_resp | ratio |
+|---|---|---|---|
+| all 357 iteration-samples | **0.5216** ± 0.0296 | **0.0056** ± 0.0004 | **92.9×** |
+| last quarter (most trained) | 0.5412 | 0.0062 | 86.9× |
+| h177 random-weight prediction | 0.4869 | **0.0056** | ~87× |
+
+**The objection h177 raised against itself is answered.** Its smoke reading was
+dismissed as near-tautological because a barely-trained module must agree with a
+random-weight calculation. The full run shows the response barely moves across
+the *whole* training trajectory: `btg_resp` goes 0.0054 → 0.0064 over 94
+iterations and never becomes responsive; the ratio stays between 84× and 96×.
+
+**Training does not rescue BTG's responsiveness.** R2 fires. h177's explanation
+moves from EXPLORATORY to **measured on the trained network**.
+
+## h179 launched — does making it responsive actually help?
+
+**P3 (regret degrades) is named as a live outcome**, not a formality: six arms on
+this front paired a collapsed conditioning target with good performance, so
+wiring in an uninformative signal could hurt.
+
+**SC1 failed first**: the flag was set on the MF-DRO config but the DT is built
+with its **own** config object, so it never reached the model. **Fifth silent
+no-op this session caught by a pre-launch smoke.** Fixed and passing; SC2
+(bit-identity, flag off) passes.
+
+**And the smoke exposed a limit on the fix.** The running statistics come from
+the **training** distribution (BTG sd 4.32) while inference `btg_now` spans a
+much narrower slice (sd 0.785). Standardising by training statistics maps the
+inference range to a narrow z-band, which may still be relatively flat — so the
+336× module-level figure is an **upper bound**, not what this arm will deliver.
+The arm therefore also runs h178's response probe, so a null can be attributed:
+unresponsive channel, or responsive channel that does not help.
