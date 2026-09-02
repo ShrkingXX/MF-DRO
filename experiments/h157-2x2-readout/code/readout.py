@@ -40,7 +40,10 @@ for name, pat in ARMS.items():
     print(f"{name:26s} {rel:7.2f} {imp:6d}/{len(v)} {rtg:11.4f} {hf:8.2f}  {len(v)}")
 
 if "h153 MES-FROZEN (open)" in rows:
-    r0 = json.load(open(ARMS["h153 MES-FROZEN (open)"].format(b=BENCH, s=SEEDS[0]))).get("_h153", {})
+    # BUG FIX: hardcoded SEEDS[0]; crashed when seed 42 was not the first done.
+    _f = [ARMS["h153 MES-FROZEN (open)"].format(b=BENCH, s=s) for s in SEEDS]
+    _f = [p for p in _f if os.path.exists(p)]
+    r0 = json.load(open(_f[0])).get("_h153", {})
     print(f"\nh153 SANITY: SC1 path err={r0.get('sc1_path_max_abs_err')}  "
           f"SC2 open-loop penalty={r0.get('sc2_open_loop_penalty')}  "
           f"SC3 fidelity flip frac={r0.get('sc3_ell_flip_frac')}  rollouts={r0.get('n_rollouts')}")
