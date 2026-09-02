@@ -17361,3 +17361,31 @@ the other into it.
 Limits: only 4 failing arms and all sit at the identical 43.94 floor; nothing lies
 between 0.424 and 1.200 so the boundary is untested; and it is correlational — no
 arm intervenes on centre-distance directly.
+
+### h182 addendum 2 — the DT tracks τ=0, not the teacher's average. A perfect inversion.
+
+`teacher_action_stats` (mean of `actions_x` over **all** τ) against the DT's own
+queries, distance from the box centre, Borehole:
+
+| arm | rel% | teacher mean, ALL τ | DT's queries |
+|---|---|---|---|
+| **TAIL-MES** (random at τ=0, acq. τ=1–7) | 43.94 | **0.571 → 0.614** | **0.290 → 0.089** |
+| **HEAD-MES** (acq. at τ=0, random τ=1–7) | 16.96 | **0.092 → 0.103** | **0.645 → 0.819** |
+| ROLLOUT1 | 13.69 | 0.681 → 0.784 | 0.709 → 0.864 |
+
+HEAD's teacher averages essentially **at the centre** (0.092, since 7 of 8 steps
+are random) while its DT queries sit **far** from it and it works. TAIL's teacher
+averages **far** from the centre while its DT sits **at** it and it fails. **The
+teacher's all-τ average is anti-predictive; τ=0 predicts.** This is the front's
+answer measured directly on the pair built to dissociate the two, and a positive
+confirmation of h180.
+
+**The feedback-loop hypothesis is dropped.** I expected collapse to compound
+through the teacher (DT queries → GP data → teacher rollouts → DT's next average).
+**Every teacher expands, including the failing arm's** (1.07–1.15; TAIL's teacher
+expands at 1.07 while its DT contracts at 0.31). The collapse is internal to the
+DT, not mediated by a degrading teacher distribution.
+
+Limits: five arms (one failing) — `teacher_action_stats` exists only on h171/h172;
+and it averages over all τ, so "τ=0 specifically" comes from the HEAD/TAIL design
+rather than a saved per-τ slice. Recording that slice is cheap for future runs.
