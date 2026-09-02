@@ -75,3 +75,30 @@ on **Hartmann** -- ~4x cheaper per seed than Borehole (19 min vs 80). Seeds
 42-46, n=5 each, 10 workers. Queued behind the three arms currently running;
 compute rule (<=15) is why it is not launched now rather than any doubt about
 priority.
+
+## Smoke test — probe VERIFIED, and an early signal recorded before the arm ran
+
+Tiny-budget run (5 real iterations), Borehole, RANDOM-POOL arm:
+
+  probe iterations recorded   5          PASS (the probe swallows exceptions, so
+                                         a scope error would look like a no-op)
+  sweep length per iteration  9 of 9     PASS
+  emitted x varies with RTG   True       max spread across the sweep 0.0276
+
+**Early signal, recorded now so it is not reported as a discovery later.** At
+5 iterations the emitted x sits ~0.38 from the box centre at EVERY conditioning
+value, and moves only 0.028 across the entire sweep from rtg=0.00 to rtg=1.00:
+
+    rtg=0.00  d(centre)=0.3797       rtg=0.75  d(centre)=0.3910
+    rtg=0.02  d(centre)=0.3808       rtg=1.00  d(centre)=0.3938
+    rtg=0.05  d(centre)=0.3825
+
+P2 requires d(centre) at an in-support RTG to exceed d(centre) at `rtg_target`
+by at least 2x. Here the ratio is ~0.96 — no effect at all.
+
+**This is 5 iterations of a barely-trained network on a truncated budget, and
+h167's collapse was measured over a full ~60-iteration run.** It is not a result
+and no verdict is taken from it. But if the pattern holds at full length, **R1
+fires**: the conditioning is exonerated, the collapse is unconditional, and the
+suspect becomes the trained network itself. That would close the conditioning
+line evaluably — which is exactly what h148 failed to do.
