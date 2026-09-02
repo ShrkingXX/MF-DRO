@@ -15334,3 +15334,64 @@ prediction that held, not on extrapolation. The pipeline version would return
 Harness only, so this is a claim about the reward signal rather than directly
 about final regret. It is a 3-point span against a 13-point noise floor — a
 scale claim about flatness, which is within what this instrument carries.
+
+---
+
+## h155 UCB-LOC — the 2×2's third cell. **"The MES rule specifically" is RETRACTED.**
+
+CONFIRMATORY, n=5 COMPLETE. Protocol, readout code and a blind forecast were all
+committed before any result existed (h155 was at cost 184/240, 0/5 files).
+
+| arm | rel% | improves | rtg_target | HF frac |
+|---|---|---|---|---|
+| control MES (closed-loop) | 15.82 | 5/5 | 0.9761 | 0.88 |
+| **h155 UCB-LOC (closed-loop, NON-MES)** | **15.13** | **5/5** | **1.0402** | **0.87** |
+| ORACLE (open-loop) | 43.94 | 0/5 | 0.3113 | 0.63 |
+| RANDOM-POOL (open-loop) | 43.94 | 0/5 | 0.2965 | 0.26 |
+
+Per-seed, frozen metric:
+```
+control  [15.28, 14.77, 12.93, 16.90, 19.19]  mean 15.82
+UCB-LOC  [15.03, 11.79, 13.88, 16.29, 18.67]  mean 15.13
+```
+Better on 4 of 5 seeds, and rising and falling **with** the control seed by seed
+— two teachers solving the same problem the same way. Nothing like the failing
+arms' flat 43.94.
+
+### The blind forecast held quantitatively
+
+Forecast **~102%** of the control's rtg_target; observed **106.6%**. Error
++4.6 points against an 8–13% noise floor. The forecast also said "near the
+control, and explicitly NOT intermediate" — both correct.
+
+### Confound check, run before the number was read
+
+HF fraction **0.87 vs control 0.88**. h60's `thompson` teacher collapsed to
+2/196 HF and was uninterpretable for this comparison; h155 holds the fidelity
+channel fixed by construction and the data confirms it. The cell is valid.
+
+### What this retracts
+
+**"The MES selection rule specifically is what the DT needs" is RETRACTED.**
+That reading survived h150 (which retracted policy-distillation-of-MES) and has
+been the standing fallback since. A UCB teacher — β=2 on the HF posterior, a
+different acquisition entirely — matches the control on regret, on improvement
+rate, and on the conditioning target.
+
+### The 2×2 as it now stands
+
+|  | CLOSED-loop | OPEN-loop |
+|---|---|---|
+| **MES** | control **15.82**, 5/5 | h153 — running |
+| **non-MES** | **h155 15.13, 5/5** | ORACLE/DIVERSE/RANDOM **43.94**, 0/5 |
+
+The non-MES row reads: closed-loop **works**, open-loop **fails**. The operative
+variable is whether the teacher is **information-seeking** — not which
+information-seeking rule it uses. UCB with β=2 targets high-variance points and
+earns the tail; interpolating toward a known-good point does not, whatever its
+quality (h158) and whatever its diversity (h158, h146).
+
+### Still open, and still able to refute all of this
+
+h153 (MES, open-loop) is at 210/240. If it fails at ~43.94, outcome **O3** fires
+and the whole tail account — including this retraction — is withdrawn.
