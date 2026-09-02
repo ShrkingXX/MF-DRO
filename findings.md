@@ -16882,3 +16882,25 @@ advance so the eventual claim matches what the design can carry.
 **R1 is named first**: if ROI+L1 loses the benefit, the ROI does *not* act only
 through τ=0, and the front's answer — already Borehole-scoped — would be further
 limited to the no-ROI configuration.
+
+## h177 launched — is the OTHER conditioning input inert too?
+
+h175 established the τ=0 residual is **~5 SE on both benchmarks** (5.0/5.0
+Borehole, 5.3/4.7 Hartmann). A stable incompleteness is a better target than the
+benchmark-specific scope gap — it is a property of the mechanism, not of one
+function.
+
+The DT is conditioned on **two** scalars at inference: `rtg_tgt` and `btg_now`.
+**h168 showed the action is essentially independent of RTG** (0.0074 across the
+full sweep, 357 probed iterations). BTG has never been probed.
+
+SC1 and SC2 both pass. **Early signal, recorded before the arm ran**: at 5
+iterations the action moves **0.0007 across the whole BTG sweep — 0.7% of its own
+distance from the box centre**, against RTG's 8.9% at full length. The smoke ran
+on Borehole where `btg_now` is 10.9, so the 20–36 sweep sits entirely *outside*
+the visited range, and the action still barely moves.
+
+If that holds, **R1 fires: both conditioning inputs are inert and the DT's
+inference output is a function of the state alone.** That would sharpen the τ=0
+account — the conditioning does nothing at all — while leaving the residual
+unexplained, which I would then say rather than reach for a third scalar.
