@@ -118,6 +118,33 @@ current_front:
     over all tau -- a per-tau slice is a cheap future addition but has no consumer
     while the front is closing, so it is RECOMMENDED, not implemented.'
 
+  h182_collapse_is_causal: 'The 43.94 "saturation floor" IS THE INITIAL DESIGN.
+    Comparing each run''s best HF value to its OWN initial design''s best: all four
+    failing arms (RANDOM-POOL, TAIL-MES, ORACLE-EXPERT, DIVERSE-GOOD) improve on
+    0/5 seeds -- final best == init best EXACTLY (173.5441) on every seed, 20 runs
+    total. Control/HEAD/ROI-L1 improve 5/5 (260.62/257.06/279.19). The failing arms
+    are not performing badly, they are performing NOT AT ALL, and they coincide at
+    43.94 because that number is the initial design they all share. AND the centre
+    is a BAD region: best f within 0.10 of the centre is 85.76 vs 273.00 for the
+    whole box (Hartmann 0.948 vs 3.107). So collapse is DIRECTLY HARMFUL. SELF-
+    RETRACTION: one step earlier I concluded from rho(distance, objective)=-0.027
+    that the centre is NOT a bad place and collapse is a marker not a cause -- wrong,
+    and wrong for the reason I had flagged and ignored (a global rank correlation
+    says nothing about value achievable in a small central ball). STILL UNTESTED:
+    what MAKES a policy collapse; nothing intervenes to prevent collapse and observe.'
+
+  asymmetry_second_explanation_refused: 'The GEOMETRIC account of the benchmark
+    asymmetry is REFUSED by direct objective sampling (20k uniform draws): it needed
+    rho(distance from centre, objective value) to be LARGE on Borehole and small on
+    Hartmann; measured Borehole -0.027, Hartmann -0.374, i.e. 14x the WRONG WAY.
+    This is the SECOND explanation of the asymmetry to fall to its own numbers (the
+    escape-fraction account fell the tick before). Also: on Hartmann the DIRECTION
+    signature INVERTS among working arms -- the two best arms CONTRACT (0.779, 0.879)
+    while HEAD EXPANDS most (1.199) and performs worst of the four -- and all four
+    end at nearly the same centre-distance (0.546-0.577) with regrets 7.93-25.16, so
+    centre-distance does not discriminate there at all. The Hartmann best arms never
+    get within 0.6 of x*. THE ASYMMETRY REMAINS OPEN.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

@@ -3583,3 +3583,20 @@ ships.
   by its own numbers (HEAD retains 95%/90% of the control's escape yet costs
   1.07×/3.15×).
 - h181 running, 38/107.
+
+## tick 40 — collapse is causal; the failing arms do literally nothing
+
+- **The 43.94 floor IS the initial design.** All four failing arms improve on their
+  own initial design on **0/5** seeds — final best == init best exactly, 20 runs.
+  Control/HEAD/ROI-L1 improve 5/5. The failing arms are not performing badly; they
+  are performing *not at all*.
+- **The centre is a bad region** — best f within 0.10 of it is 85.76 vs 273.00 for
+  the whole box. So collapse is directly harmful.
+- **Self-retraction within the tick:** I first concluded from ρ(distance, value) =
+  −0.027 that the centre is *not* bad and collapse is a marker, not a cause. Wrong,
+  and wrong for the caveat I had already written down and then ignored.
+- **Second explanation of the benchmark asymmetry refused** — the geometric account
+  needed Borehole's ρ to be large; it is 14× the wrong way. Asymmetry stays open.
+- On Hartmann the direction signature *inverts* among working arms, and the best
+  arms never get within 0.6 of x*.
+- h181 at 55/107.
