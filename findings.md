@@ -17389,3 +17389,29 @@ DT, not mediated by a degrading teacher distribution.
 Limits: five arms (one failing) — `teacher_action_stats` exists only on h171/h172;
 and it averages over all τ, so "τ=0 specifically" comes from the HEAD/TAIL design
 rather than a saved per-τ slice. Recording that slice is cheap for future runs.
+
+### h182 addendum 3 — the geometric explanation is REFUSED, and a dissociation appears
+
+Sampling the objectives directly (20 000 uniform draws, HF):
+
+| benchmark | ρ(distance from centre, objective value) |
+|---|---|
+| **Borehole_8D** | **−0.027** |
+| **Hartmann_6D** | **−0.374** |
+
+The geometric account of the asymmetry needed Borehole's to be the *large* one; it
+is **14× smaller**. Refused. **Second explanation of the benchmark asymmetry to
+fall to its own numbers** — it stays open.
+
+**The dissociation this exposes.** On Borehole, distance from the centre predicts
+**arm performance** at −0.967 and **objective value** at −0.027. So centre-distance
+is *not* a proxy for "somewhere good" — it is a **marker of policy behaviour**. A
+policy that has stopped discriminating emits an average, and the average of a
+diffuse distribution is the centre. The centre is where a collapsed policy ends
+up, not a bad place to be.
+
+This makes "collapse *causes* failure" the less likely reading of h182: if the
+centre is not a bad region, being there cannot itself cost regret. Both the
+collapse and the regret are more likely downstream of the policy no longer
+selecting. (Caveat: ρ = −0.027 means distance does not *order* value, not that
+they are unrelated — Borehole's top 1% do sit further out, 0.948 vs 0.804.)

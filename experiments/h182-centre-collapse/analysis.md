@@ -138,3 +138,46 @@ the centre, the other compounding its way in.
   whether 1.0 is special — is untested.
 - **Correlational.** No arm here intervenes on centre-distance directly, so
   "collapse causes failure" and "both follow from a third cause" are not separated.
+
+---
+
+## The geometric explanation of the asymmetry is REFUSED (measured, not argued)
+
+Last section proposed that Borehole's optimum being at the boundary makes
+"distance from the centre" a proxy for quality there, so one good first step
+suffices — while Hartmann's multimodality breaks that. **Tested directly by
+sampling the objectives** (20 000 uniform draws each, HF objective):
+
+| benchmark | ρ(distance from centre, objective value) | \|ρ\| | top-1% mean dist | all-sample mean |
+|---|---|---|---|---|
+| **Borehole_8D** | **−0.027** | **0.027** | 0.948 | 0.804 |
+| **Hartmann_6D** | **−0.374** | **0.374** | 0.667 | 0.695 |
+| Currin_2D | −0.179 | 0.179 | 0.530 | 0.382 |
+
+**The prediction required Borehole's \|ρ\| to be the large one. It is the small
+one — 14× smaller than Hartmann's.** The geometric explanation is refused. This
+is the **second** explanation of the benchmark asymmetry to be refused by its own
+numbers (the escape-fraction account fell last tick), and the asymmetry stays open.
+
+### But the refutation exposes something better: a dissociation
+
+On Borehole, distance from the centre predicts **arm performance** at ρ = −0.967
+while predicting **objective value** at ρ = −0.027. Those cannot both be about the
+same thing.
+
+So **centre-distance is not a proxy for "somewhere good"** — random far-from-centre
+points on Borehole are no better than central ones. It is a **marker of policy
+behaviour**: a policy that has stopped discriminating emits an average, and an
+average of a diffuse distribution lands at the centre. The centre is where a
+collapsed policy *ends up*, not a place that is bad to be.
+
+This bears directly on the causal question h182 left open. It makes
+"collapse causes failure" the *less* likely reading: the centre is not a bad
+region, so being there cannot itself be what costs regret. The better-supported
+reading is that both the collapse and the poor regret are downstream of the same
+thing — the policy no longer selecting.
+
+*(One caveat against over-reading ρ = −0.027: the relationship is non-monotone
+rather than absent. Borehole's top 1% of samples do sit further out than average,
+0.948 vs 0.804. Rank correlation near zero means distance alone does not order
+value — not that the two are unrelated.)*
