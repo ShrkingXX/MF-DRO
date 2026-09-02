@@ -14888,3 +14888,65 @@ improvements I cannot attribute them to a weak test.
 `experiments/h149-forced-vs-teacher-quality/results/` under
 `Hartmann_6D__RANDOM-POOL__seed*.json`. Separable by benchmark in the filename;
 recorded here so a later reader does not mistake them for h149's Borehole set.
+
+## h151 — P1 FALSIFIED on Hartmann. The finding GENERALISES; my characterisation of it does NOT.
+
+CONFIRMATORY. PARTIAL (4/5; the fifth was still running). Hartmann_6D,
+RANDOM-POOL via pre-existing code, vs h83 MF-DRO control.
+
+    seed  init best  post best  improved   regret   control   rtg_target
+      42      0.240      0.712       YES    78.56     16.41       0.2736
+      43      0.310      0.740       YES    77.71      0.67       0.2862
+      44      2.569      1.214        no    22.67     10.16       0.3386
+      46      1.045      0.869        no    68.56      7.42       0.2645
+
+    P1  improved 2/4                    FALSIFIED (falsifier was >= 2)
+    P2  regret +53.21, effect 1.89      PASS
+    P3  rtg_target 0.2907 vs control 0.9265   (Borehole was 0.29 vs 0.976)
+
+### What generalises
+
+**P2 and P3 replicate cleanly, and P2 is LARGER on Hartmann than on Borehole:**
+
+    degradation vs control    Borehole +28.13 (effect 4.49)   Hartmann +53.21 (effect 1.89)
+    rtg_target collapse       Borehole 0.29 vs 0.976          Hartmann 0.29 vs 0.927
+
+**So the core result holds on both benchmarks**: a non-MES teacher degrades regret
+substantially and collapses the conditioning target to ~0.29 either way.
+
+### What does NOT generalise, and the registered retraction
+
+> **RETRACTED: "any non-MES teacher fails TOTALLY / never improves on its initial
+> design."** That is a **Borehole statement.** On Hartmann, RANDOM-POOL improves on
+> 2 of 4 seeds.
+
+And the reason is now clear, which makes the correction informative rather than
+merely deflating. **The "floor" was never a property of the teacher — it is the
+initial design's own quality:**
+
+    Borehole  initial best HF 166-196  against an optimum of 309.6  (54-63% of it)
+    Hartmann  initial best HF 0.24-2.57 against an optimum of 3.32  (7-77% of it)
+
+On Borehole the random initial design is already good, so a broken policy that
+never improves lands at a high, *identical* regret — which is exactly the saturated
++28.13 that three arms shared. On Hartmann the initial design is often terrible,
+so even a broken policy can crawl above it while still ending far worse than the
+control (regret 78.56 against 16.41).
+
+**This also retires the "identical to three decimals" observation as evidence of
+anything deep.** It was an artefact of Borehole's initial designs, not a signature
+of the teachers.
+
+### The answer, correctly scoped
+
+> Better trajectory quality does not improve MF-DRO. On **both** benchmarks tested,
+> replacing the MES teacher — with a perfect one, a good-and-diverse one, or a
+> uniformly random one — degrades regret substantially and collapses the
+> conditioning target. **Teacher quality does not order the outcomes.** Whether the
+> resulting policy improves on its starting design at all depends on how good that
+> starting design happened to be, and is not a property of the teacher.
+
+**Caveat carried forward:** the perfect and diverse-good arms have only been run on
+Borehole. Hartmann's generality evidence is the RANDOM-POOL arm alone. The oracle
+was not re-run there because h145's Hartmann arm was confounded and the fix was not
+worth 5 runs once RANDOM-POOL had answered the scope question.
