@@ -16479,3 +16479,55 @@ or its regret — only its cost.
 **Not established:** that the τ=0 *conditional-mean* account is the full
 mechanism. h170's residual was ≈5 SE and h171 does not address it. What h171
 shows is that the first step is the operative one — by intervention.
+
+---
+
+# h172 — **the actionable payoff. rollout_length=1 beats the control at 6.2× the speed.**
+
+CONFIRMATORY, n=5 (L=2, L=4 still running).
+
+| arm | rel% | improves | rtg_target | HF frac | wall |
+|---|---|---|---|---|---|
+| control (L=8) | 15.82 | 5/5 | 0.9761 | 0.883 | **82.4 min** |
+| **L=1** | **13.69** | **5/5** | 0.4590 | 0.939 | **13.2 min** |
+
+Per-seed L=1: 7.43, 11.11, 16.73, 16.85, 16.32 — better than the control on
+**4 of 5 seeds**. P1 predicted "within ~3 rel%"; observed **2.13 rel% better**.
+
+h171 showed the seven later rollout steps do not affect the real query. h172
+shows they can be **removed**: one-step rollouts match and slightly beat
+eight-step ones at a fraction of the cost. **This is the first change to what the
+code should do to come out of this front.**
+
+### The contention confound runs the protective way this time
+
+The wall-clock is cross-run, as it was for h171's withdrawn "2.1×". But the
+direction is now protective: **h172 ran at 15/15 workers**, the highest
+contention of this session, against a control run at unknown and probably lower
+load. A 6.2× gap measured under *worse* conditions can only be understated by
+contention, not manufactured. That is an argument about direction, not a
+substitute for a matched measurement, and is stated as such.
+
+SC1 passes: HF fraction 0.939 vs 0.883, no collapse.
+
+**Sixth arm to pair a collapsed conditioning target with good performance** —
+0.4590, mechanically lower since rtg[0] = log(b_0) − log(b_T) spans one step
+instead of eight — and the strongest, since it also outperforms.
+
+### Not established
+
+n=5, Borehole only. L=2 and L=4 have not reported, so a non-monotone dose is not
+yet excluded. h172's registered asymmetry stands: this supports h171's mechanism,
+but a null here would not have refuted it.
+
+## h173 registered — h171 on Hartmann
+
+The front's **answer** is currently stated in findings.md, research-state.yaml
+and the published report **without a benchmark qualifier**, and h171 is
+Borehole-only. Every other load-bearing result here has been made to replicate on
+Hartmann, and in two cases the second benchmark changed what could be claimed
+(h164's HF-only slicing was unusable there; h165's ordering flipped).
+
+R1 is named: if the HEAD/TAIL ordering does not reproduce, the front's answer
+must be scoped to one benchmark. Chosen over chasing h170's ~5 SE residual, which
+is a refinement of an account already established at the level that matters.
