@@ -57,3 +57,33 @@ result retracted an already-published finding. Query-level statistics at n=5
 are weak evidence about what a network internally represents. **h154 does not
 establish the mechanism and is not reported as having done so.** h153 is the
 direct test.
+
+---
+
+# h154b -- the open-loop penalty on HARTMANN. Registered generality check. REPLICATES.
+
+|  | Borehole | Hartmann |
+|---|---|---|
+| greedy CLOSED-loop | +0.4860 | +0.4375 |
+| greedy OPEN-loop (identical rule, frozen) | +0.3266 | +0.3530 |
+| **OPEN-LOOP PENALTY** | **+0.1594** | **+0.0845** |
+| in noise floors | 0.72 | 0.51 |
+| closed-loop wins | 16/21 | **18/21** |
+| noise floor | 0.2218 | 0.1651 |
+| beam vs greedy, BOTH open-loop | -0.0397 (10/21) | -0.0225 (10/21) |
+
+The penalty is NOT Borehole-specific. It is roughly **half the magnitude** on
+Hartmann (+0.0845 vs +0.1594) but MORE consistent by count (18/21 vs 16/21) --
+Hartmann's noise floor is lower, so a smaller effect separates more reliably.
+The registered narrowing ("if Hartmann shows no penalty, h152's generality
+claim must be narrowed") does NOT fire.
+
+Second, unregistered but worth recording: "joint optimisation buys nothing at
+matched loop type" replicates almost exactly -- -0.0397 (10/21) on Borehole,
+-0.0225 (10/21) on Hartmann. Two benchmarks, the same dead heat, the same
+count. h152's central negative is not a Borehole artefact.
+
+MAGNITUDE CAVEAT UNCHANGED: +0.08 to +0.16 rtg is real and replicated, and
+still NOT large enough on its own to explain the 0.976 -> 0.311 rtg_target
+collapse. Whether adaptivity matters through POLICY LEARNING rather than
+through the reward magnitude is what h153 tests directly.

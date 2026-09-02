@@ -29,7 +29,8 @@ from src.models.ko_gp import KennedyOHaganGP
 from src.policy.mf_dro import compute_joint_mf_mes
 from src.policy.joint_ig_teacher import beam_search_trajectory, gumbel_b
 
-BENCH = "Borehole_8D"
+import os as _os
+BENCH = _os.environ.get("H152_BENCH", "Borehole_8D")
 T = 8
 R = 8                      # replays per state
 POOL_N = 200               # matches simulate_mf_trajectory's n_roi_candidates
