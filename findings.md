@@ -16356,3 +16356,46 @@ designed. Predicted > 0.5; observed 0.7287.
 the acquisition on *seven* of eight steps and which the mechanism requires to
 FAIL — is at ~52%. **R2 (TAIL works → τ=0 not necessary) remains individually
 fatal and is not yet tested.** No verdict until it reports.
+
+---
+
+## h171 HEAD-MES FINAL (n=5) — both forecast halves hold, and it runs 2.1× faster
+
+| | forecast (committed at 0/5) | observed n=5 | control |
+|---|---|---|---|
+| **F1** query centroid from box centre | **> 0.5** | **0.7397** | 0.7604 |
+| **F2** rel% | near control | **16.96** | 15.82 |
+| **F2** improves | ~5/5, not 0/5 | **5/5** | 5/5 |
+| SC1 HF fraction (confound) | near 0.88 | **0.825** | 0.883 |
+| wall-clock | — | **39.6 min** | 82.4 min |
+
+Per-seed: 14.71, 18.76, 17.77, 15.54, 18.05.
+
+**HEAD-MES consults the acquisition on one step in eight** — the other seven are
+uniform random — and lands at 16.96 against the control's 15.82, improving on
+every seed. Its conditioning target is **0.4096**, in the failing band; the fifth
+arm to combine a collapsed target with good performance.
+
+SC1 passes: HF fraction 0.825 against the control's 0.883, no collapse.
+
+### The compute consequence, stated as a measurement not a recommendation
+
+HEAD-MES completes in **39.6 minutes against the control's 82.4** — 2.1× faster —
+because it makes one MES call per rollout instead of eight, and rollout
+generation is this method's dominant cost. The price is **+1.14 rel%**.
+
+That is a measurement on one benchmark at n=5, not a recommendation. It becomes
+one only if TAIL-MES fails, which is what would establish that the other seven
+steps are not doing useful work rather than merely cheap work.
+
+### Not a verdict — the fatal half is still running
+
+**TAIL-MES is at ~76%.** It follows the acquisition on *seven* of eight steps and
+the mechanism requires it to **fail**. R2 (TAIL works → τ=0 is not necessary)
+remains individually fatal and untested.
+
+HEAD working is consistent with the τ=0 account but does not establish it: a
+weaker claim — "one good step early is enough" — predicts the same thing without
+any of the τ=0 machinery. **Only TAIL can separate those**, because a
+seven-good-step teacher that fails is inexplicable under any account except one
+where the first step is what matters. No verdict until it reports.
