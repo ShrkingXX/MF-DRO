@@ -14159,3 +14159,75 @@ at the same terminal tightness behaving differently means terminal tightness is
 not the operative variable.** What differs is the path: FIX2 arrives there from
 0.88, Q10 sits at 0.10 throughout. That is a real, measured puzzle and I do not
 have an account of it.
+
+## h145 — P1 FALSIFIED, and in the opposite direction: an ORACLE teacher makes MF-DRO much WORSE
+
+CONFIRMATORY. Registered before any code change. SC4 (default-path bit-identity)
+passed — 137 queries, 0 differing — which is what licenses attributing the effect
+to the teacher's locations.
+
+    benchmark     expert   control     diff   effect   expert better
+    Hartmann_6D    45.38      8.00   +37.39     1.57      0/5
+    Borehole_8D    43.94     15.81   +28.13     4.49      0/5
+
+    per-seed diff, Hartmann  +44.58 +24.59  +2.66 +53.97 +61.14
+    per-seed diff, Borehole  +30.95 +32.59 +31.91 +27.78 +17.41
+
+**P1 predicted the oracle teacher would improve regret. It degrades it on 10 of 10
+runs**, by 28-37 rel% of optimum — larger in magnitude than every intervention
+effect this project has measured put together.
+
+### The registered retraction fires
+
+> **RETRACTED:** "the ROI is the lever that shapes the training distribution" as a
+> route to improving MF-DRO.
+
+And the result is stronger than the retraction anticipated. I registered the risk
+that a perfect teacher might *not help*; it actively *harms*. **Teacher location
+quality is not merely non-binding — it is anti-correlated with outcome.**
+
+### The confound, which is real and which I flagged before reading
+
+**The fidelity mix is disrupted**, despite the design forcing only location:
+
+    HF share   expert                        control
+    Hartmann   53.8%  (per-seed 2/100/100/55/12)   20.0%
+    Borehole   95.2%  (per-seed 92/99/91/96/97)    88.3%
+
+Hartmann's per-seed HF share ranges from **2% to 100%**. `ell_tau` is still chosen
+by the real cost-normalised MES criterion, but *evaluated at the forced point* —
+and standing on x* changes which fidelity that criterion prefers. So the
+intervention is a pure location intervention **by construction** and not in its
+**effects**. Part of the degradation may flow through the fidelity mix rather than
+through location quality.
+
+This was visible before the results were read (the all-LF warnings on Hartmann
+seeds 42 and 46) and is recorded as a limitation, not discovered afterwards.
+
+### A hypothesis for WHY, labelled as such
+
+The DT learns a mapping from state to action. **An oracle teacher's action depends
+on x*, which is not in the state and not inferable from it.** Every trajectory
+converges to the same point regardless of the state it started from, so the
+state->action relation the DT is asked to fit is close to a constant function —
+and at inference, where x* is unknown, that is worse than useless.
+
+If that is right, the property a teacher needs is not *quality* but
+**imitability**: its actions must be predictable from what the student can see.
+That would reframe what the ROI does — not making the teacher better in an
+absolute sense, but making its actions more inferable from the state.
+
+**This is a hypothesis with no registered test behind it.** It is consistent with
+the result and with the h143/h142 pattern (mechanism stories that fail to predict
+outcome), and it should be tested rather than believed. The measured, defensible
+claim is the first one: **a demonstrably better teacher makes the system
+markedly worse, 10 runs out of 10.**
+
+### Two registered checks I could not compute
+
+SC5 (states[0] identity) and SC8 in full (teacher-action distance to x*) both
+require per-trajectory data the pipeline does not serialise. **Fourth time this
+session I have registered a check against data that does not exist.** SC5's
+concern is structurally inapplicable — the trap it guards against came from
+reimplementing state seeding, and this design never touches state extraction — but
+that is satisfaction by construction, not by measurement, and is labelled so.
