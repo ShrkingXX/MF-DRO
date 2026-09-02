@@ -72,6 +72,8 @@ def main():
     ap.add_argument("--models", type=int, default=1,
                     help="h156e: ensemble size (gp_num_models=10 in the real run)")
     ap.add_argument("--rep", type=int, default=0, help="replicate id -> seed offset + filename")
+    ap.add_argument("--ucb_beta", type=float, default=2.0,
+                    help="h159 C7: 0.0 = posterior-mean argmax, closed-loop but NOT information-seeking")
     ap.add_argument("--N", type=int, default=100)
     ap.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44])
     ap.add_argument("--states", type=int, default=3)
@@ -152,7 +154,8 @@ def main():
                 ridx = torch.randint(0, POOL_N, (T,))
                 rell = [1 if torch.rand(1).item() < 0.25 else 0 for _ in range(T)]
                 c3.append(lb0 - math.log(replay(ko, pool, pool[ridx], rell)))  # C3 random path
-                c6.append(lb0 - math.log(ucb_path(ko, pool, c_H, c_L, fid_of)))  # C6 UCB-LOC
+                c6.append(lb0 - math.log(ucb_path(ko, pool, c_H, c_L, fid_of,
+                                                  beta=a.ucb_beta)))  # C6/C7 UCB-LOC
             rec = dict(seed=int(seed), cut=int(cut), N=a.N)
             for nm, v in (("C1_closed", c1), ("C2_open_own", c2), ("C3_open_rand", c3),
                           ("C4_oracle", c4), ("C5_diverse_good", c5), ("C6_ucb_loc", c6)):
@@ -166,7 +169,7 @@ def main():
                               for n in ("C1_closed", "C2_open_own", "C3_open_rand",
                                         "C4_oracle", "C5_diverse_good", "C6_ucb_loc")), flush=True)
 
-    out = f"{REPO}/experiments/h156-target-is-a-max/results/tail_c6_e{a.models}r{a.rep}_{a.bench}.json"
+    out = f"{REPO}/experiments/h156-target-is-a-max/results/tail_b{a.ucb_beta}_e{a.models}r{a.rep}_{a.bench}.json"
     json.dump(recs, open(out, "w")); print(f"\nwrote {out}  ({len(recs)} states)")
 
 
