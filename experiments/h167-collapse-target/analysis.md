@@ -53,3 +53,64 @@ the training support, the subject of h148) rather than at learnability.
 The dispersion split (h162, h164) is untouched: it is a fact about spread and it
 replicates on two benchmarks. What is withdrawn is the *explanation* offered for
 it. This is the third time an explanation has outrun its evidence on this front.
+
+---
+
+# h167b — the DT is NOT collapsed at training time. The failure is at INFERENCE.
+
+The follow-up registered above was run immediately. MSE of a constant predictor
+against each teacher's own action distribution, in the same normalised space and
+averaging convention as `L_loc`:
+
+| teacher | target mean (first 3 dims) | MSE @ box centre | MSE @ target mean | **observed L_loc** |
+|---|---|---|---|---|
+| RANDOM | 0.50, 0.50, 0.50 | 0.0834 | 0.0834 | **0.018–0.022** |
+| ORACLE | 0.75, 0.25, 0.56 | 0.1085 | 0.0533 | **0.018–0.022** |
+| DIVERSE-GOOD | 0.73, 0.50, 0.50 | 0.0710 | 0.0544 | **0.018–0.022** |
+
+**The observed training loss is 2.5–4× LOWER than the best possible constant
+predictor.** The DT is not sitting at the box centre during training, and it is
+not sitting at the target mean either. It is fitting the mapping, and fitting it
+well.
+
+## This retracts the learnability framing as stated
+
+The framing said the failing teachers' actions are not a function of the
+observable state, so the network cannot fit them. **It fits them** — better than
+any constant, by a wide margin, on all three failing teachers. The actions are
+demonstrably learnable.
+
+Yet the same network's real queries land within 0.04 of the box centre (h167),
+while every working arm sits 0.74–0.78 away.
+
+**So the failure is a disagreement between training and inference, not a failure
+to learn.** That relocates the whole question: it is not about what the teacher
+teaches, it is about what happens when the trained network is asked for an
+action under the inference conditioning.
+
+## The obvious suspect, and it is already on the books
+
+At inference the DT is conditioned on `rtg_target` = max(batch_max,
+0.5·running_max) — by construction the **extreme upper tail** of the training
+returns. h156 measured those distributions: the failing arms have mean rtg[0] of
++0.008 to +0.020 with s.d. ~0.10, and a target of ~0.30. The network is being
+asked "what action yields a return three standard deviations above anything
+typical?" — and in these arms the trajectories that got there did so by lucky
+fantasy draws, not by doing anything systematic. There is no action that answers
+the question, and the network returns its box centre.
+
+`h148-rtg-target-outside-support` exists in this repo and is exactly this
+question. It should be re-read before anything new is designed.
+
+## Caveats
+
+The constant-predictor baselines are computed from the arms' own path generators
+(ORACLE and DIVERSE-GOOD reproduce h145's and h146's code); they are not the
+literal serialised `actions_x`, which was never stored. Bayesian early stopping
+may truncate some trajectories. Neither affects a 2.5–4× gap. The control's
+targets are model-dependent so no analytic constant exists for it; it is
+excluded rather than guessed.
+
+**Fourth explanation to fall on this front.** The pattern is consistent: each
+account fitted the evidence available and outran it. The dispersion split
+(h162/h164) and the 2×2 remain facts; their explanations keep failing.
