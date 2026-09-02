@@ -2425,6 +2425,7 @@ class DirectMFRegretOptimization:
         self.action_reward_corr_per_iter = []
         self.teacher_action_stats_per_iter = []
         self.h168_probe_per_iter = []
+        self._last_batch_tau0_states = None
         self.rtg_frac_between_traj_var_per_iter = []
         self.rtg_gpbelief_corr_per_iter = []
         # Gradient coherency (see _train_dt): cosine similarity of per-
@@ -3249,9 +3250,18 @@ class DirectMFRegretOptimization:
                 _rng = torch.get_rng_state()
                 try:
                     _rec = []
-                    for _rv in self._h168_probe:
+                    # h169: cross the RTG sweep with a STATE axis -- the real
+                    # trajectory state, and tau=0 states from THIS iteration's
+                    # training batch. Same network, same call, different input.
+                    _states = [("real", state.float())]
+                    _tr = getattr(self, '_last_batch_tau0_states', None)
+                    if _tr:
+                        for _i, _ts in enumerate(_tr[:4]):
+                            _states.append((f"train{_i}", _ts.float()))
+                    for _sname, _sv in _states:
+                      for _rv in self._h168_probe:
                         _px, _pe = self.dt.propose_mf(
-                            state.float(), float(_rv), btg_now,
+                            _sv, float(_rv), btg_now,
                             timestep=0,
                             use_candidate_scoring=self.use_candidate_scoring,
                             candidate_features=(cand_feats.float()
@@ -3259,7 +3269,7 @@ class DirectMFRegretOptimization:
                             fidelity_sampling=self.fidelity_sampling,
                             hist=_hist,
                         )
-                        _rec.append(dict(rtg=float(_rv),
+                        _rec.append(dict(state=_sname, rtg=float(_rv),
                                           x=[float(v) for v in _px.reshape(-1)],
                                           ell=int(_pe)))
                     self.h168_probe_per_iter.append(
@@ -3582,6 +3592,13 @@ class DirectMFRegretOptimization:
             # total variance per iteration is enough to compute the
             # best-constant MSE EXACTLY, and costs d+1 floats per iteration.
             # Consumes no RNG and touches nothing downstream.
+            try:
+                # h169: keep this iteration's tau=0 TRAINING states so the probe
+                # can query the network on exactly what it was just fit on.
+                _st0 = [t['states'][0] for t in batch if 'states' in t and len(t['states'])]
+                self._last_batch_tau0_states = _st0[:16] if _st0 else None
+            except Exception:
+                self._last_batch_tau0_states = None
             try:
                 _ax = [t['actions_x'] for t in batch if 'actions_x' in t]
                 if _ax:
