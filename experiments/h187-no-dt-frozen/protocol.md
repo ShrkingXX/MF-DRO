@@ -60,3 +60,36 @@ Partitions the real line with no gap (`check_gate.py` verified on the |diff| for
 stays at ≤ 10 concurrent and h184 — the registered priority — is not slowed. Running
 both at 15/15 would roughly halve h184's throughput for no scientific gain, since
 h187's readout is regret, not wall time.
+
+## SC1 (is the teacher path actually taken?) — PASS, recorded before launch
+
+Observable that a live DT cannot fake: the teacher sets `last_p_pred = float(ell)`,
+so `p_pred_inference_per_iter` is exactly 0.0/1.0 every iteration, whereas a DT
+emits a continuous probability.
+
+```
+SC1 p_pred values: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+SC1 teacher path taken: PASS (6 iters)
+```
+
+## A DEVIATION from h31 that the smoke test forced
+
+h31's code read the candidate pool from `candidate_features`. In the current code the
+call site passes `candidate_features=None` unless `use_candidate_scoring` is on — and
+that flag must **not** be enabled, since pool+argmax is not an acceptable fix for
+MF-DRO. The first smoke run crashed on exactly this (`'NoneType' object has no
+attribute 'double'`), which is what the smoke test is for.
+
+The teacher is an acquisition rule and inherently needs a pool to argmax over, so this
+arm **draws its own**: `n_infer_candidates` (200) uniform draws over the bounds — the
+same size and distribution the candidate path would have used, and the same
+distribution `simulate_mf_trajectory`'s `roi_candidates` uses in training.
+
+## A fidelity difference to check in the results, before the regret
+
+SC1's `p_pred` was **1.0 on every probed iteration** — the teacher chose HF every
+time, so this arm may run at `lf_fraction ≈ 0` against MF-DRO's 0.117. At **matched
+cost** (which the frozen metric enforces) that is a strategy difference rather than a
+metric confound, but it is exactly the h31 weakness this arm exists to avoid, so the
+realised `lf_fraction` is to be read **before** the regret numbers and reported either
+way.
