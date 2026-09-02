@@ -15525,3 +15525,54 @@ solid negative answer (quality is orthogonal — h158 swept it directly) and a
 **newly unidentified** positive mechanism. The target-collapse explanation is
 dead. That is progress, but it is not closure, and the front should not be
 recorded as answered.
+
+---
+
+## h159 / h160 — two screens, two NO-GOs, no arms funded. And a separation falls out.
+
+Both arms were locked as discriminators between the information account and the
+model-selected account. **Neither is one**, and the cheap screens caught it
+before either pipeline arm was funded.
+
+| teacher | β | harness tail, % of control | verdict |
+|---|---|---|---|
+| UCB-LOC (h155, real arm) | +2 | 102.0% | works, 15.13, 5/5 |
+| EXPLOIT-LOC (h159) | 0 | 91.5% | screen: non-discriminating |
+| LCB-LOC (h160) | −2 | 83.7% (sd 11.4, 4 reps) | screen: NO-GO, **not launched** |
+| failing arms (frozen, externally chosen) | — | ~30% | 43.94, 0/5 |
+
+My error both times was the same: I described the arm verbally ("not
+information-seeking", "anti-informative") without checking what the mechanism
+implies. **β=0 and β=−2 are still model-selected**, so the model-selected account
+predicts success; and the harness says both still earn most of the tail, so the
+information account predicts success too. Both accounts agree → no information.
+
+Two screens cost ~40 minutes and prevented ~20 worker-hours of arms whose
+results both accounts already predicted. h160's threshold was never moved: round
+1 gave 75.8% on two replicates spread 31% apart, so two more replicates were run
+to make the comparison meaningful, and the 4-replicate answer (83.7%) is the one
+the gate was applied to.
+
+### The separation the screens hand over for free
+
+The tail is **monotone in β and never approaches the failing band**, even for a
+teacher steered deliberately at low-value, low-uncertainty points. Adaptive
+conditioning keeps moving any rule onto new ground. Combined with h153 — frozen,
+target collapsed to 0.323, performance fine at 19.36 / 5-of-5 —
+
+**rtg_target tracks whether the teacher ADAPTS. Performance does not track
+rtg_target.** They are two different things and only the second one matters. The
+conditioning target has now been demoted from "the mechanism" (refuted by h153)
+to "a correlate of adaptivity" (established by these three screens).
+
+### h161 is the arm that actually splits the accounts
+
+Registered and launched: a frozen path taken from **2000 rollouts earlier**
+(~10 real iterations), so it is genuinely model-selected but for a *stale*
+state. Model-selected-for-THIS-state predicts failure; model-selected-at-all
+predicts success. Unlike h159 and h160, the accounts disagree.
+
+h159 is being allowed to finish rather than killed — it is non-discriminating
+for the accounts, but it validates the harness's C7 forecast (91.5%), and h153
+proved unvalidated harness conditions can be wrong by 2.7×. That is worth one
+arm, and the reason is recorded rather than left implicit.
