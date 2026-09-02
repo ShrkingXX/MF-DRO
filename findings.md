@@ -17410,8 +17410,21 @@ policy that has stopped discriminating emits an average, and the average of a
 diffuse distribution is the centre. The centre is where a collapsed policy ends
 up, not a bad place to be.
 
-This makes "collapse *causes* failure" the less likely reading of h182: if the
-centre is not a bad region, being there cannot itself cost regret. Both the
-collapse and the regret are more likely downstream of the policy no longer
-selecting. (Caveat: ρ = −0.027 means distance does not *order* value, not that
-they are unrelated — Borehole's top 1% do sit further out, 0.948 vs 0.804.)
+**RETRACTED, one step later, by direct measurement.** I concluded from ρ = −0.027
+that the centre is not a bad region and collapse is therefore a marker, not a
+cause. Wrong — and wrong for the reason I had already flagged and then ignored: a
+rank correlation over the whole box says nothing about the value achievable in a
+small ball at the centre. Sampled directly, best f within 0.10 of the centre is
+**85.76 vs 273.00** for the whole box on Borehole (Hartmann: 0.948 vs 3.107). **The
+centre is a bad place to be.**
+
+The consequence, measured scale-free: comparing each run's best HF value against
+its **own initial design's** best, all four failing arms improve on **0/5** seeds —
+final best equals initial best *exactly*, every seed — while the control, HEAD and
+ROI-L1 improve on 5/5. **Across 20 runs the failing policies never once beat their
+own initial design.** That also explains the 43.94 "saturation floor": it *is* the
+initial design, and the arms coincide there because none of them contributes
+anything.
+
+So collapse is **directly harmful**, not diagnostic. What is still untested is what
+*makes* a policy collapse — nothing here intervenes to prevent it and observe.

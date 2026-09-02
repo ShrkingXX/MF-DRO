@@ -181,3 +181,56 @@ thing — the policy no longer selecting.
 rather than absent. Borehole's top 1% of samples do sit further out than average,
 0.948 vs 0.804. Rank correlation near zero means distance alone does not order
 value — not that the two are unrelated.)*
+
+---
+
+## CORRECTION — "the centre is not a bad place" was WRONG
+
+The section above concluded, from ρ(distance, objective value) = −0.027 on
+Borehole, that the centre is not a bad region and that collapse is therefore a
+*marker* rather than a cause. **That inference was wrong**, and the caveat I
+attached to it — "near-zero rank correlation means distance does not *order*
+value, not that they are unrelated" — was the reason it was wrong. I flagged it
+and then drew the conclusion anyway.
+
+A rank correlation over the whole box says nothing about the value *achievable in
+a small ball at the centre*. Sampled directly:
+
+| benchmark | best f in the whole box | best f within 0.10 of the centre |
+|---|---|---|
+| Borehole_8D | 273.00 | **85.76** |
+| Hartmann_6D | 3.107 | **0.948** |
+
+The neighbourhood the failing arms occupy is severely value-limited on both
+benchmarks. **The centre is a bad place to be.**
+
+### The consequence, measured scale-free
+
+Comparing each run's best HF value against its **own initial design's** best:
+
+| arm | seeds improving on their own initial design | init best | final best |
+|---|---|---|---|
+| RANDOM-POOL | **0/5** | 173.5441 | **173.5441** |
+| TAIL-MES | **0/5** | 173.5441 | **173.5441** |
+| ORACLE-EXPERT | **0/5** | 173.5441 | **173.5441** |
+| DIVERSE-GOOD | **0/5** | 173.5441 | **173.5441** |
+| MF-DRO (control) | 5/5 | 173.5441 | 260.6162 |
+| HEAD-MES | 5/5 | 173.5441 | 257.0583 |
+| ROI-L1 | 5/5 | 173.5441 | 279.1945 |
+
+**Across 20 runs (4 failing arms × 5 seeds) the policy never once improved on its
+own initial design.** Final best equals initial best exactly, every seed. This
+also explains the long-noted "saturation floor" at 43.94 rel%: that number *is*
+the initial design, and the arms coincide there because none of them contributes
+anything at all.
+
+### Corrected causal reading
+
+Collapse to the centre is **directly harmful**, not merely diagnostic: it confines
+every query to a region that cannot beat the initial design, and the 0/5 result
+shows exactly that outcome. The earlier "marker, not a cause" framing is retracted.
+
+What remains untested is the *direction* of the collapse itself — nothing here
+intervenes to stop a policy collapsing and observe the result. "Collapsing costs
+regret" is now well-supported; "what makes a policy collapse" is not settled by
+this.
