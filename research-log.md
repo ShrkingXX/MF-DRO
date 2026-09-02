@@ -2884,3 +2884,45 @@ signal already points at R1 — the conditioning exonerated, the suspect becomin
 the trained network itself.
 
 **Compute:** 10/15 (h165 x1, h166 x4, h168 x5).
+
+## 2026-09-02 (tick 18) — a line closed evaluably, and the suspect moved again
+
+**h168 completed and R1 fired.** The emitted action moves 0.0074 across the full
+RTG sweep from 0 to 1 — 8.9% of its own mean, ratio 0.986 against P2's required
+2.0, and drifting AWAY from the box centre as RTG rises. **The inference
+conditioning is exonerated.**
+
+That closes the line h148 opened and never resolved. h148's P1 was "not
+evaluable" because the statistics it needed were never serialised; h168 answered
+the same question by direct measurement on 357 probed iterations. Worth
+recording as a pattern: the fix for an unevaluable registration is a different
+measurement, not a different proxy.
+
+**The probe was verified bit-identical to its unprobed twin** — x_t_trace and
+final_regret identical on all five seeds against h149's run of the same policy.
+That is stronger than the probe-OFF gate I actually registered, and it means the
+RNG save/restore was not just defensible in principle but exact in outcome. I
+had not planned that check; it was available for free because h149 existed.
+
+**The smoke test earned its keep again.** Its 5-iteration signal (spread 0.028)
+was recorded before the arm ran and predicted the full-length result (0.0074).
+Third time this session a cheap pre-check has either prevented a wasted arm or
+called one in advance.
+
+**h169 launched.** With RTG excluded and the network known to fit its teacher
+2.5-4x better than any constant, the remaining suspects are the state and the
+auxiliary conditioning. h169 crosses STATE (real vs a tau=0 state from this
+iteration's own training batch) with RTG, four cells on the same network.
+
+**R2 named first, deliberately:** if the action sits at the box centre in all
+four cells, the whole distribution-shift family dies at once and the suspect
+becomes the inference code path. That would be the cheapest outcome to act on
+and the most embarrassing to have missed for eighteen ticks, which is exactly
+why it goes first in the protocol rather than last.
+
+**Holistic:** five explanations have now fallen (MES-rule, target-collapse,
+adaptivity, learnability, conditioning). The facts have never moved. That
+asymmetry is itself the most robust finding of the front and should lead any
+write-up.
+
+**Compute:** 4-10 workers.
