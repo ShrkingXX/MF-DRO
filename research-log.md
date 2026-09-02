@@ -2266,3 +2266,23 @@ principle, but that is an argument, not a measurement.
 REPLACES the teacher, and the ROI does not — it restricts the pool the MES argmax
 runs over. The project's only positive result belongs to the one class left
 standing.
+
+## 2026-08-31 (cont.) — h150 retracts the mechanism; the measured answer stands
+
+Tested the account's sharpest claim: if the DT distils MES, its queries should
+resemble MES's. **They do not.** A = nn(DRO->GP-UCB) - nn(DRO->MES) is positive on
+only 2 of 5 seeds, mean -0.0388, and DRO->MES distance ~ MES's own internal spread.
+
+**Retracted: "policy distillation of MES"**, from findings.md AND from the report
+published to the user, per the find-every-surface rule.
+
+**Survives untouched:** the measured answer. Three teachers, one floor; MES teacher
+5/5, every substitute 0/15; rtg_target collapse. Better trajectory quality does not
+improve MF-DRO.
+
+**Left behind:** a puzzle I am recording rather than explaining. Teacher choice
+decides *whether* the method works without deciding *what* it does. Three mechanism
+accounts have now been tried and discarded on this front alone — RCSL return
+coverage, information-gain-as-ranking, policy distillation — matching the project's
+wider pattern that mechanism stories fit and fail to predict. The next step is not
+a fourth account.

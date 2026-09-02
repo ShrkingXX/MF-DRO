@@ -947,14 +947,14 @@ peer_h129_P3_answered:
     (0.9372). Naming which fraction was the difference between an answer and a plausible wrong number.
 
     '
-current_direction: 'FRONT ANSWERED (h145-h149, Borehole n=5). Better trajectory quality does not improve
-  MF-DRO because the DT inherits its teacher''s quality AS A POLICY, not the outcome quality of trajectories.
-  Three teachers spanning perfect / good-and-diverse / uniformly random all give 43.94 rel%, +28.13, effect
-  4.49, 0/5 improved -- identical to 3dp -- while the MES control gives 15.82 and improves 5/5. The identical
-  figures are a saturation floor (never improved on the initial design), not a ranking. h149 used PRE-EXISTING
-  code to exonerate the forced_x hook before the conclusion was allowed to stand. Not claimed beyond Borehole.
-  The ROI is the one intervention class left standing: it restricts the MES argmax''s pool rather than
-  replacing MES.'
+current_direction: 'FRONT ANSWERED, MECHANISM NOT. MEASURED (Borehole n=5): three teachers spanning perfect
+  / good-and-diverse / uniformly random all give 43.94 rel%, +28.13, effect 4.49, 0/5 improved; the MES
+  teacher gives 15.82 and 5/5. rtg_target collapses 0.976 -> ~0.30 for every non-MES teacher. So better
+  trajectory quality does not improve MF-DRO and teacher quality does not order outcomes. RETRACTED (h150):
+  ''the DT is a policy distillation of MES'' -- its queries are NOT closer to MES''s than to MF-GP-UCB''s
+  (A>0 on 2/5, mean -0.0388). THE PUZZLE: teacher choice decides WHETHER it works (5/5 vs 0/15) without
+  deciding WHAT it does. Three mechanism accounts tried and discarded: RCSL return coverage (h147), information
+  gain as a ranking (h149), policy distillation (h150). Next step is NOT a fourth account.'
 h120_amendment3_DISCHARGED_2026_08_28:
   result: 'Fresh ROI-OFF runs at Borehole seeds 44,45,46 are BIT-IDENTICAL to h83''s stored MF-DRO (137/140/137
     queries, 0 differing), across three different commits (26a9b9cd1, 15203e5cd, ee5ecafcc), all dirty=True,

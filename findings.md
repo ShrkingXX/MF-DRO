@@ -14805,3 +14805,58 @@ Five experiments, each pre-registered, four with retractions that fired:
 **Remaining and NOT claimed:** everything here is Borehole. h145's Hartmann arm was
 confounded by fidelity collapse (corr -0.830) and is not quoted. The mechanism is
 benchmark-independent in principle, but that is an argument, not a measurement.
+
+## h150 — P1 FALSIFIED. "Policy distillation of MES" is RETRACTED, including from the published report.
+
+CONFIRMATORY, zero compute, registered before measuring. Borehole, seeds 42-46,
+post-init queries on the unit cube.
+
+    seed   DRO->MES   DRO->UCB   A = UCB - MES
+      42     0.2847     0.2394         -0.0453
+      43     0.5649     0.3127         -0.2522
+      44     0.3605     0.2957         -0.0648
+      45     0.1820     0.2905         +0.1085
+      46     0.2829     0.3427         +0.0597
+
+    A > 0 on 2/5   mean A -0.0388   P1 (>=4/5) FALSIFIED
+
+**MF-DRO's queries are not closer to MES's than to a different acquisition's.** If
+anything they sit marginally closer to GP-UCB's. P2 says the same from another
+angle: the DRO->MES nearest-neighbour distance is about equal to MES's *own*
+internal spread (ratios 0.60, 1.78, 1.01, 0.60, 0.96) — "as far from MES's queries
+as MES's queries are from each other" is not resemblance.
+
+### The registered retraction fires
+
+> **RETRACTED: "MF-DRO's Decision Transformer is a policy distillation of MES."**
+
+This was in findings.md and — worse — in the report published to the user, which
+said "the model is a distillation of a decision rule". **Corrected on the page as
+well as here**, per the standing rule that a retraction reaching only the working
+file is not a retraction.
+
+### What survives, and what it leaves
+
+**Survives (measured, unaffected):**
+  - Three teachers spanning perfect / good-and-diverse / random all give 43.94
+    rel%, +28.13, effect 4.49, 0/5 improved; the MES teacher gives 15.82 and 5/5.
+  - `rtg_target` collapses 0.976 -> ~0.30 for every non-MES teacher.
+  - Therefore: **better trajectory quality does not improve MF-DRO**, and teacher
+    quality does not order the outcomes. That answer is untouched.
+
+**Retracted:** the *mechanism* I attached to it. I claimed the DT inherits MES's
+behaviour. It does not measurably do so.
+
+**What that leaves is genuinely strange, and I am recording it as a puzzle rather
+than reaching for a third account:**
+
+> The teacher determines **whether the method works** — MES teacher 5/5, anything
+> else 0/15 — without determining **what the method does**, since MF-DRO's queries
+> do not resemble MES's more than another acquisition's.
+
+I predicted in the protocol that a failure here would leave "a materially weaker
+and stranger claim than the one now in findings.md". It has. **The next honest step
+is not another explanation.** Three mechanism accounts have now been tried on this
+front — RCSL return coverage (h147, falsified), information-gain currency as a
+ranking (h149, corrected), policy distillation (h150, falsified) — and the pattern
+across this whole project is that mechanism stories fit and fail to predict.
