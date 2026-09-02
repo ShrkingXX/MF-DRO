@@ -17292,3 +17292,48 @@ not predict it away. Separately, note that 4 of the 5 shipped `TEACHER_POOL`
 members are **incoherent** (`cost_ei` scores EI of the LF posterior against the
 best **HF** value; `ucb_beta1/3` compare LF's own UCB to HF's), so the pool as
 shipped could not have served as Phase 1 regardless.
+
+---
+
+## h182 (EXPLORATORY) — the failure is COLLAPSE TO THE BOX CENTRE
+
+Statistic: mean distance (unit box) from the box centre over each run's last 20 HF
+queries. Full table and caveats: `experiments/h182-centre-collapse/analysis.md`.
+
+| population | n | Spearman ρ(distance from centre, rel%) |
+|---|---|---|
+| **MF-DRO arms (Borehole)** | **28** | **−0.967** |
+| GP baselines | 4 | −0.800 |
+
+Across 28 MF-DRO arms — teachers, ROI variants, rollout lengths, losses,
+conditioning — the further the queries sit from the centre the better the arm
+does, near-monotonically. Endpoints: RANDOM-POOL 0.070 → 43.94; MF-MES 1.093 →
+6.40. Same ordering on Hartmann, perfectly rank-monotone over six arms.
+
+**A correction I made to my own first pass.** The first version of this reported
+Borehole as *bimodal*, with "a 0.70-wide gap, 10/10 arms fit". That was measured
+on 10 hand-picked teacher arms; run over **every** arm, three land inside the
+supposed gap (0.752, 0.778, 0.798, with regrets 24.25, 22.28, 19.53). The
+bimodality was a sampling artifact. The corrected continuum claim is stronger.
+
+**The one counterexample, named not dropped:** MF-MI-Greedy escapes the centre
+(0.904) and still fails (28.44). It is a GP baseline with **no DT at all**, so it
+is out of population for a claim about what a DT emits — but it does show escape
+is not sufficient in general.
+
+### `query_dist_to_xstar_per_iter` is anti-monotone and must not be read alone
+
+On Hartmann the *worst* arms look **closest** to x\*. `||centre − x*|| = 0.5681`,
+so an arm collapsed at the centre scores ≈0.57 while converging nowhere — RANDOM
+scores 0.582. The diagnostic cannot separate "converged near the optimum" from
+"collapsed at the centre". (This does not overturn the earlier second-basin
+observation, made on different arms whose queries sat 0.97–1.10 from x\*.)
+
+### It does NOT explain the benchmark asymmetry — which stays open
+
+I first wrote that escape is "necessary and sufficient on Borehole, necessary but
+not sufficient on Hartmann", explaining the strong form's Borehole-only scope. The
+numbers refuse it: HEAD retains **95%** of the control's escape on Borehole and
+**90%** on Hartmann — nearly the same fraction — yet costs **1.07×** there and
+**3.15×** here. Escape orders arms *within* a benchmark and says nothing about the
+difference *between* them. **The asymmetry remains open, as since h175.**

@@ -81,6 +81,22 @@ current_front:
     pre-specified in h179''s analysis.md. Under two of the three, h179''s headline
     changes; under one, h178''s in-situ claim is what falls.'
 
+  h182_centre_collapse: 'EXPLORATORY, no new runs. The failure mode is COLLAPSE TO
+    THE BOX CENTRE. Distance from the centre over the last 20 HF queries is
+    near-monotone with frozen regret across 28 MF-DRO Borehole arms (Spearman
+    -0.967; GP baselines -0.800; pooled -0.918), and perfectly rank-monotone over
+    6 Hartmann arms. Endpoints RANDOM-POOL 0.070->43.94, MF-MES 1.093->6.40.
+    SELF-CORRECTION: the first pass called Borehole BIMODAL with a 0.70-wide gap on
+    10 hand-picked arms; running ALL arms fills the gap (0.752/0.778/0.798 with
+    regrets 24.25/22.28/19.53) -- the bimodality was a sampling artifact.
+    COUNTEREXAMPLE named: MF-MI-Greedy escapes (0.904) and still fails (28.44), but
+    it is a GP baseline with no DT, hence out of population. DIAGNOSTIC CAUTION:
+    query_dist_to_xstar_per_iter is ANTI-monotone here -- ||centre-x*||=0.5681, so
+    a centre-collapsed arm scores ~0.57 while converging nowhere (RANDOM: 0.582).
+    Must not be read alone. DOES NOT explain the benchmark asymmetry: HEAD retains
+    95% of the control''s escape on Borehole and 90% on Hartmann, yet costs 1.07x
+    vs 3.15x. The asymmetry STAYS OPEN, as since h175.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
