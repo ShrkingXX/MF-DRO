@@ -60,3 +60,29 @@ not to `h189-no-dt-hartmann/results/`. Only the run **logs** are in h189's direc
 This was noticed at launch and is left as-is deliberately: the alternative is editing
 the worker, which would break the guarantee that h187 and h189 run *identical* code.
 The `Hartmann_6D__NODT__` tag is unambiguous, so nothing is lost but tidiness.
+
+## SC OBSERVATION, recorded BEFORE the regret is read
+
+The teacher's realised `lf_fraction` on Hartmann, across the five seeds:
+
+| seed | 42 | 43 | 44 | 45 | 46 |
+|---|---|---|---|---|---|
+| `lf_fraction` | **0.981** | 0.368 | **0.000** | 0.931 | 0.922 |
+
+**The same acquisition rule, on five seeds of the same benchmark, spans essentially the
+entire range** — two seeds go almost pure high-fidelity (0.000, 0.368) and three go
+almost pure low-fidelity (0.92–0.98). For contrast, the same teacher on Borehole stayed
+in 0.291–0.561, and Hartmann's MF-DRO control runs at 0.800.
+
+**Two consequences, both stated before the outcome is known:**
+
+1. **The teacher-only arm on Hartmann is not one strategy but five very different
+   ones.** A 5-seed mean over a bimodal spread like this will be noisy, and the paired
+   comparison may well be unresolvable at the registered 0.87 threshold. If the verdict
+   comes back P1 ("competitive"), that should be read as *undecided*, not as evidence
+   of equivalence.
+2. **This is an independent finding about the method**, not just a nuisance: MES's
+   cost-normalised fidelity criterion is **bistable on Hartmann** in a way it is not on
+   Borehole. It is worth recording whichever way the regret falls, and it may bear on
+   the benchmark asymmetry — Hartmann is where fidelity choice was already shown to
+   matter (h183: fit quality predicts regret there, `lf_fraction` 0.80 vs 0.12).
