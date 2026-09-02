@@ -84,3 +84,19 @@ SC1 (stale fraction, target >0.9 after warmup) now has a realistic target of
 This is exactly what the smoke test was for. It cost ~5 minutes and one worker;
 discovering it from SC1 after the fact would have cost ~10 worker-hours and an
 uninterpretable arm.
+
+## Smoke test result — wrapper VERIFIED before the arm was allowed to run
+
+Small-LAG (60), tiny-budget run, 360 rollouts wrapped:
+
+| check | result | |
+|---|---|---|
+| SC1 stale fraction | 0.833 | PASS |
+| SC2 mean lag applied | exactly 60 (= LAG) | PASS |
+| SC4 pass-2 path replay error | 0.000e+00 | PASS |
+| **stale path differs from current** | median max abs diff 3.46e+04, **0 of 50 identical** | **PASS** |
+| fidelity flip fraction | 0.253 | recorded |
+
+The last row is the one that matters: it confirms "stale" is not a silent no-op.
+Had the buffered path coincided with the current one, the arm would have been
+h153 under a different name and would have "confirmed" whatever h153 showed.
