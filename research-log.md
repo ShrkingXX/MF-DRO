@@ -2806,3 +2806,43 @@ benchmarks. The explanations keep failing (four so far). h168 is the registered
 next test and is still queued on compute.
 
 **Compute:** 9-13 workers.
+
+## 2026-09-02 (tick 16) — h161 complete, h168 built and launched, and a metric check
+
+**h161 COMPLETE at n=5: 19.53 rel%, improves 5/5, target 0.3270.** Sanity exact
+on every seed (stale 0.902-0.907, lag exactly 600, replay error 0.0). Against
+h153's fresh model-selected path (19.36) the gap is **0.17 rel%** — a
+ten-iteration-stale model costs essentially nothing. The n=2 read of 21.17
+overstated it by 1.6 points, which is why no verdict beyond R2 was taken at n=2.
+
+**h168 built, gated and launched.** The probe re-queries the DT at nine RTG
+values on the same state, saving and restoring the RNG generator around the
+sweep — without that, an active probe would perturb every later draw and the arm
+would stop being comparable. OFF by default; **bit-identity gate PASSED**
+(regret 122.2906675273). Smoke-tested first, because the probe swallows
+exceptions and a scope error would have looked exactly like a silent no-op.
+
+**The smoke test's early signal was recorded BEFORE the arm ran**, and it points
+at R1: at 5 iterations the emitted x sits ~0.38 from the box centre at every
+conditioning value and moves only 0.028 across the whole sweep. P2 needs a 2x
+gap; this is 0.96. Five iterations of a barely-trained network is not a result
+and no verdict was taken — but if it holds at full length, the conditioning is
+exonerated and the suspect becomes the trained network itself.
+
+**A user question produced a useful robustness check.** Asked whether teachers
+were compared by final simple regret: they were — the frozen metric IS simple
+regret, and because every arm terminates at cost ~240, "cost 200 post-init" is
+the end of the run and the two numbers are **identical to 2 decimals on all
+eight arms**. No conclusion depends on the metric.
+
+The raw column also made something plainer than the normalised one: the three
+failing arms report the **same** final regret, 136.0315, to four decimals. They
+are not performing similarly — they are on a floor set by the initial design.
+"A perfect teacher ties a random one" is misleading; "both hit the floor" is
+accurate. Rephrased in findings.md.
+
+**A monitoring bug, not a data bug:** my progress grep matched `cost=` inside the
+stopping message (`post_init_cost=201.0 >= 200.0`) and appeared to show a run
+going backwards. Checked before reporting it.
+
+**Compute:** 12/15 (h165 x3, h166 x4, h168 x5).
