@@ -2926,3 +2926,42 @@ asymmetry is itself the most robust finding of the front and should lead any
 write-up.
 
 **Compute:** 4-10 workers.
+
+## 2026-09-02 (tick 19) — a smoke test caught my own no-op, and the no-op was the lead
+
+**I skipped h169's smoke test and it cost me an arm.** h168 got one because its
+probe swallowed exceptions; h169's state axis was equally new code with the same
+swallowing behaviour, and I launched it without one. Ran the check late, found
+the state axis was a **silent no-op** — the probe sampled four rollouts of the
+same ensemble member, whose tau=0 states are identical by construction (pairwise
+distance 0.0000). Killed the arm at ~60% rather than let it finish and be
+written up as a state manipulation it never performed.
+
+Guard: **the smoke test is not optional for probe code.** It is optional for code
+that fails loudly.
+
+**The no-op was worth more than the arm.** Fixing the sample to stride across
+ensemble members showed the real inference state is **bit-identical to a tau=0
+training state**, and `[STATE-DIAG]` — a line printing in every log this project
+has ever produced, which I have never once followed up — reports
+`uniq_tau0_states=3` of 60 on every seed. mf_dro.py's own docstring already spells
+out the consequence: with degenerate tau=0 states "the DT could only ever learn
+the conditional mean of that timestep's targets". That documents a bug since
+PARTIALLY fixed, and the consequence was never revisited after the partial fix.
+
+**The mechanism that follows matches all seven arms**, and explains why h167's P2
+failed (I used the all-tau action marginal when inference only ever sees tau=0).
+Every failing teacher's tau=0 action is an independent draw whose mean is the box
+centre; every working teacher's is an acquisition argmax.
+
+**It is not being called the answer.** Five accounts have fallen on this front by
+fitting the evidence and outrunning it, and seven matching SIGNS is exactly that
+pattern. h170 tests it as a NUMBER, on the working arms -- the only arms where
+"tau=0 teacher mean" and "box centre" are different targets. R1 (they are not
+close) is named first.
+
+**Holistic:** the most useful thing this tick was reading a diagnostic that had
+been in front of me for nineteen ticks. Worth asking, next time progress stalls,
+what the logs are already printing that I have stopped seeing.
+
+**Compute:** 3-8 workers; h169 killed freed five.
