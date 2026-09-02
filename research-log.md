@@ -3349,3 +3349,37 @@ numbers, which is the good failure mode, but it is the second time this session 
 partial string substitution has bitten.
 
 **Compute:** 0-1/15. All arms complete.
+
+## 2026-09-02 (tick 32) — connecting the front's answer to what the project is actually about
+
+**Holistic call: the front is answered and the residual is not the best next
+target.** Last tick I identified the ~5 SE residual as the more stable open
+question. On reflection there is something more valuable: the front's answer is
+about the ROLLOUT, and the project's actual contribution is the ROI. Those had
+not been connected.
+
+**h176 tests the connection.** ROI-Q10 is the project's best Borehole result
+(11.59 rel% against the control's 15.82, and remarkably consistent per-seed at
+11.2-12.3). The ROI is applied once per rollout, outside the tau loop, so it
+shapes the pool every step draws from -- including tau=0. If only tau=0 reaches
+inference, the ROI's benefit should survive a one-step rollout, and the project's
+headline would run at roughly a sixth of its 117.4-minute cost.
+
+**I argued resolvability BEFORE running, for once.** ROI-Q10's per-seed sd is
+~0.4, against the control's spread of 12.9-19.2. h172's "L=1 beats the control"
+had to be withdrawn to "no worse" because the spreads overlapped; here a 2 rel%
+shift would sit well outside ROI-Q10's own spread, so n=5 can actually carry the
+claim. Writing that down first is the fix for the h172 mistake, applied rather
+than just recorded.
+
+**R1 named first and it is the costly one:** if ROI+L1 loses the benefit, the ROI
+does not act only through tau=0, and the front's answer -- already scoped to
+Borehole -- would be further limited to the no-ROI configuration.
+
+**What I did not do:** propose a seventh account for why the strong form is
+benchmark-specific. h175 killed the obvious one (the mechanism is equally strong
+on both), and the evidence in hand would comfortably support a story about
+Hartmann's sharper optimum. That is the shape of all five accounts that already
+fell. It stays unexplained.
+
+**Compute:** 5/15.
