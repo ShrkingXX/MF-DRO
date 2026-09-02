@@ -2694,3 +2694,35 @@ paragraph of a published page is exactly the kind of thing that erodes trust in
 everything after it.
 
 **Compute:** 10 workers throughout (h161 x5, h165 x5).
+
+## 2026-09-02 (tick 13) — closed the biggest generality gap, and consolidated the state file
+
+**Holistic read: the front's central structural result was still one benchmark.**
+The 2x2 — three of four cells work, only the doubly-changed cell fails — is
+Borehole-only, and so is h153's refutation of the target-collapse account, which
+is stated in findings.md AND in the published report without a benchmark
+qualifier. That is a claim resting on five runs of one function.
+
+**h166 launched to close it.** h153's worker unchanged, on Hartmann. Hartmann is
+~4x cheaper per seed (h165 seed 43 finished in 19 minutes against Borehole's 80),
+so a two-pass arm there costs about what a one-pass Borehole arm does — which is
+why this gap was affordable to close now and was not before.
+
+R3 was named explicitly because it is the outcome that looks like success and
+carries no evidence: if Hartmann MES-FROZEN works but its target does NOT
+collapse, the split does not reproduce and Hartmann cannot corroborate the
+refutation either way.
+
+**research-state.yaml consolidated.** It had fallen several ticks behind
+findings.md. It now carries, in one block: the settled negative, the complete
+Borehole 2x2, all four retractions with the experiment that killed each, the
+current account with its evidence and its downgrade, the harness accuracy rule
+(accurate closed-loop, wrong frozen — so no forecast is offered for h161 or
+h166), and the two screens that prevented ~20 worker-hours of non-discriminating
+arms.
+
+**Nothing new was measured this tick.** h165 is 1/5 with seeds spread 153-264 of
+293; h166 just started; h161 is at 183/240 and remains the only causal test.
+
+**Compute:** 14/15 workers (h161 x5, h165 x4, h166 x5) — the highest this
+session, and within the rule.
