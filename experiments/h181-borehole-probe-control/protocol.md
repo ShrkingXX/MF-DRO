@@ -82,3 +82,24 @@ tools/check_gate.py --stat "control RTG responsiveness (Borehole, real state)" \
 
 Three-way bands are contiguous and exhaustive: P1 `< 0.051`, P2 `[0.051, 0.152]`,
 P3 `> 0.152`.
+
+## CORRECTION to this protocol, made before the control was launched
+
+The ">6 sd" justification above was calibrated on h179's **first two** seeds
+(0.0961, 0.1070, sd ≈ 0.008). h179's fourth seed came in at **0.0640**, which
+widens the spread substantially:
+
+| n | per-seed | mean | sd |
+|---|---|---|---|
+| 2 | 0.0961, 0.1070 | 0.1015 | 0.0077 |
+| 4 | 0.0961, 0.1070, 0.0640, 0.1104 | 0.0944 | 0.0211 |
+
+**The registered threshold stays at 0.051** — it is a pre-registered ratio (half
+of the 2-seed mean) and moving it after seeing more data is exactly what
+pre-registration exists to prevent. What changes is the honest description of its
+strength: 0.051 sits **≈2.1 sd** below the n=4 mean, not >6 sd. P1 therefore
+requires the control to come in ≈46% below h179 — a large effect, but the P1/P2
+boundary is materially less crisp than first written.
+
+This correction is recorded rather than silently applied, and is made with the
+control at 0/5 results.
