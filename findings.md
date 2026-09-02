@@ -17725,3 +17725,30 @@ averaging: not a wash, a cost.
   generalises or is Borehole-specific. Until then the claim is scoped to **Borehole**.
 - n=5, one benchmark, one teacher. −2.85 is 2.2 se; the 5/5 sign pattern is the
   stronger evidence.
+
+### h187 SCOPING — P2 is about the DEFAULT path, and the ROI configurations flip it
+
+| arm | frozen rel% | paired vs teacher-only | seeds better |
+|---|---|---|---|
+| **teacher-only, no DT** | **12.97** | — | — |
+| MF-DRO default (`use_roi=False`) | 15.82 | **+2.85** | **0/5** |
+| MF-DRO + ROI-Q10 | 11.59 | −1.37 | 3/5 |
+| MF-DRO + ROI-Q05 | 10.02 | −2.94 | 3/5 |
+| **MF-DRO + ROI-L1** | **9.81** | **−3.15** | **4/5** |
+| MF-DRO + ROI-Q10 + L=1 | 10.81 | −2.16 | 3/5 |
+
+**Every ROI-equipped configuration beats teacher-only.** But **the comparison is not
+like-for-like**: ROI is a *training-time* mechanism constraining `roi_candidates`
+inside rollouts (`mf_dro.py:1184`), and the teacher-only arm does not learn from
+rollouts, so it never receives ROI — its inference pool stays 200 uniform draws.
+
+**Established:** (1) like-for-like on the default path, the DT is a net negative, 5/5,
+−2.85 — P2 stands as registered; (2) MF-DRO's advocated configurations beat this
+teacher-only arm, but with a mechanism the teacher was not given, so this is context,
+not a counter-result; (3) whether a teacher given an equivalent region constraint
+would beat MF-DRO+ROI is **untested** — it would mean applying ROI's region to the
+teacher's *inference* pool, which does not exist today.
+
+**Honest headline, both halves together:** *on the default path the DT costs 2.85 rel%
+points against its own teacher; the configurations that beat that teacher do so with a
+mechanism the teacher was not given.*

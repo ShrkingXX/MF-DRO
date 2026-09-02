@@ -445,6 +445,18 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
       <p><strong>Removing the learner entirely improves the result on every single run</strong> —
       12.97 against 15.82, better on five of five seeds. The pre-registered bar for calling it a
       real difference was 1.72; the gap is 2.85.</p>
+      <p><strong>But that is a statement about the <em>default</em> setup, and the picture flips
+      for the configurations this project actually advocates.</strong> With its region-constraint
+      option switched on, the method scores 9.81–11.59 and beats the same teacher-only arm — the
+      best configuration by 3.15 points on four of five seeds, close to a mirror image of the
+      default's loss. The catch is that this is not a fair fight in the other direction: the
+      region constraint is a training-time mechanism, so the teacher-only arm never receives it,
+      and its candidate pool stays unconstrained. Whether a teacher given the same constraint
+      would win again is untested, and not something to assert.</p>
+      <p>So the honest headline has two halves that must travel together: <strong>on the default
+      path the learner costs 2.85 points against its own teacher, and the configurations that
+      beat that teacher do so with a mechanism the teacher was not given.</strong> Reporting the
+      first alone overstates the damage; reporting the second alone hides it.</p>
       <p>The obvious objection is that the teacher spends its budget differently — more of it on
       cheap evaluations. That is ruled out by an experiment already run for another purpose:
       forcing the learner to spend <em>6.4&times;</em> more on cheap evaluations moved its score
