@@ -17667,3 +17667,61 @@ escape-fraction and geometric accounts were both refuted by direct measurement).
 fidelity operating point is **a** contributor and **cannot be the whole** of it, since
 replicating Hartmann's fidelity mix reproduces under a tenth of Hartmann's effect.
 **The asymmetry is not closed.**
+
+---
+
+## h187 — **P2. On Borehole under the frozen metric, the DT is a NET NEGATIVE against its own teacher.**
+
+CONFIRMATORY, 5/5, SC1 verified and readout script both committed before results. This
+is the outcome the protocol named as *most damaging to the project* and committed to
+reporting plainly.
+
+**lf_fraction first, per protocol:** teacher-only **0.435** vs MF-DRO **0.117**. (A
+correction: the protocol predicted this arm might run at `lf_fraction ≈ 0`, from SC1's
+first six iterations. Over full runs it is 0.435. That prediction was made on six
+samples and was wrong.)
+
+| | frozen rel% |
+|---|---|
+| **teacher-only, no DT** | **12.97** |
+| MF-DRO | 15.82 |
+
+Paired per seed: −1.23, −4.28, −0.12, −7.24, −1.37 → mean **−2.85** (se 1.30),
+**teacher better on 5/5**. Against the pre-registered 1.72 threshold: **P2**.
+
+### The obvious objection is ruled out by an arm already run
+
+The teacher spends more on the cheap source, so it might be winning on fidelity
+allocation rather than decisions. **h184 supplies the control for free:**
+
+| arm | `lf_fraction` | frozen rel% |
+|---|---|---|
+| MF-DRO unforced | 0.117 | 15.82 |
+| MF-DRO LF-forced (h184) | **0.750** | **15.76** |
+| teacher-only | 0.435 | **12.97** |
+
+**A 6.4× change in MF-DRO's LF share moves it 0.06 rel% points.** The teacher's
+advantage is not a fidelity-allocation effect.
+
+### RETRACTION — the synthesis's third leg
+
+findings.md and the published report state the DT's averaging is *"about as good as
+running the teacher"*, resting on **h31** (Hartmann, final simple regret, unmatched
+fidelity mixes, MF-DRO ahead 7/10, its own reading "not resolved"). On Borehole, on
+the frozen metric, with the fidelity objection controlled, **it is worse on 5/5.**
+
+**Corrected synthesis:** *the DT reproduces the mean of its teacher's first move, and
+on Borehole under the frozen metric that average is **worse** than running the
+teacher.* h185, h186, h188 and h182 all stand — what changes is the value of the
+averaging: not a wash, a cost.
+
+### Caveats, so the negative result is not overstated either
+
+- The teacher gets **pool + argmax over 200 candidates**; MF-DRO emits a point
+  directly. That asymmetry *is* the comparison, but the honest phrasing is "net
+  negative against an acquisition rule performing explicit search".
+- **h31's opposite Hartmann result is unreconciled.** **h189 is registered and
+  running** — h187's worker reused unchanged on Hartmann — to settle whether P2
+  generalises or is Borehole-specific. Until then the claim is scoped to **Borehole**.
+- n=5, one benchmark, one teacher. −2.85 is 2.2 se; the 5/5 sign pattern is the
+  stronger evidence.

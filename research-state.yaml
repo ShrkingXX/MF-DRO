@@ -248,6 +248,26 @@ current_front:
     fidelity operating point is A contributor and CANNOT BE THE WHOLE of it. THE
     BENCHMARK ASYMMETRY IS NOT CLOSED.'
 
+  h187_dt_is_a_net_negative: 'CONFIRMATORY, 5/5, SC1 and readout both committed before
+    results. P2 FIRES -- the outcome the protocol named as MOST DAMAGING TO THE PROJECT.
+    On Borehole under the FROZEN metric, removing the Decision Transformer entirely and
+    letting the acquisition rule choose directly IMPROVES regret: teacher-only 12.97 vs
+    MF-DRO 15.82, paired -2.85 (se 1.30), TEACHER BETTER ON 5/5 SEEDS, against a
+    pre-registered 1.72 threshold. FIDELITY OBJECTION RULED OUT by h184''s free control:
+    MF-DRO at lf 0.117 -> 15.82 and at lf 0.750 -> 15.76, i.e. a 6.4x change in LF share
+    moves it 0.06 rel% points, while the teacher at lf 0.435 gets 12.97. RETRACTS THE
+    SYNTHESIS''S THIRD LEG: "the averaging is about as good as running the teacher" (from
+    h31: Hartmann, final simple regret, unmatched fidelity, 7/10, unresolved) is FALSE on
+    Borehole under the frozen metric. CORRECTED SYNTHESIS: the DT reproduces the mean of
+    its teacher''s first move, and that average is WORSE than running the teacher. h185/
+    h186/h188/h182 all stand; what changes is that the averaging is a COST, not a wash.
+    CAVEATS: the teacher gets pool+argmax over 200 candidates while MF-DRO emits directly
+    -- that asymmetry IS the comparison, but phrase it as "net negative against an
+    acquisition rule performing explicit search". PROTOCOL SELF-CORRECTION: it predicted
+    lf_fraction ~0 from SC1''s first six iterations; the realised value is 0.435.
+    h189 REGISTERED AND RUNNING (h187''s worker reused unchanged on Hartmann) to settle
+    whether P2 generalises. UNTIL THEN THE CLAIM IS SCOPED TO BOREHOLE.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
