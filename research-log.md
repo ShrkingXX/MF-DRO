@@ -2401,3 +2401,38 @@ four measurements rather than one).
 
 **Compute:** 12 workers peak (h153 ×5, h155 ×5, 2 offline replicates), never
 above 12 of 15.
+
+## 2026-09-02 (tick 4) — stopped auditing the instrument; used it to forecast instead
+
+**The holistic call this tick was to STOP.** Three consecutive ticks audited the
+offline harness. Each audit was honest and each superseded the last claim, but
+the returns were shrinking: tick 2 found a real bridge, tick 3 found a real
+noise floor, tick 4's marginal audit would have found a smaller correction to a
+tool already characterised as scale-only. Continuing would have been running
+arms, in the sense the loop prompt warns about — motion inside a question
+already answered well enough for the use it is being put to.
+
+So: closed the audit, pre-committed the readout, and spent the tick producing a
+**blind forecast for the second running arm**.
+
+**What went right.** The forecast for h155 was produced and committed while h155
+was at 184/240 with 0/5 result files. It is genuinely blind, and it is specific:
+~102% of the control, near-control performance, explicitly NOT intermediate.
+Together with h153's 82-96% band that commits me to outcome O1 before either
+number exists, with O2/O3/O4 named and their retractions written down.
+
+**A judgement call worth recording.** The first C6 run would not have beaten
+h155's ETA. I killed it at 1/9 states WITHOUT reading its output and relaunched
+coarser (6 states, N=100). Trading precision for blindness is the right trade
+here and the forecast is stated as a band because of it. Recorded in the
+protocol at the time, not afterwards.
+
+**A correction to something I told the user.** Last tick I described the runs as
+progressing at "1-2 iterations per 15 minutes" and implied many hours remained.
+Measured properly this tick: h153 65.5 cost/hr (ETA ~1.3h), h155 196 cost/hr
+(ETA ~0.4h). The pessimistic picture came from comparing iteration counts across
+ticks without measuring elapsed wall time, and the ticks were closer together
+than I assumed. Both runs have held ~99% CPU throughout.
+
+**Compute:** 10 workers steady (h153 x5, h155 x5) plus 2 short offline jobs at
+peak, never above 12 of 15.
