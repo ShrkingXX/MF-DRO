@@ -80,7 +80,25 @@ current_front:
   front_status: 'NOT answered. Solid negative (quality and diversity are orthogonal
     -- h158 swept both directly). Positive mechanism newly UNIDENTIFIED after the
     target-collapse explanation died.'
+  h159_h160_SCREENS: 'BOTH NO-GO, neither pipeline arm funded from these designs.
+    Tail as %% of control: beta=+2 102.0 (h155, real), beta=0 91.5, beta=-2 83.7
+    (4 reps, sd 11.4); failing arms ~30. Monotone in beta, never near the failing
+    band. My error both times: described the arm verbally without checking the
+    mechanism -- beta=0 and beta=-2 are still MODEL-SELECTED, so both accounts
+    predict success. ~40min of screens prevented ~20 worker-hours.'
+  ESTABLISHED_SEPARATION: 'rtg_target tracks whether the teacher ADAPTS.
+    Performance does NOT track rtg_target. h153 (frozen) has target 0.323 with
+    19.36 rel% and 5/5. The conditioning target is a CORRELATE of adaptivity, not
+    the mechanism -- second candidate mechanism demoted in two ticks.'
   running:
+  - 'h161 STALE-PATH (Borehole 42-46, launched 2026-09-02). Frozen path from 2000
+    rollouts earlier (~10 iterations): model-selected but for a STALE state. The
+    accounts SPLIT here -- model-selected-for-THIS-state predicts failure,
+    model-selected-at-all predicts success. This is the discriminator h159/h160
+    were not.'
+  - 'h159 EXPLOIT-LOC -- kept running though non-discriminating, because it
+    validates the harness C7 forecast (91.5%) and h153 proved unvalidated harness
+    conditions can be off 2.7x. Reason recorded, not implicit.'
   - 'h153 MES-FROZEN (Borehole seeds 42-46, launched 2026-09-02). The control that
     separates QUALITY from ADAPTIVITY: the control MES rule, its own path frozen.
     Registered to RETRACT the h145/h146/h149 interpretation, in findings.md AND in

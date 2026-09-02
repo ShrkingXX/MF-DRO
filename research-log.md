@@ -2532,3 +2532,43 @@ MISMATCHED state) is registered and not run.
 
 **Compute:** 6-10 workers; h159 still running at ~80/240 and now known not to
 discriminate between the accounts, which was recorded before it produced results.
+
+## 2026-09-02 (tick 8) — two arms designed, neither funded, and that is the result
+
+**No pipeline arm was launched from h159's or h160's designs.** Both were locked
+as discriminators between the information account and the model-selected
+account; neither is one. In both cases I described the arm verbally ("not
+information-seeking", "anti-informative") without checking what the mechanism
+actually implies — and β=0 and β=−2 are still MODEL-SELECTED, so both accounts
+predict success.
+
+**The cheap-screen-before-funding pattern paid for itself twice.** ~40 minutes of
+harness screens prevented ~20 worker-hours of arms whose outcomes both accounts
+already predicted. That pattern is now the default for any expensive arm:
+forecast it first, and treat "both accounts predict the same thing" as a NO-GO.
+
+**A gate was honoured under pressure to rationalise around it.** h160's round-1
+screen returned 75.8% against a 70% threshold — technically NO-GO, but on two
+replicates spread 31% apart. The honest move was neither to launch (the letter
+said no) nor to move the threshold, but to reduce the noise on the quantity being
+compared: two more replicates, threshold untouched, decision recorded in the
+protocol before they returned. The 4-replicate answer was 83.7%, and NO-GO stood.
+
+**A separation fell out of the screens for free.** Tail as % of control:
+β=+2 → 102%, β=0 → 91.5%, β=−2 → 83.7%, frozen-external arms → ~30%. Monotone in
+β and never near the failing band. With h153 (frozen, target 0.323, performance
+fine), this establishes: **rtg_target tracks adaptivity; performance does not
+track rtg_target.** The conditioning target is now demoted from "the mechanism"
+to "a correlate", which is the second demotion of a candidate mechanism in two
+ticks.
+
+**h161 launched as the actual discriminator** — a frozen path from 2000 rollouts
+earlier (~10 iterations), model-selected but for a stale state. The two accounts
+disagree here, which is the whole reason to fund it.
+
+**h159 kept rather than killed**, with the reason recorded: it is
+non-discriminating for the accounts but validates the harness's unvalidated C7
+condition, and h153 showed such conditions can be off by 2.7×.
+
+**Compute:** 10 workers (h159 ×5, h161 ×5), plus 2-4 short screens at peak.
+Never above 12/15.
