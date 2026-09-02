@@ -15877,3 +15877,64 @@ Note the Hartmann control is itself wildly unstable on this measure (0.038 to
 0.750), which makes "the control's HF fraction" a weak reference. That is a
 property of the benchmark, not of h165, and it may mean this cell cannot be
 cleanly read on Hartmann at all.
+
+---
+
+## h161 STALE-PATH (n=3 of 5) — **it works.** Staleness is nearly free.
+
+CONFIRMATORY. No harness forecast was offered: h161 is a frozen condition and
+the harness's one validation failure (C2, off 2.7×) is exactly the frozen case.
+That restriction was recorded before the run, not after.
+
+| | n=3 |
+|---|---|
+| rel% | **21.17** (n=2 read; n=3 pending readout) |
+| improves | **2/2 → 3/3** |
+| rtg_target | **0.3388** |
+| HF fraction | 0.95 |
+
+Sanity checks exact on every seed: stale fraction **0.902–0.904** (registered
+target >0.9), mean lag **exactly 600**, replay error **0.0e+00**.
+
+**Verdict R2**: a path chosen by a model that has since seen ~10 iterations of
+new data still produces a working arm — 21.17 against h153's 19.36 and the
+failing arms' 43.94. **Model-selected for the CURRENT state is not required**;
+staleness costs ~1.8 rel% and no improvements.
+
+R2 was written when the learnability framing was live. h167 retracted that
+framing before h161 reported, so R2 lands on a position already withdrawn. What
+h161 adds is a **boundary**: whatever distinguishes working from failing frozen
+arms tolerates a ten-iteration-stale model.
+
+Two frozen arms now have conditioning targets in the failing band (h153 0.3230,
+h161 0.3388) and both perform near the control. The target continues not to
+predict performance — that is now three independent demonstrations.
+
+The surviving distinction between h161 (works) and RANDOM-POOL (fails) is
+neither learnability (h167: the DT fits both well) nor adaptivity (both are
+state-blind at query time). It is that h161's locations sit in high-acquisition
+**regions**, stale or not, while RANDOM-POOL's sit anywhere. h168 is the
+registered test of whether the inference conditioning is what converts that into
+failure.
+
+## Instrumentation fix — the five-times-repeated failure, closed
+
+`actions_x` has never been serialised. Reconstructing teacher action
+distributions offline has cost five registrations against unavailable data and
+weakened h167c's central comparison: the control was the one arm whose baseline
+had to be approximated, and it is the arm carrying the surprising result.
+
+`mf_dro.py` now accumulates the per-iteration **mean vector and total variance**
+of the batch's `actions_x` — enough to compute the best-constant MSE exactly, at
+a cost of d+1 floats per iteration — and h83's worker serialises it. Purely
+additive, consumes no RNG.
+
+**Bit-identity gate PASSED** (x, y, fidelity, rtg traces and final_regret
+122.2906675273 all identical to pre-patch).
+
+**A mistake worth recording:** the first commit of the worker half had broken
+indentation and was committed unparseable. The running arms were unaffected —
+they had already imported the module — but any new launch would have failed
+immediately. Caught by running the syntax check *after* committing rather than
+before, and fixed in the next commit. The gate was then re-run on the fixed file
+rather than trusting the earlier PASS, which had exercised the mf_dro half only.
