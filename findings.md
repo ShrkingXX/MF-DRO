@@ -15450,3 +15450,78 @@ and the mechanism is again unidentified. The open-loop penalty would be real and
 
 Seeds 42/44/45/46 running. Recorded now because the forecast miss is already
 established and should not sit unreported while the rest complete.
+
+---
+
+# h153 COMPLETE — the 2×2 is finished, and it REFUTES the causal account
+
+CONFIRMATORY, n=5. Forecast committed blind, many ticks before any result.
+
+## The completed 2×2
+
+|  | CLOSED-loop | OPEN-loop (frozen) |
+|---|---|---|
+| **MES** | control **15.82**, 5/5, rtg 0.976 | **h153 19.36, 5/5, rtg 0.323** |
+| **non-MES** | **h155 15.13**, 5/5, rtg 1.040 | ORACLE/DIVERSE/RANDOM **43.94**, 0/5, rtg ~0.30 |
+
+**Three of four cells work.** Only one fails, and it is the one that changes both
+things at once.
+
+- Freezing the working teacher costs **+3.5 rel%** (15.82 → 19.36) and **zero**
+  improvement rate (5/5 → 5/5).
+- Changing the rule costs **nothing** (15.13, 5/5).
+- Doing both — a frozen path toward a point chosen without the model — costs
+  **+28 rel%** and every seed's improvement.
+
+## The refutation
+
+**h153 has the failing arms' conditioning target (0.3230, band 0.2965–0.3285)
+and the control's improvement rate (5/5) and near-control regret (19.36 vs
+43.94).**
+
+**A collapsed rtg_target does not cause the failure.** The tail account's causal
+half — "the failing arms collapse the target, and that is why they fail" — is
+**REFUTED**, and is withdrawn from findings.md and from the published report.
+
+What survives, unaffected: the *descriptive* half. The failing arms genuinely do
+have no informative tail (validated against four real arms in h157, swept on one
+axis in h158). That remains true. It is simply not the cause.
+
+## The forecast: one half failed, and the failure was diagnosable in advance
+
+rtg_target forecast 0.83–0.94, observed **0.3230** — the harness's C2 condition
+off by ~2.7×. SC2 gives the reason directly: the real freeze penalty is **~0.35**
+(0.341, 0.301, 0.401, 0.360 across seeds) against the harness's offline **0.16**.
+**C2 was the only harness condition with no already-run arm to validate against,
+and it is the only one that broke.** Every validated condition held.
+
+The performance half of the forecast — "near the control, not 43.94" — held
+exactly.
+
+## What now explains the pattern — EXPLORATORY, post-hoc, NOT established
+
+Fitted to the data after seeing it, so it is a hypothesis, not a result:
+
+The three failing arms pick query **locations by criteria external to the model**
+— the true optimum x* (ORACLE), the argmax of true-objective draws
+(DIVERSE-GOOD), uniform draws (RANDOM-POOL). The three working arms all query
+**locations the model itself selected**: MES argmax (control), UCB argmax (h155),
+and — crucially — a *frozen replay of a path the model selected* (h153).
+
+On this reading the DT needs training locations that are model-selected, and
+both reward magnitude and adaptivity are secondary: freezing costs +3.5 rel%,
+changing the acquisition costs nothing, and the conditioning target is a red
+herring that h153 decouples outright.
+
+**This is post-hoc and unvalidated.** The registered test that would discriminate
+it: a frozen path of model-selected locations taken from a *mismatched* state. If
+locations must be model-selected for the *current* state it should fail; if
+merely being in a sensible region suffices it should work. Not run.
+
+## Status of the front
+
+The question "why doesn't better trajectory quality improve MF-DRO" now has a
+solid negative answer (quality is orthogonal — h158 swept it directly) and a
+**newly unidentified** positive mechanism. The target-collapse explanation is
+dead. That is progress, but it is not closure, and the front should not be
+recorded as answered.
