@@ -16413,3 +16413,69 @@ weaker claim — "one good step early is enough" — predicts the same thing wit
 any of the τ=0 machinery. **Only TAIL can separate those**, because a
 seven-good-step teacher that fails is inexplicable under any account except one
 where the first step is what matters. No verdict until it reports.
+
+---
+
+# h171 TAIL-MES FINAL — **R3 fires. The mechanism survives its interventional test.**
+
+| | forecast (committed at 0/5) | HEAD-MES | TAIL-MES |
+|---|---|---|---|
+| **F1** centroid from box centre | HEAD > 0.5, TAIL < 0.2 | **0.7397** | **0.0313** |
+| **F2** rel% | HEAD ~15.82, TAIL ~43.94 | **16.96** | **43.94** |
+| **F2** improves | HEAD ~5/5, TAIL ~0/5 | **5/5** | **0/5** |
+
+**The teacher that follows the acquisition on seven of eight steps fails
+completely; the one that follows it on a single step works.** Neither R1 (HEAD
+fails) nor R2 (TAIL works) — the individually fatal outcomes — occurred.
+
+This is the first claim on this front established by **intervention** rather than
+by fitting correlations, which is precisely what the five fallen accounts could
+not do.
+
+## SC1 fires on TAIL — and the attribution rests elsewhere
+
+TAIL's HF fraction is **0.217** against the control's 0.883. SC1 registered "a
+collapse voids the arm", and by the letter it does: **TAIL alone cannot attribute
+its failure to the τ=0 location rule**, because its fidelity collapsed too.
+
+**ORACLE and DIVERSE-GOOD separate the channels.** HF fractions **0.626** and
+**0.604** — no collapse — and they still fail at 43.94 with centroids 0.0394 and
+0.0409. A τ=0 location drawn independently of the model is **sufficient to fail
+with the fidelity mix intact**.
+
+## The collapse is a second, unaimed-at confirmation
+
+The fidelity head is also emitted at τ=0, and obeys the same rule:
+
+| τ=0 teacher fidelity rule | arms | realised HF fraction |
+|---|---|---|
+| MES's choice / info-gain at a point | control, h155, h159, h153, h161, HEAD, ORACLE, DIVERSE | 0.60–0.90 |
+| **uniform 25% HF** | **TAIL, RANDOM-POOL** | **0.217, 0.256** |
+
+Both arms with a coin-flip τ=0 fidelity land at 0.22–0.26, near the teacher's
+0.25. The mechanism was derived for the location head; the fidelity head follows
+it on a quantity nobody was aiming at.
+
+## Compute, contention-matched at last
+
+HEAD and TAIL ran **concurrently, same machine, same load** — the comparison the
+withdrawn cross-run figure could not support:
+
+| arm | MES calls per rollout | wall | min/query |
+|---|---|---|---|
+| HEAD-MES | 1 | **39.6 min** | 0.360 |
+| TAIL-MES | 7 | **72.2 min** | 0.439 |
+
+**TAIL takes 1.82× HEAD's wall time.** HEAD costs **+1.14 rel%** against the
+control (16.96 vs 15.82) while consulting the acquisition once per rollout rather
+than eight times.
+
+## Established, and not
+
+**Established:** the teacher's *first step* is what reaches inference. Seven of
+eight rollout steps do not affect the real query's location, its improvement rate
+or its regret — only its cost.
+
+**Not established:** that the τ=0 *conditional-mean* account is the full
+mechanism. h170's residual was ≈5 SE and h171 does not address it. What h171
+shows is that the first step is the operative one — by intervention.
