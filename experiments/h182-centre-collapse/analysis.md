@@ -1,10 +1,47 @@
-# h182 — the failure is COLLAPSE TO THE BOX CENTRE, and it explains the benchmark asymmetry
+# h182 — the failure is COLLAPSE TO THE BOX CENTRE
 
 **EXPLORATORY.** No new runs; re-analysis of saved traces. Not pre-registered.
 Statistic: over each run's **last 20 HF queries**, mean distance (unit box) to the
-box centre, and mean pairwise dispersion. Frozen rel% as recorded.
+box centre. Frozen rel% throughout. Arms keyed by tag **and** experiment (never
+merged across experiments — the same tag in two experiments is two configurations).
 
-## Hartmann — graded, and distance-to-x* is ANTI-monotone
+## CORRECTION to this file's first version
+
+The first version reported Borehole as **bimodal** — working arms at 0.803–0.864,
+failing arms at 0.070–0.107, "a gap 0.70 wide, 10/10 arms fit." That was measured
+on **10 hand-picked teacher arms**. Re-run over **every** Borehole arm with ≥4
+matched seeds, the gap fills in: MF-DRO [h75] at 0.752, POOL1000 [h78] at 0.778,
+STALE-PATH at 0.798 land inside it, with intermediate regrets (24.25, 22.28,
+19.53). **The bimodality was an artifact of which arms I sampled.** The real
+structure is a continuum, and the corrected claim below is the stronger one.
+
+## Borehole — monotone across 28 MF-DRO arms
+
+| population | n | Spearman ρ(distance from centre, rel%) |
+|---|---|---|
+| **MF-DRO arms only** | **28** | **−0.967** |
+| GP baselines | 4 | −0.800 |
+| all arms pooled | 32 | −0.918 |
+
+Across 28 MF-DRO arms — spanning teachers, ROI variants, rollout lengths, loss
+functions and conditioning changes — the further the policy's queries sit from
+the box centre, the better it does, near-monotonically. Largest departures from
+the trend are small (+4.8, +3.8, −2.8 rel% pts).
+
+*(ρ is a descriptive rank statistic over arms, each itself a 5-seed mean. No
+p-value is attached; the n=5 rule concerns seeds within an arm.)*
+
+Endpoints: RANDOM-POOL 0.070 → 43.94; MF-MES 1.093 → 6.40.
+
+### The one counterexample is out of population
+
+**MF-MI-Greedy** escapes the centre (0.904) and still performs poorly (28.44) —
+the only arm badly off-trend. It is a **GP baseline with no Decision Transformer
+at all**, so it cannot bear on a claim about what a DT emits. Naming it rather
+than dropping it: escaping the centre is clearly not sufficient *in general*, only
+within the DT-based arms this analysis is about.
+
+## Hartmann — the same ordering, and distance-to-x* runs BACKWARDS
 
 | arm | rel% | to x* | **to CENTRE** | dispersion |
 |---|---|---|---|---|
@@ -15,70 +52,39 @@ box centre, and mean pairwise dispersion. Frozen rel% as recorded.
 | ORACLE | 52.23 | 0.572 | **0.142** | 0.195 |
 | RANDOM | 65.14 | 0.582 | **0.086** | 0.120 |
 
-**Distance to the centre is perfectly rank-monotone with performance across all
-six arms.** Dispersion is too (one negligible control/UCB inversion, matching
-their near-tied regret).
-
-**Distance to x\* runs the wrong way** — the worst arms look "closest" to the
-optimum. The geometry explains it: `||centre − x*|| = 0.5681`, so an arm collapsed
-*at the centre* scores ≈0.57 while converging nowhere. RANDOM scores 0.582.
+Distance to the centre is perfectly rank-monotone with performance. **Distance to
+x\* is anti-monotone** — the worst arms look "closest" to the optimum, because
+`||centre − x*|| = 0.5681` and an arm collapsed *at* the centre scores ≈0.57 while
+converging nowhere. RANDOM scores 0.582.
 
 > **Diagnostic caution for the codebase.** `query_dist_to_xstar_per_iter` is
-> anti-monotone with performance on these arms and must not be read alone. It
-> cannot distinguish "converged near the optimum" from "collapsed at the centre,
-> which happens to sit 0.57 from the optimum". (This does *not* retroactively
-> overturn the earlier second-basin observation, which was made on different arms
-> whose queries sat 0.97–1.10 from x* — that pattern is not centre-collapse.)
+> anti-monotone with performance on these arms and must not be read alone: it
+> cannot separate "converged near the optimum" from "collapsed at the centre".
+> This does **not** overturn the earlier second-basin observation, which was made
+> on different arms whose queries sat 0.97–1.10 from x* — not centre-collapse.
 
-## Borehole — BIMODAL, with a clean gap and no overlap
+## What this does NOT explain: the benchmark asymmetry
 
-| arm | rel% | to CENTRE | dispersion |
-|---|---|---|---|
-| L=1 | 13.69 | 0.864 | 0.181 |
-| UCB-LOC | 15.13 | 0.847 | 0.116 |
-| control | 15.82 | 0.852 | 0.125 |
-| **HEAD-MES** | **16.96** | **0.812** | 0.126 |
-| EXPLOIT-LOC | 19.07 | 0.814 | 0.108 |
-| MES-FROZEN | 19.36 | 0.803 | 0.116 |
-| TAIL-MES | 43.94 | 0.093 | 0.125 |
-| DIVERSE-GOOD | 43.94 | 0.107 | 0.135 |
-| ORACLE | 43.94 | 0.102 | 0.129 |
-| RANDOM | 43.94 | 0.070 | 0.091 |
+I initially wrote that escape from the centre is "necessary and sufficient on
+Borehole, necessary but not sufficient on Hartmann", and that this explained why
+the front's answer has a strong form only on Borehole. **The numbers do not
+support that.**
 
-Working arms occupy **0.803–0.864**; failing arms **0.070–0.107**. Nothing lies
-between. **10/10 arms fit, with a gap 0.70 wide.** Dispersion does *not* separate
-them here (0.108–0.181 vs 0.091–0.135, overlapping) — on Borehole the sole
-discriminator is escape from the centre.
+| | HEAD's escape ÷ control's | HEAD's regret ÷ control's |
+|---|---|---|
+| Borehole | 0.812 / 0.852 = **0.95** | 16.96 / 15.82 = **1.07×** |
+| Hartmann | 0.546 / 0.610 = **0.90** | 25.16 / 7.99 = **3.15×** |
 
-## This answers the asymmetry that has been open longest
-
-The front's answer has a WEAK form on both benchmarks and a STRONG form only on
-Borehole, and why has been recorded as unexplained since h175. The two tables
-give it:
-
-- **Borehole: escaping the centre is necessary AND sufficient.** HEAD-MES escapes
-  (0.812, inside the working band) and performs at control level (16.96 vs 15.82).
-  One acquisition-chosen first step is enough to leave the centre in a usable
-  direction — so only the first step matters. **The strong form.**
-- **Hartmann: escaping the centre is necessary but NOT sufficient.** HEAD-MES
-  escapes (0.546, on the working side of Hartmann's gap) and still loses 3×
-  (25.16 vs 7.99). Escape is partial and performance is partial; there is no
-  cliff. **The weak form only.**
-
-Why the benchmarks differ this way is consistent with their geometry: Hartmann-6
-is multimodal (a second basin sits 1.1027 away and is already documented here),
-so leaving the centre does not determine *which* direction; Borehole is dominated
-by a few monotone-sensitive dimensions whose optima are at the boundary (already
-recorded), so leaving the centre in the acquisition-chosen direction is most of
-the problem.
+HEAD retains a **similar fraction** of the control's escape on both benchmarks —
+95% and 90% — yet costs 1.07× on one and 3.15× on the other. Escape distance
+therefore orders arms *within* a benchmark extremely well and does **not** by
+itself explain the difference *between* them. **The asymmetry remains open**, as
+it has been since h175.
 
 ## What could RETRACT this
 
-- **A Borehole arm that escapes the centre (>0.8) and still fails, or one that
-  stays at the centre (<0.11) and succeeds.** Either breaks the necessary-and-
-  sufficient claim. Currently 10/10 arms fit with no overlap.
-- The geometric reading of *why* the benchmarks differ is an interpretation of
-  two independently-recorded facts (Hartmann multimodality, Borehole boundary
-  optima), not something this analysis measured. The measured claim is the
-  necessary/sufficient split; the geometry is the proposed reason for it.
-- Last-20-HF-queries is one window choice, made once and not tuned.
+- An MF-DRO arm far from the centre that fails, or one at the centre that
+  succeeds. Currently 28 arms, ρ = −0.967, no serious outlier.
+- The direction of causation is untested. Centre-collapse and poor regret could
+  both follow from a third cause; nothing here intervenes on distance directly.
+- Last-20-HF-queries is one window, chosen once and not tuned.
