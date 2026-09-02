@@ -2185,3 +2185,44 @@ tag among 129 uncommitted insertions; gate or revert before launching anything.
 assertion between two sessions. **Eight were caught by the other session.** The
 one exception was caught by a protocol that named in advance the claim its own
 result could retract — the only mechanism here available to a lone worker.
+
+## 2026-08-31 — the question answered: the teacher was already optimal in the rewarded currency
+
+Front: "why does better trajectory quality not improve MF-DRO?" Three experiments,
+each with a registered retraction, two of which fired.
+
+**h145** — an oracle teacher (straight line to the true x*) degrades Borehole by
++28.126 rel%, effect 4.49, 0/5. Hartmann pointed the same way but is confounded
+(corr(HF share, degradation) = -0.830) and is not quoted.
+
+**h147** — tested the RCSL return-coverage account from our own literature notes
+(Brandfonbrener et al. 2022). **P1 FALSIFIED, opposite direction**: the oracle
+RAISES between-trajectory return variance (0.611 vs 0.445, effect 4.17). The
+variance reading of coverage does not explain it; the literature note now carries
+a qualification that it covers the conditioning-side nulls only.
+
+**h148** — P1 not evaluable (fifth registration against unserialised data). P2,
+registered without direction, is decisive: **`rtg_target` collapses 0.9761 ->
+0.3113, effect 32.11**, the largest in the project, with 55.2% of steps scoring
+negative against the control's 25.8%.
+
+**The synthesis.** The reward is information gain, `log(b_tau) - log(b_T)`, with
+nothing measuring proximity to x*. An oracle path earns almost none of it. And the
+control's teacher already argmaxes cost-normalised MES — *the same quantity the
+reward measures*. **Teacher and reward optimise the same thing, so there was no
+headroom.** Any improvement on a different axis costs reward, collapses the
+conditioning target, and degrades the policy; the more perfect the improvement,
+the larger the cost.
+
+This also explains why the ROI's Borehole gain cannot be a teacher-quality effect:
+the teacher already argmaxes information gain over the pool, so restricting the
+pool can only lower the achievable max.
+
+**Open and registered:** h146's DIVERSE-GOOD arm separates trajectory quality from
+endpoint diversity. Prediction locked before the runs land — its `rtg_target`
+should sit near 0.976, not 0.311. If it collapses too, the account is wrong and the
+mechanism is about *forcing* rather than information gain.
+
+**Instrument:** `tools/check_fields.py`, after five registrations against data the
+pipeline does not serialise. The written rule was added after the second instance
+and three more followed.

@@ -2160,6 +2160,67 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
   </div>
 </section>
 
+<section>
+  <p class="kicker">The question answered &middot; why a perfect teacher fails</p>
+  <h2>The teacher was already the best one available &mdash; in the only currency that counts</h2>
+  <div class="col">
+  <p>The method trains a sequence model to imitate a <em>teacher</em>: simulated rollouts that propose
+  where to sample next. An obvious way to improve it is to improve the teacher. So we built the best
+  teacher possible &mdash; trajectories that walk in a straight line to the true optimum, which the
+  method is never told &mdash; and measured what it did.</p>
+  <p><strong>It made the method dramatically worse, on every single run.</strong></p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Teacher</th><th class="n">Regret remaining</th><th class="n">Change</th><th>Runs improved</th></tr></thead>
+    <tbody>
+      <tr><td>Normal (simulated rollouts)</td><td class="n win">15.8%</td><td class="n">&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>Perfect (walks to the true optimum)</td><td class="n">43.9%</td><td class="n">+28.1 worse</td><td><strong>0 of 5</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p><strong>The reason is that the reward is not what the perfect teacher optimises.</strong> The
+  method rewards <em>information gain</em> &mdash; how much a query shrinks its uncertainty about where
+  the optimum is. It contains nothing at all about how close a query lands to that optimum.</p>
+  <p>A path that marches onto the optimum and stays there is the best possible route in
+  <em>distance</em> and one of the worst in <em>information</em>. Once you are standing on the answer
+  and know it, sampling there again teaches the model nothing. So the perfect teacher earns almost no
+  reward: <strong>55% of its steps score negative</strong>, and the target the model is asked to hit
+  collapses from 0.98 to 0.31 &mdash; the largest effect measured anywhere in this project.
+  The model is then instructed, at every step, to aim low.</p>
+  </div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Measured on the same runs</th><th class="n">Normal teacher</th><th class="n">Perfect teacher</th></tr></thead>
+    <tbody>
+      <tr><td>Return target the model is given</td><td class="n win">0.976</td><td class="n">0.311</td></tr>
+      <tr><td>Share of steps earning negative reward</td><td class="n win">25.8%</td><td class="n">55.2%</td></tr>
+      <tr><td>How well the model fits its targets</td><td class="n">0.040</td><td class="n win">0.018</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="col">
+  <p>Note the last row: the model fits the perfect teacher&rsquo;s targets <em>more than twice as
+  well</em>. Training is not failing. It is succeeding at learning something worthless.</p>
+  <p><strong>And the normal teacher turns out to already be optimal in that same currency.</strong> It
+  picks each action by maximising exactly the information gain the reward measures. Teacher and reward
+  optimise the same quantity &mdash; so there was no headroom to find. Any &ldquo;improvement&rdquo;
+  along a different axis necessarily costs reward, and the more perfect the improvement, the larger the
+  cost. That is why the <em>best</em> teacher produced the <em>worst</em> result.</p>
+  </div>
+  <div class="callout">
+    <p class="kicker">What is still being checked</p>
+    <p>The perfect teacher confounds two things: its trajectories are excellent, and they all end at
+    the <em>same</em> point. A second arm now running sends each trajectory to a <em>different</em>
+    good endpoint, which separates them. <strong>The prediction was registered before those runs
+    finish</strong>: if the account above is right, this arm should keep its return target near 0.98
+    rather than collapsing to 0.31, because trajectories heading to varied destinations keep
+    exploring and so keep earning reward. If it collapses too, the account is wrong &mdash; the
+    problem would be <em>forcing</em> the teacher at all, not what it was forced toward.</p>
+  </div>
+</section>
+
 <footer>
   <div class="col">
   <p>All figures regenerated from the 100 h83 runs. Simple regret is recomputed from each run&rsquo;s
