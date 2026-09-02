@@ -16273,3 +16273,42 @@ images:
 
 SC3 bit-identity of the default path: PASS (122.2906675273). SC1 (realised HF
 fraction) will be read before the regret numbers.
+
+---
+
+## h166 (n=3) — the Hartmann 2×2 completes, and the target-collapse refutation generalises
+
+| | CLOSED-loop | OPEN-loop (frozen) |
+|---|---|---|
+| **MES** | control **7.99**, 5/5, rtg 0.8844 | **h166 6.75**, 3/3, rtg **0.4002** |
+| **non-MES** | h165 **10.58**, 5/5, rtg 0.8486 | RANDOM-POOL **65.14**, 2/5, rtg 0.2924 |
+
+**Three of four cells work** — the same structure as Borehole, on a second
+benchmark. Working arms 6.75–10.58 against a failing arm at 65.14.
+
+**R2 fires.** h166's conditioning target is 0.4002, far nearer RANDOM-POOL's
+0.2924 than the control's 0.8844, while it posts the **best regret of all four
+arms**. That is h153's split exactly: collapsed target, good performance. The
+refutation of the target-collapse account — which findings.md and the published
+report both state without a benchmark qualifier — now rests on **two benchmarks
+and three independent frozen arms** (h153, h161, h166).
+
+R3 (works but the target does *not* collapse — the outcome that would look like
+success and carry no evidence) does not fire.
+
+SC1 replay error 0.0 on all three seeds. SC2 open-loop penalty 0.146/0.283/0.324,
+averaging ~0.25 against Borehole's ~0.35 — consistent with h154b's independent
+finding that Hartmann's penalty is about half Borehole's.
+
+**h165 completed at n=5**: 10.58, improving 5/5, rtg 0.8486. Its HF-fraction
+confound persists but shrank (0.353 → 0.290) and still runs *against* the claim —
+h165 buys more HF and performs worse than the control, so the shift cannot
+manufacture its success.
+
+### An observation from h171's runtimes, not yet a result
+
+h171's two arms are progressing at very different rates: HEAD-MES is at cost
+~108 while TAIL-MES is at ~70, because TAIL makes seven MES calls per rollout to
+HEAD's one. If HEAD-MES works — which the τ=0 mechanism requires — then the
+method's dominant cost is being spent on steps that never reach inference.
+Recorded as an observation about wall-clock, not as evidence for the mechanism.
