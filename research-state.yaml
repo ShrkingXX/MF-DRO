@@ -5,9 +5,17 @@
 # ============================================================================
 current_front:
   question: 'WHY better trajectory quality does not improve MF-DRO.'
-  status: 'ANSWERED, by intervention (h171). The actionable follow-up (h172) is
-    running. The finer mechanism (tau=0 conditional mean) is supported but has an
-    unexplained ~5 SE residual.'
+  status: 'ANSWERED by intervention (h171/h173), but the answer has TWO STRENGTHS
+    and they are scoped differently. WEAK FORM (two benchmarks): a bad first step
+    is fatal regardless of the other seven, and a good first step buys most of what
+    a good trajectory buys -- HEAD < TAIL on both (Borehole 16.96 vs 43.94;
+    Hartmann 25.16 vs 46.45), plus the centroid split on both. STRONG FORM
+    (Borehole only): ONLY the first step matters -- HEAD matched the control there
+    (16.96 vs 15.82) but is worse on 5/5 Hartmann seeds (25.16 vs 7.99), so the
+    later steps DO contribute on Hartmann. h173 was reported as R2 at n=4 and is
+    CORRECTED to R3 at n=5. The tau=0 conditional-mean mechanism has an unexplained
+    ~5 SE residual, and h171''s fidelity-head "independent confirmation" is
+    WITHDRAWN (the teacher''s 0.25 and minimum_hf_fraction 0.25 coincide).'
 
   THE_ANSWER: 'Only the teacher''s FIRST step reaches inference. The DT is always
     queried at timestep=0, and at tau=0 the training states are near-degenerate

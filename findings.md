@@ -16767,3 +16767,45 @@ What is withdrawn is one supporting claim that made the account look better
 confirmed than it is. **Seventh over-claim of this session caught by chasing a
 tension rather than by a gate** — the gates catch what they were pointed at; this
 class needs the tension.
+
+---
+
+# CORRECTION — h173 at n=5 is **R3 (partial), not R2**. I reported it prematurely.
+
+HEAD's fifth Hartmann seed returned raw regret 2.5713 — **not** at the 0.7531
+saturation floor, so a genuine bad run — moving HEAD from 12.10 (n=4) to
+**25.16 (n=5)**.
+
+| Hartmann arm | rel% | improves | centroid | per-seed |
+|---|---|---|---|---|
+| control | **7.99** | 5/5 | 0.6287 | 16.4, 0.7, 10.2, 5.3, 7.4 |
+| **HEAD-MES** | **25.16** | 4/5 | 0.5687 | **77.4**, 2.3, 22.7, 11.5, 11.9 |
+| TAIL-MES | 46.45 | 4/5 | 0.0404 | 50.0, 21.5, 22.7, 77.7, 60.3 |
+| RANDOM-POOL | 65.14 | 2/5 | 0.0237 | 78.6, 77.7, 22.7, 78.2, 68.6 |
+
+**P1 FAILS.** It required HEAD near the control's 7.99; observed 25.16, and
+paired per-seed HEAD is worse on **5 of 5** (diffs +61.0, +1.6, +12.5, +6.2,
++4.5). P2 holds. P3 holds decisively.
+
+**Last tick I led with "R2 fires — the answer holds on two benchmarks."** The
+n=4 caveat was recorded in the same entry, and I reported the verdict anyway.
+The fifth seed reversed it.
+
+## What survives on both benchmarks
+
+**HEAD < TAIL** (25.16 vs 46.45 here; 16.96 vs 43.94 on Borehole) and the
+centroid split. So the interventional core holds: **a bad first step is fatal
+regardless of the other seven, and a good first step buys most of what a good
+trajectory buys.**
+
+## What is now scoped to Borehole
+
+The **strong** form — *"only the first step matters"*. On Borehole HEAD matched
+the control (16.96 vs 15.82), so the seven later steps contributed ~nothing.
+**On Hartmann they contribute substantially.** The front's answer must be stated
+as the weaker form on two benchmarks, plus the strong form on one.
+
+This independently re-scopes h172's actionable result: if the later steps do real
+work on Hartmann, shortening the rollout there should not be expected to be free
+— and h174's SC1 firing left that untested anyway. The two corrections agree,
+which is some reassurance that neither is an artefact of the other.
