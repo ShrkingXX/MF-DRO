@@ -16945,3 +16945,53 @@ the better configuration, and the means alone do not show that.
 
 **Scope:** Borehole, n=5. Untested on Hartmann, where h174's SC1 fired on the
 plain L=1 arm and h173 showed the later steps do real work.
+
+---
+
+# h177 — **both conditioning inputs are inert, and the reason is architectural**
+
+357 probed iterations, Hartmann RANDOM-POOL, n=5.
+
+**BTG spread across the whole sweep (20 → 36): 0.0000.** Not small — *nothing*,
+to four decimals, over a range well outside the visited 26.08–30.52. The RTG axis
+in the same runs reproduces h168 exactly (**9.0%** vs 8.9%), which validates the
+measurement rather than the null.
+
+**P1 holds, R1 fires**: the DT's inference output is a function of the state
+alone.
+
+## The exactly-zero demanded an explanation, and there is one
+
+BTG *is* wired — `btg_embed = Linear(1, H)`, `btg_ln = LayerNorm(H)`, interleaved
+as one of four tokens. Not a missing connection.
+
+The scalars go **raw** into `Linear(1→H)` then `LayerNorm`, and that composition
+**saturates**: LayerNorm fixes the norm, the direction converges as |v| grows.
+Over 200 random weight draws — a structural property, not one seed:
+
+| scalar | operating range | relative embedding change |
+|---|---|---|
+| **RTG** | 0.30 – 1.00 | **0.4869** ± 0.0369 |
+| **BTG** | 26.1 – 30.5 | **0.0056** ± 0.0003 |
+
+**87× less responsive.** RTG sits near the origin where the response is live; BTG
+sits deep in the saturated regime — *because its values are ~30 rather than ~1*.
+That predicts precisely what was measured: RTG 9%, BTG 0%.
+
+## The defect and the fix
+
+**BTG conditioning is inert not because the network learned to ignore it, but
+because the architecture cannot represent differences in the range the runs use.**
+The fix is standardising the scalars before embedding — the treatment the state
+block already gets via `use_state_standardization`.
+
+This also locates part of the τ=0 residual: a conditioning channel that cannot
+respond is a conditioning channel the τ=0 account was right to find irrelevant.
+
+## Labelling
+
+**EXPLORATORY** — the structural analysis came after seeing the zero. What makes
+it more than a story is that it predicts a *quantity* (~87× apart) and both
+measurements match. It uses random weights; a trained bias could shift the
+operating point. **Measuring the trained `btg_embed`/`btg_ln` response directly
+would settle it — registered, not done.**
