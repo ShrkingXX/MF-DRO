@@ -3721,3 +3721,17 @@ ships.
   settle whether P2 generalises or is Borehole-specific. Until then the claim is
   scoped to Borehole. Results land in h187's directory (documented in h189's protocol,
   left as-is to preserve the identical-code guarantee).
+
+## tick 48 — h187 scoped: the ROI configurations flip the sign, but not like-for-like
+
+- **Scoping correction, made within a tick of publishing.** h187's P2 is about the
+  **default** path. Every ROI-equipped MF-DRO configuration beats the same teacher-only
+  arm — ROI-L1 by −3.15 on 4/5, near a mirror of the default's +2.85 on 0/5.
+- **But it is not like-for-like**: ROI is a *training-time* mechanism (`mf_dro.py:1184`)
+  and the teacher-only arm does not learn, so it never receives ROI. The ROI rows give
+  MF-DRO a mechanism the teacher lacks.
+- **A teacher+ROI arm was considered and NOT built**: it would mean applying ROI's
+  region to the teacher's *inference* pool, which does not exist today. Recorded as
+  untested rather than asserted either way.
+- Report and findings both corrected and republished; both halves now travel together.
+- h189 (Hartmann no-DT) still running.
