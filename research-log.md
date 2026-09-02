@@ -3620,3 +3620,21 @@ ships.
   (and `tools/identity_gate.py` added; the historical reference in findings.md is
   rounded and fails a genuinely identical build by 1.8e-11 — now fixed).
   SC1 recorded before launch: the ceiling fires, moving Borehole to ~0.71 LF.
+
+## tick 42 — h185: the mechanism, quantified. The DT is a per-timestep constant predictor.
+
+- **h185 (EXPLORATORY).** loss/var = 0.795, 0.916, 0.985, 1.026, 1.022 across five
+  Borehole arms spanning a 2.5× teacher-variance range — **every arm sits at the
+  best-constant MSE**. The DT explains 0–20.5% of its teacher's action variance and
+  **none** on three of five.
+- **The explained share is monotone in τ-structure**: 0.0% at rollout length 1
+  (where it is 0% by construction), 0.0% at L=2, 1.5% at L=4, 8.4%/20.5% at L=8 with
+  a sharp τ=0 split. That is a per-timestep constant predictor.
+- **Learning more does not help**: TAIL explains the most (20.5%) and fails worst
+  (43.94); ROLLOUT1 explains none and does best (13.69). Only where the constant
+  lands matters.
+- **"Fits better while performing worse" is located**: TAIL's loss falls 20% over
+  its run while its queries contract to 31% of their starting centre-distance and
+  the *teacher's* spread stays flat (1.03).
+- Report rewritten around this and republished; stale lede corrected.
+- h184 running (ctrl iter 6, head iter 11), lf_fraction ~0.71 as designed.
