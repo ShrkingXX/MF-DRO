@@ -2295,6 +2295,31 @@ weighted   min d*   MF-DRO 0.0543  &gt;  MF-MES 0.0308   &larr; 76% farther</cod
     result exists: freezing the <em>good</em> teacher should <strong>not</strong> reproduce the failure.
     If it does, this account is wrong and will be withdrawn in turn.</p>
   </div>
+  <div class="callout">
+    <p class="kicker">Two results since &mdash; and one of them retires the last surviving explanation</p>
+    <p><strong>A completely different teacher works just as well.</strong> The method&rsquo;s own teacher
+    picks where to look next by one specific rule. We swapped it for a different, standard rule &mdash;
+    still deciding fresh at every step, still drawn to places the model is uncertain about, but otherwise
+    unrelated &mdash; and the method matched its own performance: 15.13 against 15.82, better on four
+    seeds of five, improving on its starting points in five runs out of five, exactly like the original.
+    The failing teachers sit at 43.94 and improve in none.</p>
+    <p>That retires the last explanation still standing, that something about the original rule
+    <em>specifically</em> was what the learner needed. It is not the rule. What the working teachers share
+    is that they go looking where the model is uncertain; what the failing ones share is that they walk
+    toward somewhere already known to be good, which teaches almost nothing.</p>
+    <p><strong>And this was predicted before it was measured.</strong> A forecast of how much signal this
+    teacher would generate was written down and committed while the experiment was 77 per cent finished
+    and had produced no results at all: 102 per cent of the original teacher&rsquo;s. Measured: 106.6 per
+    cent &mdash; inside the reconstruction&rsquo;s own margin of error.</p>
+    <p><strong>Quality and variety were then swept directly, and neither matters.</strong> The
+    interpolating teacher&rsquo;s destination was made 51 per cent better while its destinations became
+    34 per cent less varied &mdash; a long-registered test finally run. The signal it generates did not
+    move: three points spanning three per cent, against a margin of error four times that, all sitting in
+    the failing band. Walking toward an already-good point teaches almost nothing about where the best
+    point is, no matter how good it is, and no matter how many different good points you aim at.</p>
+    <p>One cell of the picture is still running: freezing the <em>working</em> teacher. It is forecast to
+    succeed. If it fails, everything in this callout is withdrawn with the account behind it.</p>
+  </div>
   <p>The natural explanation is that the model is a <em>distillation of a decision rule</em> &mdash;
   that what it inherits is a way of choosing where to look next, which a perfect trajectory is not,
   since that route only exists if you already know the answer. <strong>We tested that and it did not
