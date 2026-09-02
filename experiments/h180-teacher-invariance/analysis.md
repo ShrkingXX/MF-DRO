@@ -52,9 +52,12 @@ below that — unambiguous. RANDOM-POOL's 0.434 is only just under it, so the
 
 **Two clusters, and one exception.**
 
-- **dist ≤ 0.065 → performance preserved (15.13–19.53).** Five arms whose *rules*
-  differ as much as UCB vs exploit-only vs frozen-target vs stale-path all emit
-  essentially the control's first query, and all work.
+- **dist ≤ 0.065 → performance preserved (15.13–19.53).** Five arms. But only
+  **two are genuine rule changes** — UCB-LOC and EXPLOIT-LOC. MES-FROZEN and
+  STALE-PATH manipulate the RTG *target*, not the teacher's rule, so their
+  rollouts are MES's rollouts and they cannot count as evidence of rule-
+  invariance. They belong to the inertness claim below instead. The
+  rule-invariance evidence on Borehole is therefore **two arms, not five**.
 - **dist ≥ 0.157 → four of five arms sit at the 43.94 saturation floor.**
 - **HEAD-MES is the exception:** it moves the query far (0.2714) and stays good
   (16.96). It is the one intervention that *selects* trajectories rather than
@@ -97,8 +100,12 @@ tick (h174's was declined on a direction check).
   a rule, so it does not refute the claim as stated.
 - Borehole only, n=5. The tight cluster's 7× margin is wide, but the arms in it
   were not chosen to span rule-space systematically.
-- The five ≤0.065 arms may be less rule-diverse than they look; "different rule"
-  is my classification, not a measured quantity.
+- **Rule-diversity is thin.** Genuine rule changes inside the tight cluster
+  number two on Borehole (UCB-LOC, EXPLOIT-LOC) and one on Hartmann (UCB-LOC).
+  Both are posterior-greedy — they maximise a function of the HF posterior mean
+  and variance. A competent teacher from a *different* family (pure exploration,
+  a strongly cost-skewed rule) is untested, and is the obvious way this claim
+  breaks.
 
 ---
 

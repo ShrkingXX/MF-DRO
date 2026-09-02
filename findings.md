@@ -17163,6 +17163,12 @@ query **9.9×** further than MES→UCB-LOC (0.434 vs 0.044), ranges disjoint, an
 RANDOM lands nearer the box centre (0.337 vs 0.520) — the direction the
 conditional-mean account predicts. The instrument detects teacher effects.
 
+**Rule-diversity is thinner than the table looks.** MES-FROZEN and STALE-PATH
+manipulate the RTG *target*, not the rule — their rollouts are MES's. Genuine
+rule changes in the tight cluster are **UCB-LOC and EXPLOIT-LOC on Borehole, and
+UCB-LOC alone on Hartmann**, and both are posterior-greedy. A competent teacher
+from another family is untested and is how this claim would break.
+
 **Reading.** Changing the teacher's *rule* does not move the emitted action;
 changing *what gets averaged* does. This is why all six fallen accounts on this
 front failed — every one of them changed the rule — and why the two interventions
