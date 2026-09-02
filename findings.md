@@ -16605,3 +16605,29 @@ the first change to what the code should do to come out of this front.
 
 **Scope:** n=5, Borehole only. h173 is testing whether h171 itself holds on
 Hartmann; this dose has not been repeated there.
+
+## The Hartmann saturation floor — a measurement artefact worth naming
+
+h173 seed 44 returned regret **0.7531** for HEAD-MES, TAIL-MES **and** h168's
+random arm alike. Identical, because none of the three improved on that seed's
+initial design, so all three end at the same best-initial value.
+
+This is the Hartmann analogue of Borehole's 136.0315 floor (where ORACLE,
+DIVERSE-GOOD and RANDOM-POOL all coincide). **Per-seed agreement at a floor is
+not evidence that two arms behave alike** — it is evidence that neither moved.
+Registered as SC2 for h174 so it cannot be read as a tie, and flagged here
+because it will recur on any Hartmann arm.
+
+## h174 launched — the actionable claim's generality
+
+h172's result is the front's only actionable one, it changes what the code should
+do rather than what we believe, and it is **Borehole-only, n=5** while being
+stated in findings.md, research-state.yaml and the published report **without a
+benchmark qualifier**. A one-benchmark actionable claim is the worst kind to
+leave unscoped.
+
+h174 tests the extreme point (L=1) on Hartmann rather than repeating the whole
+dose: the dose's *shape* is established, and what needs checking is whether the
+extreme survives a different benchmark.
+
+R1 is named: if L=1 fails there, the claim must be scoped in all three places.
