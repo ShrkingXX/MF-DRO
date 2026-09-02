@@ -15275,3 +15275,62 @@ its output — and relaunched at 6 states / N=100. **Precision was traded for
 blindness deliberately**, and the forecast is stated as a band rather than a
 number because of it. A coarse blind forecast is worth more than a precise
 retrospective one.
+
+---
+
+## h158 — the POOL dose. The sharpest confirmation yet, and it closes a standing decision.
+
+The /loop prompt has carried "a POOL dose {16, 256, 4096} tracing quality up and
+diversity down on one axis" as a registered follow-up for many ticks. I declined
+the pipeline version and recorded why — but that reason was an **assertion
+extrapolated from two endpoints**. Declining an expensive experiment is only
+defensible if the cheap version gets run. It now has.
+
+### Manipulation verified, not assumed
+
+| POOL | endpoint value | endpoint spread |
+|---|---|---|
+| 16 | 169.33 | 0.2497 |
+| 256 | 221.45 | 0.2035 |
+| 4096 | 255.47 | 0.1643 |
+
+MC1 **PASS**, MC2 **PASS**: quality **+51%**, diversity **−34%**, moving in
+opposite directions on one axis.
+
+### The tail does not move
+
+| condition | mean | % of control |
+|---|---|---|
+| control | 0.9409 | 100.0% |
+| POOL 16 | 0.2986 | **31.7%** |
+| POOL 256 | 0.3053 | **32.4%** |
+| POOL 4096 | 0.2756 | **29.3%** |
+
+Span **3.2 points** against an 8–13% noise floor. Flat, non-monotone in both
+directions, and every point inside the failing band h157 established
+independently (25.9–34.3%).
+
+### Why this is stronger than everything before it
+
+Every earlier test of "quality is orthogonal to the reward" compared a few arms
+differing in many ways at once — which is exactly the shared-confound trap h152
+caught me in. This moves quality and diversity **continuously, in opposite
+directions, on a single axis**, with the manipulation checked rather than
+assumed, and the outcome does not move. R1 (tail rises with quality) and R2
+(tail falls with diversity) were both named in advance and neither fired.
+
+**Interpolating toward an already-good point earns almost no information about
+where the optimum is — regardless of how good the point is, and regardless of
+whether every trajectory heads somewhere different.**
+
+### The declined experiment is now declined on evidence
+
+Not spending ~15 worker-hours on the pipeline dose rests on a measured
+prediction that held, not on extrapolation. The pipeline version would return
+~43.94 at all three doses.
+
+### Limit
+
+Harness only, so this is a claim about the reward signal rather than directly
+about final regret. It is a 3-point span against a 13-point noise floor — a
+scale claim about flatness, which is within what this instrument carries.
