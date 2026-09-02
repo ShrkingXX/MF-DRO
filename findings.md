@@ -16046,3 +16046,64 @@ must fix the LF terms first; the design for doing so (MF-EI/PI via rank-1 KO
 variance update plus Gauss–Hermite over `y_L`; MF-UCB via MF-GP-UCB's ζ bound and
 variance threshold, since UCB admits no value-of-information extension) is
 written up in the conversation and not yet implemented.
+
+---
+
+# h168 — **R1 fires. The inference conditioning is EXONERATED.**
+
+CONFIRMATORY, n=5, 357 probed iterations, Hartmann RANDOM-POOL.
+
+| conditioning RTG | mean d(box centre) |
+|---|---|
+| 0.00 | 0.0810 |
+| 0.02 | 0.0810 |
+| **0.30** *(realised target)* | **0.0822** |
+| 0.50 | 0.0837 |
+| 1.00 | 0.0884 |
+
+**P1 HOLDS** (0.0822 — collapsed; Hartmann's far corner is √6/2 ≈ 1.22).
+**P2 FAILS**: ratio in-support/target = **0.986** against a required 2.0. Across
+the *entire* sweep the action moves **0.0074**, 8.9% of its own mean, and moves
+*away* from the centre as RTG rises — opposite to the hypothesis.
+
+**The emitted action is essentially independent of the conditioning.** This
+closes the conditioning line **evaluably**, which is what h148 set out to do and
+could not because its statistics were never serialised. The smoke test's early
+signal, recorded before the arm ran, predicted it.
+
+### The probe is exactly read-only
+
+Beyond the probe-OFF gate, the probed run was compared to h149's unprobed run of
+the same policy and seeds: **x_t_trace identical and final_regret identical on
+all five** (2.610002, 2.581931, 0.753135, 2.598508, 2.277771). Saving and
+restoring the RNG around the sweep worked; any effect measured is the network's,
+not the measurement's.
+
+### h167's collapse replicates on Hartmann
+
+Per-query distance from the box centre: control **0.6503**, h165 UCB-LOC
+**0.6194**, ORACLE 0.1140, RANDOM-POOL **0.0830**. The probe's 0.0822 sits
+exactly on RANDOM-POOL's own 0.0830.
+
+### P3 not run, and now nearly moot
+
+P3 (probe a working arm, show no gap) was not launched — compute was at 14/15.
+With P2 failing at 0.986 there is **no gap in the failing arm for a control to
+contrast against**. Recorded as unrun rather than dropped.
+
+## h169 launched — the state axis
+
+The network fits its teacher 2.5–4× better than any constant (h167c) and emits
+the box centre at inference regardless of RTG (h168). With RTG excluded, the
+remaining differences are the **state**, BTG, and timestep/context.
+
+h169 crosses **STATE** (real trajectory state vs a τ=0 state from *this
+iteration's own training batch*) with **RTG** (target vs in-support) — four cells,
+same network, same call, different input. Bit-identity gate PASSED; the
+equality against h149's unprobed run is a **gate** for this arm, not a
+diagnostic.
+
+**R2 is named first and is the costly one:** if the action is at the box centre
+in all four cells, the entire distribution-shift family is retracted at once and
+the suspect becomes the inference code path itself — the cheapest thing to act
+on and the most embarrassing to have missed for seventeen ticks.
