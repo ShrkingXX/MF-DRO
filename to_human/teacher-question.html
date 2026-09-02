@@ -184,6 +184,67 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     chosen without consulting the model — costs twenty-eight points and every single run.</p>
   </div>
 </section>
+<hr class="div">
+
+<section>
+  <div class="col">
+    <h2>The learner does not copy the rule — it copies an average<span class="chip c-settled">new</span></h2>
+    <p>Every explanation that failed on this question changed <em>how the teacher decides</em>.
+    This measures whether that choice ever reaches the learner's output at all.</p>
+    <p>Take the first point the learner picks on its own, and compare it across teachers on the
+    same starting conditions. Swapping the teacher's decision rule barely moves that point.
+    Replacing the teacher with one that picks at random moves it ten times further.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <thead><tr>
+        <th>What was changed</th><th class="n">How far the first point moved</th><th class="n">Result</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><strong>The rule</strong> — UCB instead of the method's own</td><td class="n">0.044</td><td class="n">15.13</td></tr>
+        <tr><td><strong>The rule</strong> — exploit-only</td><td class="n">0.065</td><td class="n">19.07</td></tr>
+        <tr><td>What gets averaged — last seven steps only</td><td class="n">0.157</td><td class="n">43.94</td></tr>
+        <tr><td>What gets averaged — varied-good endpoints</td><td class="n">0.252</td><td class="n">43.94</td></tr>
+        <tr><td>What gets averaged — a perfect teacher</td><td class="n">0.339</td><td class="n">43.94</td></tr>
+        <tr><td>What gets averaged — a random teacher</td><td class="n">0.434</td><td class="n">43.94</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Borehole, five seeds, matched pair by pair. For scale: two runs of the
+  <em>same</em> teacher that differ only in random seed sit 0.82 apart — far further than any
+  rule change here.</p>
+
+  <div class="col">
+    <p>The check that makes this a finding rather than an empty result: the random teacher moves
+    the point <strong>9.9&times;</strong> further than the rule swap does, the two sets of
+    measurements do not overlap at all, and the random teacher's point lands nearer the
+    <em>middle of the box</em> — exactly where a learner predicting an average would put it.
+    The measurement can see teacher effects. It simply does not see the rule.</p>
+    <p>This is why six explanations failed. Every one of them changed the rule. And it is why the
+    two changes that <em>did</em> work — selecting good trajectories, and shortening them — work
+    for a different reason: neither changes the rule, both change what is being averaged.</p>
+
+    <div class="note">
+      <h3>It repeats on the second benchmark, which is the cleaner test</h3>
+      <p>On Hartmann the same split appears: rule changes sit at 0.035–0.052 and perform at
+      7.9–10.6 against the control's 8.0; the averaging changes sit at 0.23–0.53 and degrade to
+      25–65. Hartmann is the better of the two tests because its failing arms take four
+      <em>distinct</em> values, whereas on Borehole four of them are pinned at the same 43.94
+      floor — so nothing there can be read as a trend.</p>
+    </div>
+
+    <div class="open">
+      <h3>What this does not establish</h3>
+      <p>Only two genuinely different rules were tested on Borehole and one on Hartmann, and all
+      of them belong to the same family — they each chase a high predicted value with some
+      allowance for uncertainty. A competent teacher built on a different principle is untested,
+      and is the most likely way this result breaks. Two of the arms in the table above were
+      first counted as rule changes and are not: they alter the learner's <em>target</em>, not
+      the teacher's rule, and have been moved out of that column.</p>
+    </div>
+  </div>
+</section>
 
 <hr class="div">
 
