@@ -1,15 +1,15 @@
-# h161 STALE-PATH — PRELIMINARY, n=2 of 5. **It works.**
+# h161 STALE-PATH — COMPLETE, n=5. **It works, and staleness is nearly free.**
 
 CONFIRMATORY. No harness forecast was offered — h161 is a frozen condition, and
 the harness's one validation failure (C2, off by 2.7×) is exactly the frozen
 case. That restriction was recorded before the run.
 
-| | result (n=2) |
+| | result (n=5) |
 |---|---|
-| rel% | **21.17** |
-| improves | **2/2** |
-| rtg_target | **0.3388** |
-| HF fraction | 0.95 |
+| rel% | **19.53** (h153 fresh-path: 19.36) |
+| improves | **5/5** |
+| rtg_target | **0.3330** |
+| HF fraction | 0.92 |
 
 Sanity checks, read first and all exact: **SC1** stale fraction **0.903**
 (registered target >0.9 after warmup — hit), **SC2** mean lag **exactly 600**,
@@ -45,7 +45,11 @@ stale or not, and RANDOM-POOL's sit anywhere. That is a claim about **where the
 training queries are**, and h168 is the registered test of whether the inference
 conditioning is what converts that into failure.
 
-## Status
+## Status: COMPLETE, n=5
 
-n=2. Seeds 42, 44, 45 running. No conclusion beyond the R2 verdict, which is
-stable at 2/2 with both sanity checks exact.
+Sanity checks exact on every seed: stale fraction 0.902-0.907, mean lag exactly
+600, replay error 0.0e+00.
+
+At full n the gap to h153's fresh model-selected path is **0.17 rel%**
+(19.53 vs 19.36) — a ten-iteration-stale model costs essentially nothing. The
+n=2 read of 21.17 overstated it; that is why n=2 carried no verdict beyond R2.
