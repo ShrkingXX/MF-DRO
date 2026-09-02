@@ -77,3 +77,52 @@ the conditioning target does not drive performance** — and the only one where 
 two move in opposite directions within a single controlled dose.
 
 L=4 is still running; a non-monotone dose is not yet fully excluded.
+
+---
+
+# h172 COMPLETE — **R1 fires.** The dose is monotone in every column.
+
+| L | rel% | improves | rtg_target | HF | wall | speedup |
+|---|---|---|---|---|---|---|
+| **8** (control) | 15.82 | 5/5 | 0.9761 | 0.883 | 82.4 min | 1.00× |
+| **4** | 15.14 | 5/5 | 0.8271 | 0.845 | 38.5 min | 2.14× |
+| **2** | 13.97 | 5/5 | 0.6380 | 0.869 | 22.5 min | 3.66× |
+| **1** | 13.69 | 5/5 | 0.4590 | 0.939 | 13.2 min | **6.26×** |
+
+Monotone in regret, in target, and in wall-clock. **No non-monotonicity — R3 is
+excluded.** P1 holds (L=1 and L=2 came in *better*, not merely within 3 rel%).
+P2 holds: 1 : 2.14 : 3.66 : 6.26 observed against 1 : 2 : 4 : 8 if length were
+the only cost; the shortfall is fixed per-iteration GP refit and DT training.
+SC1 passes at every length (HF 0.845–0.939 against the control's 0.883).
+
+## The headline is "no worse, 6.26× faster" — NOT "better"
+
+The regret improvement does not survive the seed spread at n=5:
+
+```
+control  [15.28 14.77 12.93 16.90 19.19]  mean 15.82  sd 2.36
+L=1      [ 7.43 11.11 16.73 16.85 16.32]  mean 13.69  sd 4.24
+paired   [ 7.85  3.66 -3.80  0.06  2.87]  mean +2.13  sd 4.33
+```
+
+L=1 is better on 4 of 5 seeds but loses one by 3.80 and ties another; the ranges
+overlap heavily and the paired sd exceeds the mean difference. **The speedup is
+unambiguous; the regret gain is not.** Quoting "better" would be over-reading a
+sample this size, and the monotone *ordering* across four lengths is suggestive
+but is four means each carrying an sd of 2–4.
+
+## The cleanest target/performance dissociation on this front
+
+Across a single controlled manipulation the conditioning target falls
+**0.9761 → 0.8271 → 0.6380 → 0.4590** while regret does not degrade at any step.
+Every earlier demonstration compared different arms; this one varies both inside
+one lever, monotonically, at four points.
+
+## What this establishes
+
+h171 showed the seven later rollout steps do not reach the real query. h172 shows
+they can be **removed at no cost in regret and a 6.26× saving in wall-clock**.
+That is the first change to what the code should do to come out of this front.
+
+**Scope:** n=5, Borehole only. h173 is testing whether the underlying result
+(h171) holds on Hartmann; this dose has not been repeated there.
