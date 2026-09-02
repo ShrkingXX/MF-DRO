@@ -2363,3 +2363,41 @@ never above 12 of 15.
 15 minutes per worker and are at 111/240 and 82/240 cost. Per-iteration cost
 grows with the accumulated data, so the remaining time is longer than a linear
 extrapolation suggests. They are not stalled — the workers hold ~99% CPU each.
+
+## 2026-09-02 (tick 3) — the instrument audit converged, on a less flattering answer
+
+Two ticks ago I built an offline harness and reported that it "reproduces all
+four observed rtg_targets, three within 8%". Two audits later the honest
+statement is: **it reproduces their SEPARATION (3-4x), not their values**
+(per-arm errors 0.5-31%, noise floor 8-13%). Both intermediate claims —
+"within 8%" and then "the interpolating-condition misfit is real and
+unexplained" — have been superseded by the next audit.
+
+That sequence is not a failure of the audits; it is what auditing an instrument
+looks like. But it does mean **the harness should have been characterised
+before its readings were quoted**, not after they had already been written into
+findings.md and published twice.
+
+**The mechanism question did resolve.** The one-sided under-prediction was the
+missing between-model variance (gp_num_models=10 fit on identical data, my
+harness used one), and the prediction that it would hurt the low-spread
+conditions most was confirmed exactly: C5 −22.0% → −0.8%, C4 −13.3% → −7.1%.
+The fix nonetheless broke C3 (+29.4%) and raised the noise floor, so the
+ensemble harness is not adopted.
+
+**Discipline misses this tick, both recorded:**
+- h156e's gate had a HOLE. PASS was an AND; FAIL and PARTIAL both required
+  C4/C5 to stay outside 15%, and they came inside. No clause matched the
+  outcome. `tools/check_gate.py` exists precisely for this and I did not run it
+  on the protocol. Guard: run check_gate.py on every protocol before locking,
+  not only when a gate feels complicated.
+- The replicate guard adopted last tick WAS honoured (two replicates, and the
+  noise floor was measured before any agreement was quoted). That is the one
+  process improvement that held.
+
+**What is untouched by all of this:** the 3-4x separation, h149's reinstated
+information-gain mechanism, and the h153 forecast (now stated as 85-96%, from
+four measurements rather than one).
+
+**Compute:** 12 workers peak (h153 ×5, h155 ×5, 2 offline replicates), never
+above 12 of 15.
