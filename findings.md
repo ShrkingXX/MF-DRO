@@ -16236,3 +16236,40 @@ theory was. Simulation (4000 replicates): 12 → 0.2289, 50 → 0.1131, 200 →
 Identical error class to h156's withdrawn "within 8%" claim — quoting an
 agreement without first measuring what the instrument can resolve. **The guard
 was adopted after h156 and I did not apply it here.**
+
+---
+
+## h171 launched — the mechanism's INTERVENTIONAL test
+
+h170 was correlational. Every account that has fallen on this front — five of
+them — also fitted the correlations available at the time. The τ=0 mechanism
+makes an interventional prediction none of them make, and it is sharply
+falsifiable: **only the teacher's first step reaches inference.**
+
+  **HEAD-MES**  τ=0 MES argmax, τ=1..7 uniform random
+  **TAIL-MES**  τ=0 uniform random, τ=1..7 MES argmax
+
+**TAIL-MES is the better teacher by any conventional measure** — seven of its
+eight steps follow the acquisition, against HEAD-MES's one. The mechanism
+predicts TAIL-MES **fails** (~43.94, ~0/5) and HEAD-MES **works** (~15.82,
+~5/5). Any trajectory-quality account predicts the reverse ordering.
+
+**R1 (HEAD-MES fails → τ=0 not sufficient) and R2 (TAIL-MES works → τ=0 not
+necessary) are each individually fatal**, and are named first.
+
+R3 — both as predicted — would confirm the mechanism by intervention rather than
+correlation, and would additionally mean **7 of every 8 rollout steps are wasted
+computation**, which is directly actionable.
+
+### Sanity checks passed before launch
+
+SC2, the check h169 was lost to — the split is wired and the arms are mirror
+images:
+
+| arm | τ=0 action spread | τ>0 action spread | ratio |
+|---|---|---|---|
+| head_mes | **0.1540** | 0.2856 | 0.539 |
+| tail_mes | **0.2888** | 0.1832 | 1.577 |
+
+SC3 bit-identity of the default path: PASS (122.2906675273). SC1 (realised HF
+fraction) will be read before the regret numbers.
