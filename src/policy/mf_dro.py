@@ -2423,6 +2423,7 @@ class DirectMFRegretOptimization:
         # one entry appended per BO iteration (per _generate_rollout_batch
         # call). Always populated, no config gate -- cheap, no oracle access.
         self.action_reward_corr_per_iter = []
+        self.teacher_action_stats_per_iter = []
         self.rtg_frac_between_traj_var_per_iter = []
         self.rtg_gpbelief_corr_per_iter = []
         # Gradient coherency (see _train_dt): cosine similarity of per-
@@ -3532,6 +3533,27 @@ class DirectMFRegretOptimization:
                 break
             self._update_ko_ensemble()
             batch = self._generate_rollout_batch()
+            # TEACHER-ACTION STATISTICS (purely additive, read-only).
+            # `actions_x` has never been serialised, and reconstructing the
+            # teacher's action distribution offline has now cost five
+            # registrations against unavailable data (logged in findings.md)
+            # and weakened h167c's central comparison -- the one arm whose
+            # targets are state-dependent (the control) is the one whose
+            # baseline had to be approximated. Storing the mean vector and the
+            # total variance per iteration is enough to compute the
+            # best-constant MSE EXACTLY, and costs d+1 floats per iteration.
+            # Consumes no RNG and touches nothing downstream.
+            try:
+                _ax = [t['actions_x'] for t in batch if 'actions_x' in t]
+                if _ax:
+                    _A = torch.cat([a.reshape(-1, a.shape[-1]) for a in _ax], dim=0)
+                    _mu = _A.mean(dim=0)
+                    self.teacher_action_stats_per_iter.append(dict(
+                        n=int(_A.shape[0]),
+                        mean=[float(v) for v in _mu],
+                        var_total=float(((_A - _mu) ** 2).mean())))
+            except Exception:
+                pass
             rtg_target = self.schemas.update_and_get_rtg_target(batch)
             btg_target = self.schemas.update_and_get_btg_target(batch)
             self._last_rtg_target = rtg_target
