@@ -14860,3 +14860,31 @@ is not another explanation.** Three mechanism accounts have now been tried on th
 front — RCSL return coverage (h147, falsified), information-gain currency as a
 ranking (h149, corrected), policy distillation (h150, falsified) — and the pattern
 across this whole project is that mechanism stories fit and fail to predict.
+
+## h151 — the registered caveat, measured BEFORE the results, and it dissolves
+
+h151's protocol named a risk in advance: Hartmann's control might improve on fewer
+seeds than Borehole's, which would make a 0/5 for RANDOM-POOL there less
+informative. Measured before any h151 run landed:
+
+    benchmark      control improves   post-init HF queries
+    Borehole_8D          5/5                  94.0
+    Hartmann_6D          5/5                  11.6
+
+**The caveat does not bite.** Hartmann's control improves on every seed despite
+having **one eighth** the HF queries — 11.6 against 94.0. So the improvement test
+has full discriminating power on Hartmann, and a 0/5 there would mean what it
+means on Borehole.
+
+Worth noting on its own: MF-DRO's control reliably improves on its initial design
+with ~12 HF queries. Whatever limits it on Hartmann, it is not an inability to
+improve at all.
+
+**Recording this before the results exist** so the caveat cannot later be quoted
+selectively — if h151 returns 0/5 I cannot then discount it, and if it returns
+improvements I cannot attribute them to a weak test.
+
+**Note on file layout:** h151 reuses h149's worker, so its results land in
+`experiments/h149-forced-vs-teacher-quality/results/` under
+`Hartmann_6D__RANDOM-POOL__seed*.json`. Separable by benchmark in the filename;
+recorded here so a later reader does not mistake them for h149's Borehole set.
