@@ -2436,3 +2436,33 @@ than I assumed. Both runs have held ~99% CPU throughout.
 
 **Compute:** 10 workers steady (h153 x5, h155 x5) plus 2 short offline jobs at
 peak, never above 12 of 15.
+
+## 2026-09-02 (tick 5) — ran the experiment I had been declining, on the cheap axis
+
+**The holistic call: I had been declining the registered POOL dose for many
+ticks with a reason that was really an extrapolation.** h146/h149 gave two
+endpoints; from those I asserted the dose curve would be flat and skipped ~15
+worker-hours. That is defensible ONLY if the cheap version gets run, and until
+this tick it had not been. It has now, and it held: quality +51%, diversity
+-34%, tail flat within 3.2 points against an 8-13% noise floor.
+
+This is the best-designed test in the whole front. Every earlier "quality does
+not matter" result compared arms differing in many ways at once — the exact
+shared-confound trap h152 caught. This one moves two variables continuously in
+opposite directions on ONE axis, checks the manipulation actually happened
+(MC1/MC2 both PASS, serialised, checked before the outcome), and names R1/R2/R3
+in advance. Neither costly outcome fired.
+
+**Correction to the ETA I gave the user, for the second time.** Last tick I
+measured over 110 seconds and reported h153 at 65.5 cost/hr (ETA 1.3h) and h155
+at 196 cost/hr (ETA 0.4h). Measured over a ~7-minute window this tick: **h153 17
+cost/hr (ETA ~3.5h), h155 35 cost/hr (ETA ~1.0h)**. Short windows catch bursts.
+The rate is also genuinely declining as per-iteration cost grows with the data,
+so even the 7-minute figure is likely optimistic. Guard: never quote an ETA from
+a sub-5-minute window on these runs.
+
+**Compute:** 12 workers at peak (h153 x5, h155 x5, dose x2), never above 12/15.
+
+**Still pending:** h153 and h155 themselves, against the blind forecasts
+committed last tick (82-96% and ~102% of control, both predicting near-control
+performance; O1-O4 retraction map locked in h157/protocol.md).
