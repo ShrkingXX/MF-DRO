@@ -17539,3 +17539,54 @@ input side.
 
 Limit: state distances are from one run; the count of 3 matches every seed's
 `uniq_tau0_states`.
+
+---
+
+## SYNTHESIS — the DT is an AVERAGER of its teacher's first move, and that is the whole story
+
+Three results that were established separately now compose into one account.
+
+**1. The DT is a per-timestep constant predictor (h185).** Its location MSE equals
+its teacher's action variance on all five arms measured (loss/var 0.795–1.026), and
+the variance it does explain is monotone in τ-structure, reaching 0.0% at rollout
+length 1 where a point-per-step model can explain nothing more by construction.
+
+**2. It ignores its inputs, and not for lack of information (h186).** State
+sensitivity 0.0122 against conditioning sensitivity 0.0782, with the three τ=0 states
+measured 0.5866 apart on a norm of 4.5032 — genuinely distinct, and it barely responds.
+
+**3. That averager is competitive with the teacher it copies (h31, already run).**
+No-DT teacher-only vs MF-DRO on Hartmann, 10 seeds: **0.4781 vs 0.4007**, MF-DRO
+better on 7/10, paired +0.0774 — h31's own reading was "not a net negative", not
+resolved.
+
+### The account
+
+**The DT reproduces the mean of its teacher's first move, and that average is about
+as good as running the teacher.** Averaging over rollouts is not nothing — it is
+variance reduction on a single decision — but it is all the DT does.
+
+This makes the founding result of this front unsurprising in hindsight. A **perfect**
+teacher's routes end at the optimum but *start* wherever the rollout starts. Their
+endpoints carry all the quality; their **first moves are near-arbitrary**, so the
+average of those first moves is the middle of the box — which is where the failing
+arms provably end up (h182), and why they never beat their own initial design (0/5
+across 20 runs).
+
+**Quality was never transmitted, because only the first step is read and quality lives
+in the endpoint.**
+
+### Caveats on the h31 leg, which is the weakest of the three
+
+- h31 is **Hartmann** and reports **final simple regret**, not the frozen rel% at
+  cost 200 used elsewhere in this front. The comparison is not on the frozen metric.
+- Its two arms ran at **different fidelity mixes** (teacher-only 7–20 HF queries over
+  64–151 iterations; MF-DRO 14–23 HF over 45–103) — the same confound class that
+  voided h174. So "the averager is competitive" is directionally supported at 7/10
+  but is not a clean like-for-like comparison.
+- Nothing here is an intervention. The synthesis composes three correlational results.
+
+**What would RETRACT it:** a no-DT control on the frozen metric at a matched fidelity
+mix showing the teacher clearly beating the DT would break leg 3, leaving the DT an
+averager that is *worse* than its source rather than competitive with it. That arm
+does not exist and is the obvious one to want.
