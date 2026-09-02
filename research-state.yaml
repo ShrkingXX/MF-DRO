@@ -31,6 +31,56 @@ current_front:
     forecast committed at 0/5. The BETTER teacher on 7 of 8 steps FAILS. Neither
     individually-fatal outcome (R1 HEAD fails, R2 TAIL works) occurred.'
 
+  h180_rule_invariance: 'EXPLORATORY, no new runs. The DT''s emitted FIRST QUERY
+    is invariant to the teacher''s RULE but moves for teachers that change WHAT IS
+    AVERAGED. Borehole: rule-varying arms sit 0.044-0.065 from the control''s first
+    query and perform 15.13-19.53; averaging-varying arms sit 0.157-0.434 and four
+    of five pin at the 43.94 saturation floor. REPLICATES on Hartmann, which is the
+    CLEANER test (no ceiling -- its far arms take four distinct values 25.16/46.45/
+    52.23/65.14). Positive control: MES->RANDOM moves the query 9.9x further than
+    MES->UCB-LOC, ranges disjoint, and RANDOM lands nearer the box centre (0.337 vs
+    0.520) as the conditional-mean account predicts -- so the instrument is not
+    blind. NO correlation reported: Borehole''s four-arm tie at 43.94 makes r a
+    ceiling artifact. HONEST LIMIT: genuine rule changes number 2 on Borehole
+    (UCB-LOC, EXPLOIT-LOC) and 1 on Hartmann (UCB-LOC), and both are
+    posterior-greedy; MES-FROZEN/STALE-PATH are TARGET manipulations, not rule
+    changes, and do not count toward rule-diversity. THIS IS WHY six accounts fell
+    (all changed the rule) and why the two working interventions worked (h149
+    selection, h172 shortening -- both change the averaging).'
+
+  h180_bitlevel_confirmation: 'MES-FROZEN and STALE-PATH emit a BIT-IDENTICAL first
+    query on 5/5 seeds, and identical first TEN queries -- different experiments,
+    different manipulations, different files (different md5 and lengths). Both
+    manipulate the RTG target, which h177/h178 showed is architecturally inert. If
+    that channel does not reach the action, two different target manipulations must
+    emit the same action. They do, at bit level.'
+
+  declined_arms_this_tick: 'TWO arms declined on MEASURED premise checks, not on
+    judgement. (1) h174''s registered follow-up (hold the fidelity mix fixed while
+    shortening): the minimum_hf_fraction floor predicts L=1 has LESS HF; observed
+    MORE on both benchmarks (Hartmann 0.776 vs 0.200, Borehole 0.939 vs 0.883).
+    Wrong in DIRECTION. The mix shift is intrinsic to shortening and cannot be
+    fixed minimally; the actionable claim stays Borehole-scoped. (2) Teacher
+    rotation (mes + ucb_loc, the only two coherent members -- 4 of 5 shipped
+    TEACHER_POOL members are incoherent): the two teachers agree to 0.044 against a
+    0.82 seed-noise floor, so rotation cannot produce a resolvable effect.'
+
+  h179_h181_conditioning: 'h179 (5/5, Borehole, CONFIRMATORY): standardising the
+    conditioning gives regret 16.66 vs control 15.82 -- paired +0.85 rel% pts
+    (se 0.62), +5.4% relative, INSIDE the 6.1% harness noise floor established
+    before the arm. 2/5 seeds clearly worse, 3/5 tied. Verdict P2 -> R3 (the
+    channel is irrelevant either way; the "defect with a fix" framing downgrades
+    to a curiosity). The channel IS responsive under standardisation: RTG
+    responsiveness 0.1010, fidelity flips on 23% of iterations. GATE WEAKNESS: the
+    protocol wrote improves/unchanged/degrades with NO numeric width for
+    "unchanged"; check_gate.py was not run on it. Resolved with the pre-existing
+    floor, not a post-hoc threshold. PROVISIONAL: h179 is the ONLY probe ever run
+    on Borehole (h168/h177/h178 are all Hartmann), so it varies standardisation
+    AND benchmark at once. h181 (RUNNING, 5 seeds, one-line diff) is the matched
+    unstandardised Borehole control; all three of its read-branches are
+    pre-specified in h179''s analysis.md. Under two of the three, h179''s headline
+    changes; under one, h178''s in-situ claim is what falls.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

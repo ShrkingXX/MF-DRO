@@ -3545,3 +3545,22 @@ every edit to a file I cannot see rendered gets a structural check before it
 ships.
 
 **Compute:** 5/15 (h179 only).
+
+## tick 38 — two arms declined on measured premises; h180 found; h179 closed provisionally
+
+- **h174's registered follow-up DECLINED.** Candidate cause (the `minimum_hf_fraction`
+  floor, gated `tau > 0`) predicts L=1 has *less* HF; observed *more* on both
+  benchmarks. Wrong in direction. Mix shift is intrinsic to shortening.
+- **h180 (EXPLORATORY, no new runs).** The emitted first query is invariant to the
+  teacher's *rule* and moves for teachers that change *what is averaged*.
+  Replicates on Hartmann, which is the cleaner test (no saturation ceiling).
+  Positive control at 9.9×. Bit-level confirmation of h177/h178.
+- **Teacher-rotation arm DECLINED** on h180's measurement (teachers agree to 0.044
+  against a 0.82 seed floor).
+- **h179 closed: P2 → R3, provisional.** Gate was under-specified; resolved with
+  the pre-existing 6.1% floor. **h181 registered, corrected before launch, and
+  launched** to remove h179's standardisation-vs-benchmark confound.
+- **Three of my own errors caught before they propagated:** an ad-hoc rel% formula
+  that disagreed with the control's known 15.82 (and a +0.707 correlation built on
+  it); counting target manipulations as rule changes; a ">6 sd" gate justification
+  calibrated on 2 seeds that the 4th seed cut to 2.1 sd.
