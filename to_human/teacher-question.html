@@ -332,9 +332,48 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
       to reproduce. A perfect route's first step is a random starting point, whose average is the
       middle of the space, and that is exactly where its learner ends up querying.</p>
       <p><strong>Still open.</strong> The learner's query lands <em>near</em> its teacher's average
-      first move, not exactly on it &mdash; about five standard errors away. Something else is also
-      operating, and it has not been identified. A run testing whether the rollout can simply be
-      shortened is in progress.</p>
+      first move, not exactly on it &mdash; about five standard errors away, on both benchmarks.
+      Something else is also operating, and it has not been identified.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<section>
+  <div class="col">
+    <h2>What this is worth in practice<span class="chip c-settled">measured</span></h2>
+    <p>If only the first step of a route reaches the learner, the rest is cost. On the first
+    benchmark it can simply be removed.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <thead><tr>
+        <th>Configuration</th><th class="n">Regret</th><th class="n">Spread</th><th class="n">Time</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>The method as published</td><td class="n">15.82</td><td class="n">2.36</td><td class="n">82 min</td></tr>
+        <tr><td>Eight-step routes &rarr; one step</td><td class="n">13.69</td><td class="n">4.24</td><td class="n">13 min</td></tr>
+        <tr><td><strong>The project's best setting</strong></td><td class="n">11.59</td><td class="n">0.41</td><td class="n">117 min</td></tr>
+        <tr><td><strong>Best setting, one-step routes</strong></td><td class="n">10.81</td><td class="n">2.79</td><td class="n">25 min</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Borehole, five seeds each. Every configuration improves on its starting design in
+  all five runs.</p>
+
+  <div class="col">
+    <p><strong>The project's best result survives the cut, at about a fifth of the time.</strong>
+    That is the practical payoff: the same answer for a fraction of the compute.</p>
+    <p><strong>Two honest limits.</strong> The apparent <em>improvement</em> from shortening is not
+    real at five seeds &mdash; the run-to-run spread is larger than the difference. What the data
+    supports is "no worse, much faster", and I initially wrote "better" before checking.</p>
+    <p>And shortening <em>costs consistency</em>. The best setting at full length is by far the
+    steadiest configuration measured, varying by 0.41 across seeds against 2.79 when shortened. If
+    predictability matters more than wall-clock, the long version is still the one to use &mdash; and
+    nothing in the average regret shows that.</p>
+  </div>
     </div>
   </div>
 </section>
