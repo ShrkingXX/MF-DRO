@@ -3596,7 +3596,14 @@ class DirectMFRegretOptimization:
                 # h169: keep this iteration's tau=0 TRAINING states so the probe
                 # can query the network on exactly what it was just fit on.
                 _st0 = [t['states'][0] for t in batch if 'states' in t and len(t['states'])]
-                self._last_batch_tau0_states = _st0[:16] if _st0 else None
+                # STRIDE ACROSS ensemble members. The batch is
+                # [member0 x rollouts_per_model, member1 x ..., ...], so taking
+                # the first k entries samples ONE member and yields k identical
+                # tau=0 states -- which is exactly how h169's first attempt
+                # became a silent no-op. Striding by rollouts_per_model picks
+                # one trajectory per member instead.
+                _rpm = max(1, int(getattr(self.config, 'rollouts_per_model', 6)))
+                self._last_batch_tau0_states = _st0[::_rpm][:16] if _st0 else None
             except Exception:
                 self._last_batch_tau0_states = None
             try:
