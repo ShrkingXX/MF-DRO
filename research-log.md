@@ -2726,3 +2726,47 @@ arms.
 
 **Compute:** 14/15 workers (h161 x5, h165 x4, h166 x5) — the highest this
 session, and within the rule.
+
+## 2026-09-02 (tick 14) — the fourth explanation fell, and the failure moved
+
+**h167 was zero compute and overturned more than anything I have run.**
+
+The current account said the failing teachers' actions are unlearnable from the
+observable state. Two measurements killed it:
+
+1. **Where the collapse lands.** All three failing arms' queries sit within 0.04
+   of the exact centre of the normalised box in 8 dimensions — regardless of
+   where their teachers aimed. ORACLE's teacher averages to a point 0.66 away;
+   its student does not go there. So the collapse is a property of the network,
+   not of the target distribution. That alone was R2, which I had pre-named as
+   the likeliest outcome and as NOT support.
+
+2. **The DT is not collapsed during training at all.** Its loss (0.018-0.022) is
+   **2.5-4x lower than the best possible constant predictor** (0.053-0.083) on
+   every failing teacher. The actions are demonstrably learnable, and learned.
+
+So training succeeds and inference collapses. **The failure is a training/
+inference disagreement, not a learnability failure.** That is a relocation, not
+a refinement.
+
+**Fourth explanation to fall on this front**: the MES rule (h155), target
+collapse (h153), open-loop/adaptivity (h156), learnability (h167). Worth being
+blunt about the pattern in any write-up: the FACTS have been stable throughout —
+the 2x2, the dispersion split on two benchmarks, the flat quality/diversity dose
+— and it is the explanations that keep outrunning them.
+
+**On resuming a line I had a stopping rule about.** h167 points at the inference
+conditioning, which is h148's territory, and h148 registered "if P1 fails I stop
+trying to explain this with RCSL theory". Checked rather than assumed: h148's
+recorded outcome was **"P1 not evaluable"** — it needed per-record RTG stats that
+were never serialised — so the rule never triggered and its question was never
+answered. h168 is registered with that reasoning stated up front, and with the
+distinction that matters: h167 reached the conditioning by direct measurement
+from an unrelated direction, not by generating a third proxy until one fit.
+
+**h168 queued, not launched.** Compute is at 14/15 with h161, h165 and h166
+running. Its R1 is the important one: if the emitted x sits at the box centre at
+EVERY conditioning value, the conditioning is exonerated and the suspect becomes
+the network itself — and that would close the line evaluably, which h148 never did.
+
+**Compute:** 14/15 throughout. Nothing new launched.
