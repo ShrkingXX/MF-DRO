@@ -58,7 +58,8 @@ def greedy_rollout(ko, pool, c_H, c_L):
                                   torch.tensor([y], dtype=torch.float64), "LH"[e])
         _ = gumbel_b(cur, pool)       # the rollout computes b each step too
         xs.append(x); els.append(e)
-    return gumbel_b(cur, pool), sum(c_H if e else c_L for e in els)
+    return (gumbel_b(cur, pool), sum(c_H if e else c_L for e in els),
+            torch.stack(xs), els)
 
 
 def replay(ko, pool, xs, els):
@@ -77,6 +78,9 @@ def main():
     ap.add_argument("--branch", type=int, default=4)
     ap.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44])
     ap.add_argument("--states", type=int, default=7)
+    ap.add_argument("--select_M", type=int, default=1)
+    ap.add_argument("--prune_by", default="b", choices=["b","mes"])
+    ap.add_argument("--tag", default="")
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
 
@@ -102,11 +106,24 @@ def main():
             lb0 = math.log(b0)
 
             g = [greedy_rollout(ko, pool, c_H, c_L) for _ in range(R)]
-            g_rtg = [lb0 - math.log(b) for b, _ in g]
-            cap = float(np.mean([c for _, c in g]))
+            g_rtg = [lb0 - math.log(b) for b, _, _, _ in g]
+            cap = float(np.mean([c for _, c, _, _ in g]))
+            # OPEN-LOOP GREEDY CONTROL. Greedy is a CLOSED-LOOP policy: it
+            # re-decides each step against its own realised fantasy draw. The
+            # beam emits a FROZEN (x, ell) plan delivered through forced_x,
+            # which is OPEN-LOOP. Comparing the two conflates "joint vs greedy"
+            # with "open vs closed loop". This control freezes greedy's OWN path
+            # and replays it, isolating the loop-type penalty from everything else.
+            _, _, gx, ge = g[0]
+            ol_rtg = [lb0 - math.log(replay(ko, pool, gx, ge)) for _ in range(R)]
 
-            _x, _e, inf = beam_search_trajectory(ko, pool, T, c_H, c_L, cap,
-                                                 a.beam, a.branch)
+            # cost_cap=inf: the budget now binds at SELECTION against the
+            # elite's own realised cost (see joint_ig_teacher). `cap` is still
+            # recorded for reference.
+            _x, _e, inf = beam_search_trajectory(ko, pool, T, c_H, c_L, float("inf"),
+                                                 a.beam, a.branch,
+                                                 select_M=a.select_M,
+                                                 prune_by=a.prune_by)
             planned = lb0 - math.log(inf["b_T"])
             b_rtg = [lb0 - math.log(replay(ko, pool, _x, _e)) for _ in range(R)]
 
@@ -114,13 +131,16 @@ def main():
                        greedy_mean=float(np.mean(g_rtg)), greedy_sd=float(np.std(g_rtg, ddof=1)),
                        beam_planned=float(planned),
                        beam_mean=float(np.mean(b_rtg)), beam_sd=float(np.std(b_rtg, ddof=1)),
-                       cap=cap, beam_cost=float(inf["cost"]), elite_won=bool(inf["won_by_elite"]))
+                       openloop_greedy_mean=float(np.mean(ol_rtg)),
+                       openloop_greedy_sd=float(np.std(ol_rtg, ddof=1)),
+                       cap=cap, beam_cost=float(inf["cost"]), elite_won=bool(inf["won_by_elite"]),
+                       sc2b=bool(inf["logb_T"] <= inf["logb_T_greedy"] + 1e-12))
             recs.append(rec)
             print(f"  seed{seed} cut{cut:3d}: greedy {rec['greedy_mean']:+.4f}±{rec['greedy_sd']:.4f}  "
-                  f"beam_planned {planned:+.4f}  beam_realised {rec['beam_mean']:+.4f}±{rec['beam_sd']:.4f}  "
-                  f"elite_won={rec['elite_won']}", flush=True)
+                  f"OLgreedy {rec['openloop_greedy_mean']:+.4f}  "
+                  f"beam_realised {rec['beam_mean']:+.4f}  elite_won={rec['elite_won']}", flush=True)
 
-    out = a.out or f"{REPO}/experiments/h152-joint-ig-teacher/results/stage0_B{a.beam}k{a.branch}.json"
+    out = a.out or f"{REPO}/experiments/h152-joint-ig-teacher/results/stage0_B{a.beam}k{a.branch}{a.tag}.json"
     json.dump(recs, open(out, "w"))
     print(f"\nwrote {out}  ({len(recs)} states)")
 

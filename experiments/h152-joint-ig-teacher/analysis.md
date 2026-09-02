@@ -61,3 +61,70 @@ candidate path by its EXPECTED b_T over M fresh fantasy replays instead of one,
 and the bias should vanish. If a positive realised lift appears, the arm is
 alive and Stage 1 runs. If it does not, the joint teacher is dead on the
 merits and the noise reading above stands.
+
+---
+
+# h152b -- EXPLORATORY. Debiasing worked. Gate still FAILS. And it exposed a confound.
+
+Re-ran Stage 0 with C1 (select by mean log b_T over M=16 fresh replays) and C2
+(prune by accumulated MES instead of single-path b_tau).
+
+| | baseline M=1 | C1 only | C1+C2 |
+|---|---|---|---|
+| winner's curse | **+0.6680** | +0.0804 | **+0.0448** |
+| SC2b (selection beats elite) | 0/21 | **21/21** | **21/21** |
+| beam planned lift | +0.5461 | -0.0356 | -0.1218 |
+| **beam realised lift** | -0.1219 | **-0.1160** | **-0.1666** |
+
+C1 did exactly what it was designed to do: the curse collapsed 15x and
+selection became provably honest (21/21). And the planned lift collapsed WITH
+it, from +0.5461 to below zero. **The entire Stage 0 planned advantage was
+selection bias.** The gate fails again, now on the merits.
+
+## Correction to Stage 0's headline
+
+Stage 0's analysis.md said the joint optimum "exists and is large in plan; it
+is unreachable in realisation". That is WRONG and is retracted. Measured
+honestly, the joint optimum over this candidate class is **not better than
+greedy at all**. There was never a large joint advantage to be unreachable.
+
+## The confound Stage 0 and h152b BOTH contained
+
+Greedy is a CLOSED-LOOP policy -- it re-decides at every step against its own
+realised fantasy draw. The beam emits a FROZEN plan delivered through forced_x,
+which is OPEN-LOOP. Every "beam vs greedy" number above compares those two
+things at once. Control: freeze greedy's OWN path and replay it.
+
+|  | rtg[0] |
+|---|---|
+| greedy CLOSED-loop (re-decides each step) | **+0.4860** |
+| greedy OPEN-loop (identical rule, own path frozen) | **+0.3266** |
+| beam OPEN-loop (joint plan, frozen) | +0.2869 |
+
+**OPEN-LOOP PENALTY = +0.1594**, 0.72 noise floors, closed-loop wins 16/21.
+
+Re-reading every comparison at the SAME loop type:
+- beam vs greedy, both open-loop: **-0.0397, beam wins 10/21** -- a dead heat.
+- beam(open) vs greedy(closed): -0.1991, beam wins 3/21.
+
+So ~80% of the joint teacher's apparent deficit is not the joint teacher at
+all. It is the cost of freezing ANY plan.
+
+## Why this matters far beyond h152
+
+**Every substitute teacher tested so far is open-loop.** h145 ORACLE and h146
+DIVERSE-GOOD are delivered through forced_x, a frozen [T,d] path. h149
+RANDOM-POOL re-draws each step but ignores the state entirely, so it is
+non-adaptive too. The control -- and ONLY the control -- adapts.
+
+That is a systematic confound across the whole "teacher quality" programme. It
+also predicts the one result that has stayed unexplained: L_loc is LOWER for
+forced teachers (0.018-0.022 vs 0.040), i.e. the DT fits them BETTER and still
+emits worse points. A state-independent teacher is exactly what you would
+expect to be easy to fit and useless to imitate.
+
+CAVEAT, stated plainly: the open-loop penalty measured here is +0.16 rtg units,
+which is real but modest, and NOT on its own large enough to explain the
+0.976 -> 0.311 rtg_target collapse. The policy-learning argument (a frozen
+teacher teaches a state-independent policy) is a SEPARATE claim and is so far
+untested. h153 tests it.
