@@ -46,3 +46,34 @@ n=5, Borehole only, and L=2/L=4 have not reported. A dose that is non-monotone
 (if L=2 or L=4 were worse than both L=1 and L=8) would complicate the reading and
 is not yet excluded. And h172's registered asymmetry stands: this result supports
 h171's mechanism but a null here would not have refuted it.
+
+---
+
+## L=2 lands: the dose is monotone, and shorter is better AND faster
+
+| rollout_length | rel% | improves | rtg_target | HF frac | wall | speedup |
+|---|---|---|---|---|---|---|
+| **8** (control) | 15.82 | 5/5 | 0.9761 | 0.883 | 82.4 min | 1.00× |
+| **2** | **13.97** | 5/5 | 0.6380 | 0.869 | 22.5 min | **3.66×** |
+| **1** | **13.69** | 5/5 | 0.4590 | 0.939 | 13.2 min | **6.26×** |
+
+Per-seed L=2: 15.40, 17.99, 11.40, 9.86, 15.21.
+
+**Both shortened arms beat the control, and the ordering is monotone in length.**
+P3 anticipated that any failure would appear at the short end because the RTG
+label degrades most there; instead the short end is the *best* end.
+
+**P2 holds.** Wall-clock scales close to proportionally with rollout length:
+observed 1 : 3.66 : 6.26 for L = 8 : 2 : 1, against 1 : 4 : 8 if length were the
+only cost. The shortfall is the fixed per-iteration cost (GP refit, DT training)
+that shortening cannot touch.
+
+## The conditioning target anti-correlates across the dose
+
+0.9761 → 0.6380 → 0.4590 as length falls 8 → 2 → 1, while regret improves 15.82 →
+13.97 → 13.69. The target drops mechanically (rtg[0] = log b_0 − log b_T spans
+fewer steps) and performance *improves*. **Seventh independent demonstration that
+the conditioning target does not drive performance** — and the only one where the
+two move in opposite directions within a single controlled dose.
+
+L=4 is still running; a non-monotone dose is not yet fully excluded.
