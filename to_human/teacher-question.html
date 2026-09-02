@@ -393,6 +393,59 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     </div>
   </div>
 </section>
+<hr class="div">
+
+<section>
+  <div class="col">
+    <h2>Why a perfect teacher cannot help<span class="chip c-settled">the answer</span></h2>
+    <p>Everything above composes into one sentence. <strong>The learner reproduces the average
+    of its teacher's <em>first move</em>, and that average is about as good as running the
+    teacher.</strong> Averaging over many routes is real work — it is variance reduction on a
+    single decision — but it is all the learner does.</p>
+    <p>Now consider what a <em>perfect</em> teacher actually looks like. Its routes
+    <em>end</em> at the optimum. But they <em>start</em> wherever the route happens to start.
+    All the quality is in the destination; the first steps are close to arbitrary. So the
+    average of those first moves is the middle of the box — which is exactly where the failing
+    runs end up, and why they never beat the points they were handed at the start.</p>
+    <p><strong>The quality was never transmitted, because only the first step is ever read and
+    the quality lives in the destination.</strong></p>
+  </div>
+
+  <div class="col">
+    <div class="note">
+      <h3>The account predicts the learner's output, not just explains it</h3>
+      <p>The teacher's average move was already being recorded — averaged across all steps of a
+      route. That gives the test its own control. When routes are <em>one step long</em>, that
+      recorded average <em>is</em> the first-move average, so it should predict where the learner
+      queries. When routes are eight steps long and the first step differs sharply from the rest,
+      it should not.</p>
+      <p>Short routes: the prediction lands within <strong>0.11–0.16</strong>. Long split routes:
+      it misses by <strong>0.62–0.71</strong>. For scale, changing only the random seed moves the
+      query about 0.82. That is a <strong>4.5–5.3&times;</strong> gap between the cases where the
+      account says it should work and the cases where it says it should fail — and which case a
+      variant falls into was fixed by its route length long before these numbers existed.</p>
+    </div>
+
+    <p>It also explains why nothing tried on the teacher side ever mattered. Six explanations
+    were tested and all six changed <em>how the teacher decides</em>. But the decision rule
+    never reaches the output — different competent rules share almost the same first-move
+    average. The only two changes that ever helped worked differently: one selected which routes
+    to keep, the other made routes shorter. Neither changed the rule; both changed what was
+    being averaged.</p>
+
+    <div class="open">
+      <h3>The weakest link, and the test now running</h3>
+      <p>The claim that "the average is about as good as the teacher" rests on an older
+      experiment run on a different benchmark, scored on a different measure, with the two sides
+      spending their budgets on different mixes of cheap and expensive evaluations. It found the
+      learner ahead on seven of ten runs and called it unresolved — which it was.</p>
+      <p>A like-for-like replacement is running now: the same teacher with no learner at all, on
+      the main benchmark, on the frozen measure. Its outcomes were written down first, including
+      the one that would be worst for this project — that the learner is a net <em>negative</em>
+      against the teacher it copies. If that is what comes back, it goes in the report.</p>
+    </div>
+  </div>
+</section>
 
 <hr class="div">
 
