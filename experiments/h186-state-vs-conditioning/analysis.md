@@ -66,3 +66,51 @@ the loss side.
   is a cheap addition (d floats per probe) and is the obvious next measurement.
 - Three states on one benchmark family; the probe exists only on h177/h178/h179/h181.
 - The 0.0028 figure for standardised Borehole rests on a single arm.
+
+---
+
+## CONFOUND RESOLVED — and it goes the other way
+
+`measure_states.py` recomputes the τ=0 states on a short Borehole run (seed 42) and
+measures them directly, which the probe files could not:
+
+```
+tau=0 states captured : 3    dim 68
+distinct states       : 3
+pairwise distance     : mean 0.5866   min 0.2862   max 0.8742
+state vector norm     : mean 4.5032
+RELATIVE state variation = 0.5866 / 4.5032 = 0.1303
+```
+
+**The three states are NOT near-identical.** They sit ~0.59 apart in a 68-dimensional
+space whose vectors have norm 4.5 — they differ by **13% of their own magnitude**.
+
+So the small state sensitivity is **not** an artifact of degenerate inputs. The DT is
+handed three genuinely distinct states and its output moves **0.0122**, while sweeping
+RTG across its full range moves it **0.0782**. The confound named above does not
+explain the result; it is removed.
+
+**Conclusion, now unblocked:** the DT barely responds to its state, ~6× less than to
+its conditioning, *despite the states being well separated*. That is the
+per-timestep-constant result of h185 seen from the input side, and it is the stronger
+version — the model is not starved of information, it declines to use it.
+
+## A CORRECTION to wording I have been repeating
+
+findings.md and research-state.yaml describe the τ=0 training states as
+**"near-degenerate"**, citing `uniq_tau0_states = 3` of 60. That conflates two
+different things:
+
+- **True:** only **3 distinct** τ=0 states exist among 60 rollouts — the *variety* is
+  very low, and the real inference state is bit-identical to one of them.
+- **Not true:** that those 3 states are nearly identical *to each other*. They are
+  well separated (0.59 apart, 13% relative).
+
+The mechanism survives and is sharpened. It was stated as "at τ=0 the states are
+near-degenerate, so the DT emits roughly the conditional mean." The accurate version:
+**only three τ=0 states ever occur, they are genuinely distinct, and the DT responds
+to them barely at all.** The constant output is a property of the learned solution,
+not a consequence of information-free inputs.
+
+Limit: the state measurement is one run (seed 42, short budget). The count of 3 matches
+the `uniq_tau0_states = 3` recorded on every seed, but the distances are from one run.

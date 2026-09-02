@@ -17507,3 +17507,35 @@ Limits: 5 arms, one failing, Borehole only (`teacher_action_stats` exists only o
 h171/h172); the loss/var identity is a statement about *training*, with the τ=0
 specificity coming from h180/h182; ratios slightly above 1.0 are expected since the
 best constant is computed post hoc on the same data.
+
+
+---
+
+## CORRECTION — "the τ=0 states are near-degenerate" is imprecise (h186)
+
+This phrase appears throughout findings.md as part of the mechanism. Measured
+directly (`experiments/h186-state-vs-conditioning/measure_states.py`, Borehole
+seed 42): the τ=0 states are **3 distinct vectors in 68 dimensions, pairwise
+distance 0.5866 against a vector norm of 4.5032 — 13% relative separation.**
+
+- **True:** only **3 distinct** τ=0 states occur among 60 rollouts (very low
+  *variety*), and the real inference state is bit-identical to one of them.
+- **Not true:** that those 3 are nearly identical to each other. They are not.
+
+**The mechanism survives and is sharpened.** It was "the states are near-degenerate,
+so the DT emits roughly a conditional mean." The accurate version: **only three τ=0
+states ever occur, they are genuinely distinct, and the DT responds to them barely at
+all** — state sensitivity 0.0122 against conditioning sensitivity 0.0782, with a
+seed-to-seed scale of ~0.82. The constant output is a property of the learned
+solution, not of information-free inputs.
+
+**And the conditioning is not the uniquely dead input — it is the more responsive
+one.** findings.md has called it an architectural *defect* with a *fix*. h181 already
+showed only ~1.1% of that fix transfers in situ; h186 shows the state, which is what
+should drive the decision, moves the output **6× less** than the conditioning does.
+Fixing the embedding cannot help much, because the model has settled on a solution
+that barely uses any input. That is h185's per-timestep-constant result seen from the
+input side.
+
+Limit: state distances are from one run; the count of 3 matches every seed's
+`uniq_tau0_states`.
