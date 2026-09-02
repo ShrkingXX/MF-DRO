@@ -1,117 +1,79 @@
 # ============================================================================
-# CURRENT FRONT  (updated 2026-09-02) -- the /loop prompt still names h146 and
-# the POOL dose; both are STALE. Recorded here so the next tick does not
-# re-run a closed arm.
+# CURRENT FRONT  (consolidated 2026-09-02, tick 13)
+# The /loop prompt still names h146 and the POOL dose. BOTH ARE CLOSED --
+# h146 completed, and the POOL dose was run on the harness as h158.
 # ============================================================================
 current_front:
   question: 'WHY better trajectory quality does not improve MF-DRO.'
-  status_of_the_old_answer: 'h149 was recorded as THE ANSWER for this front. h152
-    RETRACTS that standing: every substitute teacher tested (h145 ORACLE, h146
-    DIVERSE-GOOD, h149 RANDOM-POOL) is OPEN-LOOP, while the control is the only
-    CLOSED-LOOP teacher. Quality and loop type were never separated. The front is
-    REOPENED.'
-  closed_arms:
-  - 'h146 DIVERSE-GOOD -- COMPLETE. 43.94 rel%, 0/5. Identical to ORACLE.'
-  - 'h149 RANDOM-POOL -- COMPLETE. 43.94 rel%, 0/5. Identical to ORACLE.'
-  - 'h151 Hartmann RANDOM-POOL -- COMPLETE. Generalises; the "never improves"
-    characterisation did not, and was retracted.'
-  - 'POOL dose {16,256,4096} -- REGISTERED BUT DELIBERATELY NOT RUN. h146/h149
-    showed the outcome is flat in BOTH quality and diversity, so every dose point
-    would return 43.94. Not run is the correct call, recorded so it is not read
-    as an oversight.'
-  - 'h152 joint-IG teacher -- COMPLETE, DEAD ON THE MERITS. Gate failed twice.'
-  h156_bridge: 'rtg_target = max(batch_max, 0.5*running_max) -- a MAXIMUM, not a
-    mean (mf_dro.py:2056-2060). Every penalty measured before h156 was on the MEAN.
-    The offline harness reproduces ALL FOUR observed rtg_targets from trajectory
-    geometry alone (control 0.906 vs 0.976; RANDOM 0.274 vs 0.297; ORACLE 0.302 vs
-    0.311; DIVERSE-GOOD 0.265 vs 0.329). The failing arms earn ~ZERO information
-    (+0.008..+0.020 vs control +0.391) and flatten the spread (sd 0.10 vs 0.22), so
-    a max has no tail to find.'
-  adaptivity_framing: 'WITHDRAWN by h156. Freezing costs ~9% of the tail (C2 retains
-    90.9%); the failing arms lose ~70%. The h152 open-loop penalty is real and
-    replicated but is NOT the operative cause.'
-  reinstated: 'h149s mechanism -- reward IS information gain, trajectory quality is
-    orthogonal to it -- survives and now has the quantitative bridge it lacked.'
-  h157_forecasts: 'BLIND, committed while both arms were 0/5 finished (h155 at
-    cost 184/240). h153 = harness C2 -> 82-96% of control rtg_target, performance
-    NEAR CONTROL. h155 = harness C6 -> ~102% of control, performance NEAR CONTROL.
-    Failing-arm band is 25.9-34.3%. Both point at outcome O1: the operative
-    variable is INFORMATION GAIN, not loop type and not the MES rule. Retraction
-    map in experiments/h157-2x2-readout/protocol.md (O1-O4), readout code
-    pre-committed in code/readout.py.'
-  harness_status: 'CHARACTERISED and no longer under audit. Supports SCALE claims
-    only: per-arm errors 0.5-31%, noise floor 8-13%. The 3-4x separation it does
-    support sits far outside all of that.'
-  h155_RESULT: 'COMPLETE n=5. UCB-LOC 15.13 rel%, improves 5/5, rtg_target 1.0402
-    (106.6% of control; BLIND forecast said 102%, error +4.6pts inside the 8-13%
-    noise floor). HF frac 0.87 vs control 0.88 -> confound check PASSED. Better on
-    4/5 seeds and tracks the control seed-by-seed. RETRACTS "the MES selection rule
-    specifically is what the DT needs" -- the last surviving explanation after h150.'
-  h158_RESULT: 'COMPLETE. POOL dose {16,256,4096} on the harness. MC1/MC2 both PASS
-    (endpoint quality +51%, diversity -34%). Tail FLAT: 31.7/32.4/29.3% of control,
-    span 3.2pts vs 8-13% noise, all inside the failing band. R1 and R2 both fail to
-    fire. The long-registered pipeline dose is now declined ON EVIDENCE.'
-  the_2x2: 'MES/closed = control 15.82 5/5. non-MES/closed = h155 15.13 5/5.
-    non-MES/open = ORACLE/DIVERSE/RANDOM 43.94 0/5. MES/open = h153, RUNNING.
-    Non-MES row: closed-loop WORKS, open-loop FAILS. Operative variable is whether
-    the teacher is INFORMATION-SEEKING, not which rule it uses.'
-  h153_RESULT: 'COMPLETE n=5. rel% 19.36, improves 5/5, rtg_target 0.3230, HF 0.84.
-    SC1 exact, SC2 penalty 0.30-0.40 (vs harness offline 0.16, understated ~2.2x),
-    SC3 flips 0.15-0.18. FORECAST SPLIT: performance half HELD (near control, not
-    43.94); rtg_target half FAILED (0.323 vs forecast 0.83-0.94, harness C2 off
-    2.7x -- the ONLY harness condition never validated against a finished arm).'
-  THE_2x2_COMPLETE: 'MES/closed 15.82 5/5 rtg 0.976 | MES/open (h153) 19.36 5/5
-    rtg 0.323 | non-MES/closed (h155) 15.13 5/5 rtg 1.040 | non-MES/open
-    (ORACLE/DIVERSE/RANDOM) 43.94 0/5 rtg ~0.30. THREE OF FOUR CELLS WORK.
-    Freezing costs +3.5 rel% and zero improvements; changing the rule costs
-    nothing; only doing BOTH fails.'
-  REFUTED: 'The CAUSAL half of the tail account -- "target collapse is why the
-    failing arms fail" -- is REFUTED. h153 has the failing band target (0.323) with
-    the control improvement rate (5/5) and near-control regret. Withdrawn from
-    findings.md and the published report. The DESCRIPTIVE half (failing arms have
-    no informative tail; validated against 4 real arms in h157, swept in h158)
-    stands and is unaffected.'
-  open_mechanism: 'EXPLORATORY, post-hoc, NOT established: the three working arms
-    all query locations the MODEL selected (MES argmax, UCB argmax, and a frozen
-    replay of a model-selected path). The three failing arms pick locations by
-    criteria external to the model (true x*, true-objective argmax, uniform).
-    Registered discriminating test NOT RUN: a frozen path of model-selected
-    locations taken from a MISMATCHED state.'
-  front_status: 'NOT answered. Solid negative (quality and diversity are orthogonal
-    -- h158 swept both directly). Positive mechanism newly UNIDENTIFIED after the
-    target-collapse explanation died.'
-  h159_h160_SCREENS: 'BOTH NO-GO, neither pipeline arm funded from these designs.
-    Tail as %% of control: beta=+2 102.0 (h155, real), beta=0 91.5, beta=-2 83.7
-    (4 reps, sd 11.4); failing arms ~30. Monotone in beta, never near the failing
-    band. My error both times: described the arm verbally without checking the
-    mechanism -- beta=0 and beta=-2 are still MODEL-SELECTED, so both accounts
-    predict success. ~40min of screens prevented ~20 worker-hours.'
-  ESTABLISHED_SEPARATION: 'rtg_target tracks whether the teacher ADAPTS.
-    Performance does NOT track rtg_target. h153 (frozen) has target 0.323 with
-    19.36 rel% and 5/5. The conditioning target is a CORRELATE of adaptivity, not
-    the mechanism -- second candidate mechanism demoted in two ticks.'
+  status: 'NEGATIVE ANSWER SETTLED. POSITIVE MECHANISM STILL OPEN after two
+    demotions. NOT to be recorded as answered.'
+
+  settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal to
+    the outcome. h158 swept them on ONE axis with manipulation checks passing:
+    endpoint quality +51%, diversity -34%, training signal moved 3.2 points inside
+    an 8-13% noise floor, non-monotone in both directions, all three dose points
+    inside the failing band. This is stronger than the arm-comparison evidence it
+    replaced, because it moves both variables continuously rather than comparing
+    arms that differ in many ways at once.'
+
+  the_2x2_borehole_complete: 'MES/closed = control 15.82 rel%, 5/5, rtg 0.9761 |
+    MES/open = h153 MES-FROZEN 19.36, 5/5, rtg 0.3230 | non-MES/closed = h155
+    UCB-LOC 15.13, 5/5, rtg 1.0402 (and h159 EXPLOIT-LOC beta=0: 19.07, 5/5, rtg
+    0.9411) | non-MES/open = ORACLE/DIVERSE/RANDOM 43.94, 0/5, rtg ~0.30.
+    THREE OF FOUR CELLS WORK. Freezing costs +3.5 rel% and zero improvements;
+    changing the rule costs nothing; only doing BOTH fails.'
+
+  retracted_so_far:
+  - '"The MES rule specifically is what the DT needs" -- RETRACTED by h155 (a UCB
+    teacher matches the control on every measure).'
+  - '"Target collapse is why the failing arms fail" -- REFUTED by h153, which
+    carries the failing band target (0.323) with the control improvement rate
+    (5/5). Confirmed independently by h159 (target 0.941) and h153 (0.323) landing
+    at 19.07 and 19.36. Withdrawn from findings.md AND the published report.'
+  - '"They fail because they are open-loop / non-adaptive" -- WITHDRAWN by h156.
+    Freezing costs ~9% of the tail; the failing arms lose ~70%. This was itself an
+    over-correction to the previous retraction.'
+  - '"The harness reproduces the observed targets to within 8%" -- WITHDRAWN. The
+    harness has a 6.1% mean / 10.9% worst noise floor, so 8% was barely above
+    noise. It supports SCALE claims only.'
+
+  current_account: 'EXPLORATORY, post-hoc, NOT established. The teacher action must
+    be a FUNCTION OF THE OBSERVABLE STATE. Working arms query model-selected
+    locations (including h153, whose frozen path was model-selected earlier);
+    failing arms use criteria outside the model (true x*, true-objective argmax,
+    uniform). Predicts the DT collapses to predicting the mean of an unlearnable
+    target -- confirmed as query dispersion: Borehole works 0.2464-0.2889 vs fails
+    0.1115-0.1891 (h162), Hartmann control 0.2144 vs RANDOM 0.1153, 5/5 paired
+    (h164). Resolves the long-standing L_loc puzzle (low loss on clustered targets
+    = predicting the mean, not fitting a mapping). h163 found teacher and student
+    dispersion INVERTED (Spearman -0.900) but its out-of-sample test partly failed,
+    so the claim is a GROUP SEPARATION, not a rank relationship.'
+
+  harness_rule: 'The offline harness is ACCURATE for closed-loop conditions
+    (C1/C3/C4/C5 validated; C6 forecast 102% -> observed 106.6%; C7 forecast 91.5%
+    -> observed 96.4%) and WRONG for frozen ones (C2 forecast 82-96% -> observed
+    33%, off 2.7x -- the only condition never validated against a finished arm).
+    CONSEQUENCE: no forecast is offered for frozen arms, h161 and h166 included.'
+
   running:
-  - 'h161 STALE-PATH (Borehole 42-46, launched 2026-09-02). Frozen path from 2000
-    rollouts earlier (~10 iterations): model-selected but for a STALE state. The
-    accounts SPLIT here -- model-selected-for-THIS-state predicts failure,
-    model-selected-at-all predicts success. This is the discriminator h159/h160
-    were not.'
-  - 'h159 EXPLOIT-LOC -- kept running though non-discriminating, because it
-    validates the harness C7 forecast (91.5%) and h153 proved unvalidated harness
-    conditions can be off 2.7x. Reason recorded, not implicit.'
-  - 'h153 MES-FROZEN (Borehole seeds 42-46, launched 2026-09-02). The control that
-    separates QUALITY from ADAPTIVITY: the control MES rule, its own path frozen.
-    Registered to RETRACT the h145/h146/h149 interpretation, in findings.md AND in
-    the published to_human/ report, if it lands near 43.94 rather than 15.82.
-    STATUS CHANGED by h156: h153 is condition C2, FORECAST rtg_target ~0.82 and a
-    result NEAR THE CONTROL. It is now a PREDICTION TEST. If it fails anyway, the
-    h156 tail account is refuted and the h149 reinstatement goes with it.'
-  - 'h155 UCB-LOC (Borehole seeds 42-46, launched 2026-09-02). Closed-loop non-MES
-    teacher, fidelity channel held fixed. Bit-identity gate PASSED.'
-  key_quantities:
-    open_loop_penalty_rtg: 0.1594          # 0.72 noise floors, 16/21 states
-    reward_label_snr: 2.19                 # mean +0.486 vs replay s.d. 0.222
-    beam_vs_greedy_same_loop_type: -0.0397 # dead heat; joint optimisation buys nothing
+  - 'h161 STALE-PATH (Borehole 42-46) -- the ONLY causal test of the current
+    account. Frozen path from 600 rollouts earlier (~10 iterations, corrected from
+    2000 after the smoke test showed the batch is 60 traj/iter not 200).
+    model-selected-for-THIS-state predicts failure; model-selected-at-all predicts
+    success. No harness forecast (frozen condition).'
+  - 'h165 Hartmann UCB-LOC -- generality of the strongest positive result. 1/5 done.'
+  - 'h166 Hartmann MES-FROZEN -- completes the 2x2 on a second benchmark; h153s
+    refutation currently rests on one.'
+
+  screens_that_prevented_arms: 'h159 (beta=0, forecast 91.5%) and h160 (beta=-2,
+    forecast 83.7% over 4 reps) were both locked as discriminators and neither is
+    one -- both are still MODEL-SELECTED, so both accounts predict success. h160
+    was NOT launched. ~40 min of screens prevented ~20 worker-hours. h159 was kept
+    only because it validates a harness condition, and its forecast held.'
+
+  deliverables: 'to_human/teacher-question.html -- consolidated front report
+    (artifact 71e91a3e). to_human/mfdro_progress.html -- project-wide record,
+    carries three stacked corrections (artifact a001c2c1).'
 
 concurrent_sessions:
   compute_owner: 'Whichever session holds the running launcher owns compute. As of this writing that is
