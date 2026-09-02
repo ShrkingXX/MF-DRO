@@ -2572,3 +2572,35 @@ condition, and h153 showed such conditions can be off by 2.7×.
 
 **Compute:** 10 workers (h159 ×5, h161 ×5), plus 2-4 short screens at peak.
 Never above 12/15.
+
+## 2026-09-02 (tick 9) — a smoke test earned its keep, and no science happened
+
+**Honest holistic read: this tick produced no substantive finding.** It caught a
+design error and verified an instrument. That is worth doing and worth saying
+plainly rather than dressing up as progress.
+
+**The error.** h161's LAG was locked at 2000 rollouts on the assumption that a
+batch is `rollouts_per_iter=200`. It is not: the STATE-DIAG line reports
+**n_traj=60** per iteration. LAG=2000 would have been ~33 of the ~60 real
+iterations, leaving **more than half the run in warmup** — using the current path
+and running byte-identical to h153 over that stretch. The manipulation would have
+been diluted to roughly half strength and the arm uninterpretable. Corrected to
+LAG=600 (~10 iterations, ~83% stale), h161 killed ~4 iterations in and relaunched.
+
+**The verification.** Small-LAG smoke run, 360 rollouts: SC1 stale fraction
+0.833, SC2 mean lag exactly 60, SC4 replay error 0.0, and — the check that
+actually matters — the stale path differs from the current one in **50 of 50**
+comparisons. Had those coincided, h161 would have been h153 under another name
+and would have "confirmed" whatever h153 showed.
+
+**Cost/benefit:** ~5 minutes and one worker, against ~10 worker-hours and an
+uninterpretable arm. This is the third time this session that a cheap check
+before an expensive arm has paid for itself (h159 screen, h160 screen, h161
+smoke). The pattern is now standing practice and is recorded as such.
+
+**What is NOT true:** that catching my own error is a result. The front's
+mechanism is still unidentified after two demotions ("the MES rule" retracted by
+h155, "target collapse" refuted by h153), and h161 is the arm meant to address
+that. It has not reported.
+
+**Compute:** 10 workers (h159 x5, h161 x5) plus 1 smoke at peak = 11/15.
