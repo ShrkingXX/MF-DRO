@@ -3600,3 +3600,23 @@ ships.
 - On Hartmann the direction signature *inverts* among working arms, and the best
   arms never get within 0.6 of x*.
 - h181 at 55/107.
+
+## tick 41 — h181 closes; h179's verdict withdrawn; h183/h184 open the asymmetry causally
+
+- **h181 = P2** (registered band). Standardisation buys 1.28× on RTG, 3.84× on BTG.
+  The confound it existed to remove was real: Borehole is **1.9× more responsive
+  than Hartmann unstandardised**.
+- **h178's 336× is module-level and stays so** — ~1.1% transfers in situ.
+- **h179's R3 withdrawn.** R3 needed the channel to have been made to work; it was
+  not. The conditioning counterfactual is reopened as a genuine open item.
+- **h183 (EXPLORATORY)**: a *third* account of the benchmark asymmetry, and the
+  first not refused by its own numbers — fit quality predicts regret on Hartmann
+  (+0.53 / +0.61) and not on Borehole (−0.24 / +0.16), with `lf_fraction` 0.12 vs
+  0.80 as the candidate cause. Duplicate-inflation caught and removed (four
+  identical Hartmann probe runs had inflated it to +0.70 / +0.75).
+  The first diagnostic scan (10 of 12 flagged) was discarded as multiple comparisons.
+- **h184 registered and LAUNCHED** — the causal test h183 calls for. New
+  `max_hf_fraction` HF ceiling, **identity gate PASSED exactly at full precision**
+  (and `tools/identity_gate.py` added; the historical reference in findings.md is
+  rounded and fails a genuinely identical build by 1.8e-11 — now fixed).
+  SC1 recorded before launch: the ceiling fires, moving Borehole to ~0.71 LF.
