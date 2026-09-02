@@ -3411,3 +3411,40 @@ unexplained and I say so rather than reaching for a third scalar. Six accounts
 have fallen on this front by reaching.
 
 **Compute:** 10/15 (h176 x5 at ~78%, h177 x5).
+
+## 2026-09-02 (tick 34) — an exactly-zero result, chased to an architectural cause
+
+**h177 returned a spread of 0.0000.** The emitted action does not move at all
+across a BTG sweep from 20 to 36, over 357 probed iterations, on a range well
+outside the visited 26.08-30.52. The RTG axis in the same runs reproduced h168
+exactly (9.0% vs 8.9%), which is what makes the zero a measurement rather than a
+broken probe.
+
+**An exactly-zero effect is a demand for explanation, not a finding to bank.** My
+first move was to check whether BTG is even wired -- it is: Linear(1,H), a
+LayerNorm, interleaved as one of four tokens per step. So the null needed a
+different cause.
+
+**Found it, and it is quantitative.** The scalars go raw into Linear(1->H) then
+LayerNorm, and that composition saturates: LayerNorm fixes the output norm and
+the direction converges as |v| grows. Over 200 random weight draws the relative
+embedding change across each scalar's OPERATING RANGE is 0.4869 for RTG
+(0.30-1.00) and 0.0056 for BTG (26.1-30.5) -- **87x apart**. RTG sits near the
+origin where the response is live; BTG sits deep in the saturated regime because
+its values happen to be ~30 rather than ~1.
+
+That predicts what was measured: RTG 9%, BTG 0%. **A story that only explained
+the zero would have been worth little; one that also predicts the non-zero is
+worth more.**
+
+**The fix is concrete**: standardise the conditioning scalars before embedding,
+the treatment the state block already gets. That is the second thing this front
+has produced that changes what the code should do.
+
+**Labelled EXPLORATORY and its weakness named.** The analysis came after seeing
+the zero, and it uses random weights -- a trained bias could shift the operating
+point. Measuring the trained btg_embed/btg_ln response directly would settle it;
+registered, not done. Six accounts have fallen on this front and I am not going
+to let the seventh through on elegance.
+
+**Compute:** 0/15. All arms complete.
