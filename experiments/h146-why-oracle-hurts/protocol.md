@@ -75,3 +75,31 @@ experiment, after the Hartmann fidelity confound.
 
 Reuses h145's `forced_x` hook, already gated: SC4 passed bit-identical on the
 corrected tree (137 queries, 0 differing). No new src change, so no new gate.
+
+---
+
+## AMENDMENT 1 — the arms cannot be quality-matched, measured before running
+
+DIVERSE-GOOD's endpoints, measured over 300 draws on Borehole (POOL=256):
+
+    endpoint quality   mean y = 220.76  =  71.3% of the true optimum (309.58)
+    endpoint diversity per-dim sd on the unit cube = 0.2048
+                       mean pairwise distance      = 0.8572
+    ORACLE for comparison: quality 100%, diversity 0.0000 BY CONSTRUCTION
+
+**The two arms are not quality-matched and cannot be.** At the limit of perfect
+quality the endpoint *is* x*, which is exactly zero diversity — quality and
+diversity are intrinsically coupled at the top. So this is not a clean 2x2 and I
+am not going to present it as one.
+
+**What the contrast can still decide.** ORACLE (100% quality, 0 diversity)
+degrades by +28.126. If DIVERSE-GOOD (71% quality, high diversity) degrades far
+less, then **the collapse is specific to the degenerate limit** rather than a
+monotone cost of teacher quality. If it degrades similarly, teacher quality
+really is harmful across the range, and h145's headline survives.
+
+**The sharper design this implies, registered now and not yet run:** a dose over
+POOL — {16, 256, 4096} — traces quality UP and diversity DOWN along one axis. If
+degradation is monotone in POOL, the tradeoff is the whole story. That is 15 runs
+and is the natural follow-up if the single contrast is informative; recording it
+here so it is not presented later as though it had been the plan all along.
