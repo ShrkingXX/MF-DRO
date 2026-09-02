@@ -14567,3 +14567,61 @@ runs spent), `states[0]` and teacher actions (h145 SC5/SC8), realised `rtg[0]`
 down after the second instance and three more followed**, so it is now a tool:
 `check_fields.py <result.json> <field>...` prints PRESENT/ABSENT and, on any
 absence, lists every available key. Run it before locking a protocol.
+
+## h146 — P1 FALSIFIED and my diversity prediction was WRONG. And the failure is TOTAL, not graded.
+
+PARTIAL (4/5 seeds landed at time of writing; the 5th was minutes out). Borehole,
+paired, rel% @cost_curve 200.
+
+**My registered prediction — "DIVERSE-GOOD's `rtg_target` sits near the control's
+0.976 rather than the oracle's 0.311" — is wrong:**
+
+    rtg_target      CONTROL 0.9732   DIVERSE-GOOD 0.3178   ORACLE 0.3105
+    neg_rtg_frac    CONTROL 0.2659   DIVERSE-GOOD 0.5173   ORACLE 0.5549
+
+DIVERSE-GOOD sits **0.007 from ORACLE** and 0.655 from the control. **Endpoint
+diversity did not rescue anything.** P1 (degradation under half of ORACLE's
++28.126) is FALSIFIED: DIVERSE-GOOD degrades **+27.420**, essentially ORACLE's.
+
+**So h146 answers its own question: it is NEITHER quality NOR diversity.** Both
+forced arms behave the same. What they share is that their actions are not the MES
+argmax.
+
+### The finding that changes the shape of the result
+
+    improved on the initial design's best HF point
+      CONTROL       5/5
+      ORACLE        0/5
+      DIVERSE-GOOD  0/4
+
+**The forced arms never improve on their random initial design at all**, and their
+post-init best HF is *below* the initial best in every run (141.5 vs 166.5, 109.7
+vs 163.0, ...). This is not a graded degradation — **it is total policy failure.**
+
+It also explains an anomaly I nearly mis-read: ORACLE and DIVERSE-GOOD have
+*identical* `final_regret` to six decimals on matched seeds despite 111 of 141
+queries differing. Both simply never beat the initial design, so both report the
+initial design's regret, which is identical by seed.
+
+### Why this now needs a control on MY OWN CODE, before anything else
+
+**A binary failure across 9 of 9 runs is the signature of a broken implementation
+at least as much as of a real effect**, and both forced arms route through the
+`forced_x` hook I wrote. Inspection says it is sound — `actions_x` derives from
+the overridden `x_tau`, the candidate-scoring block that would break on a stale
+`cand_idx` is disabled, and SC4 shows the default path bit-identical — **but
+inspection is exactly what h136 exists to distrust.**
+
+**h149 is running now**: `rollout_policy="random"`, a pre-existing code path that
+picks uniformly from the same candidate pool and **never touches `forced_x`**. It
+forks cleanly:
+
+- RANDOM-POOL also fails totally -> any non-MES teacher does; my hook is
+  exonerated; h145/h146 stand.
+- RANDOM-POOL improves while both forced arms fail -> **the failure tracks my
+  hook, and h145, h146 and the synthesis built on them must be WITHDRAWN**,
+  including the answer already published to the user.
+
+I have reported one confounded result as clean in this experiment already
+(Hartmann) and the user caught one bug (the degenerate `y*`). A third would be too
+many to keep asserting the account without this check.
