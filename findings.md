@@ -14442,3 +14442,64 @@ is the move this project has repeatedly caught itself making. It is registered a
 h148 with its own locked prediction rather than asserted here, and if it also
 fails, the honest conclusion is that we do not have a mechanism and the RCSL frame
 should not be stretched to cover this result.
+
+## h148 — the mechanism, at last: the oracle's REWARD is terrible even though its LOCATIONS are perfect
+
+**P1 was NOT EVALUABLE.** Realised `rtg[0]` is never serialised — only
+`rtg_target` and aggregate fractions. **Fifth registration against data that does
+not exist.** Not a failure of the prediction; a failure of my protocol writing.
+
+**P2 was registered with no direction, and it is decisive.** Borehole, seeds
+42-46, paired:
+
+    rtg_target      oracle 0.3113   control 0.9761   diff -0.6648   effect 32.11
+    per-seed oracle  0.321 0.309 0.308 0.314 0.304
+    per-seed control 1.005 0.997 0.969 0.953 0.956
+
+    neg_rtg_frac    oracle 0.552    control 0.258    (h147)
+
+**The oracle's conditioning target collapses to a THIRD of the control's**, with
+the largest effect size measured anywhere in this project.
+
+**A correction I have to record.** My analysis script printed the conclusion
+"the target is essentially UNCHANGED between arms" directly above the numbers
+0.311 and 0.976. I wrote that sentence into the code before seeing the output. It
+is contradicted by its own data. Had I not re-read the numbers I would have
+reported the opposite of what was measured.
+
+### The mechanism this supplies
+
+MF-DRO's reward is **information gain**, not proximity to the optimum:
+`rtg[tau] = log(b_tau) - log(b_T)`, where `b` is the Gumbel scale of the
+posterior's max. An oracle trajectory marches onto x* and stays there. That is the
+best possible path in *x-space* and one of the worst possible in
+*information-gain space*: once you are standing on the optimum and know it,
+further queries there teach the GP almost nothing, so `b_T` never shrinks and most
+steps score negative (0.552 of them).
+
+The RTG target adapts to what the batch achieves. With trajectories earning poor
+information-gain returns, the target collapses from 0.98 to 0.31 — and the DT is
+then conditioned, at every inference step, to aim for a mediocre return.
+
+**So "better trajectory quality" was never better in the currency this system
+rewards.** The oracle optimises the wrong axis. That is a coherent, measured
+answer to the question, and it required no third proxy — P2 was registered before
+the data was read.
+
+### Status of the RCSL frame
+
+h147 killed the variance version. This is the *location* version and it holds:
+the target is unchanged in kind but the achieved returns fall away from it, which
+is `alpha_f = P_beta(g = f(s)|s)` shrinking through displacement. **But the target
+itself also moved**, which Brandfonbrener's setting does not model — his `f` is
+fixed. So this is adjacent to the theory rather than an instance of it, and I am
+not going to claim more.
+
+### What this predicts, and h146 tests it
+
+If the mechanism is "oracle locations earn poor information gain", then
+**DIVERSE-GOOD should NOT collapse the target**: trajectories heading to *different*
+good endpoints keep exploring, so they keep earning information gain. h146 is
+already running and its `rtg_target` is the sharpest available check. **Registering
+that prediction now, before those runs land: DIVERSE-GOOD's `rtg_target` sits
+nearer the control's 0.976 than the oracle's 0.311.**
