@@ -85,3 +85,50 @@ centre). What changes is the value of the averaging: it is not a wash, it is a c
 **h189: h187 on Hartmann**, same mechanism, frozen metric, seeds 42–46 — to determine
 whether P2 is Borehole-specific or whether h31's 7/10 was an artifact of its metric
 and unmatched fidelity mixes. Until that runs, the claim is scoped to **Borehole**.
+
+---
+
+## SCOPING CORRECTION — P2 is a statement about the DEFAULT configuration
+
+h187 compared teacher-only against MF-DRO with `use_roi=False`, the default path. That
+is the correct **like-for-like** comparison and P2 stands as such. But it is not the
+configuration this project actually advocates, and against those the sign flips:
+
+| arm | frozen rel% | paired vs teacher-only | seeds better |
+|---|---|---|---|
+| **teacher-only, no DT** | **12.97** | — | — |
+| MF-DRO default (`use_roi=False`) | 15.82 | **+2.85** | **0/5** |
+| MF-DRO + ROI-Q10 | 11.59 | −1.37 | 3/5 |
+| MF-DRO + ROI-Q05 | 10.02 | −2.94 | 3/5 |
+| **MF-DRO + ROI-L1** | **9.81** | **−3.15** | **4/5** |
+| MF-DRO + ROI-Q10 + L=1 | 10.81 | −2.16 | 3/5 |
+
+**Every ROI-equipped configuration beats teacher-only**, and ROI-L1's −3.15 on 4/5 is
+close to a mirror image of the default's +2.85 on 0/5.
+
+### But this comparison is NOT like-for-like, and that must be said
+
+**The teacher-only arm has no ROI either.** ROI is a **training-time** mechanism: it
+constrains `roi_candidates`, the pool the teacher argmaxes over *inside rollouts*
+(`mf_dro.py:1184`). The teacher-only arm does not learn from rollouts, so ROI has no
+effect on it — its inference pool is 200 uniform draws regardless. So the ROI rows
+above give MF-DRO a mechanism the teacher is not given.
+
+**What is therefore established:**
+
+1. **Like-for-like, on the default path, the DT is a net negative** — 5/5, −2.85.
+   P2 stands exactly as registered.
+2. **MF-DRO's advocated configurations beat this teacher-only arm** — but with an
+   extra mechanism the teacher does not have, so this is context, not a
+   counter-result.
+3. **Whether a teacher given an equivalent region constraint would beat MF-DRO+ROI is
+   UNTESTED.** Constructing it means applying ROI's region to the teacher's *inference*
+   pool — arguably just the existing mechanism at a different call site, but it does
+   not exist today and is not something to assert the outcome of.
+
+**The honest headline:** *on the default path the Decision Transformer costs 2.85 rel%
+points against its own teacher; the configurations that beat that teacher do so with a
+mechanism the teacher was not given.*
+
+Both halves have to travel together. Reporting the first alone overstates the damage;
+reporting the second alone hides it.
