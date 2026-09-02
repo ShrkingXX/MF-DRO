@@ -16904,3 +16904,44 @@ If that holds, **R1 fires: both conditioning inputs are inert and the DT's
 inference output is a function of the state alone.** That would sharpen the τ=0
 account — the conditioning does nothing at all — while leaving the residual
 unexplained, which I would then say rather than reach for a third scalar.
+
+---
+
+# h176 — **R2 fires.** The ROI's benefit survives a one-step rollout, at 4.77× the speed
+
+| arm | rel% | sd | improves | HF | wall |
+|---|---|---|---|---|---|
+| control (no ROI, L=8) | 15.82 | 2.36 | 5/5 | 0.883 | 82.4 min |
+| **ROI-Q10 (L=8)** | **11.59** | **0.41** | 5/5 | 0.739 | 117.4 min |
+| L=1 (no ROI) | 13.69 | 4.24 | 5/5 | 0.939 | 13.2 min |
+| **ROI-Q10 + L=1** | **10.81** | 2.79 | 5/5 | 0.787 | **24.6 min** |
+
+P1 and P2 both hold; SC passes. **The teacher front's answer and the project's
+contribution compose**: the ROI is applied once per rollout, outside the τ loop,
+so it shapes the pool τ=0 draws from — and shortening to that single step keeps
+its benefit. R1 does not fire.
+
+## My resolvability argument was flawed, and I made it confidently
+
+Last tick I argued this would be resolvable at n=5 *because* ROI-Q10's sd is
+0.41, and logged that as applying the h172 lesson. **Resolvability depends on
+both arms' spreads and I only looked at the baseline's.** ROI+L1's sd is **2.79**;
+the paired difference is +0.78 with sd **2.72**.
+
+- **Resolvable:** ROI+L1 beats the control (15.82) and L=1 alone (13.69); and the
+  4.77× speedup.
+- **NOT resolvable:** whether ROI+L1 is *better* than ROI-Q10. The data is equally
+  consistent with it being ~2 rel% worse.
+
+So the claim is **"the ROI's benefit survives at roughly a fifth of the cost"** —
+not "and improves it".
+
+## A trade-off invisible in the means
+
+Shortening the rollout **costs stability**: sd rises 0.41 → 2.79. ROI-Q10 at L=8
+remains by far the most consistent arm on this benchmark (11.2–12.3 across five
+seeds). If consistency matters more than wall-clock, the long rollout is still
+the better configuration, and the means alone do not show that.
+
+**Scope:** Borehole, n=5. Untested on Hartmann, where h174's SC1 fired on the
+plain L=1 arm and h173 showed the later steps do real work.
