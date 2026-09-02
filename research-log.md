@@ -3130,3 +3130,36 @@ that has misled this front five times, and the half still running is the half
 that can kill it.
 
 **Compute:** 7/15.
+
+## 2026-09-02 (tick 25) — HEAD lands as forecast, and I caught myself over-claiming a speedup
+
+**h171 HEAD-MES finished at n=5 and both forecast halves hold.** F1 predicted a
+query centroid beyond 0.5 from the box centre; observed 0.7397 (control 0.7604,
+RANDOM 0.0239). F2 predicted near-control regret; observed 16.96 against 15.82,
+improving 5/5. SC1 passed (HF fraction 0.825 vs 0.883, no collapse).
+
+The arm consults the acquisition on ONE step in eight and moves at random for the
+other seven, and it performs like the control. That is the mechanism's prediction
+and no trajectory-quality account makes it. Its conditioning target is 0.4096 --
+the fifth arm to pair a collapsed target with good performance.
+
+**I wrote "2.1x faster" and then checked it, which was the wrong order.** HEAD
+took 39.6 minutes against the control's 82.4, and the per-query times order
+exactly as MES-call count predicts (8 calls -> 0.773 min/query, 1 -> 0.360,
+0 -> 0.191). But all three arms ran at different times under different worker
+counts, so contention is uncontrolled and the comparison is not clean. Withdrawn
+as stated; the honest version is HEAD vs TAIL, which ran concurrently on the same
+machine and differ only in MES calls per rollout. That number comes when TAIL
+finishes.
+
+This is the third time this session I have quoted a number before measuring what
+could contaminate it (h156's "within 8%", h170's gate below its estimator's noise
+floor, now this). The pattern is specific: I check the thing I am claiming, but
+not the thing that could explain it away.
+
+**Still no verdict on the mechanism.** TAIL-MES is at ~82%. It follows the
+acquisition on SEVEN of eight steps and the account requires it to FAIL. HEAD
+working is also consistent with a weaker claim -- "one good step early is enough"
+-- that needs none of the tau=0 machinery. Only TAIL separates them.
+
+**Compute:** 5/15.
