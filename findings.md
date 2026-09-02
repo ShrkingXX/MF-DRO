@@ -17590,3 +17590,33 @@ in the endpoint.**
 mix showing the teacher clearly beating the DT would break leg 3, leaving the DT an
 averager that is *worse* than its source rather than competitive with it. That arm
 does not exist and is the obvious one to want.
+
+### h188 — the synthesis PREDICTS the emitted query, and its own negative control fires
+
+`teacher_action_stats` records the **all-τ** action mean, which gives the test its own
+control: at rollout length 1 the all-τ mean **is** the τ=0 mean (prediction must
+hold); at length 8 with a sharp τ=0 vs τ>0 split it is **not** (must fail).
+
+| arm | L | \|teacher mean − DT query centroid\| | ÷ seed noise (0.82) |
+|---|---|---|---|
+| ROLLOUT2 | 2 | **0.1087** | 0.13× |
+| ROLLOUT1 | 1 | **0.1353** | 0.16× |
+| ROLLOUT4 | 4 | **0.1578** | 0.19× |
+| TAIL-MES | 8 | **0.6170** | 0.75× |
+| HEAD-MES | 8 | **0.7148** | 0.87× |
+
+**4.5–5.3× separation between positive and negative controls**, in the direction the
+synthesis requires — and the split is fixed by each arm's rollout length, so it could
+not be chosen after seeing the numbers.
+
+This is the first result on this front that **predicts** the DT's output from an
+independently recorded quantity rather than explaining it afterwards. h185 said the DT
+emits a per-timestep constant; h186 said it ignores its inputs; h188 says **which**
+constant — the teacher's τ=0 action mean.
+
+Limits: five arms, Borehole only (`teacher_action_stats` exists on h171/h172 alone);
+teacher mean is the final iteration's against the last-20 query centroid, both late
+but not exactly time-matched; only L=1 is an exact all-τ = τ=0 identity, so L=2/L=4
+are weaker evidence than ROLLOUT1. A genuine **per-τ** breakdown of teacher actions
+would replace this inference with a direct measurement — cheap, and the obvious
+addition to any future run.
