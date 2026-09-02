@@ -16,6 +16,8 @@ ARMS = {
  "control MES (closed)":  "experiments/h83-main-comparison/results/{b}__MF-DRO__seed{s}.json",
  "h153 MES-FROZEN (open)":"experiments/h153-mes-frozen/results/{b}__MES-FROZEN__seed{s}.json",
  "h155 UCB-LOC (closed)": "experiments/h155-ucb-loc/results/{b}__UCB-LOC__seed{s}.json",
+ "h159 EXPLOIT-LOC (closed)":"experiments/h159-exploit-loc/results/{b}__EXPLOIT-LOC__seed{s}.json",
+ "h161 STALE-PATH (open)": "experiments/h161-stale-path/results/{b}__STALE-PATH__seed{s}.json",
  "ORACLE (open)":         "experiments/h145-oracle-expert-ceiling/results/{b}__ORACLE-EXPERT__seed{s}.json",
  "RANDOM-POOL (open)":    "experiments/h149-forced-vs-teacher-quality/results/{b}__RANDOM-POOL__seed{s}.json",
 }
