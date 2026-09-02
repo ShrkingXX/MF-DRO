@@ -14625,3 +14625,52 @@ forks cleanly:
 I have reported one confounded result as clean in this experiment already
 (Hartmann) and the user caught one bug (the degenerate `y*`). A third would be too
 many to keep asserting the account without this check.
+
+## h146 FULL n=5 — P1 FALSIFIED. The two forced arms are EXACTLY identical, and that is the tell.
+
+CONFIRMATORY, all 5 seeds. Borehole, rel% @cost_curve 200.
+
+    arm            regret   vs ctrl  effect  rtg_target  L_loc late  improved
+    CONTROL         15.82     +0.00      --      0.9761     0.04018      5/5
+    DIVERSE-GOOD    43.94    +28.13    4.49      0.3285     0.02195      0/5
+    ORACLE          43.94    +28.13    4.49      0.3113     0.01765      0/5
+
+    DIVERSE-GOOD vs ORACLE:  +0.000   sd 0.000
+
+**P1 FALSIFIED.** Diversity rescued nothing: DIVERSE-GOOD degrades +28.126, which
+is ORACLE's figure **to three decimals, with zero variance in the paired
+difference**, on every seed — despite the two arms having entirely different
+trajectories (endpoint spread 3798 vs 0 by construction, 111 of 141 queries
+differing on the seed I checked).
+
+**Two arms cannot produce bit-identical regret by coincidence. The metric is
+SATURATED**: neither ever improves on its initial design (0/5 each), so both
+report the initial design's regret, which is identical by seed. The +28.126 is not
+a measure of how much worse the forced teachers are — **it is the distance from
+the control down to "never improved at all", and both arms sit on that floor.**
+
+That is a materially different claim from the one I published, which read the
++28.13 as a graded degradation. It is a floor, and any arm that fails completely
+would report the same number.
+
+### The contradiction this exposes, which h149 must resolve
+
+`L_loc` is **LOWER** in both forced arms (0.022 and 0.018 vs the control's 0.040):
+the DT fits the forced teacher's actions *better* than it fits MES actions. Yet at
+inference it produces points **worse than the random initial design**.
+
+Fitting the training targets well and then emitting worse-than-random points is
+either
+  (a) a genuine train/inference mismatch — the forced actions carry no relation to
+      the state, so the head learns a state-independent map that is arbitrary at
+      inference, or
+  (b) my `forced_x` hook corrupting the training pairs in a way inspection missed.
+
+**Both predict exactly what is observed.** h149 (`rollout_policy="random"`, a
+pre-existing path that never touches `forced_x`) separates them and is at ~135 of
+240.
+
+**Holding the line on interpretation until it lands.** The synthesis published to
+the user — "the teacher is already optimal in the rewarded currency" — rests on
+h145/h146, and both route through my hook. I am not going to extend the account,
+run the POOL dose, or add arms while the thing they all depend on is unverified.

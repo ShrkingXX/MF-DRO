@@ -947,13 +947,13 @@ peer_h129_P3_answered:
     (0.9372). Naming which fraction was the difference between an answer and a plausible wrong number.
 
     '
-current_direction: 'ANSWERED (h145/h147/h148): better trajectory quality does not improve MF-DRO because
-  the reward is INFORMATION GAIN (log b_tau - log b_T), not proximity to x*, and the control''s rollout
-  teacher ALREADY argmaxes exactly that quantity via cost-normalised MES. Teacher and reward optimise
-  the same thing, so there is no headroom: an oracle path earns almost no information gain (55.2% of steps
-  negative), the conditioning target collapses 0.976 -> 0.311 (effect 32.11), and the DT is told to aim
-  low. OPEN: h146 DIVERSE-GOOD separates quality from endpoint diversity; prediction registered that its
-  rtg_target stays near 0.976.'
+current_direction: 'h146 P1 FALSIFIED: DIVERSE-GOOD degrades +28.126, identical to ORACLE to 3dp with
+  zero paired variance. Neither ever improves on its initial design (0/5 each) while control does 5/5,
+  so the metric is SATURATED at a floor -- +28.13 measures ''never improved'', not graded degradation.
+  L_loc is LOWER in both forced arms, so the DT fits forced targets BETTER yet emits worse-than-random
+  points. That is either a real train/inference mismatch or a defect in my forced_x hook. h149 (rollout_policy=''random'',
+  pre-existing path, never touches forced_x) is the fork and is running. NO further arms until it resolves
+  -- the published synthesis rests on h145/h146 and both route through the hook.'
 h120_amendment3_DISCHARGED_2026_08_28:
   result: 'Fresh ROI-OFF runs at Borehole seeds 44,45,46 are BIT-IDENTICAL to h83''s stored MF-DRO (137/140/137
     queries, 0 differing), across three different commits (26a9b9cd1, 15203e5cd, ee5ecafcc), all dirty=True,
