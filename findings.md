@@ -17247,3 +17247,48 @@ standardisation *and* benchmark at once, so 0.1010 is not yet attributable.
 and its three read-branches are pre-specified in
 `experiments/h179-standardised-conditioning/analysis.md`. Under two of the three,
 h179's headline changes; under one, h178's in-situ claim is the thing that falls.
+
+---
+
+## What h180 predicts for the DRO paper's rotated-acquisition schema
+
+The open question was whether to adopt §D.4's rotation (UCB, EI, PI, MES) as the
+MF-DRO teacher, and whether to run a cheap Phase 1 first. **h180 answers the
+Phase-1 question by measurement, without running it.**
+
+All four members of that rotation are **posterior-greedy**: each maximises a
+functional of the HF posterior's mean and variance (UCB κ=2.0; EI/PI ξ=0.01; MES
+over 10 samples). h180 measured what swapping between posterior-greedy teachers
+does to the quantity that actually reaches inference — the DT's emitted first
+query:
+
+| swap | movement |
+|---|---|
+| MES → UCB-LOC | 0.044 |
+| MES → exploit-only | 0.065 |
+| *same teacher, different seed* | *0.82* |
+| MES → random | 0.434 |
+
+Swapping among posterior-greedy rules moves the emitted query by **~5–8% of what
+merely changing the seed does**. Since the DT reads only the first move (τ=0
+mechanism) and these rules agree there, **rotation among them cannot change what
+the DT learns.** The predicted result of Phase 1 is a null, and the prediction is
+grounded in a measurement with a validated positive control rather than in
+intuition.
+
+**Scope, carefully.** This predicts rotation is null *for this architecture* — a
+DT queried at timestep 0 whose τ=0 training states are near-degenerate. It is
+**not** a claim about the original DRO paper, whose setting differs
+(single-fidelity, different conditioning), and where rotation may well do real
+work. It also does not rule out a teacher built on a genuinely different
+principle; that remains the untested case, and h180's own stated limit.
+
+**Consequence for the plan.** Phase 1 (rotate the existing pool) is not worth its
+compute. If rotation is pursued, the value is in Phase 2's *proper* MF-EI/MF-PI
+construction — the rank-1 KO variance update with Gauss-Hermite over `y_L`, which
+makes LF queries comparable by their effect on HF acquisition. That is a
+genuinely different construction, not another posterior-greedy rule, so h180 does
+not predict it away. Separately, note that 4 of the 5 shipped `TEACHER_POOL`
+members are **incoherent** (`cost_ei` scores EI of the LF posterior against the
+best **HF** value; `ucb_beta1/3` compare LF's own UCB to HF's), so the pool as
+shipped could not have served as Phase 1 regardless.
