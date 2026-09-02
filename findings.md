@@ -16107,3 +16107,74 @@ diagnostic.
 in all four cells, the entire distribution-shift family is retracted at once and
 the suspect becomes the inference code path itself — the cheapest thing to act
 on and the most embarrassing to have missed for seventeen ticks.
+
+---
+
+# h169 — killed as a no-op, and the failure exposed the mechanism
+
+## The arm was my error, and I killed it rather than write it up
+
+The probe sampled `_last_batch_tau0_states[:4]`. The batch is laid out
+`[member0 × rollouts_per_model, …]` with `rollouts_per_model=6`, so those four
+entries are four rollouts of the **same ensemble member** — identical τ=0 states
+by construction. Measured pairwise distance: **0.0000** across all five probed
+states. h169 as launched was a rerun of h168. **Killed at ~60%.**
+
+## What it exposed
+
+With the stride fix (`[::rollouts_per_model]`) the states differ by 0.39–1.41 —
+and:
+
+```
+        real   train0   train1   train2   train3
+real  0.0000   0.0000   1.0338   0.3934   0.5797
+```
+
+**The real inference state is bit-identical to a τ=0 training state.** There is
+**no state-distribution shift at τ=0**. And `[STATE-DIAG]` — printing in every
+log of this project, never followed up until now — reports
+`uniq_tau0_states=3` of 60, on every seed.
+
+mf_dro.py:1018 already says the consequence:
+
+> *"…made every trajectory's tau=0 state bit-for-bit identical — the DT could
+> only ever learn the conditional mean of that timestep's targets, independent of
+> anything real inference later provides."*
+
+That documents a bug since **partially** fixed (3 unique states, not 1). The
+consequence was never revisited after the partial fix.
+
+## The mechanism — EXPLORATORY, post-hoc, and NOT yet claimed
+
+Inference always queries `timestep=0`. At τ=0 the states are near-degenerate. So
+the DT emits **the conditional mean of the teacher's τ=0 action**:
+
+| teacher | τ=0 action | its mean | measured d(centre) |
+|---|---|---|---|
+| control MES | acquisition argmax | a specific point | **0.7604** |
+| h155 UCB | acquisition argmax | a specific point | **0.7788** |
+| h153 frozen | first point of a model-selected path | that point | **0.7426** |
+| h159 exploit | acquisition argmax | a specific point | **0.7375** |
+| RANDOM-POOL | uniform draw | **box centre** | **0.0239** |
+| ORACLE | `x_start ~ Uniform` | **box centre** | **0.0394** |
+| DIVERSE-GOOD | `x_start ~ Uniform` | **box centre** | **0.0409** |
+
+**All seven arms match.** Every failing teacher's τ=0 action is an independent
+draw whose mean is the centre; every working teacher's is an acquisition argmax.
+
+### It also explains why h167's P2 failed
+
+h167 predicted ORACLE would land at its action mean **over all τ** — the
+midpoint of centre and x*, 0.66 away — and P2 failed because it landed at the
+centre. Wrong marginal: **inference only ever sees τ=0**, where ORACLE's action
+is `x_start ~ Uniform`, whose mean *is* the centre. Right idea, wrong marginal.
+
+### Why this is not being called the answer
+
+It is post-hoc, derived after seeing the seven numbers it explains. **Five
+accounts have already fallen on this front by fitting the available evidence and
+outrunning it**, and matching seven *signs* is exactly the kind of agreement that
+has misled me before. h170 is registered to test it as a **number**: is the
+emitted query closer to the τ=0 teacher mean than to the box centre, on the
+**working** arms — the only arms where those two targets differ? R1 (it is not)
+is named first as the live risk.
