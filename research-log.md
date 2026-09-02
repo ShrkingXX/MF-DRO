@@ -3163,3 +3163,48 @@ working is also consistent with a weaker claim -- "one good step early is enough
 -- that needs none of the tau=0 machinery. Only TAIL separates them.
 
 **Compute:** 5/15.
+
+## 2026-09-02 (tick 26) — the front is answered, and the answer is actionable
+
+**h171 TAIL finished and R3 fired.** Both halves of a forecast committed at 0/5:
+HEAD (acquisition on 1 of 8 steps) 16.96 rel%, 5/5, query centroid 0.7397
+against a predicted >0.5. TAIL (acquisition on 7 of 8) 43.94, 0/5, centroid
+0.0313 against a predicted <0.2. **The better teacher on seven steps out of eight
+fails completely.**
+
+Neither individually-fatal outcome occurred. This is the first claim on this
+front established by INTERVENTION rather than by fitting correlations -- which is
+exactly what the five fallen accounts could not do.
+
+**SC1 fired on TAIL and I did not wave it away.** TAIL's HF fraction collapsed to
+0.217 against the control's 0.883, and I had registered that a collapse voids the
+arm. By the letter it does: TAIL alone cannot attribute its failure to the tau=0
+location rule. The attribution rests on ORACLE and DIVERSE-GOOD, whose HF
+fractions are 0.626 and 0.604 -- no collapse -- and which still fail at 43.94.
+Written that way rather than as "the collapse is fine because the theory predicts
+it".
+
+**The collapse is separately a confirmation nobody aimed at.** The fidelity head
+is also emitted at tau=0 and obeys the same rule: both arms whose tau=0 fidelity
+is a 25% coin flip land at HF 0.217 and 0.256; every other arm sits at 0.60-0.90.
+
+**Compute claim now contention-matched.** HEAD and TAIL ran concurrently on the
+same machine: 39.6 vs 72.2 minutes, 1.82x, differing only in MES calls per
+rollout. The earlier cross-run "2.1x" stays withdrawn.
+
+**h172 launched to test the actionable implication** -- rollout_length {1,2,4}
+against the control's 8. Its asymmetry is registered up front: a NULL would not
+refute h171, because shortening the rollout also changes the RTG/BTG labels and
+the DT's context length. That had to be said before the result, not after.
+
+**Holistic: the front is answered.** Question: why does better trajectory quality
+not improve MF-DRO? Answer: only the teacher's first step reaches inference.
+Quality describes where a trajectory GOES; a perfect route's first step is a
+random start point whose average is the middle of the box. Six accounts were
+proposed, five fell, and the survivor was confirmed by changing something rather
+than by explaining what was already there.
+
+**Still open and recorded as such:** the tau=0 conditional-mean account leaves a
+~5 SE residual, so something else is also operating.
+
+**Compute:** 15/15 (h172), at the cap and nothing else running.
