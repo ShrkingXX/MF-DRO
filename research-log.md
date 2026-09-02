@@ -3515,3 +3515,33 @@ claim I had already published and found the unasked question behind it. That is
 the phase the front is in, and it is more useful right now than another arm.
 
 **Compute:** 5/15 (h178 only).
+
+## 2026-09-02 (tick 37) — consolidation, and a broken patch caught by checking rather than assuming
+
+**h179 is 30% through, so this tick went to consolidation** -- research-state.yaml
+was several experiments behind (h176, h177, h178 all missing) and the published
+report lacked the one result a reader would most want: that the project's best
+setting survives one-step rollouts at about a fifth of the compute.
+
+**Added a practical section to the report with both limits stated in it, not
+around it.** The apparent improvement from shortening is NOT real at five seeds
+(paired sd 2.72 against a mean difference of 0.78), and I wrote "better" before
+checking -- that admission is on the page. And shortening COSTS CONSISTENCY: the
+best setting at full length varies 0.41 across seeds against 2.79 when shortened,
+which nothing in the average regret shows. If predictability matters more than
+wall-clock, the long version is still the right one, and the page says so.
+
+**My patch broke the page's structure and I caught it by checking.** The
+insertion left two stray closing divs (44 open, 46 closed). Verified tag balance
+before publishing rather than after, found the mismatch, located it, fixed it,
+re-verified 44/44 and 6/6. Publishing a structurally broken page would have been
+invisible to me and obvious to a reader.
+
+That is the third time this session a mechanical check on my own edit has caught
+something: the earlier `&mdash;` assertion failure, the h175 sed that left 8D
+bounds, and now this. All three failed loudly or were caught by an explicit
+check; none produced silently wrong output. The pattern worth keeping is that
+every edit to a file I cannot see rendered gets a structural check before it
+ships.
+
+**Compute:** 5/15 (h179 only).
