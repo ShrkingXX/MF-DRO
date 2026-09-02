@@ -16854,3 +16854,31 @@ Borehole, 5.3 / 4.7 on Hartmann**. The τ=0 account's known incompleteness is a
 stable feature of the mechanism, not a Borehole artefact. That is the opposite of
 what a benchmark-specific quirk looks like, and it makes the residual a better
 target for future work than the scope difference.
+
+---
+
+## h176 launched — connecting the front's answer to the project's contribution
+
+The teacher front's answer is about the **rollout**. The project's contribution
+is the **ROI**, a filter on the candidate pool the teacher argmaxes over. They
+meet here.
+
+| Borehole arm (seeds 42-46) | rel% | wall | per-seed |
+|---|---|---|---|
+| control (no ROI, L=8) | 15.82 | 82.4 min | 15.3, 14.8, 12.9, 16.9, 19.2 |
+| **ROI-Q10 (L=8)** | **11.59** | 117.4 min | 11.5, 12.3, 11.4, 11.2, 11.6 |
+| L=1 (no ROI) | 13.69 | 13.2 min | 7.4, 11.1, 16.7, 16.8, 16.3 |
+
+The ROI is applied **once per rollout** (mf_dro.py:1334, outside the τ loop), so
+it shapes the pool every step draws from — including τ=0. If only τ=0 reaches
+inference, the ROI's benefit should survive shortening the rollout.
+
+**This comparison is resolvable at n=5 where earlier ones were not.** ROI-Q10's
+per-seed spread is 11.2–12.3, **sd ≈ 0.4**, against the control's 12.9–19.2.
+h172's "L=1 beats the control" could not be claimed because the spreads
+overlapped; here a 2 rel% shift sits well outside ROI-Q10's own spread. Noted in
+advance so the eventual claim matches what the design can carry.
+
+**R1 is named first**: if ROI+L1 loses the benefit, the ROI does *not* act only
+through τ=0, and the front's answer — already Borehole-scoped — would be further
+limited to the no-ROI configuration.
