@@ -56,11 +56,33 @@ current_front:
     HEAD costs +1.14 rel% against the control. An earlier cross-run "2.1x" was
     WITHDRAWN as contention-confounded.'
 
+  ACTIONABLE_RESULT: 'h172. Shorter rollouts are BETTER and FASTER, monotonically.
+    L=8 (control) 15.82 rel% 5/5 in 82.4 min | L=2 13.97 5/5 in 22.5 min (3.66x) |
+    L=1 13.69 5/5 in 13.2 min (6.26x). Both shortened arms BEAT the control. P2
+    holds: wall-clock scales near-proportionally with length (1:3.66:6.26 observed
+    against 1:4:8 if length were the only cost; the shortfall is fixed
+    per-iteration GP refit and DT training). SC1 passes (HF 0.939/0.869 vs 0.883).
+    Contention runs PROTECTIVE here -- h172 ran at 15/15 workers, the session
+    high, against a control at unknown lower load, so 6.26x can only be
+    understated. L=4 still running; a non-monotone dose is not yet excluded.
+    THIS IS THE FIRST CHANGE TO WHAT THE CODE SHOULD DO to come out of this front.'
+
+  target_anticorrelates_within_a_dose: 'Across h172 the conditioning target falls
+    0.9761 -> 0.6380 -> 0.4590 as length falls 8 -> 2 -> 1, while regret IMPROVES
+    15.82 -> 13.97 -> 13.69. Seventh demonstration that the target does not drive
+    performance, and the only one where the two move in OPPOSITE directions inside
+    a single controlled manipulation rather than across arms.'
+
   running:
-  - 'h172 rollout-length dose {1,2,4} vs the control''s 8, Borehole 42-46. Tests
-    h171''s actionable implication. Asymmetry registered: a NULL does not refute
-    h171, it only means the saving is not realisable by this lever (shortening
-    also changes the RTG/BTG labels and the DT context length).'
+  - 'h173 -- h171 HEAD/TAIL on Hartmann, seeds 42-46. The front''s ANSWER is stated
+    in findings.md, research-state.yaml and the published report WITHOUT a
+    benchmark qualifier, and h171 is Borehole-only. R1: if the ordering does not
+    reproduce, the answer must be scoped to one benchmark. Chosen over chasing
+    h170''s ~5 SE residual, which refines an account already established at the
+    level that matters. SC1 expected to fire on TAIL as it did in h171; the
+    attribution will again rest on the arms that fail WITHOUT a fidelity collapse
+    (Hartmann ORACLE 0.261, RANDOM-POOL 0.281).'
+  - 'h172 L=4, finishing.'
 
   open:
   - 'The tau=0 conditional-mean account has a ~5 SE residual (h170): the query is
