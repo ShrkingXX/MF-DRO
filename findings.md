@@ -15738,3 +15738,75 @@ fails, h155's retraction is Borehole-specific and findings.md must be scoped to
 one benchmark. Its HF-fraction confound will be checked before its regret is
 read — Hartmann's control makes far fewer HF queries than Borehole's, so a
 fidelity shift is likelier to matter there.
+
+---
+
+# h167 — the learnability framing is RETRACTED. The failure is at inference, not training.
+
+CONFIRMATORY, zero compute. R2 was pre-named as the likeliest outcome and as
+explicitly NOT support. It fired, and the follow-up it registered overturned more
+than R2 did.
+
+## Where the collapse actually lands
+
+| arm | d(centroid, box CENTRE) | d(centroid, teacher's own mean) |
+|---|---|---|
+| control / UCB / FROZEN / EXPLOIT (work) | **0.7375–0.7788** | 0.4574–0.4870 |
+| ORACLE (fails) | **0.0394** | 0.6766 |
+| DIVERSE-GOOD (fails) | **0.0409** | 0.6689 |
+| RANDOM-POOL (fails) | **0.0239** | 0.6577 |
+
+All three failing arms land within **0.04** of the exact centre of the
+normalised box in 8 dimensions — **regardless of where their teachers were
+aiming**. ORACLE's teacher averages to the midpoint of centre and x*, 0.66 away;
+its student does not go there. The collapse is a property of the network, not of
+the target distribution.
+
+## And the DT is not collapsed during training at all
+
+MSE of the best constant predictor against each teacher's own action
+distribution, same normalised space and averaging as `L_loc`:
+
+| teacher | MSE @ box centre | MSE @ target mean | **observed L_loc** |
+|---|---|---|---|
+| RANDOM | 0.0834 | 0.0834 | **0.018–0.022** |
+| ORACLE | 0.1085 | 0.0533 | **0.018–0.022** |
+| DIVERSE-GOOD | 0.0710 | 0.0544 | **0.018–0.022** |
+
+**Observed training loss is 2.5–4× lower than any constant.** The network fits
+these teachers, and fits them well.
+
+## The retraction
+
+The learnability framing — "the teacher's action must be a function of the
+observable state, or the DT cannot fit it" — is **RETRACTED**. The actions are
+demonstrably fittable: the network fits all three failing teachers far better
+than any constant. h162's "predicting the mean of an unlearnable target" is wrong
+as stated, and with it the resolution it offered for the L_loc puzzle.
+
+**The failure is a disagreement between training and inference.** The network
+learns the mapping and then, when asked for an action under the inference
+conditioning, returns its box centre.
+
+## Where this points
+
+At inference the DT is conditioned on `rtg_target` = max(batch_max,
+0.5·running_max) — by construction the extreme upper tail of the training
+returns. h156 measured those distributions: the failing arms have mean rtg[0]
+of +0.008 to +0.020, s.d. ~0.10, and a target near 0.30. The network is asked
+what action yields a return three standard deviations above anything typical, in
+arms where the trajectories that got there did so by lucky fantasy draws rather
+than by doing anything systematic. There is no action that answers it.
+
+`h148-rtg-target-outside-support` already exists in this repo and is exactly this
+question. It is to be re-read before anything new is designed.
+
+## Standing count
+
+This is the **fourth** explanation to fall on this front: "the MES rule
+specifically" (h155), "target collapse causes failure" (h153), "open-loop /
+adaptivity" (h156), and now "learnability" (h167). The pattern is consistent —
+each account fitted the evidence available and outran it. The **facts** have been
+stable throughout: the 2×2, the dispersion split on two benchmarks, the flat
+quality/diversity dose. It is the explanations that keep failing, which is worth
+saying plainly in any write-up.
