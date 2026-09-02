@@ -14344,3 +14344,51 @@ useless at inference. That would make **imitability**, not quality, the property
 teacher needs. **It has no registered test and should not be believed yet**, but it
 is now the most consequential open question in this line: if right, it says the ROI
 helps by making teacher actions more *predictable from the state*, not better.
+
+## CORRECTION to h145 v2 — Hartmann is CONFOUNDED. Borehole is the clean result.
+
+Prompted by a query about whether a DT masking bug could explain the oracle's
+collapse. **No masking bug is present** and I checked rather than assumed:
+
+- The MF training call site never passes `attention_mask` — it is `None` always,
+  so the `[B, 4*T]` vs `repeat_interleave(3, dim=1)` mismatch between `forward_mf`
+  and `get_action_hidden_states` is dead code on this path.
+- With `bes_delta=0.0` (h83's config, inherited by h145) the BES break never
+  fires, so every trajectory runs the full `rollout_length=8`. **There is no
+  padding**, `valid_mask` is all-True, and the documented "padded tokens are still
+  embedded and attended over" gap is inert here.
+- **`L_loc` is 3x LOWER in the oracle runs** (0.017 vs 0.061 Hartmann; 0.018 vs
+  0.040 Borehole). Corrupted training raises loss; this is the DT fitting expert
+  targets *better*. Query dispersion is also lower (0.156 vs 0.214; 0.189 vs
+  0.277) — a more collapsed policy, learned successfully.
+
+### But the check found a confound I had already reported past
+
+    corr(oracle HF share, degradation)      Hartmann  -0.830      Borehole  +0.035
+
+    Hartmann per-seed:  s44 83% HF -> +12.51      s42 2% HF -> +40.74
+                        s43 33% HF -> +54.36      s46 2% HF -> +60.35
+
+**On Hartmann the damage tracks the fidelity collapse almost perfectly.** The
++44.246 figure is therefore **not a clean measure of trajectory quality**, and I
+reported it as one. The user had told me the fidelity mix was the less important
+question; that was true of the *mechanism*, but not of whether Hartmann's number
+was attributable, and I should have separated those.
+
+**Borehole is clean on this axis** (rho = +0.035) and degrades uniformly +17.41 to
++32.59 across all five seeds.
+
+### The corrected claim
+
+**Borehole, n=5: the oracle teacher is +28.126 rel% WORSE, effect 4.49, 0/5, with
+no seed-wise relationship to fidelity share.** That is the defensible answer to
+"does better trajectory quality improve MF-DRO": **no, it degrades it markedly.**
+
+Hartmann points the same way but cannot be attributed and should be quoted as
+suggestive at most.
+
+**One limitation that survives even on Borehole:** the oracle arm's HF share
+(47-81%) sits below the control's (83-97%) on every seed. Degradation does not
+track HF share *within* the oracle arm, but a uniform level effect from the lower
+HF share is not excluded by that. Ruling it out needs an arm with fidelity pinned
+to the control's, which has not been run.
