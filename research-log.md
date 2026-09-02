@@ -3673,3 +3673,19 @@ ships.
   is `None` unless the forbidden `use_candidate_scoring` flag is on. Caught before
   launch, deviation recorded in the protocol.
 - h184 still running (ctrl 83, head 137).
+
+## tick 45 — h188 predicts the query; h187 launched into freed slots
+
+- **h188 (EXPLORATORY).** The synthesis now *predicts* the DT's emitted query from an
+  independently recorded quantity. `teacher_action_stats` holds the all-τ mean, which
+  supplies the control: at L=1 that **is** the τ=0 mean (must hold), at L=8 with a
+  sharp τ split it is **not** (must fail).
+  Positive: ROLLOUT1/2/4 → **0.109–0.158**. Negative: HEAD/TAIL → **0.617–0.715**.
+  **4.5–5.3× separation**, direction fixed in advance by rollout length.
+- **h187 LAUNCHED** into the slots h184's HEAD arms freed. 10 workers total, never
+  above the cap, and the registered priority was not slowed.
+- **h184 HEAD arms complete (5/5).** SC read only: `lf_fraction` = **0.750 on every
+  seed** against Borehole's unforced 0.117 — the ceiling holds its 25% HF target
+  tightly. **Regret deliberately not read**: h184's readout is the GAP between arms,
+  so reading one arm alone would be a partial peek.
+- h184 CTRL still running.
