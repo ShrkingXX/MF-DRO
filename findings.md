@@ -17620,3 +17620,50 @@ but not exactly time-matched; only L=1 is an exact all-τ = τ=0 identity, so L=
 are weaker evidence than ROLLOUT1. A genuine **per-τ** breakdown of teacher actions
 would replace this inference with a direct measurement — cheap, and the obvious
 addition to any future run.
+
+---
+
+## h184 — **P1 fires**, but only in direction. The benchmark asymmetry is NOT closed.
+
+CONFIRMATORY, 10/10 runs, readout script committed before the CTRL arm landed.
+
+**SC first, as registered:** realised `lf_fraction` = **0.75 on every seed of both
+arms** (unforced Borehole is 0.117). The HF ceiling held its target exactly and
+symmetrically, so the gap between arms is not confounded by the intervention.
+
+| | CTRL | HEAD | paired mean | seeds worse |
+|---|---|---|---|---|
+| unforced Borehole | 15.82 | 16.96 | +1.15 (se 1.34) | **2/5** |
+| **LF-forced Borehole** | **15.76** | **17.35** | **+1.60 (se 0.79)** | **4/5** |
+| Hartmann | 7.99 | 25.16 | +17.17 (se 11.10) | **5/5** |
+
+Registered statistic was the seed count (P1 ≥ 4). **4/5 → P1: the `lf_fraction`
+account is SUPPORTED.** Forcing Borehole into Hartmann's fidelity mix moved the sign
+pattern from 2/5 toward Hartmann's 5/5.
+
+### What the verdict line omits, and it matters more
+
+**The magnitude did not become Hartmann-like at all.** The paired mean moved +1.15 →
++1.60 — a change of **+0.45**, which is **0.33 se** of the unforced gap, not resolvable
+at n=5. Hartmann's gap is **+17.17**; Borehole's forced gap reaches **9%** of it. Two
+of the four "worse" seeds are worse by only 0.41 and 1.12, and the fifth is tied at
+−0.09.
+
+**Direction moved as predicted; size did not.** Reporting "P1, supported" alone would
+overstate this substantially.
+
+### On the gate, honestly
+
+The gate went on the sign pattern *because* Hartmann's mean is unresolved (se 11.10,
+one seed at 60.98). That was right with the information available. The cost is now
+visible: **a sign-pattern gate can fire on an effect a tenth the size of the one it
+models.** A magnitude clause registered alongside would have sharpened this in both
+directions — worth carrying forward.
+
+### Standing
+
+First of **three** accounts of the asymmetry not refused by its own numbers (the
+escape-fraction and geometric accounts were both refuted by direct measurement). The
+fidelity operating point is **a** contributor and **cannot be the whole** of it, since
+replicating Hartmann's fidelity mix reproduces under a tenth of Hartmann's effect.
+**The asymmetry is not closed.**

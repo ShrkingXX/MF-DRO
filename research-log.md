@@ -3689,3 +3689,16 @@ ships.
   tightly. **Regret deliberately not read**: h184's readout is the GAP between arms,
   so reading one arm alone would be a partial peek.
 - h184 CTRL still running.
+
+## tick 46 — h184 lands: P1 fires in direction, not in magnitude
+
+- **h184 complete, 10/10.** SC PASS — `lf_fraction` exactly 0.75 on every seed of both
+  arms, symmetric forcing, gap unconfounded.
+- **Registered statistic 4/5 → P1.** Sign pattern moved 2/5 → 4/5 toward Hartmann's 5/5.
+- **But the magnitude did not move**: paired mean +1.15 → +1.60 (+0.45 = 0.33 se),
+  against Hartmann's +17.17 — **9% of the way**. Supported in direction only.
+- **Gate-design lesson recorded**: a sign-pattern gate can fire on an effect a tenth
+  the size of the one it models. Register a magnitude clause alongside.
+- **The asymmetry is NOT closed.** This is the first of three accounts not refuted, and
+  it is partial.
+- h187 still running (5 workers).

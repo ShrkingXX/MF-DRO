@@ -230,6 +230,24 @@ current_front:
     p_pred=1.0 every iteration, so the arm may run at lf_fraction ~0 vs MF-DRO''s
     0.117 -- realised lf_fraction to be read BEFORE the regret.'
 
+  h184_result: 'CONFIRMATORY, 10/10, readout script committed BEFORE the CTRL arm
+    landed. SC PASS: realised lf_fraction 0.75 on EVERY seed of BOTH arms (unforced
+    Borehole 0.117), so the forcing is exact and symmetric and the gap is unconfounded.
+    REGISTERED STATISTIC (seeds where LF-forced HEAD is worse than LF-forced CTRL):
+    4/5 -> P1 FIRES, the lf_fraction account is SUPPORTED. Sign pattern moved 2/5
+    (unforced) -> 4/5, toward Hartmann''s 5/5. BUT THE MAGNITUDE DID NOT FOLLOW: paired
+    mean moved only +1.15 -> +1.60 (change +0.45 = 0.33 se of the unforced gap, not
+    resolvable at n=5) against Hartmann''s +17.17 -- i.e. 9% of the way. Two of the four
+    "worse" seeds are worse by only 0.41 and 1.12; the fifth is tied at -0.09. SUPPORTED
+    IN DIRECTION, NOT IN MAGNITUDE. GATE-DESIGN LESSON: the gate went on the sign
+    pattern because Hartmann''s mean is unresolved (se 11.10, one seed at 60.98) -- right
+    with the information available, but a sign-pattern gate CAN FIRE ON AN EFFECT A
+    TENTH THE SIZE of the one it models; register a magnitude clause alongside next
+    time. STANDING: first of THREE asymmetry accounts not refused by its own numbers
+    (escape-fraction and geometric were both refuted by direct measurement). The
+    fidelity operating point is A contributor and CANNOT BE THE WHOLE of it. THE
+    BENCHMARK ASYMMETRY IS NOT CLOSED.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
