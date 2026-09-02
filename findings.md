@@ -15810,3 +15810,70 @@ each account fitted the evidence available and outran it. The **facts** have bee
 stable throughout: the 2×2, the dispersion split on two benchmarks, the flat
 quality/diversity dose. It is the explanations that keep failing, which is worth
 saying plainly in any write-up.
+
+---
+
+## h167c — fitting the teacher better goes with performing worse
+
+EXPLORATORY. Raw `L_loc` is not comparable across arms; a more spread-out target
+set has a higher floor. The comparable quantity is how much better the network
+does than the best constant for its own targets.
+
+| arm | best-constant MSE | observed L_loc | **ratio** |
+|---|---|---|---|
+| **control (works)** | 0.0532 | 0.040 | **1.33** |
+| RANDOM-POOL (fails) | 0.0834 | 0.020 | **4.17** |
+| ORACLE (fails) | 0.0533 | 0.020 | **2.67** |
+| DIVERSE-GOOD (fails) | 0.0544 | 0.020 | **2.72** |
+
+The **working** arm fits its teacher **worst** — beating a constant by 1.33×,
+explaining roughly a quarter of the target variance. Every failing arm beats its
+constant by 2.7–4.2×.
+
+The L_loc puzzle does not dissolve into a units artefact (P1); it survives and
+inverts (P2). The statement is no longer "the DT fits the failing teachers better
+and still emits worse points" but:
+
+> **Fitting the teacher is not what makes the method work. Across four arms,
+> fitting it better goes with performing worse.**
+
+This reinforces h150's retraction of "the DT distils the teacher's policy" from
+an independent direction: a network explaining a quarter of its teacher's action
+variance is not distilling it.
+
+### The threat, and it runs against the surprise
+
+The four baselines are not equally reliable. RANDOM, ORACLE and DIVERSE-GOOD have
+**state-independent** targets, so their baselines are exact up to sampling. The
+**control's are state-dependent** (MES argmax over the current model), and its
+baseline was generated on 6 states from two seeds while its observed `L_loc`
+averages ~60 real iterations. If the real MES action distribution spreads later
+in a run, the control's ratio is an **underestimate** — so the one arm carrying
+the surprise has the weakest baseline, and 1.33 vs 2.67 is not a gap that
+survives arbitrary bias.
+
+**What would settle it:** serialising `actions_x` per rollout — the fix this
+project has failed to make five times, and which would make all four baselines
+exact rather than reconstructed. Registered, not attempted.
+
+## h165 — the pre-registered confound is triggering (n=2 of 5, preliminary)
+
+Hartmann post-init HF fraction:
+
+| arm | mean | per-seed |
+|---|---|---|
+| control | 0.200 | 0.056, 0.750, 0.099, 0.038, 0.056 |
+| RANDOM-POOL | 0.281 | 0.260, 0.356, 0.243, 0.168, 0.375 |
+| **h165 UCB-LOC** | **0.605** (n=2) | 0.926, 0.284 |
+
+h165's protocol registered: *"realised HF fraction against the Hartmann
+control's… a collapse voids the arm regardless of regret."* The shift is upward
+rather than a collapse, but it is the same confound — a different HF/LF mix,
+which on Hartmann costs 8× per HF query and so changes the number of queries
+bought. At n=2 this is preliminary and no verdict is issued; recorded now so it
+is not discovered after the regret numbers are seen.
+
+Note the Hartmann control is itself wildly unstable on this measure (0.038 to
+0.750), which makes "the control's HF fraction" a weak reference. That is a
+property of the benchmark, not of h165, and it may mean this cell cannot be
+cleanly read on Hartmann at all.
