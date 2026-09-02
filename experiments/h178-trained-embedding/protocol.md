@@ -57,3 +57,25 @@ SC2 bit-identity of the default path.
 Hartmann_6D RANDOM-POOL seeds 42-46 -- the same arm as h168 and h177, so the
 responses can be set against those runs' measured action movements directly.
 5 workers.
+
+## SC1 failed, was fixed, and passed — and the early reading is NOT informative
+
+**SC1 first FAILED**: `RuntimeError('mat1 and mat2 must have the same dtype')`.
+The probe used `state.dtype` (float64) against float32 modules — the DT runs in
+float32 because `propose_mf` calls `state.float()`. Caught by the smoke test
+before the arm ran; fixed to follow the module's own weight dtype. **Fourth time
+this session a pre-launch smoke test has caught something that would otherwise
+have surfaced as silently-missing data.**
+
+After the fix, SC1 **PASSES** and SC2 (bit-identity) passes (122.2906675273).
+
+**The early reading is recorded but explicitly does not count as evidence.** At
+5 iterations it gives rtg_resp 0.4974 and btg_resp 0.0051, ratio 98.2× — a near-
+perfect match to the random-weight estimate (0.4869 / 0.0056 / ~87×).
+
+**That match is close to tautological.** After five iterations the DT has had few
+gradient updates, so its embedding weights are still near initialisation, and
+agreeing with a random-weight calculation is exactly what an untrained module
+must do. **The hypothesis is only tested by a fully-trained network**, which is
+what the full arm provides. Stating this now so the full-run numbers are not read
+as merely confirming what the smoke already showed.

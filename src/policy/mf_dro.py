@@ -3311,9 +3311,32 @@ class DirectMFRegretOptimization:
                         _brec.append(dict(btg=float(_bv),
                                            x=[float(v) for v in _bx.reshape(-1)],
                                            ell=int(_be)))
+                    # H178: the TRAINED embedding's own response. h177 argued
+                    # the conditioning is inert because raw scalars into
+                    # Linear(1->H)+LayerNorm saturate, using RANDOM weights. This
+                    # measures the trained modules directly over each scalar's
+                    # observed operating range. Pure forward passes on two
+                    # scalars -- read-only, consumes no RNG.
+                    _emb = {}
+                    try:
+                        _dt = self.dt
+                        def _resp(_lin, _ln, _lo, _hi):
+                            # dtype must follow the MODULE, not the state: the DT
+                            # runs in float32 (propose_mf calls state.float()) while
+                            # state itself is float64. Using state.dtype raised
+                            # "mat1 and mat2 must have the same dtype" -- caught by
+                            # the smoke test before this arm ran.
+                            _dt_ = _lin.weight.dtype
+                            _a = _ln(_lin(torch.tensor([[[float(_lo)]]], dtype=_dt_)))
+                            _b = _ln(_lin(torch.tensor([[[float(_hi)]]], dtype=_dt_)))
+                            return float((_a - _b).norm() / _a.norm().clamp_min(1e-12))
+                        _emb['rtg_resp'] = _resp(_dt.reward_embedding, _dt.reward_ln, 0.30, 1.00)
+                        _emb['btg_resp'] = _resp(_dt.btg_embed, _dt.btg_ln, 26.1, 30.5)
+                    except Exception as _e:
+                        _emb['error'] = repr(_e)[:120]
                     self.h168_probe_per_iter.append(
                         dict(rtg_target=float(rtg_tgt), btg_now=float(btg_now),
-                             probes=_rec, btg_probes=_brec))
+                             probes=_rec, btg_probes=_brec, emb=_emb))
                 except Exception:
                     pass
                 finally:
