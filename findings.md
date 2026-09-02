@@ -15109,3 +15109,58 @@ C5 fits worst (−19.3%) and that is unexplained. All states come from Borehole
 control traces (seeds 42/43/44); the failing arms visit different states, so the
 harness matches their targets while running on the control's state distribution.
 9 states, no p-values.
+
+---
+
+## h156c/d — the tail account generalises in SCALE, and my precision claim was an over-read
+
+### Correction to h156's headline, made before anyone relied on it
+
+h156 reported that the harness "reproduces all four observed rtg_targets, three
+within 8%, not tuned to them", and the published report repeated it. **That
+overstated the precision.** h156d changed only C4/C5, but its new fidelity call
+consumes RNG, so C1/C2/C3 in the two runs are a pure replicate — and they differ
+by **6.1% on average, 10.9% at worst**. Against a 6% noise floor, "within 8%" is
+barely above noise.
+
+Re-read against that floor, over two replicates:
+
+| | errors | verdict |
+|---|---|---|
+| control / C1 (both benchmarks) | −7.2%, −1.5%, −11.1%, −7.9% | within noise |
+| RANDOM-POOL / C3 Hartmann | −4.6%, −1.1% | within noise |
+| RANDOM-POOL / C3 Borehole | −7.6%, −13.5% | borderline |
+| ORACLE / C4 | −2.9%, −23.6%, −31.2%, −29.8% | **real misfit** |
+| DIVERSE-GOOD / C5 | −19.3%, −24.7% | **real misfit** |
+
+The −2.9% that made ORACLE look like the best fit of all four was noise.
+
+### What survives at the precision the data supports
+
+**The scale separation is robust**: control 0.79–0.96 against every failing arm
+0.24–0.29, a 3–4× gap against a 6% noise floor, on two benchmarks across four
+independent runs. The account — the failing arms earn essentially no information
+and leave no upper tail for a MAX to find — stands, and h149's reinstated
+mechanism with it.
+
+**The quantitative claim does not.** The harness systematically UNDER-predicts
+the two INTERPOLATING conditions by 20–30%: the real ORACLE and DIVERSE-GOOD
+arms achieve higher targets than trajectory geometry alone predicts. h156d
+tested my leading explanation (the harness's hardcoded fidelity coin flip,
+replaced with the arms' own cost-normalised criterion) and it **FAILED the
+gate** — the cross-benchmark direction was corrected but the magnitude did not
+move. The misfit is real and currently unexplained.
+
+### Hartmann generality: PARTIAL (R2 as pre-named)
+
+Scale replicates. The required test — tracking the NARROWING between benchmarks
+— failed on the old harness (direction wrong for ORACLE) and only half-passed on
+the new one (direction right, magnitude 30% off). Reported as partial, not as
+generalisation.
+
+### The h153 forecast is unaffected and better supported
+
+C2/C1 across two benchmarks × two replicates: **90.9%, 95.5%, 90.9%, 93.2%**.
+Freezing costs 5–9% of the tail; the failing arms lose ~70%. The forecast —
+h153 should NOT collapse its target and should land near the control — now rests
+on four independent measurements. C2 is untouched by the C4/C5 misfit.
