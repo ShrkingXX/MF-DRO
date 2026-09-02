@@ -57,3 +57,28 @@ run in this form.
 Borehole_8D seeds 42-46 against the h83 control. Requires a gated code change to
 the embedding path, a bit-identity gate, and a smoke test showing the
 standardisation actually reaches the modules.
+
+## SC1 failed, was fixed, and passed — and exposed a subtlety worth naming
+
+**SC1 first FAILED**: `standardize_conditioning` was False on the model. The
+worker set it on the MF-DRO config, but the DT is built with its **own** config
+object and the flag was never forwarded. Fixed at mf_dro.py's DT construction.
+**Fifth time this session a pre-launch smoke has caught a silent no-op.**
+SC2 (bit-identity, flag OFF) passes: 122.2906675273.
+
+**The smoke's response numbers are not usable, and the reason matters.** It
+evaluated *Hartmann's* BTG range (26.1–30.5) against *Borehole's* running stats
+(mu 8.09, sd 4.32), giving z ∈ [4.2, 5.2] — still saturated. Mismatched ranges,
+my error.
+
+But it exposes a real subtlety: the running statistics come from the **training**
+distribution (BTG sd 4.32 on Borehole), while inference `btg_now` spans a much
+narrower slice (sd 0.785 on Hartmann). **Standardising by training statistics
+maps the inference range to a narrow z-band, which may still be relatively flat.**
+So the 336× module-level figure is an upper bound, not what this arm will
+deliver.
+
+**Consequence for the design:** the arm now also switches on h178's
+embedding-response probe, so it *measures* whether the channel became responsive
+at inference rather than assuming it. A null result would otherwise be
+uninterpretable — unresponsive channel, or responsive channel that does not help?

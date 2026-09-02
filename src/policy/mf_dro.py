@@ -2374,6 +2374,10 @@ class DirectMFRegretOptimization:
             # DecisionTransformer.__init__ and
             # experiments/h4-adaln-rtg-conditioning/protocol.md
             rtg_conditioning=getattr(config, 'rtg_conditioning', 'token'),
+            # H179: forwarded from the MF-DRO config to the DT's own config
+            # object -- they are separate, and setting it only on the former
+            # left the flag False on the model (caught by h179's smoke test).
+            standardize_conditioning=getattr(config, 'standardize_conditioning', False),
             # H102: 'mse' (default, unchanged) or 'l1'. An L2 loss fits the
             # conditional MEAN, which is pulled inward from a boundary whenever
             # any target mass lies away from it; an L1 loss fits the MEDIAN,

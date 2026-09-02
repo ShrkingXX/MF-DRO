@@ -64,6 +64,18 @@ class DecisionTransformer(nn.Module):
         self.use_mf = use_mf
         if use_mf:
             self.btg_embed = nn.Linear(1, config.hidden_size)
+            # H179 (default OFF -> every existing config is bit-identical).
+            # h177/h178 measured that raw scalars into Linear(1->H)+LayerNorm
+            # SATURATE: over BTG's operating range (~26-30) the trained
+            # embedding response is 0.0056, 93x less than RTG's over its own
+            # (0.30-1.00), and it stays there through training. Z-scoring the
+            # scalar restores the response to 1.88 (336x). These buffers hold a
+            # running mean/std used only when standardize_conditioning is set.
+            self.standardize_conditioning = bool(
+                getattr(config, 'standardize_conditioning', False))
+            self.register_buffer('_cond_mu', torch.zeros(2))
+            self.register_buffer('_cond_sd', torch.ones(2))
+            self.register_buffer('_cond_n', torch.zeros(1))
 
             # Mirrors action_head: 2 Linear + ReLU (+ Sigmoid, since this head
             # predicts a fidelity probability, not a raw location).
@@ -256,6 +268,31 @@ class DecisionTransformer(nn.Module):
         Q_hat = self.quantile_head(h_shifted)
         return predicted_actions, Q_hat
 
+    def _std_cond(self, rtg, btg, update=False):
+        """H179. Z-score the conditioning scalars using running statistics.
+
+        h177/h178 measured that raw scalars into Linear(1->H)+LayerNorm
+        SATURATE: over BTG's operating range (~26-30) the trained embedding
+        response is 0.0056 against RTG's 0.5216 over its own (0.30-1.00), a 93x
+        gap that persists through training. Z-scoring restores it to ~1.88.
+
+        Returns (rtg, btg) unchanged when standardize_conditioning is False, so
+        the default path is bit-identical.
+        """
+        if not getattr(self, 'standardize_conditioning', False):
+            return rtg, btg
+        if update and rtg.numel() > 0:
+            with torch.no_grad():
+                _b = torch.stack([rtg.reshape(-1).mean(), btg.reshape(-1).mean()])
+                _s = torch.stack([rtg.reshape(-1).std().clamp_min(1e-6),
+                                   btg.reshape(-1).std().clamp_min(1e-6)])
+                _m = 0.05 if float(self._cond_n) > 0 else 1.0   # first batch seeds it
+                self._cond_mu.mul_(1 - _m).add_(_m * _b.to(self._cond_mu.dtype))
+                self._cond_sd.mul_(1 - _m).add_(_m * _s.to(self._cond_sd.dtype))
+                self._cond_n += 1
+        mu = self._cond_mu.to(rtg.dtype); sd = self._cond_sd.to(rtg.dtype).clamp_min(1e-6)
+        return (rtg - mu[0]) / sd[0], (btg - mu[1]) / sd[1]
+
     def forward_mf(self, states, actions_ell,
                     rtg, btg, timesteps, attention_mask=None,
                     actions_x=None,
@@ -321,6 +358,10 @@ class DecisionTransformer(nn.Module):
         H = self.hidden_size
 
         # Embed each token type (FIX 2: LayerNorm after each embedding)
+        # H179: standardise the conditioning scalars before embedding.
+        # OFF by default -- when off, rtg/btg pass through untouched and every
+        # existing configuration is bit-identical.
+        rtg, btg = self._std_cond(rtg, btg, update=self.training)
         rtg_emb = self.reward_ln(self.reward_embedding(rtg.unsqueeze(-1)))   # [B,T,H]
         btg_emb = self.btg_ln(self.btg_embed(btg.unsqueeze(-1)))             # [B,T,H]
         s_emb = self.state_ln(self.state_embedding(states))                  # [B,T,H]
@@ -642,6 +683,8 @@ class DecisionTransformer(nn.Module):
             # forward_mf applies them during training would silently make
             # propose_mf feed the transformer differently-scaled embeddings
             # than what it was trained on).
+            # H179: same standardisation as training (update=False at inference).
+            r, b = self._std_cond(r, b, update=False)
             rtg_emb = self.reward_ln(self.reward_embedding(r))   # r already [1,1,1] -> [1,1,H]
             btg_emb = self.btg_ln(self.btg_embed(b))             # b already [1,1,1] -> [1,1,H]
             s_emb = self.state_ln(self.state_embedding(s))                          # [1,1,H]
