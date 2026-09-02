@@ -16670,3 +16670,45 @@ the published report all state it without a benchmark qualifier — that is now
 known to be *unscoped* rather than merely untested. Testing it properly needs an
 arm that holds the fidelity mix fixed while shortening the rollout, the same
 device h155 used to isolate the location rule. Registered, not attempted.
+
+---
+
+# h173 — **R2 fires. The front's answer holds on two benchmarks.**
+
+| Hartmann arm | rel% | improves | HF frac | centroid | at floor |
+|---|---|---|---|---|---|
+| control MES | **7.99** | 5/5 | 0.200 | 0.6287 | 0/5 |
+| **HEAD-MES** (acq. on 1 of 8) | **12.10** | 3/4 | 0.304 | **0.5632** | 1/4 |
+| **TAIL-MES** (acq. on 7 of 8) | **46.45** | 4/5 | 0.281 | **0.0404** | 1/5 |
+| RANDOM-POOL | 65.14 | 2/5 | 0.281 | 0.0237 | 1/5 |
+
+P1, P2 and P3 all hold. **The teacher that follows the acquisition on seven of
+eight steps fails on a second benchmark too**, and the query-centroid prediction
+holds decisively (HEAD 0.5632 out in the space, TAIL 0.0404 at the box centre).
+R1 does not fire — **the answer does not need scoping to Borehole.**
+
+## SC1 passes here, and that closes the gap Borehole left open
+
+On Borehole, h171's TAIL collapsed its fidelity (HF 0.217 vs 0.883), SC1 fired,
+and I had to rest the attribution on ORACLE and DIVERSE-GOOD instead.
+
+**On Hartmann TAIL's HF is 0.281 against the control's 0.200 — no collapse.** So
+TAIL itself supplies the clean attribution: a τ=0 location drawn independently of
+the model is sufficient to fail **with the fidelity mix intact**, shown inside the
+arm rather than borrowed from others.
+
+That is the argument for replicating at all — the second benchmark supplied
+exactly what the first could not.
+
+## SC2 checked and it does not drive the result
+
+The Hartmann saturation floor (0.7531) binds on seed 44 for HEAD, TAIL and RANDOM
+alike. Registered in advance so it could not be read as a tie; dropping that seed
+leaves the ordering unchanged.
+
+## Caveats
+
+HEAD is n=4. Hartmann's per-seed spread is large on every arm (the control alone
+ranges 0.7–16.4), so **HEAD vs control (12.10 vs 7.99) is not resolvable at this
+sample size**. What is resolvable is HEAD vs TAIL — a factor of nearly four — and
+TAIL vs control, a factor of six.
