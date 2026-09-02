@@ -16312,3 +16312,47 @@ h171's two arms are progressing at very different rates: HEAD-MES is at cost
 HEAD's one. If HEAD-MES works — which the τ=0 mechanism requires — then the
 method's dominant cost is being spent on steps that never reach inference.
 Recorded as an observation about wall-clock, not as evidence for the mechanism.
+
+---
+
+## h166 FINAL (n=5) — the Hartmann 2×2 closes, and the refutation is solid on two benchmarks
+
+| | CLOSED-loop | OPEN-loop (frozen) |
+|---|---|---|
+| **MES** | control **7.99**, 5/5, rtg 0.8844 | **h166 7.93**, 5/5, rtg **0.3824** |
+| **non-MES** | h165 **10.58**, 5/5, rtg 0.8486 | RANDOM-POOL **65.14**, 2/5, rtg 0.2924 |
+
+Per-seed h166: 10.47, 2.22, 7.55, 10.73, 8.67.
+
+h166 **ties the control** (7.93 vs 7.99, improving 5/5 like it) while its
+conditioning target sits at **0.3824** — nearer RANDOM-POOL's 0.2924 than the
+control's 0.8844. **R2 confirmed at full n.**
+
+Four independent arms now carry a collapsed target and good performance: h153
+(0.3230), h161 (0.3270), h166 (0.3824), and h171-HEAD (0.3720, preliminary).
+The refutation of the target-collapse account — stated in findings.md and the
+published report without a benchmark qualifier — is now solid on **two
+benchmarks and four arms**.
+
+## h171 HEAD-MES (n=2, PRELIMINARY) — both forecast halves hold
+
+| | forecast (committed at 0/5) | observed n=2 |
+|---|---|---|
+| **F1** query centroid from box centre | **> 0.5** | **0.7287** |
+| **F2** regret | near control ~15.82 | **17.15** |
+| **F2** improves | ~5/5, not 0/5 | **2/2** |
+
+Reference: control centroid 0.7604 / 15.82 / 5/5; RANDOM-POOL 0.0239 / 43.94 / 0/5.
+
+**HEAD-MES follows the acquisition on one step in eight** — the other seven are
+uniform random — and it lands at 17.15 against the control's 15.82, improving on
+every seed so far. Its conditioning target is 0.3720, in the failing band.
+
+F1 is the stronger half: a numeric prediction of a location in 8 dimensions,
+derived from τ=0 action means measured on arms that did not exist when h171 was
+designed. Predicted > 0.5; observed 0.7287.
+
+**n=2, and the decisive half is still running.** TAIL-MES — the arm that follows
+the acquisition on *seven* of eight steps and which the mechanism requires to
+FAIL — is at ~52%. **R2 (TAIL works → τ=0 not necessary) remains individually
+fatal and is not yet tested.** No verdict until it reports.
