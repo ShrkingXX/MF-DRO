@@ -3208,3 +3208,39 @@ than by explaining what was already there.
 ~5 SE residual, so something else is also operating.
 
 **Compute:** 15/15 (h172), at the cap and nothing else running.
+
+## 2026-09-02 (tick 27) — the front pays out: one-step rollouts beat eight-step ones
+
+**h172 L=1 finished at n=5 and R1 fired.** 13.69 rel% against the control's
+15.82, improving 5/5, better on 4 of 5 seeds -- and in **13.2 minutes against
+82.4**. P1 predicted "within ~3 rel%"; it came in 2.13 rel% BETTER.
+
+h171 showed the seven later rollout steps do not reach the real query. h172 shows
+they can simply be deleted. **This is the first change to what the code should do
+to come out of this front** -- everything before it was an explanation.
+
+**The contention confound runs the protective way this time, and I checked which
+way before quoting the number.** h172 ran at 15/15 workers, the highest
+contention of the session, against a control at unknown and probably lower load.
+A 6.2x gap measured under WORSE conditions can only be understated. That is an
+argument about direction, not a matched measurement, and it is written that way
+-- unlike h171's "2.1x", which I quoted first and checked second.
+
+**h173 launched: h171 on Hartmann.** The front's ANSWER is currently stated in
+findings.md, research-state.yaml and the published report **without a benchmark
+qualifier**, and h171 is Borehole-only. Every other load-bearing result here has
+been made to replicate, and twice the second benchmark changed what could be
+claimed -- h164's HF-only slicing turned out unusable there, and h165's ordering
+flipped relative to Borehole. A one-benchmark headline is the biggest remaining
+exposure.
+
+Chosen deliberately over chasing h170's ~5 SE residual, which refines an account
+already established at the level that matters. Recorded as a choice, with the
+reason.
+
+**Holistic:** the front has gone question -> answer -> intervention -> actionable
+change in four ticks, after nineteen spent on explanations that did not survive.
+The thing that turned it was not a better idea but a different kind of test:
+h171 changed something instead of explaining what was already there.
+
+**Compute:** 15/15 (h172 L=2/L=4 finishing, h173 HEAD launched).
