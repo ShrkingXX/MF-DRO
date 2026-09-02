@@ -15938,3 +15938,37 @@ they had already imported the module — but any new launch would have failed
 immediately. Caught by running the syntax check *after* committing rather than
 before, and fixed in the next commit. The gate was then re-run on the fixed file
 rather than trusting the earlier PASS, which had exercised the mf_dro half only.
+
+---
+
+## Metric robustness — the frozen metric and final simple regret are the SAME number
+
+Checked in response to a direct question, on all eight Borehole arms:
+
+| arm | rel% @cost 200 (frozen) | final simple regret | final as rel% |
+|---|---|---|---|
+| control MES | 15.82 | 48.9594 | 15.82 |
+| h155 UCB-LOC | 15.13 | 46.8437 | 15.13 |
+| h159 EXPLOIT | 19.07 | 59.0252 | 19.07 |
+| h153 MES-FROZEN | 19.36 | 59.9460 | 19.36 |
+| h161 STALE-PATH | 19.53 | 60.4641 | 19.53 |
+| ORACLE / DIVERSE-GOOD / RANDOM-POOL | 43.94 | **136.0315** (all three) | 43.94 |
+
+Every arm terminates at cost ~240 (initial design 40 + budget 200), so "cost 200
+post-init" IS the end of the run and the two measures coincide exactly. **No
+conclusion on this front depends on the metric choice.**
+
+### What the raw column shows that the normalised one hides
+
+The three failing arms report the **identical** final regret, 136.0315, to four
+decimals. That is not three arms performing similarly — it is three arms landing
+on the same number, because none ever improves on the initial design and all
+therefore end at the best initial HF value.
+
+This matters for how the headline is phrased. "A perfect teacher ties a random
+one" is true but misleading; the accurate statement is **"both hit the floor"**.
+Teacher quality does not order the failing arms because there is nothing left to
+order — the saturation floor is a property of the initial design, not of the
+teachers. h151 already established that the floor itself is Borehole-specific
+(Hartmann's RANDOM-POOL improves on 2 of 4 seeds), which is why the claim is
+scoped rather than general.
