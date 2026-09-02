@@ -16380,13 +16380,27 @@ SC1 passes: HF fraction 0.825 against the control's 0.883, no collapse.
 
 ### The compute consequence, stated as a measurement not a recommendation
 
-HEAD-MES completes in **39.6 minutes against the control's 82.4** — 2.1× faster —
-because it makes one MES call per rollout instead of eight, and rollout
-generation is this method's dominant cost. The price is **+1.14 rel%**.
+HEAD-MES completes in 39.6 minutes against the control's 82.4. Normalised by
+queries (the arms make slightly different numbers of them):
 
-That is a measurement on one benchmark at n=5, not a recommendation. It becomes
-one only if TAIL-MES fails, which is what would establish that the other seven
-steps are not doing useful work rather than merely cheap work.
+| arm | MES calls per rollout | min per query |
+|---|---|---|
+| control | 8 | 0.773 |
+| HEAD-MES | 1 | 0.360 |
+| RANDOM-POOL | 0 | 0.191 |
+
+The ordering is exactly what the MES-call count predicts. **But all three ran at
+different times under different worker counts, so contention is not controlled
+and this is not yet a clean speedup measurement.** I wrote "2.1× faster" before
+checking that, and it is withdrawn as stated.
+
+The clean comparison is **HEAD vs TAIL**, which ran concurrently on the same
+machine under the same load, and which differ only in MES calls per rollout
+(1 vs 7). That number will be reported when TAIL finishes.
+
+Either way it is a measurement on one benchmark at n=5, not a recommendation.
+It becomes one only if TAIL-MES fails — which is what would establish that the
+other seven steps are not doing useful work rather than merely cheap work.
 
 ### Not a verdict — the fatal half is still running
 
