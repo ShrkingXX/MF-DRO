@@ -2770,3 +2770,39 @@ EVERY conditioning value, the conditioning is exonerated and the suspect becomes
 the network itself — and that would close the line evaluably, which h148 never did.
 
 **Compute:** 14/15 throughout. Nothing new launched.
+
+## 2026-09-02 (tick 15) — the causal test landed, and I closed a five-time failure
+
+**h161 reported (n=3) and it WORKS**: 21.17 rel%, improving on every seed,
+target 0.3388. Sanity checks exact on all three — stale fraction 0.902-0.904,
+lag exactly 600, replay error 0.0. Verdict R2: **model-selected for the CURRENT
+state is not required**; a ten-iteration-stale model's path costs ~1.8 rel% and
+no improvements.
+
+R2 was written when the learnability framing was live, and h167 retracted that
+framing one tick before h161 reported. So the causal test landed on a position
+already withdrawn — not wasted, but a reminder that a two-hour arm can be
+overtaken by a zero-compute measurement while it runs.
+
+**Closed the instrumentation gap I have logged five times.** `actions_x` was
+never serialised, which is why h167c's control baseline had to be reconstructed
+— and the control is the arm carrying that result's surprise. mf_dro.py now
+accumulates the per-iteration mean and total variance of the batch's actions
+(d+1 floats), h83's worker serialises it, and the **bit-identity gate PASSED**
+(regret 122.2906675273 identical).
+
+**I committed broken code.** The worker half went in with wrong indentation and
+was unparseable. Running arms were unaffected (already imported), but any new
+launch would have failed at once. The cause was running the syntax check AFTER
+`git commit` rather than before, in the same compound command. Fixed in the next
+commit, and the gate was re-run on the fixed file rather than trusting the
+earlier PASS, which had only exercised the mf_dro half.
+Guard: syntax-check before commit, never in the same breath after it.
+
+**Holistic:** the front's facts keep accumulating cleanly — the 2x2, now five
+working arms against three failing ones; three independent demonstrations that
+the conditioning target does not predict performance; the dispersion split on two
+benchmarks. The explanations keep failing (four so far). h168 is the registered
+next test and is still queued on compute.
+
+**Compute:** 9-13 workers.
