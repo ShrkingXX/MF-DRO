@@ -3099,3 +3099,34 @@ Also committed the h165/h166 result files, which had been left untracked.
 
 **Compute:** 11/15. h171 HEAD ~73%, TAIL ~40% (TAIL is slower because it makes
 seven MES calls per rollout to HEAD's one).
+
+## 2026-09-02 (tick 24) — h166 closes the Hartmann 2x2; h171's HEAD half lands as forecast
+
+**h166 finished at n=5 and ties the control exactly** -- 7.93 against 7.99,
+improving 5/5 like it -- while its conditioning target sits at 0.3824, nearer
+RANDOM-POOL's 0.2924 than the control's 0.8844. R2 confirmed at full n.
+
+Four independent arms now carry a collapsed target AND good performance: h153
+(0.3230), h161 (0.3270), h166 (0.3824), h171-HEAD (0.3720, preliminary). The
+refutation of the target-collapse account, which findings.md and the published
+report both state without a benchmark qualifier, is now solid on two benchmarks
+and four arms rather than one benchmark and one arm.
+
+**h171's HEAD half landed at n=2 and both forecast halves hold.** F1 predicted a
+query centroid beyond 0.5 from the box centre; observed 0.7287 (control 0.7604,
+RANDOM 0.0239). F2 predicted near-control regret; observed 17.15 against 15.82,
+improving 2/2.
+
+The striking part is what HEAD-MES is: it consults the acquisition on **one step
+in eight** and moves at random for the other seven, and it performs like the
+control. That is the mechanism's prediction and no trajectory-quality account
+makes it.
+
+**I am not calling it yet.** TAIL-MES -- the arm that follows the acquisition on
+SEVEN of eight steps and which the mechanism requires to FAIL -- is at ~52% and
+untested. R2 (TAIL works, therefore tau=0 is not necessary) remains individually
+fatal to the account. A one-sided confirmation is exactly the shape of evidence
+that has misled this front five times, and the half still running is the half
+that can kill it.
+
+**Compute:** 7/15.
