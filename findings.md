@@ -14674,3 +14674,69 @@ pre-existing path that never touches `forced_x`) separates them and is at ~135 o
 the user — "the teacher is already optimal in the rewarded currency" — rests on
 h145/h146, and both route through my hook. I am not going to extend the account,
 run the POOL dose, or add arms while the thing they all depend on is unverified.
+
+## h149 — THE FORK RESOLVES. My hook is exonerated, and the answer generalises.
+
+CONFIRMATORY. PARTIAL (3/5 landed; the remaining two were at 226/233 of 240).
+Borehole, seeds 43-45, `rollout_policy="random"` — a **pre-existing** code path
+(`mf_dro.py:1567`) that never touches `forced_x`.
+
+    seed  best init  best post  improved   regret   control
+      43     162.98      80.29        no    47.35     14.77
+      44     170.75      87.97        no    44.84     12.93
+      45     171.26      81.70        no    44.68     16.90
+
+    RANDOM-POOL improved on its initial design: 0/3
+
+**RANDOM-POOL fails exactly as totally as the forced arms**, and it is implemented
+in code I did not write. **P1's first branch holds: the `forced_x` hook is
+exonerated, and h145/h146 stand as measurements of teacher choice.**
+
+### All four teachers, same seeds
+
+    teacher                 rtg_target  neg_rtg_frac  L_loc late  my hook
+    CONTROL (MES argmax)        0.9732        0.2659     0.04019       no
+    RANDOM-POOL                 0.2904        0.5147     0.08383       no
+    DIVERSE-GOOD (forced)       0.3178        0.5173     0.02095      YES
+    ORACLE (forced)             0.3105        0.5549     0.01621      YES
+
+**Every non-MES teacher collapses `rtg_target` to ~0.3 and fails totally** — the
+oracle, a diverse good teacher, and a uniformly random one alike. The grouping is
+by *whether the teacher is the MES argmax*, not by trajectory quality: a **perfect**
+teacher and a **random** teacher land in the same place.
+
+### The answer, restated correctly
+
+My earlier framing — "the teacher is already optimal in the rewarded currency, so
+any change costs reward" — is consistent with this but **understates it**. A random
+teacher is not a small deviation from optimal; it is maximally bad in that
+currency, and it lands within 2 rel% of the *perfect* teacher. Quality does not
+order these outcomes **at all**.
+
+The reading the data supports:
+
+> **MF-DRO's Decision Transformer is a policy distillation of MES.** Its value
+> comes from imitating an *adaptive acquisition rule*, not from the outcome quality
+> of the trajectories it sees. An oracle path has excellent outcomes but is not a
+> policy — it cannot be followed without knowing x*. A random path is a policy but a
+> worthless one. Only MES is an adaptive policy that is also good, and the DT is
+> worth exactly what its teacher is worth **as a policy**.
+
+That is why better trajectory quality does not improve MF-DRO: **trajectory quality
+is not the axis the DT inherits along.** Policy-imitability is.
+
+### What this retracts and what survives
+
+**Retracted:** my reading of +28.13 as graded degradation (it is a saturation
+floor), and the implication that the information-gain currency *ranks* teachers —
+it does not; it separates MES from everything else.
+
+**Survives, and is strengthened:** h145's headline answer to the user's question.
+"Better trajectory quality does not improve MF-DRO" is correct, and now holds for a
+stronger reason than teacher-quality economics.
+
+**Still open:** whether the ROI's Borehole gain is consistent with this. It must
+be, since the ROI only *restricts the pool the MES argmax runs over* — it never
+replaces MES as the teacher. That is the one intervention class this result does
+not condemn, which is worth noting given the ROI is the project's only positive
+result.
