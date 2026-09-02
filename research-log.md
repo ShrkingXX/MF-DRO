@@ -3448,3 +3448,37 @@ registered, not done. Six accounts have fallen on this front and I am not going
 to let the seventh through on elegance.
 
 **Compute:** 0/15. All arms complete.
+
+## 2026-09-02 (tick 35) — settling my own explanation instead of banking it
+
+**h177's architectural explanation was labelled EXPLORATORY because it used
+random weights. h178 measures the trained modules directly.** That is the check
+h177 registered and did not do, and doing it immediately rather than leaving it
+on the list is the difference between an account and a finding on this front --
+six have fallen here, and every one of them was plausible when written.
+
+**SC1 failed first**, with a dtype error: the probe used `state.dtype` (float64)
+against float32 modules, because `propose_mf` calls `state.float()`. The smoke
+test caught it before the arm ran. Fourth time this session a pre-launch smoke has
+caught something that would otherwise have appeared as silently-missing data --
+the probe swallows exceptions, so this would have looked like a no-op.
+
+**The early reading is recorded as NON-evidence, deliberately.** At 5 iterations
+it matches the random-weight estimate almost exactly (0.4974 / 0.0051, ratio
+98.2x against 0.4869 / 0.0056 / ~87x). That agreement is close to tautological:
+after five iterations the embedding weights are still near initialisation, so
+matching a random-weight calculation is what an untrained module must do. Writing
+that down before the full run means the full-run numbers cannot later be read as
+"confirming what the smoke already showed".
+
+**R1 named**: if trained btg_resp turns out comparable to rtg_resp, the
+saturation explanation is wrong and h177's exact zero returns to unexplained.
+The measurement stands either way; only the reason is at stake.
+
+**Holistic.** The front's substantive question is answered and has produced two
+things that change what the code should do -- one-step rollouts (h172/h176) and
+standardising the conditioning scalars (h177, pending h178). What is left is
+verification of my own explanations rather than new ground, which is the right
+phase to be in and worth saying plainly rather than manufacturing a new front.
+
+**Compute:** 5/15.
