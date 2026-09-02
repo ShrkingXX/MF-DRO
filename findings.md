@@ -16531,3 +16531,32 @@ Hartmann, and in two cases the second benchmark changed what could be claimed
 R1 is named: if the HEAD/TAIL ordering does not reproduce, the front's answer
 must be scoped to one benchmark. Chosen over chasing h170's ~5 SE residual, which
 is a refinement of an account already established at the level that matters.
+
+---
+
+## h172 dose (L=2 lands) — shorter rollouts are **better and faster**, monotonically
+
+| rollout_length | rel% | improves | rtg_target | wall | speedup |
+|---|---|---|---|---|---|
+| **8** (control) | 15.82 | 5/5 | 0.9761 | 82.4 min | 1.00× |
+| **2** | **13.97** | 5/5 | 0.6380 | 22.5 min | **3.66×** |
+| **1** | **13.69** | 5/5 | 0.4590 | 13.2 min | **6.26×** |
+
+Both shortened arms beat the control and the ordering is monotone. P3 anticipated
+any failure would appear at the *short* end, where the RTG label degrades most;
+instead the short end is the best end.
+
+**P2 holds**: wall-clock scales close to proportionally with length — 1 : 3.66 :
+6.26 observed for L = 8 : 2 : 1, against 1 : 4 : 8 if length were the only cost.
+The shortfall is fixed per-iteration cost (GP refit, DT training) that shortening
+cannot touch.
+
+### The target anti-correlates *within* a controlled dose
+
+0.9761 → 0.6380 → 0.4590 as length falls, while regret improves 15.82 → 13.97 →
+13.69. The target drops mechanically (rtg[0] spans fewer steps) and performance
+gets better. **Seventh independent demonstration that the conditioning target
+does not drive performance**, and the only one where the two move in *opposite*
+directions inside a single controlled manipulation rather than across arms.
+
+L=4 still running; a non-monotone dose is not yet fully excluded.
