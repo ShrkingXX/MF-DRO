@@ -14392,3 +14392,53 @@ suggestive at most.
 track HF share *within* the oracle arm, but a uniform level effect from the lower
 HF share is not excluded by that. Ruling it out needs an arm with fidelity pinned
 to the control's, which has not been run.
+
+## h147 — P1 FALSIFIED. Return-coverage-as-variance does NOT explain the oracle failure.
+
+CONFIRMATORY, zero compute, registered before measuring. Borehole, seeds 42-46,
+paired, ORACLE (h145) vs CONTROL (h83):
+
+    P1  between-traj RTG variance share   oracle 0.6114  control 0.4451
+                                          diff +0.1499  effect 4.17  oracle lower 0/5
+    P2  neg_rtg_frac                      oracle 0.5522  control 0.2584
+                                          diff +0.2940  effect 7.85
+
+**P1 predicted the oracle would COLLAPSE between-trajectory return variance. It
+RAISES it**, effect 4.17, on every seed. By this proxy the oracle data has *more*
+return diversity than the control, not less.
+
+### The registered retraction fires, narrowly
+
+> **RETRACTED:** return-coverage-as-variance-share as the explanation of h145.
+
+`literature/rcsl-necessary-conditions.md` explains the seven **conditioning-side**
+nulls and does **not**, on this evidence, explain the **teacher-side** result. I
+have added that qualification to the note rather than letting the frame quietly
+cover both.
+
+**But I should be precise about what failed: my PROXY, not necessarily the
+theory.** Brandfonbrener's `alpha_f = P_beta(g = f(s) | s)` is about whether the
+conditioned target is *achieved* in the data at that state — a question about
+WHERE the return distribution sits relative to the target, not how WIDE it is. I
+chose variance share because it was already logged, and it answers a different
+question.
+
+### What the data actually shows, and the refined hypothesis it suggests
+
+**Over half the oracle's returns are NEGATIVE** (neg_rtg_frac 0.552 vs 0.258,
+effect 7.85). RTG here is `log(b_tau) - log(b_T)`: negative means the Gumbel scale
+at step tau was SMALLER than at the end, i.e. the trajectory finished *less*
+informative than it was mid-way. An oracle path that marches onto x* and stays
+there gathers little new information at the end, so b_T does not shrink and most
+steps score negative.
+
+**So the oracle's return distribution is not narrow — it is DISPLACED.** And
+inference conditions the DT on a positive RTG target. If the target sits where the
+training data has almost no mass, `alpha_f` is small in exactly Brandfonbrener's
+sense, through location rather than spread.
+
+**This is post-hoc.** I am proposing a second proxy after the first failed, which
+is the move this project has repeatedly caught itself making. It is registered as
+h148 with its own locked prediction rather than asserted here, and if it also
+fails, the honest conclusion is that we do not have a mechanism and the RCSL frame
+should not be stretched to cover this result.
