@@ -2643,3 +2643,26 @@ framing that has survived two tests and been downgraded once. h161 is the arm
 that can test it causally and it is the only thing running.
 
 **Compute:** 5-6 workers. Never above 6/15 this tick.
+
+## 2026-09-02 (tick 11) — generality, which the front had been quietly short of
+
+**Holistic read: almost everything substantive was Borehole-only.** The complete
+2x2, h158's quality/diversity dose, h162's dispersion split and h163's inversion
+— all one benchmark. Hartmann had only the control and two FAILING arms. That is
+a real gap and it had gone unremarked for several ticks while I chased mechanism.
+
+**h164 closed half of it for free.** The dispersion collapse replicates on
+Hartmann using data already on disk: control 0.2144 against RANDOM-POOL 0.1153,
+5 of 5 paired within seed, M2 signature identical. Reported honestly: the
+HF-only slicing is unusable there (the control has <12 HF queries on three of
+five seeds) and is not counted, and Hartmann's ORACLE arm is flagged confounded
+so it is shown but not counted either.
+
+**h165 launched to close the other half.** The strongest positive result of the
+front — h155's UCB teacher matching the control, which retracted "the MES rule
+specifically" — has never been tested off Borehole. R1 is named: if it fails
+there, that retraction is Borehole-specific.
+
+**Compute:** 10 workers (h161 x5, h165 x5). Never above 10/15.
+
+**Still the only causal test:** h161, at 130/240.

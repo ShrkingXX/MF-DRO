@@ -15693,3 +15693,48 @@ three failing arms 0.1115–0.1891, complete arm-level separation with a clear g
 — but within the working group the ordering does not follow teacher dispersion.
 Dispersion collapse distinguishes learnable from unlearnable teachers; it does
 not measure *how* unlearnable.
+
+---
+
+## h164 — the dispersion collapse REPLICATES on Hartmann
+
+CONFIRMATORY, zero compute, existing serialised data.
+
+| arm | Hartmann ALL | Hartmann first-70 (n matched) | Borehole |
+|---|---|---|---|
+| control MES (works) | **0.2144** | **0.2166** | 0.2766 |
+| ORACLE (fails, **confounded**) | 0.1563 | 0.1680 | 0.1891 |
+| RANDOM-POOL (fails) | **0.1153** | **0.1171** | 0.1115 |
+
+M2 signature identical to Borehole: control 0.282 against failing 0.409/0.443.
+
+**Load-bearing contrast is control vs RANDOM-POOL** (Hartmann's ORACLE arm is
+flagged confounded in findings.md and is reported without being counted). Paired
+within seed on the matched-n slice: **5 of 5**. Against ORACLE it is 4 of 5
+(seed 45 crosses).
+
+**A slicing that does not support the claim, reported:** HF-only is unusable on
+Hartmann — the control has fewer than 12 post-init HF queries on three of five
+seeds, so it averages 2 seeds against RANDOM's 5. Direction agrees, comparison
+is not like-for-like, not counted. On Borehole all three slicings were usable;
+here only two are.
+
+### Scope of the framing after this
+
+The learnability framing's observable now holds on **two benchmarks and two
+distinct failing teachers**. It is still a correlate — h161 is the causal test —
+and the evidence class is unchanged (query-level statistics at n=5, the class
+that produced h150, retracted, and h154's refuted M2).
+
+## h165 launched — the strongest positive result owes a second benchmark
+
+h155 (a UCB teacher matching the control, which retracted "the MES rule
+specifically") is **Borehole-only**, as are the whole 2×2, h158's dose and
+h162/h163. Hartmann has only *failing* substitute teachers plus the control:
+there is no Hartmann evidence that any substitute can work.
+
+h165 runs h155's worker unchanged on Hartmann seeds 42-46. R1 named: if it
+fails, h155's retraction is Borehole-specific and findings.md must be scoped to
+one benchmark. Its HF-fraction confound will be checked before its regret is
+read — Hartmann's control makes far fewer HF queries than Borehole's, so a
+fidelity shift is likelier to matter there.
