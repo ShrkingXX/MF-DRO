@@ -3065,3 +3065,37 @@ statement about wall-clock, not about the mechanism, and it is logged as such
 until h171 reports.
 
 **Compute:** 12/15 (h171 x10, h166 x2).
+
+## 2026-09-02 (tick 23) — a blind forecast on query LOCATION, and a stale published line fixed
+
+**Committed a quantitative blind forecast for h171 while both arms were 0/5.**
+h170 measured the tau=0 action mean of each teacher rule on *other* arms: MES
+argmax sits 0.6831 from the box centre, a uniform draw 0.0712. h171's arms have
+exactly those tau=0 rules by construction, so the mechanism predicts not just the
+regret ordering but **where each arm's learner will query**: HEAD's centroid
+beyond 0.5 from the centre, TAIL's inside 0.2.
+
+That F1 half is the stronger test. F2 (the regret ordering) is a two-way call
+that could come out right by luck; **F1 is a numeric prediction of a location in
+eight dimensions, derived from measurements made on arms that did not exist when
+h171 was designed.** If F1 holds and F2 does not, the account describes where the
+learner queries but not why it matters; if F2 holds and F1 does not, the ordering
+is right for some other reason. Both stated before either arm reported.
+
+**Fixed a stale line in the published report.** It said the stale-model test "is
+in progress" and framed the model-selected hypothesis as the live account. h161
+finished several ticks ago and h167 retracted the learnability reasoning behind
+that framing. Published material carrying a superseded account is the thing I
+criticised myself for earlier in this session; leaving it while waiting for h171
+would have repeated that.
+
+**A small process failure worth noting:** my first attempt to patch the report
+asserted on a string containing `&mdash;` when the file has literal em-dashes.
+The assertion caught it rather than silently writing a mangled page -- which is
+why the patch scripts assert instead of blind-replacing. Fixed by matching on
+line numbers after reading the actual text.
+
+Also committed the h165/h166 result files, which had been left untracked.
+
+**Compute:** 11/15. h171 HEAD ~73%, TAIL ~40% (TAIL is slower because it makes
+seven MES calls per rollout to HEAD's one).
