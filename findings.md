@@ -17189,3 +17189,23 @@ action. They do, at bit level, until diverging queries change the GP state.
 The proposed **teacher-rotation arm is DECLINED** — rotating between teachers that
 agree to 0.044 cannot produce a resolvable effect. Second arm declined on a
 measured premise this tick, alongside h174's.
+
+### h180 replicates on Hartmann — on a cleaner test than Borehole
+
+| rule-varying → tight & preserved | | averaging-varying → far & degraded | |
+|---|---|---|---|
+| MES-FROZEN 0.035 | 7.93 | TAIL-MES 0.227 | 46.45 |
+| UCB-LOC 0.052 | 10.58 | **HEAD-MES 0.329** | **25.16** |
+| *(control 0.000)* | *7.99* | ORACLE 0.504 / RANDOM 0.527 | 52.23 / 65.14 |
+
+**Hartmann is the stronger of the two tests**: Borehole's four far arms were all
+pinned at the identical 43.94 saturation floor (the ceiling artifact that made a
+correlation meaningless there), whereas Hartmann's four far arms take four
+distinct values. Two honest weakenings: the tight cluster has only **two** arms
+here (STALE-PATH/EXPLOIT-LOC/DIVERSE-GOOD were never run on Hartmann), and it
+clears the seed floor by **2.2×** rather than Borehole's 7×.
+
+**HEAD-MES stays the exception, but only in degree.** It matches the control on
+Borehole (16.96 vs 15.82) and is 3× worse on Hartmann (25.16 vs 7.99), while
+still being the best of the far arms. Same benchmark asymmetry as the strong form
+of the front's answer; still unresolved.

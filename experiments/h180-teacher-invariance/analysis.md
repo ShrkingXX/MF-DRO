@@ -99,3 +99,49 @@ tick (h174's was declined on a direction check).
   were not chosen to span rule-space systematically.
 - The five ≤0.065 arms may be less rule-diverse than they look; "different rule"
   is my classification, not a measured quantity.
+
+---
+
+## REPLICATION on Hartmann-6D — the structure holds, on a cleaner test
+
+`analyse.py Hartmann_6D`. Same construction, same frozen metric, same seeds.
+
+| teacher arm | dist to MES 1st query | frozen rel% |
+|---|---|---|
+| MES (control, h83) | 0.0000 | 7.99 |
+| MES-FROZEN (h166) | 0.0347 | 7.93 |
+| UCB-LOC (h165) | 0.0515 | 10.58 |
+| TAIL-MES (h173) | 0.2267 | 46.45 |
+| **HEAD-MES (h173)** | **0.3289** | **25.16** |
+| ORACLE-EXPERT (h145) | 0.5040 | 52.23 |
+| RANDOM-POOL (h149) | 0.5267 | 65.14 |
+
+**The two clusters reappear.** Rule-varying arms (MES-FROZEN, UCB-LOC) sit at
+0.035–0.052 and perform at 7.93–10.58 against the control's 7.99. Averaging-varying
+arms sit at 0.227–0.527 and degrade to 25–65.
+
+### Hartmann is the better test of the two
+
+On Borehole four far arms were pinned at the identical 43.94 **saturation floor**,
+which is what made a correlation there a ceiling artifact. **Hartmann has no such
+ceiling** — its four far arms take four distinct values (25.16, 46.45, 52.23,
+65.14). The separation is therefore real signal here, not arms bunched against a
+floor.
+
+### Where the replication is weaker, stated plainly
+
+- **The tight cluster has only two arms.** STALE-PATH, EXPLOIT-LOC and
+  DIVERSE-GOOD were never run on Hartmann, so the claim "rules as different as X,
+  Y, Z all land together" rests on Borehole; Hartmann shows only UCB-LOC and
+  MES-FROZEN.
+- **The margin is 2.2×, not 7×.** Hartmann's seed-to-seed floor has minimum
+  0.1155 (Borehole's is 0.4545), so the tight cluster clears it by 2.2× rather
+  than 7×. Separated, but not by the same margin.
+
+### HEAD-MES: the exception is Borehole-specific in degree
+
+HEAD moves the query furthest of the mid-range arms on both benchmarks, but:
+on Borehole it **matches** the control (16.96 vs 15.82), while on Hartmann it is
+**3× worse** (25.16 vs 7.99) — even though it is still the best of the far arms.
+This is the same benchmark asymmetry already recorded for the strong form of the
+front's answer, and it is not resolved by this analysis.
