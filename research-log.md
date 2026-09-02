@@ -3735,3 +3735,20 @@ ships.
   untested rather than asserted either way.
 - Report and findings both corrected and republished; both halves now travel together.
 - h189 (Hartmann no-DT) still running.
+
+## tick 49 — h189 in flight; two corrections recorded before its readout
+
+- **SC observation recorded BEFORE h189's regret**: the teacher's `lf_fraction` on
+  Hartmann spans **0.000, 0.368, 0.922, 0.931, 0.981** across five seeds — the same
+  acquisition rule going almost pure-HF on two seeds and almost pure-LF on three.
+  On Borehole it stayed in 0.291–0.561. **MES's fidelity criterion is bistable on
+  Hartmann.** Consequence stated in advance: a P1 verdict must be read as *undecided*,
+  not as equivalence.
+- **Cost-ratio correction.** Hartmann is **8:1** (HF 8.0, LF 1.0); Borehole is **2:1**
+  (HF 2.0, LF 1.0). I had assumed the reverse. This **grounds h183**: the
+  `lf_fraction` gap (0.80 vs 0.12) it rests on is a direct consequence of a 4×
+  difference in cost ratio, not a free parameter. It also reframes h184 — forcing
+  Borehole to 75% LF pushed it *away* from its cost-rational allocation, a real
+  handicap, and the score still barely moved (15.82 → 15.76).
+- h189 at 2/5. The LF-heavy seeds need ~200 queries at cost 1 to exhaust the budget,
+  so they run much longer than the HF-heavy ones (9–13 min vs ongoing).
