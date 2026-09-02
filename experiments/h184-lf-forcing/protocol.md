@@ -97,3 +97,17 @@ which is the same number shown to 13 significant figures. Comparing against that
 rounded value fails a genuinely identical build by ~1.8e-11 — which is exactly
 what happened on the first attempt here. `tools/identity_gate.py` now carries the
 full-precision value and compares exactly.
+
+## SC1 (does the ceiling actually fire?) — PASS, recorded before launch
+
+A silent no-op would look exactly like a null, which is how h169 was lost. Smoke
+run, Borehole seed 42, control arm, short budget:
+
+```
+HF ceiling override fired on 5 iterations
+realised fidelity split: 5 LF / 2 HF  ->  lf_fraction ~0.71
+unforced Borehole control:                lf_fraction  0.117
+```
+
+The intervention moves Borehole from ~0.12 LF into Hartmann's operating range
+(~0.71–0.80 LF), which is what the arm requires.
