@@ -1,12 +1,12 @@
-# h153 MES-FROZEN — PRELIMINARY, n=1 of 5. The forecast SPLIT.
+# h153 MES-FROZEN — COMPLETE, n=5. The forecast SPLIT, and the split is the result.
 
 CONFIRMATORY. Forecast committed blind, several ticks before any result.
 
-| | forecast | observed (seed 43) | verdict |
+| | forecast | observed n=5 | verdict |
 |---|---|---|---|
-| rtg_target | **0.83–0.94** (82–96% of control) | **0.3361** (34%) | **FAILED** |
-| rel% | near control, not 43.94 | **20.50** | **HELD** |
-| improves | ~5/5, not 0/5 | **1/1** | **HELD** |
+| rtg_target | **0.83–0.94** (82–96% of control) | **0.3230** (33%) | **FAILED** |
+| rel% | near control, not 43.94 | **19.36** | **HELD** |
+| improves | ~5/5, not 0/5 | **5/5** | **HELD** |
 
 Sanity checks all pass: SC1 path reproduction error **0.0** (exact), SC2
 open-loop penalty **+0.4005** (positive, as required), SC3 fidelity flip
@@ -52,7 +52,12 @@ failing arms, not their cause, and the actual cause is still unidentified. The
 open-loop penalty would then be real (+0.40, larger than measured) but still not
 the mechanism.
 
-## Status
+## Status: COMPLETE, n=5
 
-**n=1. No conclusion is being drawn at n=1** beyond recording that the forecast
-split and which half failed. Seeds 42/44/45/46 are running.
+rtg_target 0.3230, rel% 19.36, improves **5/5** — matching the control's 5/5
+exactly. SC2 open-loop penalty across seeds: 0.341, 0.301, 0.401, 0.360 (mean
+~0.35 against the harness's offline 0.16, understated ~2.2x). SC1 exact on every
+seed, SC3 flips ~0.15–0.18.
+
+The n=1 reading held and strengthened: the conditioning target sits in the
+failing arms' band while performance and improvement rate sit with the control.
