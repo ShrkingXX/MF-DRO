@@ -2495,3 +2495,40 @@ all come out together. That is written into h157/protocol.md and into the
 published report itself.
 
 **Compute:** 10 workers, dropping to 5 as h155 finished. Never above 12/15.
+
+## 2026-09-02 (tick 7) — the 2x2 completed and killed my own explanation
+
+**h153 landed at n=5 and split its blind forecast exactly where it mattered.**
+The performance half held (19.36 rel%, improving 5/5, against the failing arms'
+43.94 and 0/5). The rtg_target half failed badly (0.3230 against a forecast of
+0.83-0.94).
+
+That split IS the result. h153 carries the failing arms' conditioning target and
+the control's improvement rate simultaneously, which **refutes the causal claim
+I had been building for four ticks**: target collapse does not cause the failure.
+Withdrawn from findings.md and from the published report. The descriptive half —
+the failing arms genuinely have no informative tail — was validated against four
+real arms and survives untouched. It is simply not the cause.
+
+**The instrument failure was diagnosable in advance and I did not diagnose it.**
+C2 was the only harness condition with no finished arm to check it against. Every
+checked condition held; the unchecked one was wrong by 2.7x. SC2 shows the
+mechanism: the real freeze penalty is ~0.35 against the harness's 0.16.
+Guard adopted: **never forecast from an unvalidated condition without labelling
+it as such.** I quoted "C2 retains 90.9%" for several ticks with the same
+confidence as the validated numbers.
+
+**Holistic read: this front is NOT answered and should not be recorded as such.**
+The negative result is strong and was earned by direct sweep (h158: quality +51%,
+diversity -34%, outcome flat). But the positive mechanism is now unidentified for
+the second time — first "MES specifically" (retracted by h155), then
+"target collapse" (refuted by h153). The honest state is: three of four cells
+work, only the doubly-changed cell fails, and why is open.
+
+**A new post-hoc hypothesis is recorded and explicitly NOT claimed:** the working
+arms all query model-selected locations, the failing arms do not. The
+discriminating experiment (a frozen path of model-selected locations from a
+MISMATCHED state) is registered and not run.
+
+**Compute:** 6-10 workers; h159 still running at ~80/240 and now known not to
+discriminate between the accounts, which was recorded before it produced results.

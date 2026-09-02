@@ -55,6 +55,31 @@ current_front:
     non-MES/open = ORACLE/DIVERSE/RANDOM 43.94 0/5. MES/open = h153, RUNNING.
     Non-MES row: closed-loop WORKS, open-loop FAILS. Operative variable is whether
     the teacher is INFORMATION-SEEKING, not which rule it uses.'
+  h153_RESULT: 'COMPLETE n=5. rel% 19.36, improves 5/5, rtg_target 0.3230, HF 0.84.
+    SC1 exact, SC2 penalty 0.30-0.40 (vs harness offline 0.16, understated ~2.2x),
+    SC3 flips 0.15-0.18. FORECAST SPLIT: performance half HELD (near control, not
+    43.94); rtg_target half FAILED (0.323 vs forecast 0.83-0.94, harness C2 off
+    2.7x -- the ONLY harness condition never validated against a finished arm).'
+  THE_2x2_COMPLETE: 'MES/closed 15.82 5/5 rtg 0.976 | MES/open (h153) 19.36 5/5
+    rtg 0.323 | non-MES/closed (h155) 15.13 5/5 rtg 1.040 | non-MES/open
+    (ORACLE/DIVERSE/RANDOM) 43.94 0/5 rtg ~0.30. THREE OF FOUR CELLS WORK.
+    Freezing costs +3.5 rel% and zero improvements; changing the rule costs
+    nothing; only doing BOTH fails.'
+  REFUTED: 'The CAUSAL half of the tail account -- "target collapse is why the
+    failing arms fail" -- is REFUTED. h153 has the failing band target (0.323) with
+    the control improvement rate (5/5) and near-control regret. Withdrawn from
+    findings.md and the published report. The DESCRIPTIVE half (failing arms have
+    no informative tail; validated against 4 real arms in h157, swept in h158)
+    stands and is unaffected.'
+  open_mechanism: 'EXPLORATORY, post-hoc, NOT established: the three working arms
+    all query locations the MODEL selected (MES argmax, UCB argmax, and a frozen
+    replay of a model-selected path). The three failing arms pick locations by
+    criteria external to the model (true x*, true-objective argmax, uniform).
+    Registered discriminating test NOT RUN: a frozen path of model-selected
+    locations taken from a MISMATCHED state.'
+  front_status: 'NOT answered. Solid negative (quality and diversity are orthogonal
+    -- h158 swept both directly). Positive mechanism newly UNIDENTIFIED after the
+    target-collapse explanation died.'
   running:
   - 'h153 MES-FROZEN (Borehole seeds 42-46, launched 2026-09-02). The control that
     separates QUALITY from ADAPTIVITY: the control MES rule, its own path frozen.
