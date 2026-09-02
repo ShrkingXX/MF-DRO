@@ -3244,3 +3244,36 @@ The thing that turned it was not a better idea but a different kind of test:
 h171 changed something instead of explaining what was already there.
 
 **Compute:** 15/15 (h172 L=2/L=4 finishing, h173 HEAD launched).
+
+## 2026-09-02 (tick 28) — the dose is monotone, and it points the helpful way
+
+**h172 L=2 landed and the dose is clean**: L=8 (control) 15.82 rel% in 82.4 min,
+L=2 13.97 in 22.5 min (3.66x), L=1 13.69 in 13.2 min (6.26x). **Both shortened
+arms beat the control, all improving 5/5, and the ordering is monotone in
+length.** P2 holds -- wall-clock scales close to proportionally (1 : 3.66 : 6.26
+observed against 1 : 4 : 8 if length were the only cost; the shortfall is the
+fixed per-iteration GP refit and DT training that shortening cannot touch).
+
+P3 had anticipated that any failure would show up at the SHORT end, because the
+RTG label degrades most there. Instead the short end is the best end. Recording
+that the registered prediction was wrong in a way that favours the result --
+which is worth flagging precisely because it is the direction that flatters me.
+
+**A seventh demonstration that the conditioning target does not drive
+performance, and the cleanest one.** Across the dose the target falls 0.9761 ->
+0.6380 -> 0.4590 while regret improves 15.82 -> 13.97 -> 13.69. Every previous
+demonstration compared different arms; this one moves both quantities in
+opposite directions inside a single controlled manipulation.
+
+**h173's TAIL half was launched this tick -- I had only started HEAD last tick.**
+Caught by checking the arm counts rather than assuming the launch loop had
+covered both. Worth noting as the kind of omission that would have produced a
+half-finished 2x2 reported as a full one.
+
+**Holistic.** The front is answered and has now paid out. What remains is
+scoping, not discovery: h173 tests whether the answer holds on Hartmann, and
+L=4 completes the dose. The residual in h170 (~5 SE) stays open and is recorded
+as open rather than quietly dropped now that the headline is settled.
+
+**Compute:** 14/15 (h173 x10, h172 L=4 x4... capacity re-checked before each
+launch this tick).
