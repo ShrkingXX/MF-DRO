@@ -3277,3 +3277,38 @@ as open rather than quietly dropped now that the headline is settled.
 
 **Compute:** 14/15 (h173 x10, h172 L=4 x4... capacity re-checked before each
 launch this tick).
+
+## 2026-09-02 (tick 30) — the second benchmark supplied what the first could not
+
+**h173 fired R2**: HEAD 12.10, TAIL 46.45, centroids 0.5632 and 0.0404 against a
+control at 7.99/0.6287 and RANDOM at 65.14/0.0237. The front's answer holds on
+two benchmarks and R1 does not fire.
+
+**The part that mattered most was SC1 passing.** On Borehole, h171's TAIL
+collapsed its fidelity (0.217 against 0.883), SC1 fired, and the attribution had
+to be borrowed from ORACLE and DIVERSE-GOOD. On Hartmann TAIL's HF is 0.281
+against a control at 0.200 -- no collapse -- so the arm supplies its own clean
+attribution: a tau=0 location drawn independently of the model is sufficient to
+fail WITH the fidelity mix intact.
+
+That is the concrete argument for replication. Not "the result repeats" but "the
+second benchmark closed a gap the first one's confound left open". Worth
+remembering as a reason to replicate even when the first result looks solid.
+
+**SC2 also earned its registration.** The Hartmann saturation floor (0.7531)
+binds on seed 44 for HEAD, TAIL and RANDOM alike. Registered in advance
+specifically so identical values could not be read as a tie; dropping the seed
+leaves the ordering unchanged.
+
+**And I held the line on what is resolvable.** HEAD vs control (12.10 vs 7.99) is
+NOT distinguishable at n=4-5 given Hartmann's per-seed spread (the control alone
+ranges 0.7 to 16.4). What is resolvable is HEAD vs TAIL (4x) and TAIL vs control
+(6x). Written that way rather than quoting HEAD as "slightly worse".
+
+**Holistic.** Three gates fired across the last two ticks -- h174's SC1 voided an
+arm outright, h173's SC1 passed and rescued an attribution, h173's SC2 defused a
+floor artefact. All three were registered before the numbers. That is the
+machinery working as intended, and it is more of what the front produced this
+tick than any new number.
+
+**Compute:** 1-11/15.
