@@ -17092,3 +17092,52 @@ inference range to a narrow z-band, which may still be relatively flat — so th
 336× module-level figure is an **upper bound**, not what this arm will deliver.
 The arm therefore also runs h178's response probe, so a null can be attributed:
 unresponsive channel, or responsive channel that does not help.
+
+---
+
+## h174's registered follow-up is NOT buildable as a minimal change — checked before building
+
+h174's SC1 fired and voided the Hartmann L=1 arm (24 HF / 34 total queries against
+the control's 12 / 120). The registered fix was "an arm holding the fidelity mix
+fixed while shortening the rollout."
+
+**My candidate cause was the `minimum_hf_fraction` floor**, gated `tau > 0`
+(mf_dro.py:1717), which therefore never fires at τ=0 — so L=1 gets no
+HF-diversity enforcement at all. Direction check before building anything:
+
+> The floor **forces HF**. So L=8 (floor active on seven steps) should have
+> **more** HF than L=1 (floor never active).
+
+| | L=8 control | L=1 |
+|---|---|---|
+| Hartmann | HF 0.200 | **0.776** |
+| Borehole | HF 0.883 | **0.939** |
+
+**L=1 has more HF on both benchmarks. The floor predicts less.** The hypothesis
+is wrong in *direction*, not magnitude, and no version of it survives.
+
+### What the mix shift actually is, and why it cannot be "fixed"
+
+With L=8 the teacher's realised fidelity averages MES's choices over eight steps;
+with L=1 only τ=0's. The pattern (L=1 more HF on both) fits MES choosing HF early
+— when HF uncertainty is highest — and LF later, once conditioning has reduced it.
+**That is intrinsic to shortening**, not an artefact bolted on. Holding the mix
+fixed would mean overriding the teacher's own fidelity choices, which changes what
+"rollout_length=1" means rather than isolating it.
+
+**So the arm is not built, and the actionable claim stays Borehole-scoped.**
+Declining a registered follow-up after checking its premise is a different act
+from never running it, and this is the record of the check.
+
+### It also gives independent support to an earlier withdrawal
+
+h171 claimed the fidelity head obeys the τ=0 rule; I withdrew that because the
+random teacher's 0.25 and `minimum_hf_fraction`'s 0.25 coincide, so the
+observation could not distinguish them. **This is positive evidence against it:**
+the L=8 control's DT emits HF 0.200 while its τ=0 teacher fidelity is HF-heavy
+(~0.78, by the L=1 evidence). If the fidelity head followed the τ=0 rule it would
+emit ~0.78. It emits 0.200.
+
+The τ=0 account holds for the **location** head and not for the fidelity head —
+now supported by a measurement rather than only by the withdrawal of a confounded
+claim.
