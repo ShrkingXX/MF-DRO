@@ -17752,3 +17752,32 @@ teacher's *inference* pool, which does not exist today.
 **Honest headline, both halves together:** *on the default path the DT costs 2.85 rel%
 points against its own teacher; the configurations that beat that teacher do so with a
 mechanism the teacher was not given.*
+
+---
+
+## The benchmarks' COST RATIOS explain the `lf_fraction` gap that h183 rests on
+
+Checked directly from the benchmark registry while h189 ran:
+
+| benchmark | HF cost | LF cost | **ratio** | MF-DRO's realised `lf_fraction` |
+|---|---|---|---|---|
+| **Hartmann_6D** | **8.0** | 1.0 | **8:1** | **0.800** |
+| **Borehole_8D** | **2.0** | 1.0 | **2:1** | **0.117** |
+
+**I had this backwards in earlier reasoning**, assuming Borehole was the 8:1 benchmark.
+It is Hartmann. The correction matters because it grounds h183:
+
+h183 identified the `lf_fraction` gap (0.12 vs 0.80) as the candidate cause of the
+benchmark asymmetry, and h184 confirmed it in direction (sign pattern 2/5 → 4/5) but
+not magnitude (9% of Hartmann's effect). **That gap is not a free parameter — it is a
+direct consequence of a 4× difference in the benchmarks' cost ratios.** On Hartmann an
+HF query costs 8 LF queries, so the method leans on LF; on Borehole it costs 2, so it
+does not. The fidelity behaviour follows from the problem's economics.
+
+This also reframes **h184**'s intervention: forcing Borehole to 75% LF pushed it *away*
+from its cost-rational allocation — a genuine handicap — and its score still barely
+moved (15.82 → 15.76). That the handicap was nearly free is itself informative about
+how little the fidelity channel does on Borehole.
+
+Costs are part of the **frozen evaluation** and were not touched; this is an
+observation about the benchmarks as defined, not a change to them.
