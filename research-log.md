@@ -2846,3 +2846,41 @@ stopping message (`post_init_cost=201.0 >= 200.0`) and appeared to show a run
 going backwards. Checked before reporting it.
 
 **Compute:** 12/15 (h165 x3, h166 x4, h168 x5).
+
+## 2026-09-02 (tick 17) — Hartmann generality lands, and an audit finds a dead code path
+
+**The 2x2's separation is not a Borehole artefact.** Hartmann working arms
+2.22-11.28 rel% against failing arms 52.23-65.14. h165 (UCB-LOC) works at 11.28,
+improving 4/4, so h155's retraction of "the MES rule specifically" holds on a
+second benchmark. The ordering flips though — h155 BEAT the Borehole control
+(15.13 vs 15.82) while h165 TRAILS the Hartmann one (11.28 vs 7.99).
+
+**The pre-registered confound fired, and I worked out which way it cuts before
+deciding what to do about it.** h165's HF fraction is 0.353 against the control's
+0.200, higher on all four paired seeds. But more HF queries should HELP — HF is
+the real objective — and h165 buys more HF while performing worse. So the
+confound cannot manufacture h165's success; at most it explains its shortfall.
+A confound that biases AGAINST the claim is not grounds to withhold the claim,
+and that reasoning is now in findings.md rather than just the bare observation
+that a confound exists. Registering the check was still worth it: without it I
+would not have known the direction.
+
+**A user question turned into a code audit with a real finding.** Asked whether
+we could adopt the DRO paper's rotating-acquisition schema (paper D.4: EI, UCB,
+PI, MES). Read the paper, then the code: `TEACHER_POOL` and `use_teacher_pool`
+already exist and have NEVER been activated by any experiment. Inspection shows
+why they should not be: `cost_ei` computes EI of the **LF** function against the
+best **HF** value, and `ucb_beta1/3` compares LF's own UCB to HF's. Four of five
+members are incoherent; MES is the only correct one, because its LF term measures
+information about y*_H rather than about the LF function.
+
+That is the kind of defect that would have silently produced a "rotation doesn't
+help" result if switched on naively. Recorded as an audit finding, not an
+experiment.
+
+**Holistic:** the facts continue to accumulate and generalise; the explanations
+continue not to. h168 (the conditioning probe) is the live test and its smoke
+signal already points at R1 — the conditioning exonerated, the suspect becoming
+the trained network itself.
+
+**Compute:** 10/15 (h165 x1, h166 x4, h168 x5).
