@@ -44,3 +44,37 @@ Query-level statistics at n=5 — the evidence class that produced h150
 (retracted) and h154's refuted M2 direction. The inversion is worth weight
 because its sign is opposite to the natural null and because it now has an
 out-of-sample test, not because the evidence class has improved.
+
+---
+
+## Out-of-sample result: **PARTIAL**. The point prediction failed; the threshold held.
+
+h159's student M1 = **0.2639** (per-seed 0.254, 0.394, 0.243, 0.166, 0.263).
+
+- Predicted: **highest of any arm**, above h155's 0.2889 → **FAILED**. It is
+  third of seven, below h155 (0.2889) and the control (0.2766).
+- Retraction threshold (below ~0.24 = does not extrapolate): **NOT crossed**.
+  0.2639 sits in the working-arm band.
+
+Spearman falls from **−0.900** (5 arms) to **−0.771** with h159 included. Still
+strongly negative, but the rank relationship is looser than the 5-arm fit
+suggested, and h159 is the arm that breaks it: the lowest teacher dispersion of
+all six (0.3624) should have produced the highest student dispersion and did not.
+
+## The honest restatement
+
+**The inversion holds as a GROUP SEPARATION, not as a rank relationship.**
+
+```
+working arms:  h155 0.2889 | control 0.2766 | h159 0.2639 | h153 0.2464
+failing arms:  ORACLE 0.1891 | DIVERSE 0.1830 | RANDOM 0.1115
+```
+Complete arm-level separation, now with **four** working arms against three
+failing ones, and a clear gap (0.2464 vs 0.1891). But *within* the working
+group the ordering does not follow teacher dispersion, so the mechanism does not
+support a graded prediction — only a categorical one.
+
+That is weaker than what the 5-arm Spearman implied, and the out-of-sample test
+is what showed it. The claim is downgraded accordingly: dispersion collapse
+distinguishes learnable from unlearnable teachers; it does not measure "how
+unlearnable".
