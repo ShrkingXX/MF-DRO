@@ -15637,3 +15637,59 @@ a standing contradiction: the framing made a falsifiable prediction about data
 already collected, and the prediction held under three robustness slicings.
 
 h161 (STALE-PATH) remains the arm that can test the causal claim.
+
+---
+
+## h159 complete + h163 — a forecast confirmed, and an out-of-sample test partly failed
+
+### h159 EXPLOIT-LOC (β=0), n=5: **19.07 rel%, improves 5/5, rtg_target 0.9411**
+
+Blind forecast was 91.5% of the control's tail; observed **96.4%**, error +4.9
+points inside the 8–13% noise floor. **Confirmed.** This is why h159 was kept
+running after its screen showed it non-discriminating for the accounts: it
+validates a harness condition, and h153 had shown unvalidated conditions can be
+off by 2.7×.
+
+**Harness validation record now stands at 6 of 7:**
+C1/C3/C4/C5 validated against finished arms; C6 (UCB β=2) forecast 102% →
+observed 106.6%; C7 (β=0) forecast 91.5% → observed 96.4%. **C2 (frozen) is the
+sole failure**, forecast 82–96% → observed 33%. The instrument is accurate for
+**closed-loop** conditions and wrong for **frozen** ones — which means h161, a
+frozen condition, **cannot be forecast** and no forecast for it will be offered.
+
+### A second, independent decoupling of target from performance
+
+h159 (closed-loop) has rtg_target **0.9411**; h153 (frozen) has **0.3230** — a
+3× gap. They land at **19.07** and **19.36** rel%, both improving 5/5. Two arms
+whose conditioning targets differ threefold perform identically. The target does
+not drive performance, now shown twice by independent routes.
+
+### h163 — the inversion, and what the out-of-sample test cost it
+
+Teacher-side dispersion, measured for the first time, against h162's student side:
+
+| teacher rule | TEACHER M1 | STUDENT M1 |
+|---|---|---|
+| MES (control/h153) | 0.6730 | 0.2766 |
+| UCB β=2 (h155) | 0.7443 | 0.2889 |
+| ORACLE | 0.8445 | 0.1891 |
+| DIVERSE-GOOD | 0.8818 | 0.1830 |
+| RANDOM | **1.1295** | **0.1115** |
+
+**Spearman −0.900**, opposite in sign to the natural null ("the student inherits
+its teacher's spread"). RANDOM-POOL has the *most* dispersed teacher and the
+*least* dispersed student — a network imitating its teacher cannot do that; one
+falling back on the mean of an unlearnable target does exactly that.
+
+**Out-of-sample test, committed before it was computed, PARTIALLY FAILED.**
+h159's teacher M1 is the lowest of all six (0.3624), so the inversion predicted
+its student would be the *highest* of any arm. Observed **0.2639** — above the
+pre-set 0.24 retraction threshold, but **third of seven**, not first. Spearman
+falls to −0.771 with h159 included.
+
+**Restated at the strength the data supports:** the inversion is a **group
+separation, not a rank relationship**. Four working arms 0.2464–0.2889 against
+three failing arms 0.1115–0.1891, complete arm-level separation with a clear gap
+— but within the working group the ordering does not follow teacher dispersion.
+Dispersion collapse distinguishes learnable from unlearnable teachers; it does
+not measure *how* unlearnable.
