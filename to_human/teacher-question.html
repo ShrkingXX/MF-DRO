@@ -245,6 +245,71 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
     </div>
   </div>
 </section>
+<hr class="div">
+
+<section>
+  <div class="col">
+    <h2>What failure actually looks like: walking into the middle<span class="chip c-settled">new</span></h2>
+    <p>Until now &ldquo;failing&rdquo; meant a number that stayed high. Here is what the failing
+    runs are physically doing: they walk into the middle of the search space and stay there.</p>
+    <p>Measured across <strong>28 variants</strong> — different teachers, different constraints,
+    different rollout lengths, different loss functions — how far a run's queries sit from the
+    middle of the box tracks its final result almost perfectly (rank correlation
+    <strong>&minus;0.967</strong>). The best variant sits furthest out; the worst sits nearly
+    dead centre.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <thead><tr>
+        <th>Variant</th><th class="n">Distance from the middle, start &rarr; end</th><th class="n">Direction</th><th class="n">Result</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Last-seven-steps teacher</td><td class="n">0.290 &rarr; 0.089</td><td class="n">&times;0.31</td><td class="n">43.94</td></tr>
+        <tr><td>Random teacher</td><td class="n">0.195 &rarr; 0.064</td><td class="n">&times;0.33</td><td class="n">43.94</td></tr>
+        <tr><td>Perfect teacher</td><td class="n">0.280 &rarr; 0.100</td><td class="n">&times;0.36</td><td class="n">43.94</td></tr>
+        <tr><td><strong>First-step-only teacher</strong></td><td class="n">0.645 &rarr; 0.819</td><td class="n">&times;1.27</td><td class="n">16.96</td></tr>
+        <tr><td><strong>Control</strong></td><td class="n">0.672 &rarr; 0.852</td><td class="n">&times;1.27</td><td class="n">15.82</td></tr>
+        <tr><td><strong>Best variant</strong></td><td class="n">0.782 &rarr; 0.978</td><td class="n">&times;1.25</td><td class="n">9.81</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">Every variant that works moves <em>away</em> from the middle as its run
+  proceeds. Every variant that fails moves <em>into</em> it. Across all 28 variants the two
+  groups do not overlap at all — working 1.20–1.39, failing 0.31–0.42.</p>
+
+  <div class="col">
+    <p>These are opposite directions, not degrees of the same thing. A failing run is not a
+    working run that improved less; it is a run travelling the other way.</p>
+
+    <div class="note">
+      <h3>The clinching comparison</h3>
+      <p>Two variants were built to separate &ldquo;the first step&rdquo; from &ldquo;the other
+      seven&rdquo;, and they invert perfectly. The <strong>first-step-only</strong> teacher's own
+      average move sits essentially <em>at the middle</em> — seven of its eight steps are random —
+      yet the learner it produces queries far from the middle, and works. The
+      <strong>last-seven-steps</strong> teacher's average move sits far from the middle, yet the
+      learner it produces sits at the middle, and fails.</p>
+      <p>So the teacher's average behaviour predicts the learner's <em>backwards</em>. Only the
+      first step predicts it forwards. That is the answer to this whole question, measured
+      directly rather than inferred from which runs happened to win.</p>
+    </div>
+
+    <div class="open">
+      <h3>What this does not settle</h3>
+      <p>Only four of the 28 variants are failures, and all four finish at the same saturated
+      number — so the failing side of the comparison is thin. Nothing here intervenes on the
+      distance directly, so &ldquo;drifting inward causes failure&rdquo; and &ldquo;both follow
+      from something else&rdquo; are not yet separated. And it does <em>not</em> explain why the
+      two benchmarks differ: the first-step-only teacher keeps 95% of the control's distance on
+      one benchmark and 90% on the other, yet costs almost nothing on the first and triples the
+      error on the second. That gap stays open.</p>
+      <p>One earlier idea was dropped here on evidence: that the drift compounds through the
+      teacher. It does not — every teacher's own moves spread <em>outward</em> over a run,
+      including in the runs that fail.</p>
+    </div>
+  </div>
+</section>
 
 <hr class="div">
 
