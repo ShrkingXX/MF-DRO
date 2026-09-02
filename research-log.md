@@ -2604,3 +2604,42 @@ h155, "target collapse" refuted by h153), and h161 is the arm meant to address
 that. It has not reported.
 
 **Compute:** 10 workers (h159 x5, h161 x5) plus 1 smoke at peak = 11/15.
+
+## 2026-09-02 (tick 10) — a confirmed forecast, and an out-of-sample test that cost me a claim
+
+**h159 completed and its blind forecast held** (91.5% predicted, 96.4% observed).
+Keeping it running after its screen showed it non-discriminating was the right
+call for the reason recorded at the time: it validates a harness condition. The
+harness record is now 6 of 7, and the single failure (C2, frozen) is
+structurally distinct from the six that hold. **That gives a usable rule: the
+harness is accurate for closed-loop conditions and wrong for frozen ones.**
+Consequence acted on immediately — h161 is a frozen condition, so no forecast for
+it will be offered, where previously I would have produced one.
+
+**The most useful thing this tick was an out-of-sample test that partly failed.**
+h163 found teacher and student dispersion inverted at Spearman −0.900 across five
+arms, with the sign opposite to the natural null. That is a strong result and it
+would have been easy to report as one. Instead the prediction it implied for the
+sixth arm was written down and committed BEFORE computing it: h159's teacher
+dispersion is the lowest of all six, so its student should be the highest.
+Observed 0.2639 — above the pre-set retraction threshold but third of seven, not
+first. Spearman falls to −0.771.
+
+So the claim is downgraded from a rank relationship to a **group separation**.
+Without the out-of-sample step I would have published −0.900 as a relationship,
+and it is not one. This is the second time this session that committing a
+prediction before computing it changed what I was entitled to say (the first was
+h153's split forecast).
+
+**Second decoupling of target from performance, by an independent route.** h159
+(target 0.941) and h153 (target 0.323) differ threefold and land at 19.07 and
+19.36, both improving 5/5. The conditioning target does not drive performance.
+
+**Holistic read.** The front now has a solid negative (quality and diversity are
+orthogonal, swept directly), a complete 2x2 with four working arms and one
+failing group, two independent demonstrations that rtg_target is not the
+mechanism, and a resolved L_loc puzzle. The positive mechanism is a learnability
+framing that has survived two tests and been downgraded once. h161 is the arm
+that can test it causally and it is the only thing running.
+
+**Compute:** 5-6 workers. Never above 6/15 this tick.
