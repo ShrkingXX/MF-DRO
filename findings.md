@@ -16995,3 +16995,29 @@ it more than a story is that it predicts a *quantity* (~87× apart) and both
 measurements match. It uses random weights; a trained bias could shift the
 operating point. **Measuring the trained `btg_embed`/`btg_ln` response directly
 would settle it — registered, not done.**
+
+## h178 launched — settling h177's explanation on the TRAINED network
+
+h177's saturation argument was computed on **random weights** and labelled
+EXPLORATORY for exactly that reason. h178 measures the trained
+`reward_ln(reward_embedding(·))` and `btg_ln(btg_embed(·))` responses directly,
+at every real iteration, over each scalar's observed operating range.
+
+**SC1 first FAILED** — `mat1 and mat2 must have the same dtype`: the probe used
+`state.dtype` (float64) against float32 modules, since `propose_mf` calls
+`state.float()`. Caught by the smoke test before the arm ran. **Fourth time this
+session a pre-launch smoke has caught something that would otherwise have shown
+up as silently-missing data.** Fixed to follow the module's own weight dtype;
+SC1 and SC2 now pass.
+
+**The early reading is recorded and explicitly does not count.** At 5 iterations:
+rtg_resp 0.4974, btg_resp 0.0051, ratio 98.2× — near-perfect agreement with the
+random-weight estimate (0.4869 / 0.0056 / ~87×). **That agreement is close to
+tautological**: after five iterations the embedding weights are still near
+initialisation, so matching a random-weight calculation is what an untrained
+module must do. Only a fully-trained network tests the hypothesis.
+
+**R1 is named**: if the trained `btg_resp` turns out comparable to `rtg_resp`,
+the saturation explanation is wrong and h177's exact zero returns to unexplained
+— the seventh account to fall. The measurement (BTG inert) stands either way;
+only the reason is at stake.
