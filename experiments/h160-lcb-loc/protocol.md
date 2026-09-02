@@ -74,3 +74,20 @@ R3 Intermediate (25-35 rel%) -> inconclusive at n=5, reported as such.
 
 Borehole_8D seeds 42-46, n=5, frozen metric, no p-values. Launched only if the
 screen says it discriminates.
+
+## Screen result, round 1: NO-GO by the letter, but the estimate cannot carry it
+
+C8 = **75.8%** of control (threshold 70%), failing band 29.5%. By the letter of
+the pre-stated gate: NO-GO.
+
+But the two replicates are **0.8423 and 0.6145** — a 31% spread, far outside the
+8-13% noise floor measured on other conditions. A point estimate that unstable
+cannot support a go/no-go decision in either direction, and reporting "NO-GO,
+75.8%" as if it were a clean read would be false precision.
+
+**The threshold is NOT being moved.** Two further replicates (rep 2, 3) are being
+run to reduce the noise on the quantity being compared against it. If the
+4-replicate mean is still above 70%, the arm is not launched.
+
+Recorded now, before those replicates return, so this cannot be read as
+shopping for a GO.
