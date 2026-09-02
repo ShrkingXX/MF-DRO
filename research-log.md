@@ -2666,3 +2666,31 @@ there, that retraction is Borehole-specific.
 **Compute:** 10 workers (h161 x5, h165 x5). Never above 10/15.
 
 **Still the only causal test:** h161, at 130/240.
+
+## 2026-09-02 (tick 12) — consolidated the front into a readable report
+
+**Holistic call: the deliverable had degraded even as the science improved.** The
+existing to_human report is 1.5 MB of chronological accretion with three
+correction callouts stacked on one another, each withdrawing the one above it.
+Every correction was honest, but the result is unreadable: a reader cannot tell
+what is currently believed without reconstructing the whole sequence.
+
+Rather than patch it a fourth time, wrote a **new focused report on this front
+alone** (to_human/teacher-question.html): the settled negative, the completed
+2x2 as an actual 2x2, the three retracted explanations each paired with the
+experiment that killed it, the current account with its evidence, and the causal
+test still running. The older report stays as the project-wide record.
+
+Design was deliberately utilitarian — a research memo, not a landing page.
+
+**Nothing new was measured this tick.** h161 (152->160/240) and h165 (Hartmann
+UCB-LOC, 126-231/240 across seeds) are both mid-flight and neither will land
+before the next tick. Recorded plainly rather than padded.
+
+**One correction to my own copy before publishing:** I first wrote "sixteen
+experiments", then "nineteen", and only then counted — the front is h145 through
+h165, twenty-one. Guess-then-check on a number that appears in the first
+paragraph of a published page is exactly the kind of thing that erodes trust in
+everything after it.
+
+**Compute:** 10 workers throughout (h161 x5, h165 x5).
