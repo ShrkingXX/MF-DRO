@@ -14231,3 +14231,60 @@ session I have registered a check against data that does not exist.** SC5's
 concern is structurally inapplicable — the trap it guards against came from
 reimplementing state seeding, and this design never touches state extraction — but
 that is satisfaction by construction, not by measurement, and is labelled so.
+
+## h145 v1 INVALIDATED — a degenerate y* made the fidelity criterion meaningless. The user caught it.
+
+My `forced_x` block chose fidelity by calling `compute_joint_mf_mes` with a
+**one-point candidate pool** — the forced location alone. That is wrong, and the
+reason is structural rather than numerical:
+
+`compute_joint_mf_mes` Thompson-estimates `y*` as the **maximum over the pool it
+is handed**. With a one-point pool, `y*` collapses to that point's own value
+instead of the global optimum. Demonstrated on a 200-draw example:
+
+    y* from the 200-point pool : 2.0024
+    y* from a  1-point pool    : 0.1257     (just that point's own value)
+
+a **1.88 sigma shift in gamma = (y* - mu)/sigma**. The truncated-Gaussian entropy
+term — and therefore the entire HF/LF decision — was computed against the wrong
+quantity on every step of every synthetic trajectory.
+
+**So h145 v1's numbers are void**, including the headline "+37.39 / +28.13 worse,
+10/10". Results moved to `results_v1_degenerate_ystar/` rather than deleted.
+
+**This also explains the confound I had recorded as a limitation.** I wrote that
+Hartmann's per-seed HF share ranging 2%-100% was the MES criterion legitimately
+preferring different fidelities when standing on x*. It was not: it was a broken
+`y*`. **I had the observation and gave it the wrong cause** — and my write-up
+presented that cause with more confidence than a symptom I could not explain
+deserved.
+
+### The fix
+
+`y*` is now Thompson-estimated over the **same `roi_candidates` pool the real path
+uses**, and the HF and LF information gains are evaluated **at the forced
+location** against that `y*`, with the real criterion's own cost normalisation and
+argmax. This is what "the actual info gain of HF/LF at that location" means, and
+it is what the fidelity choice should always have been.
+
+**SC9 registered and passing** (comment lines stripped, since the first version of
+the check matched the phrase inside my own explanatory comment — the same
+false-positive class as `check_report.py`'s first version flagging a retraction
+citation):
+
+    PASS  y* uses the full roi_candidates pool
+    PASS  HF info gain evaluated at the forced point
+    PASS  LF info gain evaluated at the forced point
+    PASS  cost-normalised as the real criterion
+    PASS  argmax over the 2 fidelities
+    PASS  no 1-point pool passed to compute_joint_mf_mes
+
+SC4 is re-running because the tree changed again, and all 10 runs are relaunched.
+
+### What this says about the eight sanity checks
+
+**None of them could have caught this.** SC1-SC3 check the expert path's geometry,
+SC4 checks the default path, SC6 checks RTG provenance, SC7 checks BTG. **Not one
+examined the forced path's fidelity decision** — the single thing my
+implementation actually changed beyond location. I designed checks around the
+parts I had thought hardest about and left the new code path unchecked.

@@ -1618,9 +1618,30 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         if forced_x is not None:
             x_tau = forced_x[min(tau, forced_x.shape[0] - 1)].to(
                 device=roi_candidates.device, dtype=roi_candidates.dtype)
-            _, ell_tau, scores = compute_joint_mf_mes(
-                current_ko, x_tau.reshape(1, -1), c_H, c_L
-            )
+            _xf = x_tau.reshape(1, -1)
+            # FIDELITY = ACTUAL info gain of HF vs LF AT the forced point.
+            #
+            # An earlier version called compute_joint_mf_mes with a ONE-POINT
+            # pool. That is wrong: y* is Thompson-estimated as the MAX over the
+            # pool it is given, so a one-point pool collapses y* to that point's
+            # own value instead of the global optimum. Measured on a 200-draw
+            # example, y* fell from 2.00 to 0.13 -- a 1.88 sigma shift in
+            # gamma = (y* - mu)/sigma -- so the truncated-Gaussian entropy term,
+            # and therefore the HF/LF choice, was computed against the wrong
+            # quantity entirely.
+            #
+            # y* is now estimated over the SAME roi_candidates pool the real
+            # path uses, and the HF/LF information gains are evaluated at the
+            # forced location against that y*. Cost normalisation and the argmax
+            # are the real criterion's own.
+            _proxy = _build_hf_proxy_model(current_ko)
+            _ys = thompson_sample_y_star(_proxy, roi_candidates, K=10)
+            _mh = torch.tensor(_compute_mes_hf_vectorized(_xf, _proxy, _ys),
+                               dtype=roi_candidates.dtype)
+            _ml = torch.tensor(_compute_mes_lf_vectorized(_xf, current_ko, _ys, n_quad=32),
+                               dtype=roi_candidates.dtype)
+            scores = torch.stack([_ml / c_L, _mh / c_H], dim=1)
+            ell_tau = int(scores.reshape(-1).argmax().item() % 2)
 
         if tau == 0 and scores is not None:
             bes_signal_0 = scores.max().item()
