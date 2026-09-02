@@ -17141,3 +17141,51 @@ emit ~0.78. It emits 0.200.
 The τ=0 account holds for the **location** head and not for the fidelity head —
 now supported by a measurement rather than only by the withdrawal of a confounded
 claim.
+
+---
+
+## h180 (EXPLORATORY) — the emitted first query is invariant to the teacher's RULE
+
+Re-analysis of saved Borehole traces, seeds 42–46, paired, frozen metric imported
+from h83. Full table and caveats: `experiments/h180-teacher-invariance/analysis.md`.
+
+Distance from the MES control's first real query, against final frozen rel%:
+
+| dist ≤ 0.065 — **rule changed, output did not** | | dist ≥ 0.157 — **averaging changed** | |
+|---|---|---|---|
+| UCB-LOC 0.044 | 15.13 | TAIL-MES 0.157 | 43.94 |
+| MES-FROZEN 0.046 | 19.36 | DIVERSE-GOOD 0.252 | 43.94 |
+| STALE-PATH 0.046 | 19.53 | **HEAD-MES 0.271** | **16.96** |
+| EXPLOIT-LOC 0.065 | 19.07 | ORACLE 0.339 / RANDOM 0.434 | 43.94 |
+
+**Positive control (the reason this is not just a null):** MES→RANDOM moves the
+query **9.9×** further than MES→UCB-LOC (0.434 vs 0.044), ranges disjoint, and
+RANDOM lands nearer the box centre (0.337 vs 0.520) — the direction the
+conditional-mean account predicts. The instrument detects teacher effects.
+
+**Reading.** Changing the teacher's *rule* does not move the emitted action;
+changing *what gets averaged* does. This is why all six fallen accounts on this
+front failed — every one of them changed the rule — and why the two interventions
+that worked (h149 selection, h172 shortening) changed the averaging instead.
+HEAD-MES is the sole arm that moves the query far and stays good: it **selects**
+trajectories rather than randomising them.
+
+**No r is reported.** Four of nine non-control arms sit at the identical 43.94
+saturation floor, so a Pearson r over this set (+0.707) is a ceiling effect. An
+earlier pass computed that r on an ad-hoc rel% that disagreed with the control's
+known 15.82; both were discarded and the frozen metric imported instead.
+
+### Bit-level confirmation of h177/h178
+
+**MES-FROZEN and STALE-PATH emit a bit-identical first query on 5/5 seeds**, and
+identical first *ten* queries — different experiments, different manipulations,
+different output files (different md5, different lengths). Both manipulate the
+**RTG target**, which h177/h178 showed is architecturally inert. If that channel
+does not reach the action, two different target manipulations must emit the same
+action. They do, at bit level, until diverging queries change the GP state.
+
+### Consequence
+
+The proposed **teacher-rotation arm is DECLINED** — rotating between teachers that
+agree to 0.044 cannot produce a resolvable effect. Second arm declined on a
+measured premise this tick, alongside h174's.
