@@ -15036,3 +15036,76 @@ draw carries roughly a third of the spread. Any procedure that OPTIMISES
 against b_T at this noise level is fitting the draw — which is why greedy is
 hard to beat by search: greedy never selects on a realised b_T, so it never
 pays the curse.
+
+---
+
+## h156 — the bridge. The target is a MAX, and that changes the whole account.
+
+### Withdrawal first
+
+The framing I adopted after h152 — that the substitute teachers fail **because**
+they are open-loop, and that non-adaptivity is what h145/h146/h149 share — is
+**WITHDRAWN**. It was an over-correction. h152 correctly found an uncontrolled
+variable; I then promoted it to *the explanation* without checking whether it
+was big enough to do the work. That is the same error h152 caught me in, made in
+the opposite direction.
+
+### What the statistic actually is
+
+`rtg_target = max(batch_max, 0.5 · running_max)` over `traj['rtg'][0]`
+(mf_dro.py:2056-2060). **A MAXIMUM over the rollout batch.** Every penalty
+measured up to this point was a penalty on the MEAN, which is why +0.16 looked
+hopelessly too small to explain 0.976 → 0.311. Wrong statistic.
+
+### The harness reproduces all four arms
+
+9 states, N=100 trajectories per condition, path generators copied verbatim from
+the arms themselves:
+
+| condition | mean | sd | **MAX** | real arm | observed | err |
+|---|---|---|---|---|---|---|
+| C1 closed-loop | +0.391 | 0.221 | **0.906** | control | 0.976 | −7.2% |
+| C2 own greedy path, FROZEN | +0.255 | 0.219 | **0.824** | **h153 (running)** | — | **FORECAST** |
+| C3 random path | +0.020 | 0.097 | 0.274 | RANDOM-POOL | 0.297 | −7.6% |
+| C4 oracle path to x* | +0.008 | 0.113 | 0.302 | ORACLE | 0.311 | −2.9% |
+| C5 diverse-good endpoints | +0.008 | 0.106 | 0.265 | DIVERSE-GOOD | 0.329 | −19.3% |
+
+Not tuned to these numbers. Three of four within 8%.
+
+### The account, corrected
+
+The failing arms do not merely shift the mean — they **flatten the distribution**
+(sd 0.10-0.11 vs 0.22) and earn **essentially zero information gain**
+(+0.008 to +0.020 vs the control's +0.391). A max over a batch with no
+informative tail has nothing to find. That is why a modest mean penalty
+produces a catastrophic target collapse.
+
+**Freezing is not the operative variable.** C2 — freezing each rollout's own
+adaptively-derived path, exactly h153's design — retains **90.9%** of the
+control's MAX. The failing arms retain 29-33%. The open-loop penalty h152
+measured is real and replicated, but it costs ~9% of the tail where the failing
+arms lose ~70%.
+
+### h149's answer is reinstated, now with the bridge it lacked
+
+**The reward is information gain; trajectory quality is orthogonal to it.**
+Walking toward an already-good point earns almost nothing regardless of where
+that point is — C5 shows genuine endpoint diversity does not rescue it. What
+h149 could not explain was why a modest reward deficit was catastrophic rather
+than merely suboptimal. Answer: the conditioning target is a maximum, and these
+batches have no upper tail.
+
+### Forecast recorded before h153 reports
+
+h153 is C2. **Predicted rtg_target ≈ 0.82, not ≈0.31; h153 should land near the
+control, NOT reproduce 43.94.** If it fails anyway, this account is refuted and
+the reinstatement above must be withdrawn with it. h153 is now a prediction test
+rather than a hypothesis test, which makes it considerably more informative than
+when it was launched.
+
+### Weaknesses, stated
+
+C5 fits worst (−19.3%) and that is unexplained. All states come from Borehole
+control traces (seeds 42/43/44); the failing arms visit different states, so the
+harness matches their targets while running on the control's state distribution.
+9 states, no p-values.
