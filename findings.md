@@ -16178,3 +16178,61 @@ has misled me before. h170 is registered to test it as a **number**: is the
 emitted query closer to the τ=0 teacher mean than to the box centre, on the
 **working** arms — the only arms where those two targets differ? R1 (it is not)
 is named first as the live risk.
+
+---
+
+# h170 — the τ=0 mechanism passes its first quantitative, non-post-hoc test
+
+CONFIRMATORY, 40 states per arm, 120 reconstruction draws. Amended before
+running to reconstruct the τ=0 teacher action **offline** from existing traces
+rather than needing fresh runs — recorded as an amendment, not a silent switch.
+
+| arm | d(q, τ=0 mean) | d(q, centre) | d(q, random) | τ=0 mean → centre | est. SE |
+|---|---|---|---|---|---|
+| control (works) | **0.2428** | 0.7946 | 1.1200 | 0.6831 | 0.0487 |
+| h155 UCB-LOC (works) | **0.2513** | 0.8135 | 1.0932 | 0.6955 | 0.0505 |
+| RANDOM-POOL (fails) | 0.1535 | 0.1276 | 0.8143 | **0.0712** | 0.0731 |
+| ORACLE (fails) | 0.2101 | 0.1928 | 0.8613 | **0.0686** | 0.0734 |
+
+**P1 holds and it is the discriminating half.** On the working arms — the only
+arms where the τ=0 teacher mean and the box centre are *different* targets — the
+DT's query is **3.3× and 3.2× closer** to the τ=0 mean. **P2 calibrates**, **P3
+holds 4/4**.
+
+## The account, stated at the strength the evidence supports
+
+Inference always queries `timestep=0`. At τ=0 the training states are
+near-degenerate (`uniq_tau0_states=3` of 60; the real inference state is
+bit-identical to one of them). So the DT emits approximately **the conditional
+mean of its teacher's τ=0 action** — a quantity fixed by the teacher and
+computable in advance. Teachers whose τ=0 action is an acquisition argmax hand it
+an informative point; teachers whose τ=0 action is an independent draw hand it
+the centre of the box.
+
+That is why quality and diversity never mattered (h158): both are properties of
+where the trajectory *goes*, and only its **first step's distribution** reaches
+inference.
+
+## What is NOT claimed
+
+The residual is real: 0.2428 against an estimator SE of 0.0487 is **≈5 SE**. The
+query is not *at* the τ=0 mean; it is far nearer to it than to any alternative
+tested. The mechanism explains the bulk of where the query lands, **not all of
+it**. Registered outcome **R2**: survives its first non-post-hoc test, still one
+test, **not established**.
+
+Six accounts have been proposed on this front; five fell. This is the first to
+make a quantitative prediction *before* being checked and have it hold.
+
+## A repeat of an error I had already adopted a guard against
+
+The first run used 12 reconstruction draws and P2 reported "NOT calibrated"
+(0.2242 / 0.2380 against a 0.15 threshold). That was the **estimator**: the mean
+of 12 uniform draws in 8D sits an expected **0.2289** from the centre, so the
+threshold sat below the noise floor and could not have passed however right the
+theory was. Simulation (4000 replicates): 12 → 0.2289, 50 → 0.1131, 200 →
+0.0562.
+
+Identical error class to h156's withdrawn "within 8%" claim — quoting an
+agreement without first measuring what the instrument can resolve. **The guard
+was adopted after h156 and I did not apply it here.**

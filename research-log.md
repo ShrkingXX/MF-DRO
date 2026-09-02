@@ -2965,3 +2965,38 @@ been in front of me for nineteen ticks. Worth asking, next time progress stalls,
 what the logs are already printing that I have stopped seeing.
 
 **Compute:** 3-8 workers; h169 killed freed five.
+
+## 2026-09-02 (tick 20) — the first account to survive a test it could have failed
+
+**h170 passed.** On the working arms the DT's query is 3.3x and 3.2x closer to
+its teacher's tau=0 action mean than to the box centre. That is the
+discriminating comparison — on the failing arms those two targets coincide, so
+only a working arm can separate them. P2 calibrated, P3 held 4/4.
+
+The account: inference always queries timestep=0; at tau=0 the training states
+are near-degenerate; so the DT emits roughly the conditional mean of its
+teacher's tau=0 action. Teachers whose first step is an acquisition argmax hand
+it an informative point; teachers whose first step is an independent draw hand it
+the centre of the box. It also explains why quality and diversity never mattered:
+both describe where the trajectory GOES, and only its first step reaches
+inference.
+
+**Not claimed as established.** The residual is 5 SE — the query is near the
+tau=0 mean, not at it. Registered outcome R2: survives ONE non-post-hoc test.
+Six accounts proposed on this front, five fell; this is the first to predict a
+number before being checked and have it hold.
+
+**I amended the protocol before running rather than after.** It said fresh runs
+were needed; I found the tau=0 action is reconstructible offline from existing
+traces, recorded the amendment with the new caveat it introduces, and ran the
+cheap version. Ten worker-hours saved and the test could use five completed arms.
+
+**I repeated an error I had already written a guard for.** The first run used 12
+reconstruction draws; P2 "failed" at 0.224 against a 0.15 threshold. But the mean
+of 12 uniform draws in 8D sits 0.2289 from the centre — my gate was BELOW my
+estimator's own noise floor and could not have passed however right the theory
+was. Same class as h156's withdrawn "within 8%": quoting an agreement without
+first measuring what the instrument can resolve. The guard was adopted after
+h156 and not applied here. Re-run at 120 draws, P2 calibrates.
+
+**Compute:** 3 workers (h166 finishing). h170 needed one, for minutes.
