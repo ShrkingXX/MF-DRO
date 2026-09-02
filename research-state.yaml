@@ -1,3 +1,35 @@
+# ============================================================================
+# CURRENT FRONT  (updated 2026-09-02) -- the /loop prompt still names h146 and
+# the POOL dose; both are STALE. Recorded here so the next tick does not
+# re-run a closed arm.
+# ============================================================================
+current_front:
+  question: 'WHY better trajectory quality does not improve MF-DRO.'
+  status_of_the_old_answer: 'h149 was recorded as THE ANSWER for this front. h152
+    RETRACTS that standing: every substitute teacher tested (h145 ORACLE, h146
+    DIVERSE-GOOD, h149 RANDOM-POOL) is OPEN-LOOP, while the control is the only
+    CLOSED-LOOP teacher. Quality and loop type were never separated. The front is
+    REOPENED.'
+  closed_arms:
+  - 'h146 DIVERSE-GOOD -- COMPLETE. 43.94 rel%, 0/5. Identical to ORACLE.'
+  - 'h149 RANDOM-POOL -- COMPLETE. 43.94 rel%, 0/5. Identical to ORACLE.'
+  - 'h151 Hartmann RANDOM-POOL -- COMPLETE. Generalises; the "never improves"
+    characterisation did not, and was retracted.'
+  - 'POOL dose {16,256,4096} -- REGISTERED BUT DELIBERATELY NOT RUN. h146/h149
+    showed the outcome is flat in BOTH quality and diversity, so every dose point
+    would return 43.94. Not run is the correct call, recorded so it is not read
+    as an oversight.'
+  - 'h152 joint-IG teacher -- COMPLETE, DEAD ON THE MERITS. Gate failed twice.'
+  running:
+  - 'h153 MES-FROZEN (Borehole seeds 42-46, launched 2026-09-02). The control that
+    separates QUALITY from ADAPTIVITY: the control MES rule, its own path frozen.
+    Registered to RETRACT the h145/h146/h149 interpretation, in findings.md AND in
+    the published to_human/ report, if it lands near 43.94 rather than 15.82.'
+  key_quantities:
+    open_loop_penalty_rtg: 0.1594          # 0.72 noise floors, 16/21 states
+    reward_label_snr: 2.19                 # mean +0.486 vs replay s.d. 0.222
+    beam_vs_greedy_same_loop_type: -0.0397 # dead heat; joint optimisation buys nothing
+
 concurrent_sessions:
   compute_owner: 'Whichever session holds the running launcher owns compute. As of this writing that is
     the h85 session. A second session must NOT launch while workers are at 15.
