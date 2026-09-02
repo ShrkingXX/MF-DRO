@@ -3383,3 +3383,31 @@ Hartmann's sharper optimum. That is the shape of all five accounts that already
 fell. It stays unexplained.
 
 **Compute:** 5/15.
+
+## 2026-09-02 (tick 33) — targeting the stable residual, not the benchmark-specific gap
+
+**Chose the residual over the scope gap, deliberately.** h175 showed the tau=0
+account's residual is ~5 SE on BOTH benchmarks while the strong form's
+benchmark-specificity is unexplained. A stable incompleteness is a property of
+the mechanism; a benchmark-specific gap is a property of one function. The first
+is worth chasing, and I said so rather than defaulting to the more conspicuous
+puzzle.
+
+**h177 probes the second conditioning input.** h168 established the emitted
+action is essentially independent of RTG (0.0074 across the full sweep, 357
+probed iterations). The DT is conditioned on TWO scalars, and BTG had never been
+touched. If both are inert, the inference output is a function of the state
+alone -- which sharpens the tau=0 account while leaving the residual unexplained.
+
+**SC1 ran before launch, and the early signal is recorded before the arm.** Seven
+BTG probes per iteration, axis populated. At five iterations the action moves
+0.0007 across the sweep -- **0.7% of its own mean**, against RTG's 8.9% at full
+length. The smoke ran on Borehole where btg_now is 10.9, so the 20-36 sweep sits
+entirely OUTSIDE the visited range and the action still barely moves. That is a
+stronger version of the test than the real run will perform.
+
+**Named the outcome I would not like:** if P1 holds, the residual stays
+unexplained and I say so rather than reaching for a third scalar. Six accounts
+have fallen on this front by reaching.
+
+**Compute:** 10/15 (h176 x5 at ~78%, h177 x5).
