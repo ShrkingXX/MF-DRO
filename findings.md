@@ -17215,3 +17215,35 @@ clears the seed floor by **2.2×** rather than Borehole's 7×.
 Borehole (16.96 vs 15.82) and is 3× worse on Hartmann (25.16 vs 7.99), while
 still being the best of the far arms. Same benchmark asymmetry as the strong form
 of the front's answer; still unresolved.
+
+---
+
+## h179 — standardising the conditioning does NOT improve regret. **P2, provisional.**
+
+CONFIRMATORY, 5/5 Borehole seeds. Probe read before regret, per protocol.
+
+| | value |
+|---|---|
+| RTG responsiveness (real state, pooled) | **0.1010** |
+| fidelity flips between rtg=0 and rtg=1 | **23% of iterations** |
+| regret, h179 vs control | **16.66 vs 15.82** |
+| paired | **+0.85 rel% pts (se 0.62), +5.4% relative** |
+| seeds clearly worse | **2/5** (+2.74, +1.94); other three tied within 0.31 |
+
++5.4% is inside the harness noise floor (6.1% mean / 10.9% worst) established
+long before this arm → **P2 → R3**: the conditioning channel is irrelevant either
+way, the τ=0 account is strengthened, and the "defect with a fix" framing
+downgrades to a curiosity.
+
+**The gate was under-specified.** The protocol wrote "improves / unchanged /
+degrades" with no numeric width for "unchanged" — precisely what `check_gate.py`
+exists to catch, and it was not run on that protocol. Resolved by applying the
+project's pre-existing noise floor rather than a threshold chosen after the fact.
+
+**Provisional, and why.** h179 is the only probe ever run on **Borehole**; every
+earlier probe (h168, h177, h178) is Hartmann. h179 therefore varies
+standardisation *and* benchmark at once, so 0.1010 is not yet attributable.
+**h181** — one-line diff, same benchmark, same seeds — is registered, launched,
+and its three read-branches are pre-specified in
+`experiments/h179-standardised-conditioning/analysis.md`. Under two of the three,
+h179's headline changes; under one, h178's in-situ claim is the thing that falls.
