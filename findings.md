@@ -13,7 +13,10 @@
 # ══ PHASE 2 — WHY BETTER TRAJECTORY QUALITY DOES NOT IMPROVE MF-DRO ══
 #                              ** ANSWERED **
 #
-# THE MECHANISM (h185/h186/h188, confirmed on BOTH benchmarks, 10 arms):
+# THE MECHANISM (h185/h186/h188, confirmed on BOTH benchmarks, 10 arms;
+#                and INTERVENTIONALLY confirmed by h192 -- moving the teacher's
+#                tau=0 mean by +0.4192 moves the DT's own query by +0.4585,
+#                a TRANSFER RATIO of 1.094, essentially one-for-one):
 #   The Decision Transformer is a PER-TIMESTEP CONSTANT PREDICTOR. Its location
 #   MSE EQUALS its teacher's action variance -- loss/var spans 0.750-1.054 across
 #   10 arms on two benchmarks, i.e. it sits at the best-constant solution
@@ -18170,3 +18173,57 @@ and REFINE-100 reaching into the ROI range. That overlap is real and reported, a
 happens to *support* the account since those two are the other successful interventions.
 Correlational: nothing intervenes on the teacher's mean directly. n=5, Borehole; only
 one ROI arm carries `teacher_action_stats`, so the teacher-side half rests on it.
+
+---
+
+## h192 — **P1. The mechanism is now INTERVENTIONAL.** Transfer ratio 1.094.
+
+CONFIRMATORY, 5/5. Identity gate, SC and readout all committed before results. This was
+the first arm capable of **falsifying** the mechanism; it confirmed it instead.
+
+**SC first:** the teacher's τ=0 mean moved **0.7837 → 0.3645**, an imposed shift of
+**+0.4192**.
+
+| | value |
+|---|---|
+| DT query centroid, control | 0.8546 |
+| DT query centroid, shifted | **0.3961** |
+| teacher shift **imposed** | **+0.4192** |
+| DT shift **observed** | **+0.4585** |
+| **TRANSFER RATIO** | **1.094** |
+
+The gate required ≥0.50. **The DT reproduced the imposed shift essentially one-for-one.**
+h191 measured ≈0.70 for ROI's naturally-occurring shift; under a deliberate translation
+the DT tracks it completely.
+
+**Every prior result on this front was correlational** — h185, h188, h182 and h191 all
+*observed* that the DT's query tracks its teacher's τ=0 mean. h192 *moved* that mean and
+the DT moved with it.
+
+### The secondary prediction fired too
+
+| | frozen rel% | improves on its OWN initial design |
+|---|---|---|
+| control | **13.69** | **5/5** (173.54 → 267.20) |
+| shifted | **43.18** | **1/5** (173.54 → **175.91**) |
+
+Pushing the constant to the centre cost **+29.49 rel% points** and destroyed the policy's
+ability to beat its own starting design. 43.18 sits just under the 43.94 that h182
+identified as *being* the initial design.
+
+**The full chain, by intervention:** move the teacher's τ=0 mean → the DT's query follows
+one-for-one → and where that constant lands decides whether the policy contributes
+anything at all.
+
+### Limits, including a confound this design carries
+
+- **The shift direction was not neutral** — toward the box centre, which h182 had already
+  called a bad region. So the *regret* result is a **joint** test of "the DT follows" and
+  "the centre is bad", and does not independently establish the second. A same-magnitude
+  shift in a neutral direction would separate them and is the obvious next test. **The
+  transfer ratio is unaffected**: it measures only whether the query follows.
+- Ratio 1.094 slightly exceeds 1; at n=5 the honest reading is "one-for-one within the
+  resolution available", not overshoot.
+- One magnitude (λ=0.5), one direction, one benchmark, n=5, rollout_length=1 — chosen so
+  the recorded mean *is* the τ=0 mean. Whether the ratio holds at L=8, where seven other
+  steps dilute the signal, is untested.

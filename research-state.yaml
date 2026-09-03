@@ -410,6 +410,28 @@ current_front:
     other successful interventions. Correlational; n=5; Borehole; only one ROI arm carries
     teacher_action_stats.'
 
+  h192_interventional: 'THE MECHANISM IS NOW INTERVENTIONAL, NOT CORRELATIONAL.
+    CONFIRMATORY, 5/5; identity gate (122.29066752728207 exact), SC and readout all
+    committed BEFORE results. This was the FIRST arm capable of FALSIFYING the mechanism
+    -- P3 (<0.15) would have invalidated h185/h188/h191, findings.md''s Phase 2 header and
+    the report''s core section. It confirmed instead. SC: teacher tau=0 mean moved
+    0.7837 -> 0.3645, an IMPOSED shift of +0.4192. RESULT: DT query centroid moved
+    0.8546 -> 0.3961, an OBSERVED shift of +0.4585 -> TRANSFER RATIO 1.094, essentially
+    ONE-FOR-ONE, against a gate requiring >=0.50. h191 measured ~0.70 for ROI''s
+    naturally-occurring shift; under a deliberate translation the DT tracks it completely.
+    SECONDARY ALSO FIRED: frozen rel% 13.69 -> 43.18 (+29.49) and improves-on-its-own-
+    initial-design 5/5 -> 1/5 (final best 267.20 -> 175.91 against an init best of
+    173.54); 43.18 sits just under the 43.94 h182 identified as BEING the initial design.
+    FULL CHAIN BY INTERVENTION: move the teacher''s tau=0 mean -> the DT''s query follows
+    one-for-one -> where that constant lands decides whether the policy contributes at
+    all. CONFOUND NAMED: the shift direction was toward the CENTRE, which h182 already
+    called bad, so the REGRET half is a JOINT test of "the DT follows" and "the centre is
+    bad" and does not independently establish the second; a same-magnitude NEUTRAL-
+    direction shift would separate them and is the obvious next test. The TRANSFER RATIO
+    is unaffected by this. LIMITS: ratio 1.094 slightly >1 but at n=5 read as one-for-one,
+    not overshoot; one magnitude (lambda=0.5), one direction, Borehole, n=5, L=1 (chosen
+    so the recorded mean IS the tau=0 mean); whether it holds at L=8 is untested.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
