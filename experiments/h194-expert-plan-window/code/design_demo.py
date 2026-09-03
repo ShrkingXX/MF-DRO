@@ -42,7 +42,7 @@ def token_column(ax, x, y0, h, w, kinds, faded=False, action_real=True):
                     fontsize=6.3, color="white", weight="bold")
 
 def draw_panel(ax, K, title, subtitle):
-    ax.set_xlim(-0.6, 9.2); ax.set_ylim(-1.7, 8.2); ax.axis("off")
+    ax.set_xlim(-0.6, 9.2); ax.set_ylim(-1.7, 9.0); ax.axis("off")
     w, h, gap = 0.78, 0.62, 0.18
     kinds = ["action", "state", "btg", "rtg"]  # bottom to top (matches seq stack order)
     n = K
@@ -91,25 +91,29 @@ def draw_panel(ax, K, title, subtitle):
                                 connectionstyle="arc3,rad=0"))
     ax.annotate("", xy=(rx, 4.55), xytext=(rx, 1*h + h*0.86*0.5),
                 arrowprops=dict(arrowstyle="-", color="#C0392B", lw=1.6, ls=(0,(3,2)), alpha=0.55))
-    ax.add_patch(mpatches.FancyBboxPatch((rx - 1.05, 6.15), 2.1, 0.55, boxstyle="round,pad=0.02",
+    RO_H = 0.68
+    ax.add_patch(mpatches.FancyBboxPatch((rx - 1.05, 6.15), 2.1, RO_H, boxstyle="round,pad=0.02",
                  fc="#FADBD8", ec="#C0392B", lw=1.3))
     pos_txt = "position 0" if n == 1 else f"position {n-1}"
-    ax.text(rx, 6.42, f"readout: LAST state token\n({pos_txt})", ha="center", va="center",
+    ax.text(rx, 6.15 + RO_H/2, f"readout: LAST state token\n({pos_txt})", ha="center", va="center",
             fontsize=7.3, color="#7B241C")
 
-    # heads
-    for dx, lbl in ((-1.3, "location\nhead"), (1.3, "fidelity\nhead")):
+    # heads. Boxes sized for TWO lines of text at fontsize 7 -- the first draft used
+    # height=0.5, which was too short: "location" overflowed its box and collided with
+    # the panel title above it. 0.68 leaves visible padding above and below both lines.
+    HD_Y, HD_H, HD_W = 7.25, 0.68, 1.3
+    for dx, lbl in ((-1.35, "location\nhead"), (1.35, "fidelity\nhead")):
         hx = rx + dx
-        ax.annotate("", xy=(hx, 7.1), xytext=(rx, 6.72),
+        ax.annotate("", xy=(hx, HD_Y), xytext=(rx, 6.15 + RO_H + 0.04),
                     arrowprops=dict(arrowstyle="->", color="#566573", lw=1.1))
-        ax.add_patch(mpatches.FancyBboxPatch((hx - 0.55, 7.1), 1.1, 0.5, boxstyle="round,pad=0.02",
+        ax.add_patch(mpatches.FancyBboxPatch((hx - HD_W/2, HD_Y), HD_W, HD_H, boxstyle="round,pad=0.02",
                      fc="#D6EAF8", ec="#2471A3", lw=1.1))
-        ax.text(hx, 7.35, lbl, ha="center", va="center", fontsize=7)
+        ax.text(hx, HD_Y + HD_H/2, lbl, ha="center", va="center", fontsize=7)
 
-    ax.text((tx0+tx1)/2, 7.95, title, ha="center", fontsize=11.5, weight="bold")
-    ax.text((tx0+tx1)/2, 7.62, subtitle, ha="center", fontsize=8, color="#555")
+    ax.text((tx0+tx1)/2, 8.75, title, ha="center", fontsize=11.5, weight="bold")
+    ax.text((tx0+tx1)/2, 8.40, subtitle, ha="center", fontsize=8, color="#555")
 
-fig, axes = plt.subplots(1, 2, figsize=(13, 6.6))
+fig, axes = plt.subplots(1, 2, figsize=(13, 7.1))
 draw_panel(axes[0], 1,
           "K=1 -- original DT setting",
           "Old_dro.py's single-token call; MF-DRO's default (hist=None)")
@@ -131,7 +135,7 @@ fig.text(0.5, -0.10,
          "the CURRENT step's own action slot is always zero (its action is what's being predicted); h196 fixed\n"
          "the HISTORY slots (t<7 here), which previously also carried zeros -- a real train/inference defect.",
          ha="center", fontsize=8, color="#555")
-fig.subplots_adjust(wspace=0.15, bottom=0.24, top=0.82)
+fig.subplots_adjust(wspace=0.15, bottom=0.22, top=0.86)
 fig.savefig(os.path.join(OUT, "window_design_demo.png"))
 plt.close(fig)
 print(f"wrote {os.path.join(OUT, 'window_design_demo.png')}")
