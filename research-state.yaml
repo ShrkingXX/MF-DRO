@@ -324,6 +324,22 @@ current_front:
     correlation suggests one. Third arm declined on a measured premise (after h174''s
     follow-up and teacher rotation).'
 
+  h185_generality: 'THE CORE MECHANISM GENERALISES. Correcting a limit I published
+    TWICE: teacher_action_stats is NOT confined to h171/h172, it is on 18 ARMS ACROSS BOTH
+    BENCHMARKS (h173, h174, h168/h177/h178 on Hartmann; h176, h179, h181, h184, h187 on
+    Borehole). The generality test was available all along. RESULT: loss/var across 10
+    arms on TWO benchmarks spans 0.750-1.054 -- every arm at the best-constant value.
+    Hartmann: ROLLOUT1 1.054 (0.0% var explained), HEAD-MES 0.934 (6.6%), TAIL-MES 0.850
+    (15.0%), PROBE-RANDOM 1.013 (0.0%). Borehole: ROLLOUT1 1.022 (0.0%), ROI-Q10-L1 1.020
+    (0.0%), HEAD-MES 0.916 (8.4%), TAIL-MES 0.795 (20.5%), LFF-CTRL 0.750 (25.0%), STDCOND
+    0.867 (13.3%). A SECOND BY-CONSTRUCTION CONTROL FELL OUT UNDESIGNED: the theory forces
+    0% when there is one timestep (3 L=1 arms confirm) AND when the teacher''s action
+    distribution is IDENTICAL at every timestep, since then all per-tau means coincide --
+    PROBE-RANDOM (random teacher, L=8) reads 0.0%. THE RULE: variance is explained IF AND
+    ONLY IF the teacher''s action distribution differs across timesteps. All ten arms fit.
+    This is the strongest form the core mechanism has taken and it is NOT a Borehole
+    artifact.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

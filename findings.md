@@ -17386,7 +17386,9 @@ through the teacher (DT queries → GP data → teacher rollouts → DT's next a
 expands at 1.07 while its DT contracts at 0.31). The collapse is internal to the
 DT, not mediated by a degrading teacher distribution.
 
-Limits: five arms (one failing) — `teacher_action_stats` exists only on h171/h172;
+Limits: five arms (one failing). [CORRECTED: I wrote here that `teacher_action_stats`
+exists only on h171/h172. It is on **18 arms across both benchmarks** — see the
+generality section below, which the false limit delayed.]
 and it averages over all τ, so "τ=0 specifically" comes from the HEAD/TAIL design
 rather than a saved per-τ slice. Recording that slice is cheap for future runs.
 
@@ -17614,7 +17616,9 @@ independently recorded quantity rather than explaining it afterwards. h185 said 
 emits a per-timestep constant; h186 said it ignores its inputs; h188 says **which**
 constant — the teacher's τ=0 action mean.
 
-Limits: five arms, Borehole only (`teacher_action_stats` exists on h171/h172 alone);
+Limits: five arms, Borehole only. [CORRECTED: `teacher_action_stats` is on **18 arms
+across both benchmarks**, not h171/h172 alone — the generality test below was available
+all along.]
 teacher mean is the final iteration's against the last-20 query centroid, both late
 but not exactly time-matched; only L=1 is an exact all-τ = τ=0 identity, so L=2/L=4
 are weaker evidence than ROLLOUT1. A genuine **per-τ** breakdown of teacher actions
@@ -17862,3 +17866,47 @@ suggests one.
 
 Third arm declined on a measured premise, after h174's follow-up and teacher rotation.
 The checks cost minutes; the arms cost hours.
+
+---
+
+## h185 GENERALITY — the best-constant identity holds on BOTH benchmarks, across 10 arms
+
+**Correcting a limit I published twice.** I twice recorded that `teacher_action_stats`
+existed "only on h171/h172", making the mechanism Borehole-only. **It is on 18 arms
+across both benchmarks.** The limit did not exist and the test below was available all
+along.
+
+| benchmark | arm | L | **loss/var** | var explained | rel% |
+|---|---|---|---|---|---|
+| **Hartmann** | ROLLOUT1 | 1 | **1.054** | **0.0%** | 10.91 |
+| **Hartmann** | HEAD-MES | 8 | **0.934** | 6.6% | 25.16 |
+| **Hartmann** | TAIL-MES | 8 | **0.850** | 15.0% | 46.45 |
+| **Hartmann** | PROBE-RANDOM | 8 | **1.013** | **0.0%** | 65.14 |
+| Borehole | ROLLOUT1 | 1 | **1.022** | **0.0%** | 13.69 |
+| Borehole | ROI-Q10-L1 | 1 | **1.020** | **0.0%** | 10.81 |
+| Borehole | HEAD-MES | 8 | **0.916** | 8.4% | 16.96 |
+| Borehole | TAIL-MES | 8 | **0.795** | 20.5% | 43.94 |
+| Borehole | LFF-CTRL | 8 | **0.750** | 25.0% | 15.76 |
+| Borehole | STDCOND | 8 | **0.867** | 13.3% | 16.66 |
+
+**Ten arms, two benchmarks, `loss/var` ∈ [0.750, 1.054].** The DT sits at the
+best-constant value everywhere. **The mechanism is not a Borehole artifact.**
+
+### A second by-construction control that I did not design
+
+The theory forces 0% variance explained when there is only one timestep — confirmed on
+**three** independent L=1 arms across both benchmarks. But it also forces 0% when the
+teacher's action distribution is **identical at every timestep**, because then all
+per-τ means coincide and a per-timestep constant collapses to a global one.
+**PROBE-RANDOM — the random teacher at L=8 — reads 0.0%.** A second situation the theory
+forces to zero, reached by a completely different route.
+
+| teacher's action distribution | variance explained | arms |
+|---|---|---|
+| one timestep only (L=1) | **0.0%** | 3 |
+| identical at every timestep (random) | **0.0%** | 1 |
+| differs sharply at τ=0 (HEAD/TAIL) | 6.6–20.5% | 4 |
+| varies naturally across τ (MES, L=8) | 13.3–25.0% | 2 |
+
+**Variance is explained if and only if the teacher's action distribution differs across
+timesteps.** All ten arms fit. This is the strongest form the core mechanism has taken.
