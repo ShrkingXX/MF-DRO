@@ -156,3 +156,55 @@ arm depends on. Cost: two short runs, minutes.
 
 **Registered before running.** The `frac_seq` gate above is superseded, not deleted — it
 was written before I read line 78, and the record should show why it changed.
+
+---
+
+# STAGE 1 SPLIT, registered before launch — cost measured, cheap half first
+
+The joint-IG (beam) teacher was costed directly rather than assumed:
+
+| beam config | per rollout | per seed (60 rollouts × ~100 iters) |
+|---|---|---|
+| M=1 | 0.54 s | 0.9 h |
+| **M=16** (mandatory — fixes h152's winner's curse) | **1.57 s** | **2.6 h** |
+
+On top of the ~0.9 h/seed baseline that is **~3.5 h/seed**, so the two IG arms are
+**~35 worker-hours**. Affordable, but heavy for an outcome the mechanism predicts fails.
+
+**The two factors are separable, and one is 4× cheaper.** Splitting:
+
+## Stage 1a — the WINDOW alone (cheap: 5 workers, ~1 h)
+
+| arm | teacher | inference | ROI |
+|---|---|---|---|
+| **WINDOW** (new) | MES | **K=8** | Q10 |
+| control | MES | K=1 | Q10 — **already run, 11.59** |
+
+One new arm. Tests the window in isolation at the configuration that actually wins, and
+it is the half Stage 0 has already shown *changes the decision*.
+
+Gate unchanged in form; threshold is the pre-existing 10.9% worst-case floor on 11.59 =
+**1.26 rel% points**:
+
+- **P1 — the window HELPS**: WINDOW − control < −1.26
+- **P2 — no effect**: |diff| ≤ 1.26
+- **P3 — the window HURTS**: WINDOW − control > +1.26 ← **what the mechanism predicts**
+
+## Stage 1b — the EXPERT TEACHER (expensive: ~35 worker-hours) — GATED on 1a
+
+> Run Stage 1b **only if** Stage 1a returns **P1 or P2**.
+>
+> If Stage 1a returns **P3** (the window hurts, as predicted), then adding a costly
+> planned teacher *on top of a harmful inference change* cannot be attributed: any
+> result would confound the teacher with a known-harmful window. Report 1a and stop.
+
+This is not a way of avoiding the expensive arm. It is that the arms are **ordered**: the
+window is the shared component of both, and if it is harmful the IG arms measure it too.
+
+## Why this ordering does not shortchange the human's proposal
+
+The proposal was expert trajectory **+** longer inference. Stage 1a tests the second
+factor alone at the winning configuration; Stage 1b tests the first, conditional on the
+second not being actively harmful. If 1a returns P3 the honest report is *"the shared
+component fails, so the combination cannot be read"* — which is a real answer, not a
+dodge, and it costs 1 hour instead of 36.
