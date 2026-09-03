@@ -22,8 +22,29 @@ current_front:
     (uniq_tau0_states=3 of 60; the real inference state is bit-identical to one of
     them), so the DT reproduces roughly its teacher''s AVERAGE FIRST MOVE.
     Trajectory quality describes where a trajectory GOES; only its first step is
-    ever consulted. A perfect teacher''s first move is a random start point, whose
-    average is the middle of the box.'
+    ever consulted.'
+
+  CORRECTION_2026_09_03: 'THE_ANSWER previously ended "A perfect teacher''s first
+    move is a random start point, whose average is the middle of the box." That
+    sentence is WITHDRAWN as an over-generalisation. It is true of h145''s ORACLE
+    BY CONSTRUCTION -- its path is x_tau = x_start + (x* - x_start)*tau/(T-1) with
+    x_start ~ Uniform(domain), so its tau=0 action IS uniform noise -- but it is
+    not a property of good teachers. The human raised this: an expert teacher
+    should mean one that makes the OPTIMAL DECISION AT EVERY STEP, not one that
+    merely arrives somewhere good. h145''s intermediate steps are points on an
+    arbitrary line segment, chosen by no criterion.
+
+    The mechanism itself is unchanged and is now SHARPER, not weaker. If the DT
+    emits its teacher''s tau=0 action mean, then teacher quality helps IFF it
+    improves that mean. This RE-READS the whole failure series as consistent
+    rather than mysterious: h145''s oracle destroyed the tau=0 signal (uniform
+    start -> mean at the box centre), which is exactly why it failed 10/10; the
+    joint-IG beam''s tau=0 is the greedy MES move (the elite node''s first child),
+    so it should and did move nothing. NEITHER arm ever varied the quantity the
+    mechanism says is decisive.
+
+    What this OPENS: a teacher whose tau=0 is chosen by the TASK objective has
+    never been built. Registered as h198.'
 
   established_by_intervention: 'h171. HEAD-MES (acquisition on 1 of 8 steps,
     random for 7) = 16.96 rel%, 5/5, query centroid 0.7397. TAIL-MES (acquisition
