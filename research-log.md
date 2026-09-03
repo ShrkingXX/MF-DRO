@@ -3884,3 +3884,20 @@ ships.
 - **Overlap reported, not hidden**: the ROI vs non-ROI split is not clean (0.053 overlap),
   and the two non-ROI arms inside the ROI range are precisely the project's other
   successful interventions — which supports the account.
+
+## tick 58 — h192: the causal test. First arm that can FALSIFY the mechanism.
+
+- **h191's limits section named the missing experiment**: nothing had ever moved the
+  teacher's τ=0 mean directly and checked the DT follows. Everything supporting the
+  mechanism (h185, h188, h182, h191) is **correlational**.
+- **h192 built and launched.** At τ=0 only, the teacher's chosen action is translated
+  halfway toward the box centre; later steps untouched. Run at rollout_length=1 so the
+  recorded all-τ mean **is** the τ=0 mean and the shift is directly measurable.
+- **Gate on the TRANSFER RATIO** (DT's shift ÷ teacher's imposed shift): P1 ≥0.50 holds,
+  P2 0.15–0.50 partial, **P3 <0.15 FALSIFIES the mechanism**. h191 measured ≈0.70 for
+  ROI's naturally-occurring shift.
+- **P3 would invalidate h185/h188/h191, findings.md's Phase 2 header, and the published
+  report's core section.** Named in the protocol before launch.
+- **Identity gate PASSED exactly** (122.29066752728207) on the patched core.
+  **SC PASSED before launch**: teacher τ=0 mean 0.7788 → 0.3397.
+- Readout committed before any run finished. 5 workers.
