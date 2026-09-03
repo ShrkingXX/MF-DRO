@@ -28,6 +28,14 @@ RETRACTED = [
     ("95% of the way to fully additive", "same, see h135"),
     ("up 9.5%", "retracted dispersion sign flip"),
     ("down 10.6%", "retracted dispersion sign flip"),
+    # --- added after the h180-h189 run; this list had gone stale and held only
+    # --- h135-era claims while ~9 further retractions accumulated.
+    ("about as good as running the",
+     "h187: worse on Borehole 5/5; h189: flips sign, +13.89 on Hartmann"),
+    ("only ever recorded on two of the experiments",
+     "false limit -- recorded on 18 runs across both benchmarks"),
+    ("a gap 0.70 wide",
+     "Borehole bimodality was a 10-arm sampling artefact"),
 ]
 RETRACTION_WORDS = ("withdrawn", "retracted", "correction", "corrected", "we are not going to")
 
@@ -35,7 +43,7 @@ def strip_retraction_contexts(html):
     """Remove callouts that are themselves retractions, and quoted spans."""
     out = html
     # whole callout divs whose text announces a retraction
-    for m in list(re.finditer(r'<div class="callout">(.*?)</div>', out, re.S)):
+    for m in list(re.finditer(r'<div class="(?:callout|note|open)">(.*?)</div>', out, re.S)):
         if any(w in m.group(1).lower() for w in RETRACTION_WORDS):
             out = out.replace(m.group(0), " ")
     # any sentence-ish span inside typographic quotes is a citation, not a claim
