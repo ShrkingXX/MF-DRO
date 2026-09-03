@@ -1,3 +1,10 @@
+> **HALTED 2026-09-03 on human instruction ("stop building h200"), ~20 s after
+> arm A launched. No seed produced usable data; nothing is reported from it.
+> The protocol is left registered and unrun, which is the honest record: the
+> fidelity-mix confound it was written to test REMAINS OPEN, and the h194/h196/
+> h197 window results remain uninterpretable as history effects until something
+> settles it.**
+
 # h200 — is the sliding window's harm a HISTORY effect or a FIDELITY-MIX effect?
 
 **CONFIRMATORY.** Locked before any code is run. Arises from an h197 measurement, not
