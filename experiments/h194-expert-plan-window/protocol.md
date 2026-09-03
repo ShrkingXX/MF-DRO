@@ -270,3 +270,39 @@ WINDOW − CTRL-K1 does.
 
 **The gate is unchanged.** This adds a reported quantity, it does not move the threshold
 or the verdict mapping.
+
+---
+
+## MY P3 PREDICTION RESTS ON A FLAWED ANALOGY — corrected before the result lands
+
+I registered that the mechanism predicts **P3 (the window hurts)**, reasoning: the window
+moves the readout to position T−1 → the DT emits its **late-τ** constant → h171/h173 showed
+TAIL-MES (late-τ) **fails** at 43.94/46.45, so a late-τ constant should be bad.
+
+**That analogy is wrong.** TAIL-MES fails because its **τ=0 action is RANDOM** — it is a
+*training* manipulation that destroys the first step. A *normal* MES teacher's late-τ
+actions are ordinary acquisition choices, made adaptively from an informed model. They are
+not random and there is no reason they should be bad. I conflated "late-τ under a teacher
+whose τ=0 was destroyed" with "late-τ under a normal teacher".
+
+**A preliminary measurement points the same way.** On the Stage 0 runs, distance from the
+box centre:
+
+| | mean | last half |
+|---|---|---|
+| K=1 (control) | 0.6793 | 0.7107 |
+| **K=8 (window)** | **0.7156** | 0.7175 |
+
+K=8 sits **further** from the centre (+0.0363), not closer. **The opposite of what P3's
+reasoning requires.** (Weak: 8 HF queries, one seed, a budget-16 truncation ≈ 7% of a run,
+and both arms sit at 0.68–0.72, below the 0.80–1.01 band working arms reach when converged.)
+
+**So my registered expectation is withdrawn: the mechanism does NOT clearly predict P3.**
+The window makes the DT emit a *different* constant, and nothing establishes that a
+normal teacher's late-τ constant is worse than its τ=0 one. **P2 is now the honest
+expectation, with P1 and P3 both open.**
+
+**The GATE IS UNCHANGED** — thresholds, statistic and verdict mapping all stand exactly as
+registered. What changes is only my stated expectation, and it is corrected *before* the
+numbers arrive rather than after. Had I left the wrong prediction standing and P1 fired, I
+would have looked prescient about the mechanism's limits for the wrong reason.
