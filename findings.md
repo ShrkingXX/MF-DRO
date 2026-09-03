@@ -18003,3 +18003,42 @@ split; left in the conservative group. And the 17 MF-DRO arms show an apparent g
 (three collapsed at 0.086–0.149, fourteen at 0.523–0.698, nothing between) — **Borehole
 showed exactly such a gap on 10 arms and it dissolved at 28**, so this is recorded as an
 observation, not a claim.
+
+---
+
+## The primary research record is now guarded — and the guard's first version was broken
+
+`findings.md` is the paper backbone and is append-only across ~50 ticks. A retraction
+appended at line 17000 does not un-write the assertion at line 9000, and a reader hitting
+the earlier text first gets the withdrawn claim. `tools/check_report.py` guarded the
+published HTML against exactly this; **nothing guarded findings.md**, and
+`check_report.py`'s own claim list had gone **9 retractions out of date** — it still held
+only h135-era claims.
+
+**`tools/check_findings.py`** now guards the record, seeded with this run's retractions:
+the "about as good as running the teacher" synthesis leg, the false
+`teacher_action_stats` limit, "the centre is not a bad place", the 0.70-wide Borehole
+gap, h179's R3, and the 336× as an in-situ claim.
+
+**Result: findings.md is clean** — 8 retracted claims, none surviving as live assertions
+outside a correction context. The corrections landed properly. `check_report.py`'s list
+is refreshed (9 claims) and the report is clean too.
+
+### The guard's first version was worthless, and only the negative test found it
+
+It passed a **deliberately planted live assertion**. Its context-stripping used loose
+substrings — `"correct"`, `"wrong"` — which match ordinary prose ("with no *correct*ion
+language", "went the *wrong* way") and stripped **23% of the file** (18005 → 13931
+lines), taking the planted claim with it.
+
+Fixed to word-boundary retraction *announcements*, and stripping only the heading line
+rather than 400 characters of body. Stripping fell to 5%. Re-tested in both directions:
+
+| test | expected | result |
+|---|---|---|
+| planted live assertion | exit 1 | **exit 1**, reports `STALE L18009` |
+| same phrase quoted inside a correction | exit 0 | **exit 0** |
+| real `findings.md` | exit 0 | **exit 0** |
+
+**A guard that cannot fail is worthless**, and this one could not, until it was tested
+against a claim it was supposed to catch. The negative test is recorded in the tool.

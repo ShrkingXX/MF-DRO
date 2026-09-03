@@ -3835,3 +3835,19 @@ ships.
   arms were included.
 - SF-DRO's classification flagged as arguable, and left in the group that makes the split
   *weaker* rather than stronger.
+
+## tick 55 — the paper backbone is now guarded; the guard's first version was broken
+
+- **Audited the primary record.** `check_report.py` guarded the published HTML against
+  stale retracted claims; **nothing guarded findings.md**, and check_report's own claim
+  list was **9 retractions out of date** (h135-era only).
+- **Built `tools/check_findings.py`**, seeded with this run's retractions. **findings.md
+  is clean** — 8 claims, none surviving as live assertions. Corrections landed properly.
+  check_report.py's list refreshed to 9; report clean too.
+- **The guard's first version passed a deliberately planted assertion.** Loose substring
+  matching (`"correct"`, `"wrong"`) matched ordinary prose and stripped **23% of the
+  file**, taking the planted claim with it. Fixed to word-boundary retraction
+  announcements on the heading line only; stripping fell to 5%.
+- **Re-tested both directions**: planted assertion → exit 1 with the line number; the
+  same phrase quoted inside a correction → exit 0. A guard that cannot fail is worthless,
+  and only the negative test found that this one couldn't.
