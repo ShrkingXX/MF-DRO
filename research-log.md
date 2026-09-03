@@ -3918,3 +3918,21 @@ ships.
   neutral-direction shift of the same magnitude would separate them — the obvious next
   test. The transfer ratio is unaffected.
 - findings.md's Phase 2 header updated; report republished; guards re-run clean.
+
+## tick 60 — h193 abandoned before launch, per its own protocol. Zero runs.
+
+- **Four designs, all rejected by their own SC.** The protocol committed in advance to
+  abandoning rather than iterating further if the SC failed on Hartmann too. It did.
+- **Borehole: geometrically forbidden.** 80.9% of the control's real HF queries sit within
+  0.05 of a box wall; dim 0 at mean |coord| 0.465 vs a half-width of 0.5. The good region
+  *is* the boundary, so **the only direction with room to move the constant is inward** —
+  h192's confound may be unavoidable there.
+- **Hartmann: geometry fine, intervention uncontrollable.** Smoke gave displacements of
+  0.1757 (centre) vs 0.2934 (rotation) — a 67% mismatch — and the rotation *raised* the
+  centre-distance. **Not fixable by a better plane**: the shift changes the run, so the
+  teacher re-decides from a different model and produces a different action distribution.
+  Realised displacement is an **outcome**, not an input.
+- **h192's primary survives untouched** (transfer ratio 1.094 is direction-independent).
+  **Its secondary stays confounded** by this route permanently, and h182 keeps only its
+  correlational support.
+- No compute spent on runs. The `tangent` path stays, default-off and identity-gated.

@@ -432,6 +432,29 @@ current_front:
     not overshoot; one magnitude (lambda=0.5), one direction, Borehole, n=5, L=1 (chosen
     so the recorded mean IS the tau=0 mean); whether it holds at L=8 is untested.'
 
+  h193_abandoned: 'ABANDONED BEFORE LAUNCH per its own protocol -- four designs, all
+    rejected by their own SC, NO RUNS. It was to remove h192''s confound (the shift aimed
+    at the centre, so the regret half tests "the DT follows" and "the centre is bad"
+    jointly) by displacing the same magnitude in a DISTANCE-PRESERVING direction.
+    OBSTRUCTION 1, BOREHOLE GEOMETRY: three rotation designs all shrank the mean
+    (0.7837 -> 0.5319 / 0.6823 / 0.6684). MEASURED CAUSE: 80.9% of the control''s 486 real
+    HF queries have a coordinate within 0.05 of a box wall and dim 0 sits at mean |coord|
+    0.465 vs a half-width of 0.5. Borehole''s good region IS the boundary, so the working
+    constant is pressed against the wall and THE ONLY DIRECTION WITH ROOM IS INWARD --
+    h192''s confound may be unavoidable there. OBSTRUCTION 2, HARTMANN: geometry allows it
+    (0 wall-pinned dims, 28.4% near a wall) but the INTERVENTION IS NOT CONTROLLABLE --
+    smoke gave centre-shift displacement 0.1757 vs rotation 0.2934, a 67% mismatch, and
+    the rotation RAISED the centre-distance (0.4013 -> 0.5005) instead of preserving it.
+    NOT FIXABLE BY A BETTER PLANE: the shift changes the run, so the teacher re-decides
+    from a different model and produces a DIFFERENT ACTION DISTRIBUTION -- realised
+    displacement and distance are OUTCOMES of the intervention, not inputs, and magnitude
+    cannot be held fixed while direction varies. WHAT STANDS: h192''s transfer ratio 1.094
+    is direction-independent and untouched; the mechanism stays interventionally
+    confirmed. WHAT DOES NOT: h192''s regret half stays confounded by this route
+    permanently; h182 keeps only its correlational support. Fourth arm declined/abandoned.
+    No compute spent on runs; the tangent code path remains, default-off and
+    identity-gated.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

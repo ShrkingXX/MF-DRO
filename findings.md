@@ -18227,3 +18227,49 @@ anything at all.
 - One magnitude (λ=0.5), one direction, one benchmark, n=5, rollout_length=1 — chosen so
   the recorded mean *is* the τ=0 mean. Whether the ratio holds at L=8, where seven other
   steps dilute the signal, is untested.
+
+---
+
+## h193 — ABANDONED before launch, per its own protocol. The confound is not removable this way.
+
+h192's regret result is confounded: the shift aimed at the box centre, which h182 had
+already called bad, so it tests "the DT follows" and "the centre is bad" jointly. h193 was
+to displace by the same magnitude in a **distance-preserving** direction and separate them.
+**Four designs, all rejected by their own SC, no runs.** The protocol said in advance to
+abandon rather than iterate further if the SC failed on Hartmann too. It did.
+
+### Obstruction 1 — Borehole's geometry forbids it
+
+Three rotation designs all shrank the mean instead of preserving it (0.7837 → 0.5319,
+0.6823, 0.6684). **Measured cause: 80.9% of the control's 486 real HF queries have a
+coordinate within 0.05 of a box wall**, and dim 0 sits at mean |coord| 0.465 against a
+half-width of 0.5. Borehole's good region *is* the boundary, so the working policy's
+constant is pressed against the wall — **the only direction with room to move it is
+inward**. h192's confound may be unavoidable there.
+
+### Obstruction 2 — on Hartmann the geometry allows it but the intervention does not
+
+Hartmann is interior (0 wall-pinned dims, 28.4% near a wall). Both arms smoked:
+
+| arm | dist from centre | displacement |
+|---|---|---|
+| control | 0.4013 | — |
+| centre-shift | 0.2349 ✓ | **0.1757** |
+| neutral rotation | 0.5005 ✗ *rose* | **0.2934** |
+
+**Displacements differ by 67%** — the arms are not comparable and the gate cannot be read.
+
+**Not fixable by a better plane.** The shift changes the run: different queries → different
+GP → the teacher, which re-decides from that model, produces a **different action
+distribution**. Realised displacement and distance are **outcomes of the intervention, not
+inputs to it**. Magnitude cannot be held fixed while direction varies.
+
+### What stands and what does not
+
+- **h192's primary is untouched.** The transfer ratio (1.094) does not depend on direction;
+  the mechanism stays interventionally confirmed.
+- **h192's secondary stays confounded** by this route permanently. h182's centre-collapse
+  keeps its correlational support (ρ −0.967 / −0.841, DT-specific) but gains no clean
+  causal test here.
+- No compute spent on runs. The `tangent` code path remains, disabled by default and
+  identity-gated, for any future attempt.
