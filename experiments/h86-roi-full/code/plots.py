@@ -33,7 +33,10 @@ H84   = os.path.join(REPO, "experiments/h84-roi-strategy/results")
 BENCH = ("Currin_2D", "Hartmann_6D", "Borehole_8D", "Ackley_10D")
 SEEDS = (42, 43, 44, 45, 46)
 G     = np.linspace(0, 200, 201)
-C     = {"ROI-Q10": "#C0392B", "MF-DRO (no ROI)": "#2471A3"}
+C     = {"ROI-Q10": "#C0392B", "MF-DRO (no ROI)": "#2471A3",
+         "MF-MES": "#7D3C98", "MF-GP-UCB": "#229954",
+         "MF-MI-Greedy": "#B7950B", "SF-DRO": "#616A6B"}
+BASELINES = ("MF-MES", "MF-GP-UCB", "MF-MI-Greedy", "SF-DRO")
 
 plt.rcParams.update({"font.size": 9, "axes.grid": True, "grid.alpha": 0.25,
                      "axes.spines.top": False, "axes.spines.right": False,
@@ -62,6 +65,12 @@ for b in BENCH:
                 break
         p_ctl = os.path.join(H83, f"{b}__MF-DRO__seed{s}.json")
         if os.path.exists(p_ctl): PATHS[(b, "MF-DRO (no ROI)", s)] = p_ctl
+        # Other baselines from h83's own comparison set, same benchmarks/seeds --
+        # added so fig2 shows where ROI-Q10 sits against the full method set,
+        # not just its own no-ROI ablation.
+        for bm in BASELINES:
+            p_bm = os.path.join(H83, f"{b}__{bm}__seed{s}.json")
+            if os.path.exists(p_bm): PATHS[(b, bm, s)] = p_bm
 print(f"  located {len(PATHS)} runs "
       f"(ROI {sum(1 for k in PATHS if k[1]=='ROI-Q10')}, control {sum(1 for k in PATHS if k[1]!='ROI-Q10')})")
 for b in BENCH: print(f"    {b:13s} ROI source: {SRC.get(b,'MISSING')}")
@@ -72,17 +81,21 @@ for i, b in enumerate(BENCH):
     k, lab = units(b)
     for j, s in enumerate(SEEDS):
         ax = axes[i, j]
-        for m in ("MF-DRO (no ROI)", "ROI-Q10"):
+        for m in ("MF-DRO (no ROI)",) + BASELINES + ("ROI-Q10",):
             if (b, m, s) not in PATHS: continue
             c, sr, _ = curve(PATHS[(b, m, s)], b)
-            ax.plot(c, sr*k, color=C[m], lw=1.4)
+            # ROI-Q10 drawn last / thicker so it stays visible against 5 other lines.
+            lw = 2.0 if m == "ROI-Q10" else 1.1
+            zo = 5 if m == "ROI-Q10" else 2
+            ax.plot(c, sr*k, color=C[m], lw=lw, zorder=zo)
         ax.set_yscale("log")
         if i == 0: ax.set_title(f"seed {s}")
         if j == 0: ax.set_ylabel(f"{b}\n{lab}", fontsize=8)
         if i == len(BENCH)-1: ax.set_xlabel("cost (post-init)")
-fig.legend(handles=[Line2D([], [], color=C[m], lw=2, label=m) for m in C],
-           loc="lower center", ncol=2, frameon=False, bbox_to_anchor=(0.5, -0.02))
-fig.suptitle("ROI-Q10 vs no-ROI control: simple regret vs cost, per seed (h84+h86)", y=1.0, fontsize=12)
+_legend_order = ("MF-DRO (no ROI)",) + BASELINES + ("ROI-Q10",)
+fig.legend(handles=[Line2D([], [], color=C[m], lw=2, label=m) for m in _legend_order],
+           loc="lower center", ncol=len(_legend_order), frameon=False, bbox_to_anchor=(0.5, -0.03))
+fig.suptitle("ROI-Q10 vs all baseline methods: simple regret vs cost, per seed (h83+h84+h86)", y=1.0, fontsize=12)
 fig.savefig(os.path.join(OUT, "fig2_seed_by_seed_sr_vs_cost.png")); plt.close(fig)
 
 # ---------- Figure 3 analogue: queried value + fidelity per iteration ----------
