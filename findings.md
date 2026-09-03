@@ -1,6 +1,89 @@
 # ================================================================
-# CURRENT STATE — read this before anything below (2026-08-27)
+# CURRENT STATE — read this before anything below (2026-09-02)
 # ================================================================
+#
+# This file is 18,000+ lines of append-only project memory. Claims appear in the
+# order they were MADE, not in order of validity. `tools/check_findings.py` guards
+# against retracted claims surviving as live assertions; it is currently CLEAN
+# (8 tracked retractions, none live). Run it before quoting anything below.
+#
+# The file has TWO phases. Phase 2 is the current front; the Phase 1 block that
+# follows this one is still valid but predates it.
+#
+# ══ PHASE 2 — WHY BETTER TRAJECTORY QUALITY DOES NOT IMPROVE MF-DRO ══
+#                              ** ANSWERED **
+#
+# THE MECHANISM (h185/h186/h188, confirmed on BOTH benchmarks, 10 arms):
+#   The Decision Transformer is a PER-TIMESTEP CONSTANT PREDICTOR. Its location
+#   MSE EQUALS its teacher's action variance -- loss/var spans 0.750-1.054 across
+#   10 arms on two benchmarks, i.e. it sits at the best-constant solution
+#   everywhere. It explains 0-25% of its teacher's action variance, and the share
+#   it explains is exactly the BETWEEN-TIMESTEP component: 0.0% when there is one
+#   timestep (3 arms) and 0.0% when the teacher is tau-invariant (random teacher,
+#   1 arm) -- two situations the theory FORCES to zero, both observed.
+#     It also barely uses its inputs: state sensitivity 0.0122 vs conditioning
+#   0.0782, against a seed-to-seed scale of ~0.82 -- and NOT for lack of
+#   information (the 3 tau=0 states are 0.5866 apart on a norm of 4.5032).
+#
+# WHY THAT ANSWERS THE QUESTION:
+#   Inference always queries timestep 0, so the DT emits its teacher's FIRST-MOVE
+#   average. A PERFECT teacher's routes END at the optimum but START wherever the
+#   rollout starts -- all the quality is in the destination, the first moves are
+#   near-arbitrary, and their average is the middle of the box.
+#   QUALITY WAS NEVER TRANSMITTED BECAUSE ONLY THE FIRST STEP IS READ AND QUALITY
+#   LIVES IN THE ENDPOINT.
+#
+# THE SIGNATURE (h182): failing arms COLLAPSE TO THE BOX CENTRE. Distance from
+#   centre orders regret at rho -0.967 (28 Borehole arms) and -0.841 (17 Hartmann
+#   arms). The 4 failing Borehole arms improve on their OWN initial design on
+#   0/5 seeds each -- 20 runs, zero improvements; the recurring "43.94" IS the
+#   initial design. The centre is genuinely bad (best f within 0.10 of it: 85.76
+#   vs 273.00 for the box). NON-DT arms show NO collapse (0.565-0.893) and no
+#   relationship -- centre-collapse is a property of the DT-BASED POLICY, not of
+#   the problem.
+#
+# WHAT THE DT IS WORTH -- IT FLIPS SIGN BY BENCHMARK (h187/h189, both 5/5):
+#   Borehole (cost ratio 2:1): teacher-only 12.97 vs MF-DRO 15.82  -> DT COSTS 2.85
+#   Hartmann (cost ratio 8:1): teacher-only 21.88 vs MF-DRO  7.99  -> DT GAINS 13.89
+#   NEVER state "the DT is a net negative" unqualified. Note also that every
+#   ROI-equipped config BEATS teacher-only on Borehole (ROI-L1 -3.15, 4/5), but
+#   ROI is training-time so the teacher never receives it -- not like-for-like.
+#
+# ACTIONABLE: rollout_length=1 is no worse and 6.26x faster on Borehole
+#   (13.69 vs 15.82 at L=8). ROI-Q10 + L=1: 10.81 in 24.6 min vs 11.59 in 117.4.
+#   Stability cost: seed sd 0.41 -> 2.79.
+#
+# STILL OPEN, and do NOT propose a fifth mechanism without new evidence:
+#   (a) the BENCHMARK ASYMMETRY (only-the-first-step-matters holds on Borehole,
+#       not Hartmann). Three accounts: escape-fraction REFUTED, geometric REFUTED
+#       (needed Borehole's distance-value coupling to be strong; it is 14x the
+#       WRONG way), fidelity-mix SUPPORTED IN DIRECTION ONLY (h184 sign pattern
+#       2/5->4/5 but the mean moved +1.15->+1.60, 9% of Hartmann's effect).
+#   (b) the h187/h189 SIGN FLIP has NO established mechanism. The stability
+#       account is UNDERCUT: the teacher scores 14.02-16.41 across allocations
+#       spanning lf 0.000-0.934 and loses to MF-DRO at EVERY one.
+#
+# DO NOT RE-DERIVE THESE -- they were claimed and RETRACTED in this phase:
+#   - "the averaging is about as good as running the teacher" (h187, then h189)
+#   - "teacher_action_stats exists only on h171/h172" -- FALSE; it is on 18 arms
+#     and this false limit blocked THREE generality tests
+#   - "the centre is not a bad place / collapse is a marker not a cause"
+#   - Borehole centre-distance is "bimodal with a 0.70-wide gap" -- a 10-arm
+#     SAMPLING ARTEFACT; 28 arms fill it
+#   - h179's R3 "the channel is irrelevant either way" -- WITHDRAWN; h181 showed
+#     the channel was never made responsive (336x is MODULE-LEVEL; ~1.1% transfers)
+#   - "the tau=0 states are near-degenerate" -- imprecise; only 3 distinct states
+#     occur, but they are WELL SEPARATED
+#
+# DECLINED ON MEASURED PREMISES (do not re-run without new reasons):
+#   teacher ROTATION (posterior-greedy rules agree to 0.044 vs a 0.82 seed floor;
+#   4 of 5 shipped TEACHER_POOL members are incoherent anyway), h174's fidelity-
+#   matched follow-up (the floor predicts the WRONG DIRECTION), h190 stable-teacher
+#   (max_hf_fraction is one-sided AND the account is undercut).
+#
+# ══ PHASE 1 (still valid, predates the above) ══
+
+# ---------------- (Phase 1 block, written 2026-08-27) ----------------
 #
 # This file is 4200+ lines of accumulated project memory. Claims appear in the
 # order they were MADE, not in order of validity. Two of them were announced and

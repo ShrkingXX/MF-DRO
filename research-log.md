@@ -3851,3 +3851,20 @@ ships.
 - **Re-tested both directions**: planted assertion → exit 1 with the line number; the
   same phrase quoted inside a correction → exit 0. A guard that cannot fail is worthless,
   and only the negative test found that this one couldn't.
+
+## tick 56 — the paper backbone's front door was 6 days and ~14,000 lines stale
+
+- **findings.md's "read this before anything below" block** was dated 2026-08-27,
+  claimed "4200+ lines" against an actual 18,127, and covered only Phase 1 (ROI, north
+  star, benchmark deficits). It said **nothing about this entire run** — no mechanism,
+  no sign flip, no centre-collapse, none of the retractions.
+- **Rewritten as a two-phase front door.** Phase 2 (this front, ANSWERED) now leads:
+  the mechanism with its numbers, its cross-benchmark generality, the centre-collapse
+  signature, what the DT is worth (flips sign, 5/5 each way), the actionable L=1 result,
+  what is still open with the instruction not to propose a fifth mechanism, an explicit
+  **do-not-re-derive list of the 6 retractions**, and the 3 arms declined on measured
+  premises. Phase 1 preserved verbatim below, relabelled.
+- **Verified after the edit**: guard still clean (the retracted phrases in the
+  do-not-re-derive list are quoted, so they read as citations — intended), and the
+  negative test still fires.
+- A human can now write the abstract from the first 85 lines instead of 18,127.

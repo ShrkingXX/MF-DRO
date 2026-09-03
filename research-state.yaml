@@ -376,6 +376,22 @@ current_front:
     0.086-0.149, fourteen at 0.523-0.698) -- RECORDED AS OBSERVATION NOT CLAIM, because
     Borehole showed exactly such a gap on 10 arms and it DISSOLVED at 28.'
 
+  paper_backbone_consolidated: 'findings.md''s "read this before anything below"
+    header was dated 2026-08-27, said "4200+ lines", and covered only PHASE 1 (ROI,
+    north star, benchmark deficits). The file is now 18,127 lines and the header
+    said NOTHING about this entire run -- six days and ~14,000 lines stale, missing
+    the mechanism, the sign flip, centre-collapse, and every retraction. REWRITTEN
+    2026-09-02 as a two-phase front door: Phase 2 (this front, ANSWERED) with the
+    mechanism, its generality, the signature, what the DT is worth (flips sign), the
+    actionable L=1 result, what is STILL OPEN with the instruction not to propose a
+    fifth mechanism, an explicit DO-NOT-RE-DERIVE list of the 6 retractions, and the
+    3 arms declined on measured premises. The Phase 1 block is preserved verbatim
+    below it, relabelled. VERIFIED: tools/check_findings.py still clean (the
+    retracted phrases in the do-not-re-derive list are QUOTED, so the stripper reads
+    them as citations, which is the intended behaviour), and the negative test still
+    fires (planted assertion -> exit 1). A human can now write the abstract from the
+    first 85 lines instead of 18,127.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
