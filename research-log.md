@@ -3901,3 +3901,20 @@ ships.
 - **Identity gate PASSED exactly** (122.29066752728207) on the patched core.
   **SC PASSED before launch**: teacher τ=0 mean 0.7788 → 0.3397.
 - Readout committed before any run finished. 5 workers.
+
+## tick 59 — h192 lands. The mechanism is INTERVENTIONAL. Transfer ratio 1.094.
+
+- **P1, decisively.** The first arm capable of falsifying the mechanism confirmed it.
+  Teacher τ=0 mean moved **0.7837 → 0.3645** (imposed +0.4192); the DT's own query
+  centroid moved **0.8546 → 0.3961** (observed +0.4585). **Transfer ratio 1.094 —
+  essentially one-for-one**, against a gate requiring ≥0.50.
+- **Every prior result on this front was correlational.** h185/h188/h182/h191 all
+  *observed* the tracking; h192 *moved* the mean and the DT moved with it.
+- **Secondary fired too**: rel% **13.69 → 43.18** (+29.49), and improves-on-its-own-
+  initial-design **5/5 → 1/5** (final best 267.20 → 175.91 against an init best of
+  173.54). 43.18 sits just under the 43.94 h182 identified as *being* the initial design.
+- **Confound named, on the secondary only**: the shift was aimed at the box centre, which
+  h182 had already called bad, so the *regret* half is a joint test of two claims. A
+  neutral-direction shift of the same magnitude would separate them — the obvious next
+  test. The transfer ratio is unaffected.
+- findings.md's Phase 2 header updated; report republished; guards re-run clean.
