@@ -46,6 +46,17 @@ if __name__ == "__main__":
     C = arm(f"{R94}/Borehole_8D__CTRL-K1__seed4[2-6].json")
     W94 = arm(f"{R94}/Borehole_8D__WINDOW-K8__seed4[2-6].json")
     H = arm(f"{REPO}/experiments/h84-roi-strategy/results/ckpt/Borehole_8D__ROI-Q10__seed4[2-6].json")
+    # COMPLETENESS GUARD. arm() reads results/ckpt/, which is written from the FIRST
+    # iteration onward -- so a seed-count check passes immediately and the readout will
+    # happily report authoritative-looking numbers from 22%-complete runs. (Observed:
+    # 31.29 "worse on 5/5" from runs at cost 52/240.) The final results/*.json is written
+    # by _atomic ONLY when a run finishes, so require those instead.
+    fin = sorted(glob.glob(f"{REPO}/experiments/h196-window-real-actions/results/"
+                           f"Borehole_8D__H196-REALACT__seed4[2-6].json"))
+    if len(fin) < 5:
+        print(f"  h196 has {len(fin)}/5 FINISHED runs -- NOT READ "
+              f"(ckpt files exist mid-run and would give a false reading)")
+        sys.exit(0)
     sh = sorted(set(W) & set(C))
     if len(sh) < 5:
         print(f"  only {len(sh)}/5 paired seeds -- NOT READ"); sys.exit(0)
@@ -75,6 +86,6 @@ if __name__ == "__main__":
     print(f"  paired (WINDOW - CTRL) per seed: {[round(x,2) for x in d]}")
     print(f"  mean {d.mean():+.2f}  se {d.std(ddof=1)/np.sqrt(len(d)):.2f}  window worse on {int((d>0).sum())}/5")
     v = ("P1 window HELPS" if d.mean() < -1.26 else
-         "P3 window HURTS -- as the mechanism predicted" if d.mean() > 1.26 else
+         "P3 window HURTS" if d.mean() > 1.26 else
          "P2 no effect")
     print(f"\n  REGISTERED VERDICT: {v}")

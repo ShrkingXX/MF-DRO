@@ -41,6 +41,14 @@ if __name__ == "__main__":
     W = arm(f"{R}/Borehole_8D__WINDOW-K8__seed4[2-6].json")
     C = arm(f"{R}/Borehole_8D__CTRL-K1__seed4[2-6].json")
     H = arm(f"{REPO}/experiments/h84-roi-strategy/results/ckpt/Borehole_8D__ROI-Q10__seed4[2-6].json")
+    # COMPLETENESS GUARD (added after h196's readout was seen reporting 31.29 from
+    # 22%-complete runs): ckpt/ is written from iteration 1, so a seed-count check
+    # passes immediately. results/*.json is written only on completion.
+    RD = f"{REPO}/experiments/h194-expert-plan-window/results"
+    for tag in ("WINDOW-K8", "CTRL-K1"):
+        f = glob.glob(f"{RD}/Borehole_8D__{tag}__seed4[2-6].json")
+        if len(f) < 5:
+            print(f"  {tag} has {len(f)}/5 FINISHED runs -- NOT READ"); sys.exit(0)
     sh = sorted(set(W) & set(C))
     if len(sh) < 5:
         print(f"  only {len(sh)}/5 paired seeds -- NOT READ"); sys.exit(0)
