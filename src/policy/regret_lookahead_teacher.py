@@ -47,33 +47,37 @@ from src.policy.mf_dro import compute_joint_mf_mes
 
 
 def _greedy_base_rollout(ko, roi_candidates, c_H, c_L, best_hf,
-                         budget_left, fantasy_mode, device, dtype):
+                         steps_left, fantasy_mode, device, dtype):
     """
-    Follow greedy cost-normalised MES until the cost budget is exhausted,
+    Follow greedy cost-normalised MES for exactly ``steps_left`` STEPS,
     returning the best HF value reached. This is the BASE POLICY: what the
     lookahead assumes will happen after the step being scored, and deliberately
     the SAME rule as the default teacher, so the only thing h198 changes is
     WHICH STEP IS TAKEN NOW, not how the future is imagined.
+
+    STEPS, not a cost budget. The first version spent a budget of
+    (steps_left-1)*c_H, which on Borehole's 2:1 ratio lets an all-LF
+    continuation run FOURTEEN steps inside an eight-step rollout -- imagining a
+    horizon the trajectory does not have, and making the lookahead's cost
+    scale with the cost ratio for no principled reason. simulate_mf_trajectory
+    is step-bounded (rollout_length) and enforces no budget, so the base policy
+    must be too.
     """
     _b = float(best_hf)
-    while budget_left > 0:
+    for _ in range(int(steps_left)):
         x, ell, _ = compute_joint_mf_mes(ko, roi_candidates, c_H, c_L)
-        _c = c_H if ell == 1 else c_L
-        if _c > budget_left:
-            break
         y = ko.sample_fantasy(x, "LH"[ell], mode=fantasy_mode)
         if ell == 1:
             _b = max(_b, float(y))
         ko = ko.make_fantasy_ko(
             x.unsqueeze(0), torch.tensor([y], device=device, dtype=dtype),
             "LH"[ell])
-        budget_left -= _c
     return _b
 
 
 def choose_regret_lookahead(ko_model, roi_candidates, c_H, c_L,
                             best_sim_hf, steps_left, n_c=8, M=4,
-                            fantasy_mode='sample', device='cpu',
+                            base_pool=150, fantasy_mode='sample', device='cpu',
                             dtype=torch.float64):
     """
     Pick the (x, ell) maximising the expected terminal best HF value.
@@ -96,21 +100,56 @@ def choose_regret_lookahead(ko_model, roi_candidates, c_H, c_L,
     _idx = torch.topk(_flat, _k).indices
     _cands = [(int(i) // scores.shape[1], int(i) % scores.shape[1]) for i in _idx]
 
-    _budget = float(steps_left - 1) * float(c_H)
+    _horizon = int(steps_left) - 1
+
+    # COMMON RANDOM NUMBERS. Scoring each candidate against its OWN independent
+    # fantasy stream makes the comparison unpaired, and the argmax then partly
+    # selects whichever candidate drew the luckiest futures. Measured before
+    # this was added: the argmax was UNSTABLE between M=4 and M=8, and greedy
+    # came out the worst of 8 candidates by a margin equal to the entire score
+    # spread -- the signature of selection noise, not of a real ranking.
+    # Seeding every candidate's m-th replication identically makes the
+    # comparison PAIRED: all candidates face the same futures, so differences
+    # reflect the decision rather than the draw. This is the same failure the
+    # beam hit (winner's curse, +0.6680); CRN attacks it at lower cost than
+    # raising M, which only shrinks noise as 1/sqrt(M).
+    #
+    # The RNG state is saved and restored around the whole search so the
+    # teacher's internal deliberation does not perturb the rollout's own
+    # fantasy draws. One int is consumed first, so the CRN seed still varies
+    # from step to step and rollout to rollout.
+    # The base rollout's MES calls dominate cost (n_c * M * horizon of them per
+    # teacher step; measured 127x the greedy teacher at n_c=8, M=4, which is
+    # 16.7 h/seed and not runnable). They are evaluated on a SUBSAMPLED pool,
+    # because the base rollout is the IMAGINED FUTURE used to rank this step's
+    # options -- not the decision itself, which still ranges over the full pool
+    # via the top-n_c selection above. Subsampling the future costs resolution
+    # in a quantity that is already a coarse approximation; subsampling the
+    # decision would not be acceptable, and is not done.
+    _bp = roi_candidates
+    if base_pool and int(base_pool) < roi_candidates.shape[0]:
+        _bp = roi_candidates[torch.randperm(roi_candidates.shape[0])[:int(base_pool)]]
+
+    _crn = int(torch.randint(0, 2**31 - 1, (1,)).item())
+    _rng_state = torch.get_rng_state()
+
     _vals = []
     for _ci, _ell in _cands:
         _x = roi_candidates[_ci]
         _acc = []
         for _m in range(int(M)):
+            torch.manual_seed(_crn + _m)
             _y = ko_model.sample_fantasy(_x, "LH"[_ell], mode=fantasy_mode)
             _b0 = max(float(best_sim_hf), float(_y)) if _ell == 1 else float(best_sim_hf)
             _ko2 = ko_model.make_fantasy_ko(
                 _x.unsqueeze(0),
                 torch.tensor([_y], device=device, dtype=dtype), "LH"[_ell])
-            _acc.append(_greedy_base_rollout(_ko2, roi_candidates, c_H, c_L,
-                                             _b0, _budget, fantasy_mode,
+            _acc.append(_greedy_base_rollout(_ko2, _bp, c_H, c_L,
+                                             _b0, _horizon, fantasy_mode,
                                              device, dtype))
         _vals.append(float(np.mean(_acc)))
+
+    torch.set_rng_state(_rng_state)
 
     _best = int(np.argmax(_vals))
     _ci, _ell = _cands[_best]
