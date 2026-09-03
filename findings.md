@@ -18486,3 +18486,46 @@ help. **But a prediction is not a result, and h27 is no longer the result.**
 **Untested, and named by the user:** the *combination* of an expert (joint
 information-gain) trajectory + longer inference + ROI. h27 used the ordinary MES teacher,
 no ROI, one-step-equivalent inference. The combination has never been run — see h194.
+
+---
+
+## h194 Stage 0 — **the sliding window DOES change the decision on current code. h27 is overturned.**
+
+Human-proposed follow-up. Two short runs, same seed, ROI-Q10, differing **only** in
+`inference_context_k` (1 vs 8).
+
+**Control check:** iteration 0 has no history, so both arms run at ctx=1 and must agree.
+Max |Δx| = **0.0000** — passes, so later differences are the window, not RNG divergence.
+
+| iter | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|---|
+| L2 (unit box) | **0.0000** | 0.2340 | 0.2044 | 0.1603 | 0.1862 | 0.3055 | **0.3897** | 0.2672 |
+
+**7/8 iterations differ**, mean L2 **0.2496**. On this project's own scales:
+
+| reference | value | window's effect |
+|---|---|---|
+| swapping the teacher's whole decision **rule** (h180) | 0.044 | **5.7×** |
+| changing only the **seed** (h180) | 0.82 | 0.30× |
+
+**The window moves the DT's query 5.7× more than replacing its teacher's entire decision
+rule does.** h27 measured these bit-identical; **that does not replicate.**
+
+**And h185 predicted it.** The tension flagged when this gate was written resolves in
+h185's favour: a per-timestep constant predictor, read out at position T−1 rather than 0,
+*must* emit a different constant. h27's null was the anomaly, not h185.
+
+### The mechanism now predicts the arm FAILS — recorded before Stage 1 runs
+
+Changing the decision is not improving it. With a window the readout moves to position
+**T−1**, so the DT emits its **late-τ** constant instead of its **τ=0** one. h171/h173
+established the τ=0 step is the one that matters: HEAD-MES (acquisition at τ=0 only)
+works — 16.96 / 25.16 — while TAIL-MES (acquisition at τ=1…7) **fails** — 43.94 / 46.45.
+A late-τ constant is closer to TAIL than to HEAD.
+
+**So the mechanism predicts P3 (the window HURTS), not the P1 the arm was motivated by.**
+The registered gate is unchanged. P1 would still retract more than P3 confirms: it would
+force an explicit exception into "input-side fixes cannot help", which currently unifies
+three Phase-1 nulls.
+
+**Stage 1 not launched** — 10 worker-hours, and the loop is paused.

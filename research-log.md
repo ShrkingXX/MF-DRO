@@ -3978,3 +3978,22 @@ No arms launched, no compute.
   `(state, action)` pairs. Those are **not serialised** (`teacher_action_stats` keeps only
   mean and variance). Adding them is cheap and purely additive — the highest-value
   addition to any future run, flagged for when the pause lifts.
+
+## tick 63 — the user overturned a stale null. h194 Stage 0 G-PASS.
+
+- **The user was right and I was too confident.** I had answered their sliding-window
+  proposal with "already tested — h27". **33 commits** have touched the DT/policy since
+  h27, three behaviour-changing, including the Aug 27 fix whose message says the ROI
+  candidate-pool bug "confounded every ROI A/B". Correction recorded.
+- **Reading the code changed the hypothesis twice.** `decisionTransformer.py:78` shows the
+  window already supplies in-distribution positions 0…T−1 with readout at T−1 — so my
+  guess that it "fixes the timestep problem" was wrong, h27 already did that. But that
+  made h27's null **contradict** h185's 13–25% between-τ variance, which became a sharper
+  gate than the `frac_seq` statistic I first registered.
+- **Stage 0 G-PASS.** 7/8 iterations differ, mean L2 **0.2496** in the unit box —
+  **5.7×** a full teacher-rule swap. **Control check exactly 0.0000** at iteration 0
+  (ctx=1 both), so it is the window and not RNG.
+- **h27 overturned; h185 vindicated.**
+- **Mechanism now predicts Stage 1 FAILS (P3)**, because the window emits a late-τ
+  constant and h171/h173 showed τ=0 is the step that matters. Recorded before running.
+- Stage 1 (10 worker-hours) not launched — loop paused.
