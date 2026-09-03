@@ -3997,3 +3997,15 @@ No arms launched, no compute.
 - **Mechanism now predicts Stage 1 FAILS (P3)**, because the window emits a late-τ
   constant and h171/h173 showed τ=0 is the step that matters. Recorded before running.
 - Stage 1 (10 worker-hours) not launched — loop paused.
+
+## tick 65 — h194 Stage 1a in flight; state recorded; readout extended to answer the ask
+
+- **Stage 1a running**: WINDOW-K8 at ~116/240, contemporaneous CTRL-K1 at ~73/240, 10
+  workers. Neither arm readable yet. **Stage 1b (the expert teacher) has NOT run** — it is
+  gated on 1a not returning P3, because the window is the shared component of both arms
+  and a harmful shared component makes the combination unattributable.
+- **Readout extended before results** to report against **default MF-DRO (15.82)** as well
+  as CTRL-K1, since that is what the human asked. **Gate unchanged** — only WINDOW − CTRL
+  isolates the window, and ROI alone already reaches 11.59, so beating 15.82 would say
+  nothing about the window.
+- **`research-state.yaml` updated** with h194's full status and the monitoring-hazard fix.

@@ -455,6 +455,45 @@ current_front:
     No compute spent on runs; the tangent code path remains, default-off and
     identity-gated.'
 
+  h194_human_proposed: 'HUMAN-PROPOSED and IN FLIGHT. The user proposed feeding the DT a
+    sliding window of real history at inference, and separately caught that my answer
+    ("already tested -- h27") was too confident. CORRECTION CONFIRMED: 33 commits have
+    touched the DT/policy since h27, three behaviour-changing, including 950fdd6 whose own
+    message says the ROI candidate-pool bug "confounded every ROI A/B".
+    STAGE 0 G-PASS: on CURRENT code the window changes the DT query on 7/8 iterations,
+    mean L2 0.2496 in the unit box = 5.7x a full teacher-RULE swap (0.044) and 0.30x the
+    seed scale (0.82). ITER-0 CONTROL CHECK EXACTLY 0.0000 (ctx=1 both, no history), so it
+    is the window and NOT RNG divergence. h27 is OVERTURNED; h185 predicted this, since a
+    per-timestep constant read out at position T-1 must emit a different constant.
+    READING THE CODE CORRECTED ME TWICE: decisionTransformer.py:78 shows the window already
+    supplies in-distribution positions 0..T-1 with readout at T-1, so my guess that it
+    "fixes the timestep problem" was wrong -- but that made h27 CONTRADICT h185, which
+    became a sharper gate than the frac_seq statistic first registered.
+    MECHANISM PREDICTS THE ARM FAILS (P3), recorded before running: the window emits the
+    LATE-tau constant, and h171/h173 showed tau=0 is the step that matters (HEAD 16.96/
+    25.16 works, TAIL 43.94/46.45 fails). P1 would force an explicit exception into
+    "input-side fixes cannot help", which currently unifies three Phase-1 nulls.
+    STAGE 1 SPLIT after COSTING the beam teacher directly: M=16 is 1.57 s/rollout = 2.6
+    h/seed ON TOP of the 0.9 h baseline, so the IG arms are ~35 worker-hours. Stage 1a
+    tests the WINDOW ALONE (the shared component); Stage 1b (expert teacher) is GATED on
+    1a not returning P3, since a harmful shared component makes the combination
+    unattributable. STAGE 1A IN FLIGHT: WINDOW-K8 and a CONTEMPORANEOUS CTRL-K1 (added
+    after applying the human''s own h27 lesson to my own control -- h84''s ROI-Q10 is
+    post-fix but 17 commits old, so a matched control is RUN rather than argued for).
+    Readout committed before any run finished, and extended before results to also report
+    vs DEFAULT MF-DRO (15.82) since that is what the human asked -- gate unchanged.'
+
+  monitoring_hazard_fixed: 'count_workers.sh UNDER-COUNTED 10 live workers as 5, because
+    its default pattern was code/worker.py and h194''s control arm is worker_ctrl.py.
+    Under-counting is the DANGEROUS direction: acting on it means launching past the
+    15-worker cap. The hazard was documented one tick earlier (after the same tool reported
+    0 for 5 live worker_window.py processes) and REPEATED IMMEDIATELY, so the fix is now in
+    the TOOL: default widened to "code/worker", which matches worker.py and worker_*.py and
+    no analysis script (analyse/readout/stage0/sanity all verified non-matching). ALSO:
+    when the tool and an ad-hoc `ps | grep -c` disagreed, THE TOOL WAS RIGHT -- the ad-hoc
+    check matched the querying shell''s own argv, exactly the failure the tool''s docstring
+    documents. It did surface 2 stragglers pkill -f had missed, killed by pid.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
