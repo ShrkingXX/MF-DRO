@@ -91,13 +91,35 @@ something its teacher was not pursuing. Two coherent options:
   teacher and label pull in different directions;
 - **(b)** relabel return-to-go with the task reward, closer to the original DT.
 
-**Stage 1 runs (a)**, because it changes exactly one thing against controls already in
-hand. (b) is registered as h198b and runs only if (a) gives P1 or P2 — otherwise the
-teacher itself is unproven and relabelling would confound two changes at once.
+**AMENDED before any result (human instruction: "build both and run both").** Both
+label variants are built and run as a 2-arm factorial on the SAME teacher:
+
+| arm | teacher | RTG label |
+|---|---|---|
+| **h198a** | regret-lookahead | `mes_entropy` — `log b_tau - log b_T` (unchanged) |
+| **h198b** | regret-lookahead | `improvement` — `r_tau = max(0, y_tau - best_sim_hf)` |
+
+`rollout_reward="improvement"` already exists (it is the pre-h83 default), so (b) needs
+NO new labelling code — the two arms differ by one config flag, which is what makes the
+factorial clean rather than confounded.
+
+Running both changes what a null can mean. Under the staged plan a null in (a) would
+have been ambiguous — bad teacher, or right teacher mislabelled? With both arms that
+ambiguity is resolved by the data instead of by argument:
+
+- both improve -> the teacher is what matters, the label is not decisive;
+- only (b) improves -> the teacher was right and the MES label was the obstacle. This
+  is the outcome that would most sharply indict the current design;
+- only (a) improves -> the MES label is load-bearing and the task label is worse,
+  which would be genuinely surprising and worth its own follow-up;
+- neither improves -> teacher quality does not reach the DT through EITHER label,
+  which is the strongest form of the existing null and would close the front.
 
 PROTOCOL.md permits the method change; the evaluation stays frozen either way.
 
 ## Cost
 
 Stage 0 (SCs + τ=0 mean) is minutes and gates everything. Stage 1 is Borehole seeds
-42–46 against the ROI-Q10 control **already in hand** at 11.59, so 5 workers.
+42–46 for BOTH arms against the ROI-Q10 control **already in hand** at 11.59, so 10
+workers. h197 is currently using 5, so the two arms launch only as h197 frees its
+slots — 15 is the cap and 5+10 sits exactly at it, with no headroom for a mistake.
