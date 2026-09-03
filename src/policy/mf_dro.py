@@ -939,6 +939,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             K_rtg=100,
                             device='cpu', dtype=torch.float64,
                             minimum_hf_fraction=0.25,
+                            tau0_shift_lambda=None,
                             use_rtg_grounding=False,
                             bes_delta=0.05,
                             use_candidate_scoring=False,
@@ -1717,6 +1718,20 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                 hf_steps_so_far / tau < minimum_hf_fraction and
                 ell_tau == 0):
             ell_tau = 1  # forced HF to ensure training diversity
+
+        # TAU-0 SHIFT (h192 arm TAU0-SHIFT). The causal test the mechanism calls
+        # for. h185/h188/h191 all say the DT emits its teacher's tau=0 action
+        # mean, but every one of those results is CORRELATIONAL. This translates
+        # the teacher's tau=0 action a fixed fraction toward the box centre so
+        # the DT's own emitted query can be checked for whether it FOLLOWS.
+        #
+        # tau=0 ONLY -- later steps are untouched, so this manipulates exactly
+        # the quantity the mechanism names and nothing else. Disabled by default
+        # (None), so the guard below cannot alter any existing configuration.
+        if tau0_shift_lambda is not None and tau == 0:
+            _c0 = (0.5 * (bounds[0] + bounds[1])).to(
+                device=x_tau.device, dtype=x_tau.dtype)
+            x_tau = x_tau + float(tau0_shift_lambda) * (_c0 - x_tau)
 
         # 3. b_tau: Thompson-sample + Gumbel-fit the domain-max y*_H scale,
         # BEFORE conditioning on this step's own (x_tau, y_tau). Reflects
@@ -2620,6 +2635,7 @@ class DirectMFRegretOptimization:
                     ko_ensemble_full=self.ko_ensemble,
                     ref_grid=self.state_ref_grid,
                     minimum_hf_fraction=getattr(self.config, 'minimum_hf_fraction', 0.25),
+                    tau0_shift_lambda=getattr(self.config, 'tau0_shift_lambda', None),
                     use_rtg_grounding=getattr(self.config, 'use_rtg_grounding', False),
                     bes_delta=getattr(self.config, 'bes_delta', 0.05),
                     use_candidate_scoring=self.use_candidate_scoring,

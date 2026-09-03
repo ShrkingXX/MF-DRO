@@ -75,3 +75,16 @@ determines performance".
 ## Compute
 
 5 workers × 1 thread. Machine idle.
+
+## SC — PASS, recorded before launch
+
+```
+teacher tau=0 mean dist from centre = 0.3397
+control (ROLLOUT1, full run)        = 0.7788
+```
+
+The shift applied: **0.7788 → 0.3397**, a factor of 0.436 against the 0.5 the λ=0.5
+translation targets. (Not exactly 0.5 because the translation is applied per-action and
+then averaged, and the mean of the shifted points is not the shifted mean's distance.)
+The imposed teacher shift used in the gate's denominator is the **measured** one from
+the full runs, not the nominal 0.5.
