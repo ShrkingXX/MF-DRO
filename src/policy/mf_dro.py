@@ -3296,6 +3296,33 @@ class DirectMFRegretOptimization:
         # call site and holds even if propose_mf's internals change.
         self.dt.eval()
         with torch.no_grad():
+            # h197: information gain for the REAL query, computed the SAME WAY
+            # the rollouts compute it -- Thompson-sample y*_H from the HF proxy
+            # over a candidate pool, Gumbel-fit the scale b.
+            #
+            # TIMING. The rollout's b_tau = _rollout_gumbel_b(current_ko) is
+            # evaluated BEFORE conditioning on that step's own (x, y): it
+            # reflects D_tau, "the information state the policy actually had
+            # when it chose x_tau". b depends ONLY on the GP state, not on the
+            # proposal, so it is computed HERE -- before the window is built and
+            # before the proposal -- which both matches those semantics and
+            # makes b_t available to anchor the window's history labels.
+            #
+            # Gated on inference_context_k > 1: the default K=1 path must stay
+            # bit-identical, and this draws a candidate pool (consuming RNG).
+            _b_real = None
+            if self.inference_context_k > 1:
+                try:
+                    _npool = int(getattr(self.config, 'n_roi_candidates', 200))
+                    _cand = (self.bounds[0] + (self.bounds[1] - self.bounds[0])
+                             * torch.rand(_npool, self.d, dtype=torch.float64))
+                    _proxy = _build_hf_proxy_model(self.ko_ensemble[0])
+                    _ys = thompson_sample_y_star(_proxy, _cand, K=100)
+                    _, _bb = fit_gumbel_to_samples(_ys)
+                    _b_real = float(max(_bb, 1e-12))
+                except Exception:
+                    _b_real = None
+
             _K = self.inference_context_k
             _hist = None
             if _K > 1 and self._real_hist:
@@ -3305,9 +3332,42 @@ class DirectMFRegretOptimization:
                 # historical action slots stayed zero -- a no-op that would
                 # have been indistinguishable from "the fix is immaterial".
                 # Caught by h196's SC, not by inspection.
-                _hist = [{'state': h['state'].float(), 'rtg': h['rtg'], 'btg': h['btg'],
-                          'ax': h.get('ax'), 'ae': h.get('ae', 0)}
-                          for h in self._real_hist[-(_K - 1):]]
+                _win = self._real_hist[-(_K - 1):]
+                # h197: label the HISTORY with the rollout's own RTG formula,
+                # rtg[tau] = log(b_tau) - log(b_T), taking the most recent real
+                # query as T. The CURRENT step keeps the dynamic target, so
+                # history carries what actually happened and the readout
+                # position carries what is being asked for.
+                # h197: label the history as a genuine RETURN-TO-GO.
+                #
+                # The RTG telescopes: with one-step reward
+                # g_t = log(b_t) - log(b_{t+1}), we have
+                #   sum_{t'>=tau} g_{t'} = log(b_tau) - log(b_T),
+                # so rtg[tau] IS the sum of future information gains -- the
+                # same object as DT's R_hat_t = sum_{t'>=t} r_{t'}.
+                #
+                # DT's evaluation loop decrements a running target by each
+                # ACHIEVED reward (R = R + [R[-1] - r]). Our target is dynamic
+                # and re-derived every iteration, so there is no fixed initial
+                # target to decrement from. We therefore run that rule BACKWARDS
+                # from the current step: take the dynamic target R_hat_t as
+                # given (spec item 7) and add back the realised gains,
+                #   R_hat_tau = R_hat_t + log(b_tau) - log(b_t).
+                #
+                # A previous version used log(b_tau) - log(b_last) with the
+                # window's own last entry as T. That forced the final history
+                # token to be EXACTLY 0 and left the sequence reading
+                # [..., 0, target] -- a discontinuity that never occurs in
+                # training. Anchoring at the current target removes it.
+                _b_now = _b_real
+                _hist = []
+                for _h in _win:
+                    _r = _h['rtg']
+                    if _b_now is not None and _h.get('b'):
+                        _r = float(rtg_tgt + math.log(_h['b']) - math.log(_b_now))
+                    _hist.append({'state': _h['state'].float(), 'rtg': _r,
+                                  'btg': _h['btg'], 'ax': _h.get('ax'),
+                                  'ae': _h.get('ae', 0)})
             self._last_ctx_len = (len(_hist) + 1) if _hist else 1
             x_t, ell_t = self.dt.propose_mf(
                 state.float(), rtg_tgt, btg_now,
@@ -3427,7 +3487,8 @@ class DirectMFRegretOptimization:
             self._real_hist.append({'state': state.detach().clone(),
                                      'rtg': float(rtg_tgt), 'btg': float(btg_now),
                                      'ax': x_t.detach().clone().float(),
-                                     'ae': int(ell_t)})
+                                     'ae': int(ell_t),
+                                     'b': _b_real})
         # H7: replay the SAME inputs through the iteration-k snapshot. Nothing
         # here is executed -- only the LIVE x_t/ell_t below drive the run --
         # so the trajectory is an ordinary MF-DRO run and the evaluation is

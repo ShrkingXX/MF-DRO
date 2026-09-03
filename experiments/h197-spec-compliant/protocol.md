@@ -86,3 +86,49 @@ same failure that h196's SC caught, where `_hist` was rebuilt and dropped the ac
 
 `tools/identity_gate.py` must PASS exactly; the real-`b` computation is additive and gated
 on `inference_context_k > 1`, so the default path must be untouched.
+
+---
+
+## CORRECTION, before any run — the history RTG was labelled wrongly
+
+A human question ("if the RTG is not accumulative, how should past tokens be labelled?
+what did the original DT do?") exposed a flaw in the first implementation.
+
+**First: the premise checks out in our favour — our RTG *is* additive.** With one-step
+reward `g_t = log b_t − log b_{t+1}`,
+
+```
+Σ_{t'≥τ} g_{t'} = Σ [log b_{t'} − log b_{t'+1}] = log b_τ − log b_T
+```
+
+It telescopes, so `rtg[τ] = log b_τ − log b_T` is **the sum of future one-step information
+gains** — the same object as DT's `R̂_t = Σ_{t'≥t} r_{t'}`. The log-ratio form is precisely
+what makes entropy reduction additive; the absolute entropy `log b + γ + 1` does not
+telescope, and the `γ+1` cancels in the difference. **This confirms the MES information
+gain is the per-step reward `g_τ`, and `rtg[τ]` is its forward sum — not the gain at that
+step.**
+
+**The flaw.** The first version labelled history `log b_τ − log b_last`, taking the
+window's own last entry as `T`. That forces the final history token to be **exactly 0**
+(`log b − log b`), so the sequence read `[…, 0, target]` — a discontinuity that occurs
+nowhere in training, where `rtg[0]` is the total rollout gain and `rtg[-1] ≈ 0` only at
+the true end of a rollout.
+
+**The correction.** DT decrements a running target by each achieved reward
+(`R = R + [R[-1] − r]`). Our target is dynamic and re-derived every iteration, so there is no
+fixed initial target to decrement from — but that rule can be run **backwards** from the
+current step: take the dynamic target `R̂_t` as given (spec item 7) and add back the
+realised gains,
+
+```
+R̂_τ = R̂_t + Σ_{t'=τ}^{t-1} g_{t'} = R̂_t + log b_τ − log b_t
+```
+
+The sequence now ends *at* the dynamic target and each earlier token states how much was
+still to be gained then. Consistent with training, and with DT's semantics.
+
+**An ordering fix this forced.** `b_t` is needed to anchor the history, but the window is
+built *before* the proposal while `b` was originally computed *after* it. `b` depends only
+on the GP state `D_t`, not the proposal, so it now runs **before** the window build —
+which both matches the rollout's `b_τ` timing (before conditioning on that step's own
+observation) and makes `b_t` available where it is needed.
