@@ -3752,3 +3752,23 @@ ships.
   handicap, and the score still barely moved (15.82 → 15.76).
 - h189 at 2/5. The LF-heavy seeds need ~200 queries at cost 1 to exhaust the budget,
   so they run much longer than the HF-heavy ones (9–13 min vs ongoing).
+
+## tick 50 — h189: the sign flips. h187 is Borehole-specific; h31 vindicated.
+
+- **h189 P3, 5/5.** Hartmann: teacher-only 21.88 vs MF-DRO **7.99**, paired **+13.89**
+  (se 4.53), MF-DRO better on **5/5**. Borehole was the exact opposite (−2.85, teacher
+  better 5/5). **Two benchmarks, opposite answers, both unanimous**, and Hartmann's
+  advantage is ~5× Borehole's deficit.
+- **h31 vindicated, not explained away.** My registered P2 branch would have blamed its
+  metric; P3 fired and h31's direction was right.
+- **Retractions:** "the DT is a net negative" must never be stated unqualified — h187
+  is Borehole-specific. And the synthesis's third leg is wrong in *both* directions:
+  the averaging is a cost on Borehole and a large gain on Hartmann.
+- **Corrected synthesis:** the DT reproduces the mean of its teacher's first move, and
+  the *value* of that averaging is benchmark-dependent and flips sign. h185/h186/h188/
+  h182 untouched — they describe what it does, not what it is worth.
+- **SC recorded pre-readout was confirmed**: the teacher's fidelity is bistable on
+  Hartmann (0.000–0.989) while MF-DRO's is stable at 0.800. Candidate account (cost
+  ratio 8:1 vs 2:1 making stability valuable) recorded as **not established** — ρ=+0.700
+  over five points with two collinear variables is a description, not evidence.
+- Report corrected and republished; the headline now carries three parts.

@@ -453,10 +453,11 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
       region constraint is a training-time mechanism, so the teacher-only arm never receives it,
       and its candidate pool stays unconstrained. Whether a teacher given the same constraint
       would win again is untested, and not something to assert.</p>
-      <p>So the honest headline has two halves that must travel together: <strong>on the default
-      path the learner costs 2.85 points against its own teacher, and the configurations that
-      beat that teacher do so with a mechanism the teacher was not given.</strong> Reporting the
-      first alone overstates the damage; reporting the second alone hides it.</p>
+      <p>So the honest headline has three parts that must travel together: <strong>on this
+      benchmark's default path the learner costs 2.85 points against its own teacher; the
+      configurations that beat that teacher do so with a mechanism the teacher was not given;
+      and on the other benchmark the whole comparison reverses.</strong> Any one of these
+      reported alone misleads.</p>
       <p>The obvious objection is that the teacher spends its budget differently — more of it on
       cheap evaluations. That is ruled out by an experiment already run for another purpose:
       forcing the learner to spend <em>6.4&times;</em> more on cheap evaluations moved its score
@@ -466,8 +467,32 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
       directly. That asymmetry <em>is</em> the comparison — it is what replacing search with a
       learned policy means — but the honest phrasing is that the learner is a net negative
       against a rule that performs explicit search.</p>
-      <p>The older experiment's opposite finding, on the second benchmark, is not yet
-      reconciled. That run is underway now, on the frozen measure, using the identical code.</p>
+      <p>The older experiment's opposite finding on the second benchmark has now been
+      checked properly — and it was right. See below.</p>
+    </div>
+
+    <div class="note">
+      <h3>On the second benchmark the answer reverses — by a wider margin<span class="chip c-settled">new</span></h3>
+      <p>The same test, the same code, the second benchmark. The result is the opposite, and
+      it is not close.</p>
+      <p><strong>There the learner beats the teacher on all five runs, by 13.89 points</strong> —
+      7.99 against 21.88 — where on the first benchmark it <em>lost</em> on all five runs by
+      2.85. Two benchmarks, opposite answers, each unanimous, and the win is roughly five times
+      the size of the loss.</p>
+      <p>So the honest statement is not "the learner helps" or "the learner hurts". It is that
+      <strong>the value of what the learner does depends on the problem, and reverses.</strong>
+      The description of <em>what</em> it does — memorising one point per step, using only the
+      first — is unchanged by this. What changes is what that is worth.</p>
+      <p>The older experiment that first suggested this is now vindicated rather than explained
+      away. I had written down, before running, the outcome that would have let me attribute its
+      finding to a weaker measure. That is not what came back.</p>
+      <p>Why the reversal? The two benchmarks price their expensive evaluations very
+      differently — one at eight times the cheap one, the other at two. On the expensive-ratio
+      problem the teacher's choice between cheap and expensive is erratic across runs, swinging
+      from never using the cheap source to using it 99% of the time, while the learner stays
+      steady. Steadiness should be worth more where mistakes cost more. <strong>That is a
+      hypothesis, and five runs cannot support it</strong> — it is written down as the next
+      thing to test, not as the explanation.</p>
     </div>
   </div>
 </section>
