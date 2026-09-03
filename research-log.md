@@ -3936,3 +3936,25 @@ ships.
   **Its secondary stays confounded** by this route permanently, and h182 keeps only its
   correlational support.
 - No compute spent on runs. The `tangent` path stays, default-off and identity-gated.
+
+## tick 61 — PAUSED by the user. Consolidation only, no arms launched.
+
+The user paused autoresearch; the loop fired on its own. No arms launched, no compute
+spent. Used the tick for a gap their question exposed.
+
+- **Their sliding-window proposal was already built and tested as h27**, and
+  `findings.md` had **zero** mentions of it. The Phase 1 result and the Phase 2
+  mechanism were never connected in the record.
+- **h27**: K=1 vs K=8 gave **bit-identical proposals** (max |Δx| = 0.000e+00), identical
+  fidelity, identical final regret. Not a wiring failure — real history moves the
+  coefficient vector **11.2%**, ~85× ordinary state variation, and reordered **0/12**.
+- **Recorded the unification**: Phase 1 found three independent nulls — state
+  (H5/H21/H22), RTG/BTG (H8/H26), history window (H27). Phase 2's mechanism explains all
+  three at once: `loss/var` ∈ [0.750, 1.054] means the DT is at the best-constant
+  solution, and **a constant does not depend on its inputs**. Phase 2 header updated.
+- **The binding quantity** is whether the teacher's action is predictable from the state,
+  not how much input the DT receives — which is why the interventions that work (h191)
+  move the constant rather than widening the input.
+- **Not ruled out and left unbuilt**: training the DT on real trajectories so its
+  *training* distribution matches inference-time context. Offered to the user; awaiting
+  their call rather than launching it under a pause.
