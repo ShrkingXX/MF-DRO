@@ -17963,3 +17963,43 @@ h185 (per-timestep constant), h186 (ignores its inputs), h188 (the constant is t
 teacher's τ=0 mean) and h182's inversion are now **all confirmed on both benchmarks**.
 The mechanism is general; what remains benchmark-specific is the *value* of what the DT
 does (h187/h189's sign flip) and the direction signature.
+
+---
+
+## h182's centre-collapse replicates on Hartmann — and it is **DT-SPECIFIC**
+
+The headline (ρ = −0.967 over 28 Borehole arms) had only been checked on 6 hand-picked
+Hartmann arms. Over **every** Hartmann arm with ≥4 matched seeds:
+
+| population | n | ρ(distance from centre, rel%) |
+|---|---|---|
+| **MF-DRO arms** | **17** | **−0.841** |
+| non-DT arms (GP baselines + teacher-only) | 5 | **+0.600** |
+| pooled | 22 | −0.373 |
+
+### The non-DT arms don't collapse at all — that's the informative half
+
+| arm | centre dist | rel% |
+|---|---|---|
+| SF-DRO | 0.565 | 10.33 |
+| teacher-only (NODT) | 0.675 | 15.58 |
+| MF-MES | 0.710 | **6.69** |
+| MF-GP-UCB | 0.813 | 56.67 |
+| MF-MI-Greedy | 0.893 | 41.34 |
+
+All sit **far** from the centre (0.565–0.893 — no collapse anywhere), and their ordering
+does **not** follow distance: the best (MF-MES, 6.69) sits nearer the centre than the
+worst (MF-GP-UCB, 56.67).
+
+**Centre-collapse is a property of the DT-based policy, not of the optimisation
+problem** — exactly what the mechanism predicts. The DT emits a *constant* (its
+teacher's τ=0 mean) and a bad constant is the box centre; a GP method argmaxes an
+acquisition function afresh each step and has no constant to collapse onto. The pooled
+ρ is meaningless because it mixes two populations that behave differently.
+
+**Caveats.** SF-DRO is DT-based, so grouping it with the GP baselines is arguable — it
+sits at 0.565/10.33, fitting the *MF-DRO* pattern, so moving it would strengthen the
+split; left in the conservative group. And the 17 MF-DRO arms show an apparent gap
+(three collapsed at 0.086–0.149, fourteen at 0.523–0.698, nothing between) — **Borehole
+showed exactly such a gap on 10 arms and it dissolved at 28**, so this is recorded as an
+observation, not a claim.

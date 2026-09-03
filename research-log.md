@@ -3820,3 +3820,18 @@ ships.
 - **Mechanism now general**: h185, h186, h188, h182-inversion all hold on both
   benchmarks. Benchmark-specific: the *value* of the DT (h187/h189 sign flip) and the
   direction signature.
+
+## tick 54 — centre-collapse replicates on Hartmann, and is DT-specific
+
+- **Audited an under-tested headline.** h182's ρ = −0.967 came from 28 Borehole arms but
+  only 6 hand-picked Hartmann ones. Ran the full Hartmann sweep.
+- **Replicates: ρ = −0.841 over 17 MF-DRO Hartmann arms.**
+- **The non-DT arms don't collapse at all** (0.565–0.893, no relationship, ρ = +0.600 at
+  n=5). The best of them sits *nearer* the centre than the worst. **Centre-collapse is a
+  property of the DT-based policy, not of the problem** — which is what the mechanism
+  predicts, since a GP method has no constant to collapse onto.
+- **Applied the earlier lesson**: Hartmann shows an apparent gap, and I recorded it as an
+  observation rather than a claim, because Borehole's apparent gap dissolved when all 28
+  arms were included.
+- SF-DRO's classification flagged as arguable, and left in the group that makes the split
+  *weaker* rather than stronger.

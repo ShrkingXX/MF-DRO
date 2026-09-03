@@ -360,6 +360,22 @@ current_front:
     confirmed on BOTH benchmarks. The MECHANISM is general; what stays benchmark-specific
     is the VALUE of what the DT does (h187/h189 sign flip) and the direction signature.'
 
+  h182_hartmann_sweep: 'CENTRE-COLLAPSE REPLICATES AND IS DT-SPECIFIC. h182''s headline
+    (rho -0.967 over 28 Borehole arms) had only been checked on 6 hand-picked Hartmann
+    arms. Full Hartmann sweep: MF-DRO arms n=17 rho -0.841 (replicates, weaker but same
+    direction and strong); NON-DT arms n=5 rho +0.600; pooled n=22 rho -0.373 (meaningless,
+    it mixes two populations). THE INFORMATIVE HALF: the non-DT arms DO NOT COLLAPSE AT
+    ALL -- SF-DRO 0.565/10.33, teacher-only 0.675/15.58, MF-MES 0.710/6.69, MF-GP-UCB
+    0.813/56.67, MF-MI-Greedy 0.893/41.34. All far from the centre, and their ordering
+    does NOT follow distance (the BEST sits nearer the centre than the WORST). CENTRE-
+    COLLAPSE IS A PROPERTY OF THE DT-BASED POLICY, NOT OF THE OPTIMISATION PROBLEM --
+    exactly what the mechanism predicts, since a GP method argmaxes afresh each step and
+    has no constant to collapse onto. CAVEATS: SF-DRO is DT-based so its grouping is
+    arguable, but it fits the MF-DRO pattern so moving it would STRENGTHEN the split --
+    left in the conservative group. And the 17 MF-DRO arms show an apparent gap (three at
+    0.086-0.149, fourteen at 0.523-0.698) -- RECORDED AS OBSERVATION NOT CLAIM, because
+    Borehole showed exactly such a gap on 10 arms and it DISSOLVED at 28.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
