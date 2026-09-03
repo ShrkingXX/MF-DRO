@@ -234,3 +234,51 @@ What remains untested is the *direction* of the collapse itself — nothing here
 intervenes to stop a policy collapsing and observe the result. "Collapsing costs
 regret" is now well-supported; "what makes a policy collapse" is not settled by
 this.
+
+---
+
+## HARTMANN SWEEP — the relationship replicates, and it is DT-SPECIFIC
+
+h182's headline (ρ = −0.967 over 28 Borehole arms) had only been checked on **6**
+hand-picked Hartmann arms. Run over **every** Hartmann arm with ≥4 matched seeds:
+
+| population | n | Spearman ρ(distance from centre, rel%) |
+|---|---|---|
+| **MF-DRO arms** | **17** | **−0.841** |
+| non-DT arms (GP baselines + teacher-only) | 5 | **+0.600** |
+| pooled | 22 | −0.373 |
+
+**The relationship replicates for MF-DRO arms** — −0.841 against Borehole's −0.967,
+weaker but the same direction and strong over 17 arms.
+
+### The non-DT arms do not collapse at all, and that is the informative part
+
+| arm | centre dist | rel% |
+|---|---|---|
+| SF-DRO | 0.565 | 10.33 |
+| teacher-only (NODT) | 0.675 | 15.58 |
+| MF-MES | 0.710 | **6.69** |
+| MF-GP-UCB | 0.813 | 56.67 |
+| MF-MI-Greedy | 0.893 | 41.34 |
+
+They all sit **far** from the centre (0.565–0.893 — no collapse anywhere), and their
+ordering does not follow distance: the **best** of them (MF-MES, 6.69) sits at 0.710
+while the **worst** (MF-GP-UCB, 56.67) sits further out at 0.813.
+
+**Centre-collapse is a property of the DT-based policy, not of the optimisation
+problem.** That is what the mechanism predicts: the DT emits a *constant* (its teacher's
+τ=0 mean), and a bad constant is the box centre. A GP method argmaxes an acquisition
+function afresh every step and has no constant to collapse onto. The pooled ρ (−0.373)
+is meaningless precisely because it mixes two populations with different behaviour.
+
+### Two honest caveats
+
+- **SF-DRO's classification is arguable.** It is the single-fidelity DRO variant and is
+  DT-based, so grouping it with the GP baselines is questionable. It sits at 0.565 /
+  10.33, which fits the *MF-DRO* pattern (far out, performs well), so moving it would
+  strengthen rather than weaken the split — it is left in the conservative group.
+- **An apparent gap on Hartmann should not be trusted yet.** The 17 MF-DRO arms split
+  into three collapsed (0.086–0.149, rel% 46–76) and fourteen not (0.523–0.698, rel%
+  5.9–13.2), with nothing between. **Borehole showed exactly such a gap on 10 arms and
+  it dissolved when all 28 were included.** This one is recorded as an observation, not
+  a claim.
