@@ -17781,3 +17781,50 @@ how little the fidelity channel does on Borehole.
 
 Costs are part of the **frozen evaluation** and were not touched; this is an
 observation about the benchmarks as defined, not a change to them.
+
+---
+
+## h189 — **P3. The DT's value FLIPS SIGN between benchmarks. Both directions unanimous.**
+
+CONFIRMATORY, 5/5, h187's worker reused **unchanged** so no code differs between the
+two benchmarks. SC observation (the teacher's fidelity bistability) was recorded before
+the regret and is confirmed: `lf_fraction` = 0.989, 0.368, **0.000**, 0.934, 0.924.
+
+| benchmark | cost ratio | teacher-only | MF-DRO | paired | winner |
+|---|---|---|---|---|---|
+| **Borehole** | 2:1 | **12.97** | 15.82 | **−2.85** | teacher, **5/5** |
+| **Hartmann** | 8:1 | 21.88 | **7.99** | **+13.89** (se 4.53) | MF-DRO, **5/5** |
+
+**Exactly opposite answers, each unanimous.** Hartmann's advantage is nearly **5×**
+the size of Borehole's deficit.
+
+**h31 is vindicated, not explained away.** It found MF-DRO ahead on Hartmann on 7/10
+seeds using a different metric with unmatched fidelity mixes. On the frozen metric with
+identical code, MF-DRO is ahead **5/5**. My registered P2 branch would have attributed
+h31's result to its metric; **P3 fired instead and h31's direction was right.**
+
+### RETRACTIONS
+
+**"The DT is a net negative" must never be stated unqualified** — h187 is
+**Borehole-specific**, as its own scoping paragraph anticipated.
+
+**The synthesis's third leg is wrong in BOTH directions.** "The averaging is about as
+good as running the teacher" is neither: it is a **cost** on Borehole (−2.85) and a
+**large gain** on Hartmann (+13.89).
+
+**Corrected synthesis:** *the DT reproduces the mean of its teacher's first move; the
+value of that averaging is benchmark-dependent and flips sign.* h185, h186, h188 and
+h182 stand untouched — they describe **what** the DT does, not what it is worth.
+
+### A candidate account, explicitly NOT established
+
+Hartmann is 8:1 in cost, Borehole 2:1. The teacher's fidelity choice is **bistable on
+Hartmann** (0.000–0.989); MF-DRO's is **stable at 0.800**. Stable allocation should be
+worth more where a fidelity mistake costs eight cheap evaluations than where it costs
+two. Within these five seeds ρ(teacher `lf_fraction`, gap) = +0.700 — but `lf_fraction`
+and evaluation count are nearly collinear here, so that is **one** correlation over
+**five** points: a description, not evidence. Recorded as the next thing to test.
+
+Limits: seed 42 contributes +30.68 of the five gaps; dropping it leaves +9.70, still P3
+and still unanimous, so the verdict does not hinge on it but the magnitude does. One
+teacher, one metric, n=5 per benchmark.

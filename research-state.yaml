@@ -286,6 +286,27 @@ current_front:
     points against its own teacher; the configurations that beat that teacher do so with
     a mechanism the teacher was not given. Reporting either half alone misleads.'
 
+  h189_the_sign_flips: 'CONFIRMATORY, 5/5, h187''s worker reused UNCHANGED so no code
+    differs between benchmarks. P3 FIRES. Hartmann: teacher-only 21.88 vs MF-DRO 7.99,
+    paired +13.89 (se 4.53), MF-DRO BETTER ON 5/5. Borehole was the exact opposite:
+    teacher-only 12.97 vs MF-DRO 15.82, paired -2.85, TEACHER better on 5/5. TWO
+    BENCHMARKS, OPPOSITE ANSWERS, BOTH UNANIMOUS; Hartmann''s advantage is ~5x the size
+    of Borehole''s deficit. h31 IS VINDICATED, not explained away -- my registered P2
+    branch would have blamed its metric; P3 fired and h31''s direction was right.
+    RETRACTS: "the DT is a net negative" must NEVER be stated unqualified (h187 is
+    BOREHOLE-SPECIFIC); and the synthesis''s third leg is wrong in BOTH directions --
+    the averaging is a COST on Borehole and a LARGE GAIN on Hartmann. CORRECTED
+    SYNTHESIS: the DT reproduces the mean of its teacher''s first move, and the VALUE of
+    that averaging is benchmark-dependent and FLIPS SIGN. h185/h186/h188/h182 untouched
+    -- they describe WHAT the DT does, not what it is worth. SC CONFIRMED as recorded
+    pre-readout: teacher lf_fraction on Hartmann is bistable, 0.989/0.368/0.000/0.934/
+    0.924, vs MF-DRO''s stable 0.800. CANDIDATE ACCOUNT, NOT ESTABLISHED: Hartmann is
+    8:1 in cost and Borehole 2:1, so stable allocation should be worth more where a
+    fidelity mistake costs 8 cheap evaluations; rho(lf, gap)=+0.700 over FIVE points
+    with lf and eval-count nearly collinear -- one correlation, a description, not
+    evidence. LIMIT: seed 42 contributes +30.68; dropping it leaves +9.70, still P3 and
+    still unanimous.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'
