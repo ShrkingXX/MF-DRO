@@ -32,6 +32,14 @@
 #   though w moves 11.2%). A CONSTANT DOES NOT DEPEND ON ITS INPUTS -- so no
 #   input-side fix can help. The binding quantity is whether the teacher's
 #   action is PREDICTABLE FROM THE STATE, not how much input the DT receives.
+#     PRECISION NOTE: what is MEASURED is that the DT DOES NOT USE its state
+#   (h186; plus the dissociation that it captures 6.6-25% of the variance when
+#   tau-structure exists and 0.0% on all 4 arms where it does not -- so it is
+#   NOT underfitting). That the state is UNINFORMATIVE is a STRONGER claim and
+#   is NOT established: it needs an independent predictor fitted from saved
+#   (state, action) pairs, which are NOT serialised (teacher_action_stats keeps
+#   only mean and variance). Adding them is cheap, purely additive, and the
+#   highest-value addition to any future run.
 #
 # WHY THAT ANSWERS THE QUESTION:
 #   Inference always queries timestep 0, so the DT emits its teacher's FIRST-MOVE
