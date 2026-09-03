@@ -27,6 +27,11 @@
 #     It also barely uses its inputs: state sensitivity 0.0122 vs conditioning
 #   0.0782, against a seed-to-seed scale of ~0.82 -- and NOT for lack of
 #   information (the 3 tau=0 states are 0.5866 apart on a norm of 4.5032).
+#     THIS UNIFIES THREE PHASE-1 NULLS: state (H5/H21/H22), RTG/BTG (H8/H26),
+#   and the SLIDING-WINDOW history (H27, K=1 vs K=8 bit-identical, argmax 0/12,
+#   though w moves 11.2%). A CONSTANT DOES NOT DEPEND ON ITS INPUTS -- so no
+#   input-side fix can help. The binding quantity is whether the teacher's
+#   action is PREDICTABLE FROM THE STATE, not how much input the DT receives.
 #
 # WHY THAT ANSWERS THE QUESTION:
 #   Inference always queries timestep 0, so the DT emits its teacher's FIRST-MOVE
@@ -18273,3 +18278,63 @@ inputs to it**. Magnitude cannot be held fixed while direction varies.
   causal test here.
 - No compute spent on runs. The `tangent` code path remains, disabled by default and
   identity-gated, for any future attempt.
+
+---
+
+## The mechanism unifies THREE separately-discovered nulls from Phase 1
+
+Prompted by a question about feeding the DT a sliding window of real history at
+inference. That was already built and tested — **h27** — and `findings.md` had **zero**
+mentions of it, so the connection below was missing from the record entirely.
+
+### h27, the sliding-window arm (Phase 1)
+
+`inference_context_k` feeds the DT the last K−1 real `(state, rtg, btg)` triples plus the
+current one, reading out at the final state token. Default is 1; it is still in the code.
+
+| | K=1 vs K=8 |
+|---|---|
+| max \|Δx\| per iteration | **0.000e+00** |
+| fidelity choices | identical |
+| final regret | 0.4061 both arms |
+
+**And it was not a wiring failure.** The context genuinely grows (ctx = 1,2,3,4,5,6 as
+history accumulates). The tokens *are* processed: a synthetic history moves the hidden
+state by 7.102 and the coefficient vector `w` by **19.9%**; the **real** history a run
+produces moves `w` by **11.2%** — same order, so real history is not impoverished. That
+11.2% is roughly **85× what ordinary state variation produces**, and it reordered
+nothing: **argmax moved 0/12**.
+
+### Three channels, one explanation
+
+Phase 1 established, by three independent routes, that an input does not reach the
+decision:
+
+| channel | evidence |
+|---|---|
+| **state** | H5 audit, H21, H22 |
+| **RTG / BTG conditioning** | H8, H26 — and this run's h177/h178/h181 |
+| **history window** | **H27** |
+
+Each was recorded as its own null. **Phase 2's mechanism explains all three at once:**
+the DT's location MSE *equals* its teacher's action variance (`loss/var` ∈ [0.750, 1.054]
+across 10 arms on both benchmarks), so it sits at the **best-constant solution**.
+**A constant does not depend on its inputs.** Widening the context window, fixing the
+conditioning embedding, or handing it better-separated states cannot move an output that
+is already the loss-minimising constant.
+
+h186 measured the ordering directly this run: state sensitivity **0.0122** against
+conditioning sensitivity **0.0782**, both against a seed-to-seed scale of ~0.82 — the
+state, which ought to drive the decision, is the *least* influential of them.
+
+**The bottleneck is not input bandwidth. It is that the target is nearly unpredictable
+from the state, so the loss-minimising solution is a constant.** This also predicts what
+*would* work, and matches h191: the only interventions that help (ROI, teacher
+refinement, the L1 loss) do not give the DT more input — they move the constant, and ROI
+additionally tightens the teacher's action variance by 32%.
+
+**Not ruled out:** training the DT on real trajectories so its *training* distribution
+matches the inference-time context. h27 fed history at inference to a DT trained the
+ordinary way. The `loss/var ≈ 1` evidence predicts that variant also fails **unless it
+makes the teacher's action more predictable from the state** — which is the quantity that
+actually binds.
