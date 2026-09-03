@@ -112,3 +112,47 @@ need explaining.
 ## Compute
 
 Stage 0: 1–2 processes, minutes. Stage 1: 10 workers × 1 thread.
+
+---
+
+# STAGE 0 REVISED, before running it — a sharper and cheaper gate
+
+Reading the code rather than trusting the summary changed the hypothesis.
+
+**`decisionTransformer.py:78`** — when `hist` is supplied, positions are
+`torch.arange(T)` and the readout is the **final** state token. So h27's window did
+**not** leave the DT stuck at position 0: it already supplied **in-distribution position
+indices 0…T−1** and read out at T−1. My earlier guess that the window "fixes the timestep
+problem" was wrong; h27 already did that.
+
+**This makes h27's null contradict h185.** h185 measured that the DT is a *per-timestep*
+constant predictor whose explained variance **is** the between-τ component — 13.3%
+(STDCOND) and 25.0% (LFF-CTRL) for ordinary teachers. If the DT emits a different constant
+per position, reading out at position 6 must give a **different action** than position 0.
+h27 measured them **bit-identical** (max |Δx| = 0.000e+00, ctx growing 1→6).
+
+Both cannot describe the same code. **h27 is the stale one** (33 commits since, 3
+behaviour-changing). That tension is now the strongest reason to rerun, and it is a
+sharper gate than the `frac_seq` statistic originally registered here.
+
+## Revised Stage 0
+
+Two short runs at the same seed, current code, ROI-Q10, differing **only** in
+`inference_context_k` (1 vs 8). Compare the emitted queries directly.
+
+> **statistic**: max |Δx| between the K=1 and K=8 emitted queries, per iteration.
+>
+> - **G-PASS — h27 is stale, the arm is live**: proposals **differ** (max |Δx| > 1e-6 on
+>   at least half the iterations where ctx > 1). The window changes the decision on
+>   current code, so Stage 1's factorial is worth 10 worker-hours.
+> - **G-FAIL — h27 replicates**: proposals bit-identical. The window is dead on current
+>   code too, Stage 1 does **not** run, **and h185 owes an explanation** — a per-timestep
+>   constant predictor with 13–25% between-τ variance should not be position-invariant.
+>   That tension would become an open item in its own right.
+
+Either outcome is informative, which the original `frac_seq` gate was not: it measured a
+property of the *teacher*, whereas this measures the property of the *DT* that the whole
+arm depends on. Cost: two short runs, minutes.
+
+**Registered before running.** The `frac_seq` gate above is superseded, not deleted — it
+was written before I read line 78, and the record should show why it changed.
