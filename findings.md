@@ -18338,3 +18338,48 @@ matches the inference-time context. h27 fed history at inference to a DT trained
 ordinary way. The `loss/var ≈ 1` evidence predicts that variant also fails **unless it
 makes the teacher's action more predictable from the state** — which is the quantity that
 actually binds.
+
+---
+
+## Is the DT UNDERFITTING, or is its target unpredictable? A dissociation in existing data.
+
+I have repeatedly asserted that the DT sits at the best-constant solution *because its
+target is nearly unpredictable from the state*. The competing explanation — that the DT
+simply **underfits** — has been assumed away rather than tested. h185's own data separates
+them, at no compute cost.
+
+| τ-structure available to the arm | arms | variance explained |
+|---|---|---|
+| **none** (L=1, or a τ-invariant random teacher) | **4** | **0.0 – 0.0%** |
+| **present** (L=8, sharp τ=0 split or natural variation) | **6** | **6.6 – 25.0%** |
+
+**The DT captures the between-timestep component whenever it exists — up to 25% — and
+essentially none of the within-timestep component, ever.** An underfitting model would
+miss **both**. Capturing one and not the other is evidence about *what is learnable*, not
+about model capacity.
+
+### What it actually shows, stated precisely
+
+The between-τ component is carried by the **position index**, not by the state. So the
+dissociation is: **the DT learns from the timestep index and not from the state.** That
+matches h186's direct measurement exactly — state sensitivity **0.0122** against
+conditioning **0.0782**, on states measured to be well separated (0.5866 apart on a norm
+of 4.5032).
+
+So "the DT is underfitting" is not supported: it fits the learnable part.
+
+### What it does NOT show — and the test that would
+
+**This shows the DT does not use the state. It does not prove the state carries no usable
+signal.** Those are different claims, and I have been sliding between them. To establish
+the second, one would fit an **independent** predictor (linear, k-NN, anything) from the
+saved rollout states to the teacher's actions and show it *also* cannot beat the constant.
+
+That test is not currently possible: `teacher_action_stats` stores only the per-iteration
+**mean and total variance** of `actions_x`, not the individual `(state, action)` pairs,
+and `_last_batch_tau0_states` is never serialised. It needs a run that saves them —
+**a cheap, purely additive change (d floats per rollout step), and the single most
+informative thing left to add to any future arm.**
+
+Until then the accurate wording is *"the DT does not use its state"*, which is measured,
+rather than *"the state is uninformative"*, which is not.

@@ -3958,3 +3958,23 @@ spent. Used the tick for a gap their question exposed.
 - **Not ruled out and left unbuilt**: training the DT on real trajectories so its
   *training* distribution matches inference-time context. Offered to the user; awaiting
   their call rather than launching it under a pause.
+
+## tick 62 — still paused. Tested an alternative to my own central claim.
+
+No arms launched, no compute.
+
+- **Challenged my own assertion.** I have repeatedly said the DT sits at the best-constant
+  solution *because its target is unpredictable from the state*. The competing explanation
+  — that it simply **underfits** — had been assumed away, not tested.
+- **h185's data separates them.** Arms with **no** τ-structure available (L=1, or a
+  τ-invariant random teacher): **4 arms, 0.0% variance explained**. Arms **with** it:
+  **6 arms, 6.6–25.0%**. An underfitting model would miss both. **Underfitting is not
+  supported** — the DT fits the learnable part.
+- **Precision correction to my own wording.** The between-τ component rides on the
+  *position index*, not the state. So what is measured is **"the DT does not use its
+  state"** — matching h186 — not **"the state is uninformative"**. I had been sliding
+  between the two.
+- **The test that would settle it** needs an independent predictor fitted from saved
+  `(state, action)` pairs. Those are **not serialised** (`teacher_action_stats` keeps only
+  mean and variance). Adding them is cheap and purely additive — the highest-value
+  addition to any future run, flagged for when the pause lifts.
