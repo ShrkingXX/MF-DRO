@@ -71,3 +71,61 @@ mechanism is direction-dependent in a way nothing predicts.
 ## Compute
 
 5 workers × 1 thread. Machine idle.
+
+---
+
+# REVISION, before launch — the arm moves to HARTMANN. Borehole is geometrically infeasible.
+
+**Three successive designs failed their own SC, and the reason is a property of the
+problem, not of the code.**
+
+| design | SC-2 (distance preserved?) | why it failed |
+|---|---|---|
+| per-point rotation, own plane | 0.7837 → **0.5319** | planes decohere across points; the *mean* shrinks even though each point's radius is kept |
+| fixed plane (0,6), θ=46.4° | 0.7837 → **0.6823** | in-plane radius 0.5817 > 0.5, so rotation pushes a coordinate past the wall and clipping shrinks it |
+| fixed plane (3,6), θ=56.7° | 0.7837 → **0.6684** | the *mean's* circle fits, but individual points near the walls still clip |
+
+**The obstruction, measured.** Of the unshifted control's 486 real HF queries on Borehole,
+**80.9% have at least one coordinate within 0.05 of a box wall**, and dim 0 sits at mean
+|coord| **0.465** against a half-width of 0.5 — pinned. A distance-preserving rotation
+must trace a sphere; with the points on the walls, every rotation exits the box, clipping
+pulls them back, and the distance is not preserved.
+
+**This is informative, not merely an obstacle.** Borehole's good region *is* the boundary
+(consistent with its known boundary optima), so the working policy's constant is pressed
+against the wall — and the only direction with room to move it is **inward**. h192's
+confound may therefore be **unavoidable on Borehole**: any feasible displacement of the
+constant there is necessarily toward the centre.
+
+## The arm moves to Hartmann, where the optimum is interior
+
+| | points within 0.05 of a wall | wall-pinned dims | mean dist from centre |
+|---|---|---|---|
+| Borehole | **80.9%** | **1 of 8** (0.465) | 0.806 |
+| **Hartmann** | **28.4%** | **0 of 6** (max 0.357) | 0.629 |
+
+Hartmann's actions are interior, so a distance-preserving rotation has room.
+
+**Two arms, both at rollout_length=1, both on Hartmann, seeds 42–46:**
+- **CENTRE-shift** (h192's manipulation, ported) — needed because the Borehole
+  centre-shift cost (+29.49) cannot be assumed to transfer, so the comparison must be
+  within-benchmark.
+- **NEUTRAL rotation** — same displacement, distance preserved.
+
+Control: h174's ROLLOUT1 (Hartmann, L=1, 10.91). h174 was voided as a *rollout-length*
+comparison by its own fidelity-mix SC, but it is a valid control **here** because all
+three arms share the identical L=1 config, so that mix is common to all of them.
+
+**Revised gate.** The registered thresholds (+10 / +20) were calibrated on Borehole's
++29.49 and do not transfer. The statistic becomes the **ratio**:
+
+> **neutral-shift regret change ÷ centre-shift regret change**, both vs the same
+> unshifted control, measured in the same runs.
+>
+> - **P1 — centre-specificity CONFIRMED**: ratio **< 0.35**
+> - **P2 — partial**: **0.35 – 0.70**
+> - **P3 — REFUTED**: **> 0.70** — displacement is about as costly wherever it points
+
+SC unchanged: displacement must match between the two arms, and the neutral arm's
+distance from centre must be preserved. **If SC-2 fails on Hartmann too, the test is
+abandoned and reported as geometrically infeasible** rather than iterated further.

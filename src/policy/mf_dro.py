@@ -940,6 +940,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             device='cpu', dtype=torch.float64,
                             minimum_hf_fraction=0.25,
                             tau0_shift_lambda=None,
+                            tau0_shift_mode='centre',
+                            tau0_rot_axes=(0, 1),
                             use_rtg_grounding=False,
                             bes_delta=0.05,
                             use_candidate_scoring=False,
@@ -1731,7 +1733,40 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         if tau0_shift_lambda is not None and tau == 0:
             _c0 = (0.5 * (bounds[0] + bounds[1])).to(
                 device=x_tau.device, dtype=x_tau.dtype)
-            x_tau = x_tau + float(tau0_shift_lambda) * (_c0 - x_tau)
+            if tau0_shift_mode == 'centre':
+                # h192: translate a fraction of the way toward the box centre.
+                x_tau = x_tau + float(tau0_shift_lambda) * (_c0 - x_tau)
+            elif tau0_shift_mode == 'tangent':
+                # h193: DISTANCE-PRESERVING rotation about the box centre, by
+                # tau0_shift_lambda RADIANS, in the FIXED COORDINATE PLANE named
+                # by tau0_rot_axes. Displaces x_tau while leaving ||x - c||
+                # unchanged -- the quantity h182 says decides performance -- so
+                # it separates "the DT follows its teacher's mean" from "the
+                # centre is a bad place to land".
+                #
+                # A FIXED plane, not a per-point one. The first version rotated
+                # each point in the plane of its OWN (x - c) and an orthogonalised
+                # direction. That preserves each point's distance but the planes
+                # DECOHERE across points, so the MEAN shrank 0.7837 -> 0.5319 and
+                # the arm became a weak copy of h192. Caught by its SC before
+                # launch. A fixed-plane rotation is an orthogonal LINEAR map, so
+                # the mean rotates rigidly and ||mean - c|| is preserved exactly.
+                #
+                # Rotation happens in CENTRED UNIT-BOX coordinates, the same
+                # metric the analysis measures centre-distance in.
+                _lo, _hi = bounds[0].to(x_tau.dtype), bounds[1].to(x_tau.dtype)
+                _rng = (_hi - _lo)
+                _u = (x_tau - _lo) / _rng - 0.5
+                _i, _j = tau0_rot_axes
+                _th = float(tau0_shift_lambda)
+                _ci, _si = math.cos(_th), math.sin(_th)
+                _ui, _uj = _u[_i].clone(), _u[_j].clone()
+                _u[_i] = _ci * _ui - _si * _uj
+                _u[_j] = _si * _ui + _ci * _uj
+                x_tau = (_u + 0.5) * _rng + _lo
+                x_tau = torch.max(torch.min(x_tau, _hi), _lo)
+            else:
+                raise ValueError(f"unknown tau0_shift_mode {tau0_shift_mode!r}")
 
         # 3. b_tau: Thompson-sample + Gumbel-fit the domain-max y*_H scale,
         # BEFORE conditioning on this step's own (x_tau, y_tau). Reflects
@@ -2636,6 +2671,8 @@ class DirectMFRegretOptimization:
                     ref_grid=self.state_ref_grid,
                     minimum_hf_fraction=getattr(self.config, 'minimum_hf_fraction', 0.25),
                     tau0_shift_lambda=getattr(self.config, 'tau0_shift_lambda', None),
+                    tau0_shift_mode=getattr(self.config, 'tau0_shift_mode', 'centre'),
+                    tau0_rot_axes=getattr(self.config, 'tau0_rot_axes', (0, 1)),
                     use_rtg_grounding=getattr(self.config, 'use_rtg_grounding', False),
                     bes_delta=getattr(self.config, 'bes_delta', 0.05),
                     use_candidate_scoring=self.use_candidate_scoring,
