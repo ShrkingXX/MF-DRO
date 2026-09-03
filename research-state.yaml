@@ -494,6 +494,26 @@ current_front:
     check matched the querying shell''s own argv, exactly the failure the tool''s docstring
     documents. It did surface 2 stragglers pkill -f had missed, killed by pid.'
 
+  h194_stage1a_result: 'P3 -- THE SLIDING WINDOW HURTS, on the DEFECTIVE implementation.
+    CONFIRMATORY, 10/10, readout committed before any run finished. WINDOW(K=8) 16.58 vs
+    CTRL-K1 11.59, paired +4.99 (se 1.93), worse on 4/5, threshold +/-1.26. vs DEFAULT
+    MF-DRO (15.82) the window is +0.76 WORSE, better on 3/5 -- so the answer to the human''s
+    question is NO. Stage 1b (expert teacher) NEVER RAN: gated on 1a not returning P3,
+    since a harmful shared component makes the combination unattributable.
+    DRIFT CHECK CLEAN: fresh CTRL-K1 11.59 vs h84''s ROI-Q10 11.59, paired +0.00, and 5/5
+    seeds BIT-IDENTICAL across 17 commits -- the default ROI-Q10 path is unchanged and
+    h84-era ROI controls remain quotable.
+    PREDICTION RECORD: I registered P3, WITHDREW it (the reasoning conflated late-tau under
+    a tau=0-destroyed teacher with late-tau under a normal one, and a preliminary
+    measurement pointed the other way), and my live expectation was P2. P3 fired. NO CREDIT
+    CLAIMED -- a faulty argument reaching a true conclusion is not a successful prediction.
+    The readout auto-label "as the mechanism predicted" is STALE.
+    LOAD-BEARING CAVEAT: per h195 this window ZEROES every historical action token while DT
+    Algorithm 1 and our own training feed real ones, so it fed step-tuples never seen in
+    training. P3 means "the window AS IMPLEMENTED hurts", NOT "windows hurt". h196 runs the
+    corrected version; until it reports, "input-side fixes cannot help" rests on a
+    DEFECTIVE window plus h185/h186, not a clean test.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

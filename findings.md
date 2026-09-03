@@ -18529,3 +18529,49 @@ force an explicit exception into "input-side fixes cannot help", which currently
 three Phase-1 nulls.
 
 **Stage 1 not launched** — 10 worker-hours, and the loop is paused.
+
+---
+
+## h194 Stage 1a — **P3, the sliding window HURTS.** But it is the *defective* window.
+
+CONFIRMATORY, 10/10 runs, readout committed before any finished. Human-proposed arm.
+
+**Drift check first, and it is clean.** Fresh CTRL-K1 = **11.59**; h84's ROI-Q10 (17
+commits earlier) = **11.59**; paired **+0.00** — and not by rounding: **5/5 seeds
+bit-identical**, same query counts, identical traces. The default ROI-Q10 path is
+genuinely unchanged, so **h84-era ROI controls remain quotable.** The contemporaneous
+control proved unnecessary, which only running it could establish.
+
+| | frozen rel% |
+|---|---|
+| **WINDOW (K=8)** | **16.58** |
+| CTRL-K1 (K=1) | **11.59** |
+| default MF-DRO (`use_roi=False`) | 15.82 |
+
+Paired WINDOW − CTRL: **+4.99** (se 1.93), worse on **4/5**, threshold ±1.26 → **P3**.
+
+**Answering the question that was asked:** the window does **not** beat default MF-DRO —
+it is **+0.76 worse**, better on 3/5 — and it is far worse than simply enabling ROI.
+**The expert-teacher half (Stage 1b) was never run**: it is gated on 1a not returning P3,
+because a harmful shared component makes the combination unattributable. That gate binds.
+
+### Prediction record, stated plainly
+
+I registered **P3**, then **withdrew it** on discovering the reasoning was faulty (it
+equated "late-τ under a teacher whose τ=0 was destroyed" with "late-τ under a normal
+teacher"), and a preliminary measurement pointed the other way. My live expectation was
+**P2**. **P3 fired — my withdrawn prediction was right, my live one wrong.** No credit is
+claimed for the first: a faulty argument reaching a true conclusion is not a successful
+prediction. The readout's auto-label "as the mechanism predicted" is **stale**.
+
+### The load-bearing caveat
+
+h195's audit established this window **zeroes every historical action token**, while DT
+Algorithm 1 feeds the actions executed and our own training fills them with real
+locations. With the causal mask the readout token attends to those slots, so this arm fed
+the model step-tuples it never saw in training. **P3 therefore means "the window as
+implemented hurts", not "windows hurt".**
+
+**h196 runs the corrected version now.** Until it reports, "input-side fixes cannot help"
+— which unifies three Phase-1 nulls — rests on a *defective* window plus h185/h186, not on
+a clean window test.
