@@ -46,8 +46,21 @@ import torch
 from src.policy.mf_dro import compute_joint_mf_mes
 
 
+def _draw_y(ko, x, ell, fantasy_mode, oracle_f):
+    """
+    h199: the ONE substitution separating the oracle ceiling from h198. With
+    oracle_f given, the imagined future is evaluated on the TRUE function instead
+    of drawn from the GP posterior; everything else about the decision rule is
+    unchanged, so (h199 - h198) isolates fantasy quality and nothing else.
+    NOT a method -- f_H is unavailable at run time in any real setting.
+    """
+    if oracle_f is None:
+        return ko.sample_fantasy(x, "LH"[ell], mode=fantasy_mode)
+    return float(oracle_f["H" if ell == 1 else "L"](x.reshape(1, -1)).reshape(-1)[0])
+
+
 def _greedy_base_rollout(ko, roi_candidates, c_H, c_L, best_hf,
-                         steps_left, fantasy_mode, device, dtype):
+                         steps_left, fantasy_mode, device, dtype, oracle_f=None):
     """
     Follow greedy cost-normalised MES for exactly ``steps_left`` STEPS,
     returning the best HF value reached. This is the BASE POLICY: what the
@@ -64,11 +77,23 @@ def _greedy_base_rollout(ko, roi_candidates, c_H, c_L, best_hf,
     must be too.
     """
     _b = float(best_hf)
-    for _ in range(int(steps_left)):
+    _n = int(steps_left)
+    for _i in range(_n):
         x, ell, _ = compute_joint_mf_mes(ko, roi_candidates, c_H, c_L)
-        y = ko.sample_fantasy(x, "LH"[ell], mode=fantasy_mode)
+        _last = (_i == _n - 1)
+        # On the LAST step the conditioned GP is never read again, and on an LF
+        # last step the fantasy value cannot move _b either (only HF observations
+        # do). Both are therefore skipped. This is not an approximation: the
+        # returned _b is bit-identical, the work was simply discarded. Measured
+        # 16 wasted conditionings and up to 16 wasted fantasy draws per teacher
+        # decision.
+        if _last and ell != 1:
+            break
+        y = _draw_y(ko, x, ell, fantasy_mode, oracle_f)
         if ell == 1:
             _b = max(_b, float(y))
+        if _last:
+            break
         ko = ko.make_fantasy_ko(
             x.unsqueeze(0), torch.tensor([y], device=device, dtype=dtype),
             "LH"[ell])
@@ -77,7 +102,8 @@ def _greedy_base_rollout(ko, roi_candidates, c_H, c_L, best_hf,
 
 def choose_regret_lookahead(ko_model, roi_candidates, c_H, c_L,
                             best_sim_hf, steps_left, n_c=8, M=4,
-                            base_pool=150, fantasy_mode='sample', device='cpu',
+                            base_pool=150, max_horizon=0, oracle_f=None,
+                            fantasy_mode='sample', device='cpu',
                             dtype=torch.float64):
     """
     Pick the (x, ell) maximising the expected terminal best HF value.
@@ -100,7 +126,15 @@ def choose_regret_lookahead(ko_model, roi_candidates, c_H, c_L,
     _idx = torch.topk(_flat, _k).indices
     _cands = [(int(i) // scores.shape[1], int(i) % scores.shape[1]) for i in _idx]
 
+    # TRUNCATED ROLLOUT. Every candidate is followed by the SAME base policy, so
+    # their imagined futures converge as the horizon grows and the discriminative
+    # signal is concentrated in the early steps. Cost is linear in the horizon
+    # (n_c * M * horizon MES calls, and MES has a ~6 ms floor that pool-size cuts
+    # cannot get under), so truncating is the only lever with real leverage.
+    # max_horizon=0 means "no truncation" and reproduces the untruncated teacher.
     _horizon = int(steps_left) - 1
+    if max_horizon and _horizon > int(max_horizon):
+        _horizon = int(max_horizon)
 
     # COMMON RANDOM NUMBERS. Scoring each candidate against its OWN independent
     # fantasy stream makes the comparison unpaired, and the argmax then partly
@@ -139,14 +173,14 @@ def choose_regret_lookahead(ko_model, roi_candidates, c_H, c_L,
         _acc = []
         for _m in range(int(M)):
             torch.manual_seed(_crn + _m)
-            _y = ko_model.sample_fantasy(_x, "LH"[_ell], mode=fantasy_mode)
+            _y = _draw_y(ko_model, _x, _ell, fantasy_mode, oracle_f)
             _b0 = max(float(best_sim_hf), float(_y)) if _ell == 1 else float(best_sim_hf)
             _ko2 = ko_model.make_fantasy_ko(
                 _x.unsqueeze(0),
                 torch.tensor([_y], device=device, dtype=dtype), "LH"[_ell])
             _acc.append(_greedy_base_rollout(_ko2, _bp, c_H, c_L,
                                              _b0, _horizon, fantasy_mode,
-                                             device, dtype))
+                                             device, dtype, oracle_f))
         _vals.append(float(np.mean(_acc)))
 
     torch.set_rng_state(_rng_state)

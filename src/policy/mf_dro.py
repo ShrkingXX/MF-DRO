@@ -1052,6 +1052,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             teacher_lookahead_nc=8,
                             teacher_lookahead_M=4,
                             teacher_lookahead_base_pool=150,
+                            teacher_lookahead_oracle=None,
                             teacher_refine_samples=0,
                             teacher_refine_noise=0.05,
                             use_roi=False,
@@ -1678,19 +1679,21 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             # argmax. At n_c=1 it is greedy MES step for step (SC1).
             #
             # `scores` is the MES score matrix, passed through unchanged, so
-            # teacher_action_stats and every other downstream consumer sees the
-            # same object shape it sees under the default teacher.
+            # every downstream consumer sees the same object shape it sees under
+            # the default teacher. The per-step deviation diagnostic that was
+            # here referenced `teacher_action_stats`, which is NOT a parameter of
+            # this function (it is a policy attribute assembled elsewhere) -- the
+            # run died on a NameError in 90 s. Removed rather than plumbed: Stage
+            # 0's SC3 already measures how often the choice differs from greedy.
             from src.policy.regret_lookahead_teacher import choose_regret_lookahead
             x_tau, ell_tau, scores, _rl_info = choose_regret_lookahead(
                 current_ko, roi_candidates, c_H, c_L,
                 best_sim_hf=best_sim_hf, steps_left=(rollout_length - tau),
                 n_c=int(teacher_lookahead_nc), M=int(teacher_lookahead_M),
                 base_pool=int(teacher_lookahead_base_pool),
+                oracle_f=teacher_lookahead_oracle,
                 fantasy_mode=fantasy_mode,
                 device=ko_model.device, dtype=ko_model.dtype)
-            if teacher_action_stats is not None:
-                teacher_action_stats.setdefault('lookahead', []).append(
-                    dict(tau=int(tau), **_rl_info))
         elif rollout_policy == "random":
             N = roi_candidates.shape[0]
             cand_idx = torch.randint(0, N, (1,)).item()
@@ -2790,6 +2793,7 @@ class DirectMFRegretOptimization:
                     teacher_lookahead_nc=getattr(self.config, 'teacher_lookahead_nc', 8),
                     teacher_lookahead_M=getattr(self.config, 'teacher_lookahead_M', 4),
                     teacher_lookahead_base_pool=getattr(self.config, 'teacher_lookahead_base_pool', 150),
+                    teacher_lookahead_oracle=getattr(self.config, 'teacher_lookahead_oracle', None),
                     teacher_refine_samples=getattr(self.config, 'teacher_refine_samples', 0),
                     teacher_refine_noise=getattr(self.config, 'teacher_refine_noise', 0.05),
                     use_roi=self.use_roi,
