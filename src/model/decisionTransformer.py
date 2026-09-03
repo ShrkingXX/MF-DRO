@@ -665,8 +665,19 @@ class DecisionTransformer(nn.Module):
                 s = torch.stack(_st).unsqueeze(0)                 # [1,T,state_dim]
                 r = torch.tensor(_rt, dtype=state.dtype).view(1, T, 1)
                 b = torch.tensor(_bt, dtype=state.dtype).view(1, T, 1)
+                # h196: feed the REAL past actions, as DT Algorithm 1 does
+                # (a + [action]) and as training does. The CURRENT step keeps a
+                # zero placeholder -- its action is what we are predicting, and
+                # the paper's own `a` is short by one at prediction time.
+                # Falls back to zeros for any history entry lacking 'ax', so
+                # older callers and h27-era behaviour remain reproducible.
                 ax = torch.zeros(1, T, self.action_dim, dtype=state.dtype)
                 ae = torch.zeros(1, T, dtype=torch.long)
+                for _i, _h in enumerate(hist):          # history slots only; last stays zero
+                    _hx = _h.get('ax')
+                    if _hx is not None:
+                        ax[0, _i] = _hx.reshape(-1)[:self.action_dim].to(ax.dtype)
+                        ae[0, _i] = int(_h.get('ae', 0))
                 ts = torch.arange(T, dtype=torch.long).unsqueeze(0)
             else:
                 T = 1

@@ -3401,8 +3401,26 @@ class DirectMFRegretOptimization:
                     torch.set_rng_state(_rng)
 
             # Record AFTER proposing, so the current step never sees itself.
+            #
+            # h196: also record the ACTION. The DT paper's evaluation loop
+            # accumulates the actions actually executed (a + [action]) and feeds
+            # them back; training likewise fills every action token with a real
+            # location. Without this the sliding window's historical action
+            # slots are ZERO -- step-tuples the model never saw in training.
+            #
+            # x_t here is still NORMALISED [0,1]^d; the rescale to the
+            # benchmark's domain happens further below. Training stores
+            # actions_x = (x_tau - bounds[0]) / (bounds[1] - bounds[0]), i.e.
+            # the SAME space, so no conversion is needed or wanted.
+            #
+            # 'ae' is provisional at this point: the HF floor / HF ceiling can
+            # still change ell_t before the query executes, and the paper
+            # records the action EXECUTED. It is corrected below, at the point
+            # fidelity becomes final. x_t is never touched by those overrides.
             self._real_hist.append({'state': state.detach().clone(),
-                                     'rtg': float(rtg_tgt), 'btg': float(btg_now)})
+                                     'rtg': float(rtg_tgt), 'btg': float(btg_now),
+                                     'ax': x_t.detach().clone().float(),
+                                     'ae': int(ell_t)})
         # H7: replay the SAME inputs through the iteration-k snapshot. Nothing
         # here is executed -- only the LIVE x_t/ell_t below drive the run --
         # so the trajectory is an ordinary MF-DRO run and the evaluation is
@@ -3932,6 +3950,11 @@ class DirectMFRegretOptimization:
                     ell_t = 0
                     print(f"iter {t}: HF ceiling override (realised HF frac "
                           f"{_n_hf / _n_log:.3f} >= {float(_max_hf):.2f})")
+
+            # h196: fidelity is final here (after the HF floor and HF ceiling),
+            # so correct the provisional 'ae' recorded when the state was logged.
+            if self._real_hist:
+                self._real_hist[-1]['ae'] = int(ell_t)
 
             if ell_t == 1:
                 y_t = self.f_hf(x_t.unsqueeze(0)).reshape(-1)[0].item()
