@@ -931,6 +931,86 @@ def compute_joint_mf_mes(ko_model, roi_candidates, c_H, c_L, K=10):
     return roi_candidates[cand_idx], fid_idx, scores
 
 
+def build_roi_pool(ko_model, bounds, n_pool, use_roi,
+                   roi_beta_mode='fixed', roi_beta_sqrt=2.0,
+                   roi_target_accept=0.10, roi_raw_pool=2000,
+                   max_draws=40):
+    """
+    Build a candidate pool by the SAME rule simulate_mf_trajectory uses for
+    ``roi_candidates``, so that a quantity computed over the pool at inference
+    is computed over the same distribution it was trained on.
+
+    This exists because the real-query Gumbel scale b (h197) was first computed
+    over a UNIFORM pool of 200 points while training computes it over the
+    ROI-FILTERED pool of ``n_roi_candidates`` (600) points. Both the
+    distribution and the size were wrong, and size alone matters:
+    thompson_sample_y_star's output depends on |X| in BOTH location and scale
+    (see _y_star_for_model's docstring), so a 200-point max and a 600-point max
+    are not the same random variable. Measured symptom: b was flat and
+    non-monotone over a real run (13 of 25 steps down, 12 up, net +2.7%), which
+    is what a pool that never concentrates looks like.
+
+    Mirrors the DRO paper Sec 4.2 rule X_hat = {x | UCB(x) >= max_x' LCB(x')}
+    with the quantile-calibrated beta_t, the fixed-threshold-from-first-draw
+    convention, and the rejection-sampling top-up. ``roi_mode='thompson'`` is
+    NOT mirrored -- it is off in every arm this is used from, and a silent
+    divergence is worse than an explicit gap, so it raises.
+
+    Returns (pool, accept_frac). With use_roi=False this is a plain uniform
+    draw of n_pool points, matching the rollout's own use_roi=False branch.
+    """
+    _dev, _dt = ko_model.device, ko_model.dtype
+    _lo = bounds[0].to(device=_dev, dtype=_dt)
+    _hi = bounds[1].to(device=_dev, dtype=_dt)
+
+    def _draw(n):
+        return _lo + (_hi - _lo) * torch.rand(n, ko_model.d, device=_dev, dtype=_dt)
+
+    if not use_roi:
+        return _draw(int(n_pool)), 1.0
+
+    def _mu_sd(X):
+        with torch.no_grad():
+            _m, _v = ko_model.hf_posterior(X)
+        return _m.reshape(-1), _v.reshape(-1).clamp_min(1e-12).sqrt()
+
+    _thr, _b_fixed = None, None
+    _chunks, _n_seen, _n_acc = [], 0, 0
+    while sum(int(c.shape[0]) for c in _chunks) < int(n_pool) and len(_chunks) < max_draws:
+        _r = _draw(int(roi_raw_pool))
+        _m, _sd = _mu_sd(_r)
+        if _thr is None:
+            if roi_beta_mode == 'quantile':
+                # Acceptance is monotone increasing in beta, so bisect.
+                _q, _blo, _bhi = float(roi_target_accept), 1e-3, 50.0
+                for _ in range(40):
+                    _bm = 0.5 * (_blo + _bhi)
+                    _a = ((_m + _bm * _sd) >= (_m - _bm * _sd).max()).float().mean().item()
+                    if _a < _q:
+                        _blo = _bm
+                    else:
+                        _bhi = _bm
+                _bb = 0.5 * (_blo + _bhi)
+            else:
+                _bb = float(roi_beta_sqrt)
+            _thr = (_m - _bb * _sd).max()
+            _b_fixed = _bb
+        _keep = (_m + _b_fixed * _sd) >= _thr
+        _chunks.append(_r[_keep])
+        _n_seen += int(_r.shape[0]); _n_acc += int(_keep.sum())
+
+    _surv = torch.cat(_chunks, dim=0) if _chunks else _draw(0)
+    _acc = (_n_acc / _n_seen) if _n_seen else 0.0
+    if _surv.shape[0] >= int(n_pool):
+        return _surv[:int(n_pool)], _acc
+    if _surv.shape[0] > 0:
+        # Top up from a fresh unfiltered draw rather than duplicating: the
+        # rollout does the same, for the same reason (duplicates silently cut
+        # resolution while looking like a full pool).
+        return torch.cat([_surv, _draw(int(n_pool) - int(_surv.shape[0]))], dim=0), _acc
+    return _draw(int(n_pool)), _acc
+
+
 def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             rollout_length, c_H, c_L, bounds,
                             n_real_iter, T_real,
@@ -3313,10 +3393,28 @@ class DirectMFRegretOptimization:
             _b_real = None
             if self.inference_context_k > 1:
                 try:
-                    _npool = int(getattr(self.config, 'n_roi_candidates', 200))
-                    _cand = (self.bounds[0] + (self.bounds[1] - self.bounds[0])
-                             * torch.rand(_npool, self.d, dtype=torch.float64))
+                    # The pool MUST be built by the same rule the rollout
+                    # uses for roi_candidates. It previously was not: this drew
+                    # 200 UNIFORM points while training's b is fitted over the
+                    # ROI-FILTERED pool of n_roi_candidates (600). Size alone
+                    # already breaks it -- thompson_sample_y_star depends on
+                    # |X| in both location and scale -- and with the ROI on the
+                    # distributions differ too, so a uniform pool over the full
+                    # box has no reason to concentrate as the ROI tightens.
+                    # Symptom: b was flat and non-monotone across a real run
+                    # (13 of 25 steps down, 12 up, net +2.7%), i.e. the label
+                    # carried no information because it was measuring the wrong
+                    # set. Defaults here mirror the rollout call site exactly.
+                    _npool = int(getattr(self.config, 'n_roi_candidates', 600))
                     _proxy = _build_hf_proxy_model(self.ko_ensemble[0])
+                    _cand, _acc_b = build_roi_pool(
+                        self.ko_ensemble[0], self.bounds, _npool,
+                        use_roi=self.use_roi,
+                        roi_beta_mode=getattr(self.config, 'roi_beta_mode', 'fixed'),
+                        roi_beta_sqrt=getattr(self.config, 'roi_beta_sqrt', 2.0),
+                        roi_target_accept=getattr(self.config, 'roi_target_accept', 0.10),
+                        roi_raw_pool=getattr(self.config, 'roi_raw_pool', 2000))
+                    self._b_pool_acc = float(_acc_b)
                     # K=2000, not the rollout's 100. Measured on Borehole: the
                     # REAL per-query decline in b is ~2.6% (b falls 14.4 -> 3.9
                     # as HF data grows 10 -> 80 points), while K=100 gives
@@ -3369,44 +3467,30 @@ class DirectMFRegretOptimization:
                 # [..., 0, target] -- a discontinuity that never occurs in
                 # training. Anchoring at the current target removes it.
                 _b_now = _b_real
-                # h197 (b): MONOTONE RTG. rtg is a return-to-go over information
-                # gain, so it can only DECREASE as data accumulates -- the
-                # posterior over y*_H concentrates, so b is non-increasing. But
-                # b is a noisy Thompson+Gumbel estimate (observed sd 1.64 on a
-                # 13.2-18.2 range) and the noise swamps that trend, producing
-                # a non-monotone label sequence. Project b onto the monotone
-                # cone with a running minimum, oldest -> newest, which imposes
-                # the known physics ("information already gained cannot be
-                # un-gained") instead of trusting each independent estimate.
-                # PAVA (pool-adjacent-violators): the LEAST-SQUARES non-increasing
-                # fit to the observed log b. A running minimum was tried first
-                # and is wrong -- it is a downward-biased extremum that latches
-                # onto the first low noise draw, and it flattened 5 of 6 window
-                # steps to exact ties, destroying the signal it was meant to
-                # clean. Isotonic regression imposes the same monotonicity
-                # without latching.
-                _lb = [(math.log(_h['b']) if _h.get('b') else None) for _h in _win]
-                if _b_now is not None:
-                    _lb.append(math.log(_b_now))
-                _obs = [v for v in _lb if v is not None]
-                if len(_obs) >= 2:
-                    _stack = []                      # blocks of [mean, weight]
-                    for _v in _obs:
-                        _cur = [_v, 1.0]
-                        while _stack and _stack[-1][0] < _cur[0]:
-                            _pp = _stack.pop()
-                            _w = _pp[1] + _cur[1]
-                            _cur = [(_pp[0] * _pp[1] + _cur[0] * _cur[1]) / _w, _w]
-                        _stack.append(_cur)
-                    _fit = []
-                    for _m, _w in _stack:
-                        _fit.extend([_m] * int(round(_w)))
-                    _it = iter(_fit)
-                    _lb = [next(_it) if v is not None else None for v in _lb]
-                if _b_now is not None and _lb and _lb[-1] is not None:
-                    _b_now = math.exp(_lb[-1])
-                    _lb = _lb[:-1]
-                _bs = [(math.exp(v) if v is not None else None) for v in _lb]
+                # h197: NO monotone projection. rtg is the ENDPOINT DIFFERENCE
+                # of entropies, H(y*|D_tau) - H(y*|D_T) = log b_tau - log b_T,
+                # not a cumulative sum of per-step gains.
+                #
+                # MES's acquisition (paper Eq. 8-9) is
+                #   alpha_t(x) = I({x,y}; y* | D_t)
+                #              = H(p(y|D_t,x)) - E_{y*}[H(p(y|D_t,x,y*))],
+                # an expectation over the NOT-YET-OBSERVED y at a candidate x,
+                # used to CHOOSE x. Those cannot be chained into the total gain:
+                # they are pre-observation expectations at points selected from a
+                # continuum by the acquisition itself, not realised conditional
+                # gains. The joint quantity is the two-endpoint difference, which
+                # is what is computed here.
+                #
+                # A PAVA isotonic projection was tried and REMOVED. It rested on
+                # reading rtg as a cumulative sum of non-negative per-step gains,
+                # which would force monotonicity. An endpoint entropy difference
+                # has no such guarantee -- a surprising observation genuinely
+                # WIDENS the posterior over the max, raising b -- and the
+                # projection duly flattened the window labels to a single
+                # constant (7/7 identical), fighting real structure. Training
+                # applies no such projection either, so imposing one at inference
+                # would itself be a train/inference mismatch.
+                _bs = [_h.get('b') for _h in _win]
 
                 # h197 (b): STEP_NORM HELD CONSTANT across the window.
                 # state slot 5M+1 is step_norm = n_real_iter / T_real, and in
@@ -3552,7 +3636,8 @@ class DirectMFRegretOptimization:
                                      'rtg': float(rtg_tgt), 'btg': float(btg_now),
                                      'ax': x_t.detach().clone().float(),
                                      'ae': int(ell_t),
-                                     'b': _b_real})
+                                     'b': _b_real,
+                                     'b_acc': getattr(self, '_b_pool_acc', None)})
         # H7: replay the SAME inputs through the iteration-k snapshot. Nothing
         # here is executed -- only the LIVE x_t/ell_t below drive the run --
         # so the trajectory is an ordinary MF-DRO run and the evaluation is
