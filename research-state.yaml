@@ -307,6 +307,23 @@ current_front:
     evidence. LIMIT: seed 42 contributes +30.68; dropping it leaves +9.70, still P3 and
     still unanimous.'
 
+  h190_declined: 'REGISTERED then DECLINED BEFORE LAUNCH, on two pre-launch checks.
+    (1) SMOKE: max_hf_fraction is a CEILING on HF -- it can force more LF, never more HF.
+    On Hartmann seed 42 it moved lf_fraction only 0.989 -> 0.970 with one override. It
+    would lift the two HF-heavy seeds (0.000, 0.368) and leave the three LF-heavy ones
+    untouched: a HALF-STRENGTH intervention. My registered SC band (0.68-0.90 every seed)
+    was mis-specified because I had not noticed the one-sidedness; the smoke caught it.
+    (2) h189''s OWN PER-SEED DATA UNDERCUTS THE ACCOUNT: the teacher scores 16.41 / 16.34
+    / 14.02 / 15.54 at lf_fraction 0.000 / 0.368 / 0.924 / 0.934 -- FLAT across
+    essentially the whole fidelity range -- and MF-DRO beats it at EVERY one. Only the
+    extreme 0.989 seed blew up (47.09). The teacher is not losing because its allocation
+    is unstable; it is losing at every allocation. CONSEQUENCE: THE HARTMANN SIGN FLIP HAS
+    NO ESTABLISHED MECHANISM. Four mechanisms proposed across the two open questions
+    (benchmark asymmetry, sign flip); three refused by direct measurement, this one
+    undercut. NOT proposing a fifth until something better than a five-seed rank
+    correlation suggests one. Third arm declined on a measured premise (after h174''s
+    follow-up and teacher rotation).'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

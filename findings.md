@@ -17828,3 +17828,37 @@ and evaluation count are nearly collinear here, so that is **one** correlation o
 Limits: seed 42 contributes +30.68 of the five gaps; dropping it leaves +9.70, still P3
 and still unanimous, so the verdict does not hinge on it but the magnitude does. One
 teacher, one metric, n=5 per benchmark.
+
+### h190 DECLINED before launch — and the stability account is undercut, not merely unproven
+
+h189 proposed that MF-DRO's Hartmann advantage is bought by **fidelity stability** (its
+0.800 against the teacher's bistable 0.000–0.989), and marked it *not established*. The
+arm to test it was registered, then **declined on two pre-launch checks**:
+
+**1. The intervention is one-sided.** `max_hf_fraction` is a *ceiling* on HF — it can
+force more LF, never more HF. Smoke on seed 42: `lf_fraction` 0.989 → 0.970, one
+override fired. It would lift the two HF-heavy seeds and leave the three LF-heavy ones
+untouched — a half-strength intervention, and my registered SC threshold was
+mis-specified because I hadn't noticed.
+
+**2. h189's own data undercuts the account.** The teacher's performance across the
+allocations it actually used:
+
+| teacher `lf_fraction` | 0.000 | 0.368 | 0.924 | 0.934 | 0.989 |
+|---|---|---|---|---|---|
+| teacher rel% | 16.41 | 16.34 | 14.02 | 15.54 | **47.09** |
+| MF-DRO rel% | 10.16 | 0.67 | 7.42 | 5.28 | 16.41 |
+
+**Excluding the one extreme seed, the teacher scores 14.02–16.41 across a 0.000–0.934
+allocation range** — essentially the whole spectrum, with performance barely moving —
+and **MF-DRO beats it at every allocation.** The teacher is not losing because its
+allocation is unstable. It is losing at *every* allocation.
+
+**Consequence: the Hartmann sign flip has NO established mechanism.** Four mechanisms
+have now been proposed across this project's two open questions (the benchmark asymmetry
+and the sign flip); three were refused by direct measurement and this is the fourth. I
+am not proposing a fifth until something better than a five-seed rank correlation
+suggests one.
+
+Third arm declined on a measured premise, after h174's follow-up and teacher rotation.
+The checks cost minutes; the arms cost hours.

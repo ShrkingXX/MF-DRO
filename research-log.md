@@ -3772,3 +3772,16 @@ ships.
   ratio 8:1 vs 2:1 making stability valuable) recorded as **not established** — ρ=+0.700
   over five points with two collinear variables is a description, not evidence.
 - Report corrected and republished; the headline now carries three parts.
+
+## tick 51 — h190 registered, then declined on two pre-launch checks
+
+- **h190 DECLINED before launch.** (1) The smoke showed `max_hf_fraction` is a *ceiling*
+  — one-sided, so the arm would only half-apply. My registered SC band was mis-specified
+  and the smoke caught it. (2) h189's own per-seed data undercuts the account: the
+  teacher scores **14.02–16.41 across allocations 0.000–0.934** and **MF-DRO beats it at
+  every one**. It is not losing because its allocation is unstable.
+- **The Hartmann sign flip now has no established mechanism**, and the stability account
+  is undercut rather than merely unproven.
+- **Stopping the mechanism-proposing.** Four proposed across the two open questions;
+  three refused by direct measurement, one undercut. No fifth until better evidence.
+- Third arm declined on a measured premise. Checks cost minutes; arms cost hours.
