@@ -49,3 +49,28 @@ UNIFORM RANDOM by construction, so arm B should reproduce something closer to h1
 +28.13 failure). That prediction is registered now, before arm B's result is read.
 
 This file will be updated (not overwritten) once arm B completes.
+
+
+## Reconciliation with h196/h197 (human challenge, 2026-09-03): why doesn't K=8 win generally?
+
+Measured directly, not argued: h201A's fidelity head saturates IDENTICALLY to h196/h197.
+
+| arm | lf_frac | n_queries |
+|---|---|---|
+| h201A oracle + K=8 | 0.107 | 106 |
+| h196 MES + K=8 | 0.085 | 105 |
+| h197 MES + K=8 + spec | 0.092 | 105 |
+| CTRL-K1 (MES, K=1) | 0.261 | 116 |
+
+The window's COST (h202's sequence-length fidelity saturation, ~9% fewer queries per
+budget) is paid by every K=8 arm regardless of teacher. What differs is the BENEFIT: MES's
+tau=7 action is not meaningfully more converged than its tau=0 (HF target 0.731 vs 0.909,
+still an exploratory pick under the same criterion), so h196/h197 pay the tax for nothing
+and net worse. The oracle's tau=7 is the answer, zero variance, so the benefit swamps the
+identical tax by orders of magnitude.
+
+CORRECTED FRAMING: "the window works" is imprecise. The window is necessary
+infrastructure (it must move the readout to expose a good late-step target) but NOT
+sufficient -- it is neutral-to-harmful with an ordinary teacher and only pays off paired
+with a teacher whose late-step target is worth reading. This was h201's own registered
+purpose (arm A vs arm B isolates this) and requires no new hypothesis to explain h196/h197.
