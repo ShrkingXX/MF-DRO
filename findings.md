@@ -18125,3 +18125,48 @@ rather than 400 characters of body. Stripping fell to 5%. Re-tested in both dire
 
 **A guard that cannot fail is worthless**, and this one could not, until it was tested
 against a claim it was supposed to catch. The negative test is recorded in the tool.
+
+---
+
+## h191 — the mechanism explains the project's POSITIVE results, not just the failures
+
+Every previous application of the mechanism explained a *failure*. This asks whether it
+also explains the surviving interventions — the ROI (the project's main result), teacher
+refinement, and the L1 loss.
+
+**Prediction:** if the DT emits its teacher's τ=0 action mean, an intervention can only
+help by **moving that mean**. It cannot help by making the DT learn better, because the
+DT is already at the best-constant solution on every arm measured.
+
+### The clean test — ROI at rollout length 1, where the recorded mean *is* the τ=0 mean
+
+| | ROLLOUT1 (no ROI) | ROI-Q10-L1 (ROI) | change |
+|---|---|---|---|
+| frozen rel% | 13.69 | **10.81** | −2.88 |
+| teacher τ=0 mean, dist from centre | 0.7788 | **0.8869** | **+0.108** |
+| teacher action variance | 0.0359 | **0.0243** | −32% |
+| DT query centroid, dist from centre | 0.8484 | **0.9231** | **+0.075** |
+
+**ROI moves the teacher's τ=0 mean 0.108 outward and the DT follows by 0.075 — ~70% of
+the shift** — while tightening the teacher's distribution 32%.
+
+### And it covers every intervention that works
+
+| arm | centre dist | rel% | vs control |
+|---|---|---|---|
+| MF-DRO control | 0.852 | 15.82 | — |
+| L1-LOSS | 0.890 | 13.47 | −2.34 |
+| REFINE-100 (teacher refinement) | 0.928 | 9.96 | −5.85 |
+| ROI-L1 | **0.981** | **9.81** | **−6.00** |
+
+**All three surviving interventions move the DT's constant further out, monotone in
+performance. None that helps moves it inward.** The ROI, teacher refinement and the L1
+loss are not three mechanisms — **they are one: relocating the point the DT memorises.**
+None makes the DT smarter; it is a constant predictor before and after.
+
+**Limits.** The ROI-vs-non-ROI group split is **not clean** — ROI arms span 0.875–1.007
+(n=9), non-ROI working arms 0.752–0.928 (n=17), **overlapping by 0.053**, with L1-LOSS
+and REFINE-100 reaching into the ROI range. That overlap is real and reported, and it
+happens to *support* the account since those two are the other successful interventions.
+Correlational: nothing intervenes on the teacher's mean directly. n=5, Borehole; only
+one ROI arm carries `teacher_action_stats`, so the teacher-side half rests on it.

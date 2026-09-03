@@ -392,6 +392,24 @@ current_front:
     fires (planted assertion -> exit 1). A human can now write the abstract from the
     first 85 lines instead of 18,127.'
 
+  h191_mechanism_explains_the_wins: 'THE MECHANISM EXPLAINS THE POSITIVE RESULTS TOO.
+    Prediction: if the DT emits its teacher''s tau=0 mean, an intervention can only help
+    by MOVING THAT MEAN -- it cannot help by making the DT learn better, since the DT is
+    already at the best-constant solution on every arm. CLEAN TEST at L=1, where the
+    recorded all-tau mean IS the tau=0 mean: ROLLOUT1 (no ROI) vs ROI-Q10-L1 -- teacher
+    tau=0 mean moves 0.7788 -> 0.8869 (+0.108 outward), teacher action variance drops 32%
+    (0.0359 -> 0.0243), and THE DT FOLLOWS: query centroid 0.8484 -> 0.9231 (+0.075, ~70%
+    of the teacher''s shift), rel% 13.69 -> 10.81. GENERALISES TO EVERY INTERVENTION THAT
+    WORKS: control 0.852/15.82, L1-LOSS 0.890/13.47, REFINE-100 0.928/9.96, ROI-L1
+    0.981/9.81 -- all move the constant OUTWARD, monotone in performance, and NONE that
+    helps moves it inward. So the ROI, teacher refinement and the L1 loss are NOT three
+    mechanisms but ONE: relocating the point the DT memorises. LIMITS: the ROI vs non-ROI
+    group split is NOT clean -- ROI 0.875-1.007 (n=9) vs non-ROI working 0.752-0.928
+    (n=17), OVERLAPPING by 0.053, with L1-LOSS and REFINE-100 inside the ROI range; that
+    overlap is real, reported, and happens to SUPPORT the account since those two are the
+    other successful interventions. Correlational; n=5; Borehole; only one ROI arm carries
+    teacher_action_stats.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

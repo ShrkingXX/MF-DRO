@@ -3868,3 +3868,19 @@ ships.
   do-not-re-derive list are quoted, so they read as citations — intended), and the
   negative test still fires.
 - A human can now write the abstract from the first 85 lines instead of 18,127.
+
+## tick 57 — the mechanism explains the project's WINS, not just its failures
+
+- **h191 (EXPLORATORY).** Every prior application of the mechanism explained a failure.
+  This tested whether it explains the surviving interventions.
+- **Clean L=1 test**: ROI moves the teacher's τ=0 mean **+0.108** outward and tightens
+  its variance 32%; **the DT follows by +0.075**, ~70% of the shift, and regret improves
+  13.69 → 10.81.
+- **Covers all three interventions that work**: control 0.852/15.82, L1-LOSS 0.890/13.47,
+  REFINE-100 0.928/9.96, ROI-L1 0.981/9.81 — all move the constant outward, monotone in
+  performance, none that helps moves it inward.
+- **So the ROI, teacher refinement and the L1 loss are one mechanism, not three**:
+  relocating the point the DT memorises. None makes the DT smarter.
+- **Overlap reported, not hidden**: the ROI vs non-ROI split is not clean (0.053 overlap),
+  and the two non-ROI arms inside the ROI range are precisely the project's other
+  successful interventions — which supports the account.
