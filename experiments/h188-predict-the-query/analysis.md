@@ -61,3 +61,36 @@ quantity, rather than explaining it afterwards.
 - Recording a genuine **per-τ** breakdown of teacher actions would replace this whole
   inference with a direct measurement. It is a cheap addition (d floats per τ) and is
   the obvious thing to add to any future run.
+
+---
+
+## REPLICATION on Hartmann — and the random teacher is a THIRD by-construction case
+
+**The same false limit that delayed h185's generality test was cited here too** ("five
+arms, Borehole only, `teacher_action_stats` exists on h171/h172 alone"). It is on 18
+arms across both benchmarks. This test was available all along.
+
+| arm | L | \|teacher mean − DT centroid\| | ÷ Hartmann seed noise (0.3624) | prediction |
+|---|---|---|---|---|
+| **PROBE-RANDOM** | 8 | **0.0422** | **0.12×** | **must hold** |
+| **ROLLOUT1** | 1 | **0.1208** | **0.33×** | **must hold** |
+| TAIL-MES | 8 | 0.3879 | 1.07× | must fail |
+| HEAD-MES | 8 | 0.4848 | 1.34× | must fail |
+
+**All four fit.** The separation between the "must hold" and "must fail" groups is
+**3.2–11.5×**, and which group an arm belongs to was fixed by its construction.
+
+### PROBE-RANDOM looks like an anomaly and is the opposite
+
+At L=8 it should fail — yet it is the **tightest** agreement of all four. The reason is
+the same by-construction case h185 turned up: a **random** teacher's action distribution
+is *identical at every τ*, so its all-τ mean **is** its τ=0 mean. The prediction is
+forced to hold, exactly as it is at L=1, by a different route.
+
+**So the rule is not "L=1 works".** It is: *the all-τ mean predicts the DT's query
+whenever the all-τ mean equals the τ=0 mean* — which happens when there is one timestep,
+**or** when the teacher is τ-invariant. Both cases confirmed, on Hartmann, in one table.
+
+This is the same structure h185 found independently (the two situations forcing 0%
+variance explained). Two different measurements, two different quantities, the same two
+by-construction cases — and the random-teacher case was not designed into either.

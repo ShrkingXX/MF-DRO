@@ -52,3 +52,31 @@ distribution. The loop hypothesis is dropped.
   HEAD/TAIL design rather than measured directly. Recording a τ=0 slice is a
   cheap addition for any future run.
 - Correlational, like the rest of h182.
+
+---
+
+## REPLICATION on Hartmann — the inversion holds, with near-identical numbers
+
+Same false limit cited here ("`teacher_action_stats` exists only on h171/h172"); it is
+on 18 arms across both benchmarks.
+
+| benchmark | arm | rel% | teacher mean, ALL τ | DT's own queries |
+|---|---|---|---|---|
+| **Hartmann** | HEAD-MES | 25.16 | **0.078 → 0.077** | **0.456 → 0.546** |
+| **Hartmann** | TAIL-MES | 46.45 | **0.443 → 0.412** | **0.359 → 0.087** |
+| Borehole | HEAD-MES | 16.96 | 0.092 → 0.103 | 0.645 → 0.819 |
+| Borehole | TAIL-MES | 43.94 | 0.571 → 0.614 | 0.290 → 0.089 |
+
+**The inversion replicates exactly.** On both benchmarks HEAD's teacher averages
+essentially **at the box centre** (0.078 Hartmann, 0.092 Borehole — seven of its eight
+steps are random) while its DT queries **far** from it; TAIL's teacher averages **far**
+while its DT sits **at** the centre. The teacher's all-τ average is anti-predictive on
+both; τ=0 predicts on both.
+
+The numbers are strikingly close across benchmarks: HEAD's teacher ≈0.08 on both,
+TAIL's ≈0.41–0.61 on both, and TAIL's DT contracts to ≈0.09 on both.
+
+**One thing that does NOT transfer**, consistent with what h182 already records: the
+contraction/expansion *direction* signature. Hartmann's ROLLOUT1 contracts slightly
+(×0.96) yet performs well (10.91), where Borehole's expands (×1.22). The direction
+signature is Borehole-specific; the **inversion** is not.
