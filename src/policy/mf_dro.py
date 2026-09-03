@@ -2571,6 +2571,11 @@ class DirectMFRegretOptimization:
             dt_cfg, input_dim=state_dim, action_dim=self.d, use_mf=True
         )
         self.dt = self.dt.float()
+        # h203: read the fidelity head from a single-token pass over the current
+        # state, so a sliding window is a pure LOCATION intervention. Default
+        # False => bit-identical to every existing arm.
+        self.dt.window_fidelity_single_token = bool(
+            getattr(self.config, 'window_fidelity_single_token', False))
         # FIX 3 (post-hoc causal-mask investigation): AdamW + weight decay,
         # matching DRO paper Appendix D.1 -- was plain Adam (no decay).
         self.dt_optimizer = torch.optim.AdamW(

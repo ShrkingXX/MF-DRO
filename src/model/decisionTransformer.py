@@ -689,6 +689,37 @@ class DecisionTransformer(nn.Module):
                 ts = torch.tensor([[timestep]], dtype=torch.long)
 
             H = self.hidden_size
+
+            def _readout(s, r, b, ax, ae, ts, T):
+                """Embed -> causal transformer -> LAST state-token hidden state.
+                Factored out of the body below verbatim so the h203 fidelity pass
+                can reuse the IDENTICAL construction rather than a re-implementation
+                that could silently drift from it."""
+                _r, _b = self._std_cond(r, b, update=False)
+                rtg_emb = self.reward_ln(self.reward_embedding(_r))
+                btg_emb = self.btg_ln(self.btg_embed(_b))
+                s_emb = self.state_ln(self.state_embedding(s))
+                act_inp = torch.cat([ax, ae.float().unsqueeze(-1)], dim=-1)
+                a_emb = self.action_ln(self.action_embed_mf(act_inp))
+                _adaln = (self.rtg_conditioning == 'adaln')
+                _tps = 2 if _adaln else 4
+                pos_emb = self.position_embedding(ts).repeat_interleave(_tps, dim=1)
+                if _adaln:
+                    seq = torch.stack([s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
+                else:
+                    seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
+                seq = seq + pos_emb
+                _L = _tps * T
+                _cm = torch.triu(torch.ones(_L, _L, dtype=torch.bool, device=seq.device),
+                                 diagonal=1)
+                _hf = self.transformer(seq, mask=_cm)
+                _h = _hf[0, (0 if _adaln else 2)::_tps, :][-1]
+                if _adaln:
+                    _cond = torch.tensor([[float(r.reshape(-1)[-1]), float(b.reshape(-1)[-1])]],
+                                         dtype=_h.dtype, device=_h.device)
+                    _gb = self.adaln_mod(_cond)[0]
+                    _h = _gb[:H] * self.adaln_ln(_h.unsqueeze(0))[0] + _gb[H:]
+                return _h
             # FIX 2: same LayerNorm modules as forward_mf -- required for
             # train/inference consistency (skipping these here while
             # forward_mf applies them during training would silently make
@@ -763,7 +794,32 @@ class DecisionTransformer(nn.Module):
             # already ends in nn.Sigmoid(), no extra torch.sigmoid() here --
             # and computed once, not once per use, to avoid two independent
             # forward passes silently having to agree).
-            p_val = self.fidelity_head(h).item()
+            # h203 FIDELITY-READOUT DECOUPLING (config flag, default False =
+            # bit-identical to before). The location and fidelity heads share
+            # one readout hidden state, so widening the context for LOCATION
+            # necessarily drags FIDELITY to a position it handles badly.
+            # MEASURED: the teacher's HF fraction is 0.909 at tau=0 and 0.731 at
+            # tau=7, yet the DT emits 0.600 at the K=1 readout and 0.99 at the
+            # K=8 readout -- it OVER-shoots a LOWER target, i.e. the window does
+            # not move it toward a high-HF target, it decalibrates it. Realised
+            # LF collapses 0.261 -> 0.09 as a result.
+            #
+            # The fix reads the fidelity head from a SINGLE-TOKEN pass over the
+            # current state alone -- exactly the tensor the K=1 path builds --
+            # so the window becomes a pure LOCATION intervention and the
+            # fidelity channel keeps whatever calibration it had without one.
+            # Costs one extra forward pass over a length-1 sequence.
+            if hist and getattr(self, 'window_fidelity_single_token', False):
+                _h1 = _readout(
+                    state.unsqueeze(0).unsqueeze(0),
+                    torch.tensor([[[rtg_target]]], dtype=state.dtype),
+                    torch.tensor([[[btg_target]]], dtype=state.dtype),
+                    torch.zeros(1, 1, self.action_dim, dtype=state.dtype),
+                    torch.zeros(1, 1, dtype=torch.long),
+                    torch.tensor([[timestep]], dtype=torch.long), 1)
+                p_val = self.fidelity_head(_h1).item()
+            else:
+                p_val = self.fidelity_head(h).item()
             # THRESHOLD-BUG FIX (config flag, default True): p_val>0.5
             # requires the head to believe HF is MORE LIKELY THAN NOT before
             # ever selecting it -- but the measured tau=0 HF label rate is
