@@ -382,14 +382,31 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.87em; background:var(--su
       harder, and the average sits in the middle of the box.</p>
     </div>
 
+    <div class="note">
+      <h3>It holds on the second benchmark too — and a second check appeared unplanned<span class="chip c-settled">new</span></h3>
+      <p>I had recorded, twice, that this comparison could only be made on one benchmark
+      because the two quantities were rarely logged. <strong>That was wrong</strong> — they are
+      recorded on eighteen runs across both. The test was available the whole time.</p>
+      <p>Across <strong>ten variants on both benchmarks</strong>, the ratio runs from 0.750 to
+      1.054. Every one sits at the averaging value. The finding is not an artefact of a single
+      problem.</p>
+      <p>And a second check fell out that was never designed. The theory forces the
+      &ldquo;explains nothing&rdquo; result in <em>two</em> distinct situations: when routes are
+      one step long, and when a teacher behaves <em>identically at every step</em>, because then
+      there is only one position to learn either way. The one-step case was the original
+      prediction and three independent variants confirm it. The second case is the
+      <strong>random</strong> teacher on eight-step routes — a completely different route to the
+      same forced answer — and it reads <strong>0.0%</strong>.</p>
+      <p>Stated as a rule: <strong>the learner accounts for some of its teacher only when that
+      teacher behaves differently at different steps.</strong> All ten variants fit.</p>
+    </div>
+
     <div class="open">
-      <h3>What this rests on</h3>
-      <p>Five variants, one of them a failure, on one benchmark — the two quantities this
-      compares were only ever recorded on two of the experiments, so it cannot be extended to
-      the 28-variant set the earlier sections use. The comparison is about <em>training</em>;
-      the fact that only the first step reaches the decision comes from the separate
-      measurements above, not from this table. Ratios slightly above one are expected, since
-      the averaging benchmark is computed on the same data it is compared against.</p>
+      <h3>What this still rests on</h3>
+      <p>The comparison is about <em>training</em>; the fact that only the first step reaches
+      the decision comes from separate measurements, not this table. Ratios slightly above one
+      are expected, since the averaging benchmark is computed on the same data it is compared
+      against. Five seeds per variant.</p>
     </div>
   </div>
 </section>

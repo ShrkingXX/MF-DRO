@@ -3785,3 +3785,21 @@ ships.
 - **Stopping the mechanism-proposing.** Four proposed across the two open questions;
   three refused by direct measurement, one undercut. No fifth until better evidence.
 - Third arm declined on a measured premise. Checks cost minutes; arms cost hours.
+
+## tick 52 — the core mechanism generalises. A false limit I published twice is corrected.
+
+- **Holistic step-back, machine idle.** With no arm to run and mechanism-proposing
+  paused, the highest-value question was the mechanism's *generality*, not its truth.
+- **A limit I published TWICE did not exist.** I recorded that `teacher_action_stats`
+  was on "h171/h172 only", making h185 Borehole-only. It is on **18 arms across both
+  benchmarks**. The generality test was available the whole time.
+- **h185 GENERALISES.** `loss/var` across **10 arms on two benchmarks** spans
+  **0.750–1.054** — every arm at the best-constant value. Not a Borehole artifact.
+- **A second by-construction control appeared undesigned.** The theory forces 0%
+  variance-explained in *two* distinct cases: one timestep (3 L=1 arms confirm), and a
+  teacher whose action distribution is identical at every step, since then all per-τ
+  means coincide. **PROBE-RANDOM (random teacher, L=8) reads 0.0%** — a different route
+  to the same forced answer.
+- **The rule, with all ten arms fitting:** variance is explained **if and only if** the
+  teacher's action distribution differs across timesteps.
+- Report updated and republished.
