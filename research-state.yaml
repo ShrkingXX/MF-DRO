@@ -340,6 +340,26 @@ current_front:
     This is the strongest form the core mechanism has taken and it is NOT a Borehole
     artifact.'
 
+  mechanism_now_general: 'ONE FALSE LIMIT HAD BLOCKED THREE TESTS. The claim
+    "teacher_action_stats exists only on h171/h172" was cited in h185, h188 AND h182''s
+    teacher-vs-DT inversion, making all three Borehole-only for a reason that did not
+    exist (it is on 18 arms across both benchmarks). ALL THREE NOW HOLD ON BOTH
+    BENCHMARKS. h188 on Hartmann: PROBE-RANDOM 0.0422 and ROLLOUT1 0.1208 (both "must
+    hold"), TAIL-MES 0.3879 and HEAD-MES 0.4848 (both "must fail"), against a seed-noise
+    scale of 0.3624 -- a 3.2-11.5x separation with group membership fixed by construction.
+    PROBE-RANDOM LOOKS LIKE AN ANOMALY AND IS THE OPPOSITE: a random teacher is
+    tau-invariant, so its all-tau mean IS its tau=0 mean and the prediction is FORCED to
+    hold, exactly as at L=1. THE RULE IS NOT "L=1 WORKS" but "the all-tau mean predicts
+    whenever it equals the tau=0 mean" -- one timestep, OR a tau-invariant teacher. SAME
+    PAIR OF BY-CONSTRUCTION CASES h185 found independently on a different quantity, and
+    the random-teacher case was designed into neither. h182 INVERSION on Hartmann: HEAD
+    teacher 0.078->0.077 while its DT sits 0.456->0.546; TAIL teacher 0.443->0.412 while
+    its DT sits 0.359->0.087 -- replicates Borehole almost numerically. DOES NOT TRANSFER
+    (already recorded): the contraction/expansion DIRECTION signature; Hartmann ROLLOUT1
+    contracts (x0.96) yet performs well. STANDING: h185/h186/h188/h182-inversion all
+    confirmed on BOTH benchmarks. The MECHANISM is general; what stays benchmark-specific
+    is the VALUE of what the DT does (h187/h189 sign flip) and the direction signature.'
+
   settled_negative: 'Teacher QUALITY and endpoint DIVERSITY are both orthogonal.
     h158 swept them on ONE axis: quality +51%, diversity -34%, signal moved 3.2
     points inside an 8-13% noise floor, non-monotone both ways.'

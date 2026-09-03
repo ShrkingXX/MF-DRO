@@ -3803,3 +3803,20 @@ ships.
 - **The rule, with all ten arms fitting:** variance is explained **if and only if** the
   teacher's action distribution differs across timesteps.
 - Report updated and republished.
+
+## tick 53 — one false limit had blocked three tests. All three now general.
+
+- **The limit corrected in tick 52 was cited in h188 and h182's inversion too.** Three
+  analyses were Borehole-only for a reason that did not exist.
+- **h188 replicates on Hartmann**: "must hold" arms at 0.0422 / 0.1208, "must fail" at
+  0.3879 / 0.4848, seed-noise scale 0.3624 — 3.2–11.5× separation, groups fixed by
+  construction.
+- **PROBE-RANDOM is a third by-construction case, not an anomaly.** A τ-invariant
+  teacher's all-τ mean *is* its τ=0 mean, so the prediction is forced to hold at L=8.
+  **The same pair of cases h185 found independently on a different quantity** — and
+  designed into neither.
+- **h182's inversion replicates on Hartmann** with near-identical numbers (HEAD's
+  teacher ≈0.08 on both benchmarks; TAIL's DT contracts to ≈0.09 on both).
+- **Mechanism now general**: h185, h186, h188, h182-inversion all hold on both
+  benchmarks. Benchmark-specific: the *value* of the DT (h187/h189 sign flip) and the
+  direction signature.

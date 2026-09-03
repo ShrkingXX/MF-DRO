@@ -17910,3 +17910,56 @@ forces to zero, reached by a completely different route.
 
 **Variance is explained if and only if the teacher's action distribution differs across
 timesteps.** All ten arms fit. This is the strongest form the core mechanism has taken.
+
+---
+
+## h188 and h182's inversion BOTH replicate on Hartmann — one false limit had blocked three tests
+
+The limit I corrected for h185 ("`teacher_action_stats` exists only on h171/h172") was
+cited in **h188** and **h182's teacher-vs-DT inversion** as well. All three were
+Borehole-only for a reason that did not exist. All three now hold on both benchmarks.
+
+### h188 on Hartmann — and a THIRD by-construction case
+
+| arm | L | \|teacher mean − DT centroid\| | ÷ seed noise (0.3624) | prediction |
+|---|---|---|---|---|
+| **PROBE-RANDOM** | 8 | **0.0422** | 0.12× | **must hold** |
+| **ROLLOUT1** | 1 | **0.1208** | 0.33× | **must hold** |
+| TAIL-MES | 8 | 0.3879 | 1.07× | must fail |
+| HEAD-MES | 8 | 0.4848 | 1.34× | must fail |
+
+All four fit, with a **3.2–11.5×** separation between the groups, and group membership
+fixed by construction.
+
+**PROBE-RANDOM looks like an anomaly and is the opposite.** At L=8 it should fail — yet
+it agrees most tightly of all. A **random** teacher is τ-invariant, so its all-τ mean
+**is** its τ=0 mean, and the prediction is forced to hold exactly as it is at L=1.
+
+**The rule is therefore not "L=1 works"** but: *the all-τ mean predicts the DT's query
+whenever it equals the τ=0 mean* — true for one timestep, and for a τ-invariant teacher.
+**This is the same pair of by-construction cases h185 found independently**, on a
+different quantity, and the random-teacher case was designed into neither.
+
+### h182's inversion on Hartmann — near-identical numbers
+
+| benchmark | arm | rel% | teacher mean, ALL τ | DT's queries |
+|---|---|---|---|---|
+| **Hartmann** | HEAD-MES | 25.16 | **0.078 → 0.077** | **0.456 → 0.546** |
+| **Hartmann** | TAIL-MES | 46.45 | **0.443 → 0.412** | **0.359 → 0.087** |
+| Borehole | HEAD-MES | 16.96 | 0.092 → 0.103 | 0.645 → 0.819 |
+| Borehole | TAIL-MES | 43.94 | 0.571 → 0.614 | 0.290 → 0.089 |
+
+The inversion replicates exactly, with strikingly close values across benchmarks
+(HEAD's teacher ≈0.08 on both; TAIL's DT contracts to ≈0.09 on both). **The teacher's
+all-τ average is anti-predictive on both benchmarks; τ=0 predicts on both.**
+
+**What does NOT transfer**, consistent with h182's existing record: the
+contraction/expansion *direction* signature. Hartmann's ROLLOUT1 contracts (×0.96) yet
+performs well. The direction signature is Borehole-specific; **the inversion is not.**
+
+### Standing of the mechanism
+
+h185 (per-timestep constant), h186 (ignores its inputs), h188 (the constant is the
+teacher's τ=0 mean) and h182's inversion are now **all confirmed on both benchmarks**.
+The mechanism is general; what remains benchmark-specific is the *value* of what the DT
+does (h187/h189's sign flip) and the direction signature.
