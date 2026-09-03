@@ -3317,7 +3317,16 @@ class DirectMFRegretOptimization:
                     _cand = (self.bounds[0] + (self.bounds[1] - self.bounds[0])
                              * torch.rand(_npool, self.d, dtype=torch.float64))
                     _proxy = _build_hf_proxy_model(self.ko_ensemble[0])
-                    _ys = thompson_sample_y_star(_proxy, _cand, K=100)
+                    # K=2000, not the rollout's 100. Measured on Borehole: the
+                    # REAL per-query decline in b is ~2.6% (b falls 14.4 -> 3.9
+                    # as HF data grows 10 -> 80 points), while K=100 gives
+                    # ~11% estimator noise -- so consecutive real steps are
+                    # noise-dominated and any monotone projection collapses to
+                    # ties (observed: 5 of 6 window steps flattened). K=2000
+                    # puts the noise at ~1.85%, below the per-step signal, at
+                    # 13.6 ms per real iteration -- negligible against the
+                    # 480 Gumbel fits the rollouts already do each iteration.
+                    _ys = thompson_sample_y_star(_proxy, _cand, K=2000)
                     _, _bb = fit_gumbel_to_samples(_ys)
                     _b_real = float(max(_bb, 1e-12))
                 except Exception:
@@ -3360,12 +3369,67 @@ class DirectMFRegretOptimization:
                 # [..., 0, target] -- a discontinuity that never occurs in
                 # training. Anchoring at the current target removes it.
                 _b_now = _b_real
+                # h197 (b): MONOTONE RTG. rtg is a return-to-go over information
+                # gain, so it can only DECREASE as data accumulates -- the
+                # posterior over y*_H concentrates, so b is non-increasing. But
+                # b is a noisy Thompson+Gumbel estimate (observed sd 1.64 on a
+                # 13.2-18.2 range) and the noise swamps that trend, producing
+                # a non-monotone label sequence. Project b onto the monotone
+                # cone with a running minimum, oldest -> newest, which imposes
+                # the known physics ("information already gained cannot be
+                # un-gained") instead of trusting each independent estimate.
+                # PAVA (pool-adjacent-violators): the LEAST-SQUARES non-increasing
+                # fit to the observed log b. A running minimum was tried first
+                # and is wrong -- it is a downward-biased extremum that latches
+                # onto the first low noise draw, and it flattened 5 of 6 window
+                # steps to exact ties, destroying the signal it was meant to
+                # clean. Isotonic regression imposes the same monotonicity
+                # without latching.
+                _lb = [(math.log(_h['b']) if _h.get('b') else None) for _h in _win]
+                if _b_now is not None:
+                    _lb.append(math.log(_b_now))
+                _obs = [v for v in _lb if v is not None]
+                if len(_obs) >= 2:
+                    _stack = []                      # blocks of [mean, weight]
+                    for _v in _obs:
+                        _cur = [_v, 1.0]
+                        while _stack and _stack[-1][0] < _cur[0]:
+                            _pp = _stack.pop()
+                            _w = _pp[1] + _cur[1]
+                            _cur = [(_pp[0] * _pp[1] + _cur[0] * _cur[1]) / _w, _w]
+                        _stack.append(_cur)
+                    _fit = []
+                    for _m, _w in _stack:
+                        _fit.extend([_m] * int(round(_w)))
+                    _it = iter(_fit)
+                    _lb = [next(_it) if v is not None else None for v in _lb]
+                if _b_now is not None and _lb and _lb[-1] is not None:
+                    _b_now = math.exp(_lb[-1])
+                    _lb = _lb[:-1]
+                _bs = [(math.exp(v) if v is not None else None) for v in _lb]
+
+                # h197 (b): STEP_NORM HELD CONSTANT across the window.
+                # state slot 5M+1 is step_norm = n_real_iter / T_real, and in
+                # TRAINING it is a simulate_mf_trajectory parameter -- constant
+                # across all rollout steps. The window's historical states carry
+                # the value from when they were recorded, so it varies by ~6% of
+                # full scale, a variation the model has never seen in that slot.
+                # Overwrite it with the CURRENT value so the window matches the
+                # training distribution. Relative position is still supplied,
+                # separately, by the positional embedding (ts = arange(T)).
+                _M = len(self.ko_ensemble)
+                _sidx = 5 * _M + 1
+                _cur_step_norm = float(state.reshape(-1)[_sidx])
+
                 _hist = []
-                for _h in _win:
+                for _i, _h in enumerate(_win):
                     _r = _h['rtg']
-                    if _b_now is not None and _h.get('b'):
-                        _r = float(rtg_tgt + math.log(_h['b']) - math.log(_b_now))
-                    _hist.append({'state': _h['state'].float(), 'rtg': _r,
+                    if _b_now is not None and _bs[_i] is not None:
+                        _r = float(rtg_tgt + math.log(_bs[_i]) - math.log(_b_now))
+                    _st = _h['state'].float().clone()
+                    if _st.reshape(-1).numel() > _sidx:
+                        _st.reshape(-1)[_sidx] = _cur_step_norm
+                    _hist.append({'state': _st, 'rtg': _r,
                                   'btg': _h['btg'], 'ax': _h.get('ax'),
                                   'ae': _h.get('ae', 0)})
             self._last_ctx_len = (len(_hist) + 1) if _hist else 1
