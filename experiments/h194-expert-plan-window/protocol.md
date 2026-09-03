@@ -208,3 +208,17 @@ factor alone at the winning configuration; Stage 1b tests the first, conditional
 second not being actively harmful. If 1a returns P3 the honest report is *"the shared
 component fails, so the combination cannot be read"* — which is a real answer, not a
 dodge, and it costs 1 hour instead of 36.
+
+## A monitoring near-miss, recorded
+
+Stage 1a was first launched from `code/worker_window.py`. Five processes started
+correctly — and **`tools/count_workers.sh` reported 0**, because its default pattern is
+`code/worker.py` and does not match `worker_window.py`.
+
+That is the exact failure class the tool's own docstring was written about: miscounting
+the fleet. Here it under-counts, which is the dangerous direction — acting on "0 workers"
+would have meant launching more and breaching the 15-worker cap.
+
+**Fix:** the worker is renamed to `code/worker.py`, the convention every other experiment
+uses, so the default pattern matches. Caught by cross-checking `ps` against the tool
+rather than trusting the tool's zero.
