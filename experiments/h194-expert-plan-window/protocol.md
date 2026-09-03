@@ -256,3 +256,17 @@ code.** The gate and its ±1.26 threshold are unchanged.
 **Bonus diagnostic, free:** CTRL-K1 vs h84's 11.59 measures whether 17 commits of drift
 moved the baseline at all. If they agree, h84-era ROI controls remain quotable; if not,
 that is a finding in its own right and would touch more than this arm.
+
+## Readout extended before results — reporting, not the gate
+
+The human asked whether this beats **"our default MF-DRO"**. The registered gate compares
+WINDOW against **CTRL-K1** (ROI-Q10, K=1), because that isolates the window — which is the
+scientific question. But "default MF-DRO" means `use_roi=False` = **15.82**, a different
+and easier bar.
+
+The readout now reports **both**, with the caveat inline: **ROI alone already reaches
+11.59**, so beating 15.82 says nothing about whether the *window* helped. Only
+WINDOW − CTRL-K1 does.
+
+**The gate is unchanged.** This adds a reported quantity, it does not move the threshold
+or the verdict mapping.

@@ -51,6 +51,19 @@ if __name__ == "__main__":
         print(f"    fresh {np.mean([C[s] for s in shc]):6.2f}   h84 {np.mean([H[s] for s in shc]):6.2f}"
               f"   paired {dc.mean():+.2f}")
         print(f"    {'baseline STABLE, h84-era ROI controls remain quotable' if abs(dc.mean()) <= 1.26 else 'BASELINE MOVED -- h84-era ROI numbers are NOT quotable'}")
+    # ADDED before results (does NOT change the gate, which is WINDOW - CTRL-K1):
+    # the human asked whether this beats "our default MF-DRO", which is use_roi=False
+    # = 15.82, not the ROI-Q10 the gate is registered against. Report both.
+    D = arm(f"{REPO}/experiments/h83-main-comparison/results/ckpt/Borehole_8D__MF-DRO__seed4[2-6].json")
+    if D:
+        shd = sorted(set(W) & set(D))
+        dd = np.array([W[s] - D[s] for s in shd])
+        print(f"\n  ANSWERING THE DIRECT QUESTION -- vs DEFAULT MF-DRO (use_roi=False, 15.82):")
+        print(f"    WINDOW {np.mean([W[s] for s in shd]):6.2f}   default {np.mean([D[s] for s in shd]):6.2f}"
+              f"   paired {dd.mean():+.2f}   better on {int((dd<0).sum())}/{len(shd)}")
+        print(f"    (lower is better; ROI alone already gets 11.59, so beating 15.82 is"
+              f" not evidence the WINDOW helped)")
+
     d = np.array([W[s] - C[s] for s in sh])
     print(f"\n  frozen rel%   WINDOW(K=8) {np.mean([W[s] for s in sh]):6.2f}"
           f"   CTRL-K1 {np.mean([C[s] for s in sh]):6.2f}")
