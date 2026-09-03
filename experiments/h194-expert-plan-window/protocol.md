@@ -222,3 +222,12 @@ would have meant launching more and breaching the 15-worker cap.
 **Fix:** the worker is renamed to `code/worker.py`, the convention every other experiment
 uses, so the default pattern matches. Caught by cross-checking `ps` against the tool
 rather than trusting the tool's zero.
+
+**Postscript on the near-miss.** After the rename, `count_workers.sh` reported 5 while an
+ad-hoc `ps -eo command | grep -c` reported 7. **The tool was right.** The ad-hoc check
+matched the querying shell's own argv — precisely the failure `count_workers.sh` exists to
+avoid and documents at the top of the file. The discrepancy did surface 2 stragglers from
+the first launch that `pkill -f` had missed; those were killed explicitly by pid.
+
+Two lessons, both the opposite of the obvious one: use the tool rather than an ad-hoc
+`ps | grep`, and verify `pkill -f` actually killed what it claimed.
