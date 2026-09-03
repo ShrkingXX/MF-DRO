@@ -38,8 +38,12 @@
 #   NOT underfitting). That the state is UNINFORMATIVE is a STRONGER claim and
 #   is NOT established: it needs an independent predictor fitted from saved
 #   (state, action) pairs, which are NOT serialised (teacher_action_stats keeps
-#   only mean and variance). Adding them is cheap, purely additive, and the
-#   highest-value addition to any future run.
+#   only mean and variance). ADDED as tau0_state_action_anova, which computes the
+#   sufficient statistic in situ instead of dumping pairs. PRELIMINARY first read
+#   (8 iters, 1 seed, 3 groups): frac_state ~ 0.10 -- the state explains about
+#   10% of the tau=0 action variance. So "the state is uninformative" is TOO
+#   STRONG; the accurate claim is that a constant is NEAR-optimal and the DT
+#   leaves ~10% unexploited. Needs a full run to confirm.
 #
 # WHY THAT ANSWERS THE QUESTION:
 #   Inference always queries timestep 0, so the DT emits its teacher's FIRST-MOVE
@@ -18391,3 +18395,60 @@ informative thing left to add to any future arm.**
 
 Until then the accurate wording is *"the DT does not use its state"*, which is measured,
 rather than *"the state is uninformative"*, which is not.
+
+---
+
+## Instrument added: does the τ=0 state predict the teacher's action at all? PRELIMINARY ~10%.
+
+Last tick I flagged that I had been sliding between two claims — *"the DT does not use its
+state"* (measured) and *"the state is uninformative"* (asserted, never tested) — and that
+settling the second needed `(state, action)` pairs that are not serialised.
+
+Dumping raw pairs would cost ~9 MB per run. But the question has a **sufficient
+statistic**: group the τ=0 actions by their τ=0 state and decompose the variance.
+
+```
+between    = variance of the per-state action MEANS
+within     = mean of the per-state action VARIANCES
+frac_state = between / (between + within)
+```
+
+`frac_state ≈ 0` → the state carries no information about the action, so a **constant is
+the optimal predictor** and the DT gives up nothing by ignoring it. Large → the DT is
+leaving real signal unused. A few floats per iteration, so always on. Added to
+`mf_dro.py` and serialised by h83's worker; **identity gate PASSES exactly**
+(122.29066752728207).
+
+### First read — PRELIMINARY, and it corrects my wording again
+
+Short verification run (Borehole seed 42, budget 14 vs the usual 240, **8 iterations**):
+
+| | value |
+|---|---|
+| distinct τ=0 states per iteration | **3** (of 60 rollouts) |
+| between-state variance | 0.002728 |
+| within-state variance | 0.022017 |
+| **frac_state** | **0.0999** (range 0.0176 – 0.2039) |
+
+**About 10% of the τ=0 action variance is explained by which state the rollout started
+from; ~90% is within-state noise.**
+
+So the accurate statement is neither of the two I had been alternating between:
+
+- *"the state is uninformative"* — **too strong.** It explains ~10%, not 0.
+- *"the DT does not use its state"* — **correct**, and measured (h186: sensitivity 0.0122).
+- **New, and the useful one:** a constant is *near*-optimal, not optimal. The best possible
+  state-dependent predictor could cut the τ=0 action MSE by only about **10%**. The DT
+  leaves that on the table — real, but small, and nowhere near enough to change the
+  best-constant picture.
+
+### Why this is PRELIMINARY and not a result
+
+- **8 iterations of a short-budget run, one seed.** The full metric needs a normal run.
+- **Only 3 distinct τ=0 states per iteration**, so the between-group term rests on **three
+  groups** — a thin basis for a variance estimate, and it could be biased in either
+  direction.
+- The decomposition is unweighted — a diagnostic, not an exact ANOVA.
+
+**No arm was launched for this** (autoresearch is paused). The instrument is in place so
+the real read costs nothing extra whenever a run happens next.

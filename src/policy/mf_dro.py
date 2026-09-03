@@ -2497,6 +2497,7 @@ class DirectMFRegretOptimization:
         # call). Always populated, no config gate -- cheap, no oracle access.
         self.action_reward_corr_per_iter = []
         self.teacher_action_stats_per_iter = []
+        self.tau0_state_action_anova = []
         self.h168_probe_per_iter = []
         self._last_batch_tau0_states = None
         self._h177_btg_probe = None
@@ -3735,6 +3736,52 @@ class DirectMFRegretOptimization:
                         n=int(_A.shape[0]),
                         mean=[float(v) for v in _mu],
                         var_total=float(((_A - _mu) ** 2).mean())))
+            except Exception:
+                pass
+            # TAU-0 STATE -> ACTION VARIANCE DECOMPOSITION.
+            #
+            # Settles the question that separates "the DT does not USE its
+            # state" (measured: h186, state sensitivity 0.0122) from "the state
+            # is UNINFORMATIVE" (asserted repeatedly, never tested). Those are
+            # different claims and the second needs this.
+            #
+            # Groups this batch's tau=0 actions by their tau=0 state:
+            #   between   = variance of the per-state action MEANS
+            #   within    = mean of the per-state action VARIANCES
+            #   frac_state = between / (between + within)
+            #
+            # frac_state ~ 0  -> the state carries no information about the
+            #                    action, so a CONSTANT IS the optimal predictor
+            #                    and the DT is not leaving anything on the table.
+            # frac_state large -> the state DOES predict the action and the DT,
+            #                    which ignores it, is losing real signal.
+            #
+            # A few floats per iteration, so always on like the stats above.
+            # Unweighted between-group term: a diagnostic, not an exact ANOVA.
+            try:
+                _s0 = [t['states'][0] for t in batch
+                       if 'states' in t and len(t['states'])]
+                _a0 = [t['actions_x'][0] for t in batch
+                       if 'actions_x' in t and len(t['actions_x'])]
+                if _s0 and _a0 and len(_s0) == len(_a0):
+                    _grp = {}
+                    for _sv, _av in zip(_s0, _a0):
+                        _k = tuple(torch.as_tensor(_sv).reshape(-1).tolist())
+                        _grp.setdefault(_k, []).append(
+                            torch.as_tensor(_av).reshape(-1))
+                    _gs = [torch.stack(v) for v in _grp.values()]
+                    _all = torch.cat(_gs, dim=0)
+                    _gm = torch.stack([g.mean(0) for g in _gs])
+                    _btw = (float(((_gm - _all.mean(0)) ** 2).mean())
+                            if _gm.shape[0] > 1 else 0.0)
+                    _wl = [float(((g - g.mean(0)) ** 2).mean())
+                           for g in _gs if g.shape[0] > 1]
+                    _wth = float(np.mean(_wl)) if _wl else 0.0
+                    self.tau0_state_action_anova.append(dict(
+                        n_states=int(len(_gs)), n=int(_all.shape[0]),
+                        between=_btw, within=_wth,
+                        frac_state=(_btw / (_btw + _wth))
+                                   if (_btw + _wth) > 0 else 0.0))
             except Exception:
                 pass
             rtg_target = self.schemas.update_and_get_rtg_target(batch)
