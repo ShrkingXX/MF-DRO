@@ -18,7 +18,15 @@
 #   Fixes: match only the worker.py path, exclude our own pid and any shell,
 #   and require one-or-more digits.
 set -e
-PAT="${1:-code/worker.py}"
+# DEFAULT WIDENED from "code/worker.py" to "code/worker" on 2026-09-02.
+#   h194 ran two arms from code/worker.py and code/worker_ctrl.py. The old default
+#   matched only the first and reported 5 when 10 were live -- an UNDER-count, the
+#   dangerous direction, since acting on it means launching past the 15-worker cap.
+#   The same session had documented this hazard one tick earlier and repeated it
+#   immediately, which is why the fix is in the tool rather than in a note.
+#   "code/worker" still matches every real worker (worker.py, worker_*.py) and no
+#   analysis script, which are named analyse.py / readout.py / stage0.py.
+PAT="${1:-code/worker}"
 ps -o pid=,args= -ax 2>/dev/null \
   | grep "$PAT" \
   | grep -v -e ' -c ' -e 'zsh' -e 'bash' -e 'sh -c' -e 'grep' \
