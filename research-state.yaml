@@ -3,6 +3,23 @@
 # The /loop prompt still names h146 and the POOL dose. Both CLOSED: h146
 # completed; the POOL dose ran on the harness as h158.
 # ============================================================================
+# ============================================================================
+# STANDING INSTRUCTION (human, 2026-09-03): COMPARE POLICY QUALITY ONLY BY THE
+# FINAL SIMPLE REGRET REACHED. That is the goal being optimised.
+#
+# The frozen metric ALREADY satisfies this -- rel% of |optimum| at cost_curve
+# 200 is simple regret at the terminal cost, normalised; same ordering. It is
+# unchanged and still imported from h83's sr_curve+grid, never re-derived.
+#
+# WHAT STOPS: quoting INTERMEDIATE regret (c=25/50/75) as evidence of policy
+# quality. Intermediate curves remain legal as DIAGNOSTICS (e.g. is an arm alive,
+# is it converging) but never as a quality comparison or a verdict.
+#
+# This is not pedantry -- h196 is ahead of the control at c=25 AND c=50 and
+# still FINISHES WORSE (13.96 vs 11.59). An early-curve lead does not predict
+# the endpoint, so reporting one as quality would have been misleading.
+# ============================================================================
+
 current_front:
   IN_FLIGHT_2026_09_03: 'h197 (the human''s full 7-item specification: MES teacher,
     MES RTG labelling, L1 loss, K=8 sliding window, real-query info-gain labels,

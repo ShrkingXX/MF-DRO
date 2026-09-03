@@ -1,3 +1,5 @@
+# DIAGNOSTIC ONLY -- NOT a quality comparison. Standing instruction (2026-09-03):
+# policy quality is compared ONLY by final simple regret (frozen rel% @ cost 200).
 """h197 INTERMEDIATE regret curve. NOT the frozen metric (which is cost 200).
 
 Runs are still in flight, so this reads results/ckpt/ -- the partial checkpoints.
