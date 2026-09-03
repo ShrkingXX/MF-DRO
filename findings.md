@@ -13,6 +13,40 @@
 # ══ PHASE 2 — WHY BETTER TRAJECTORY QUALITY DOES NOT IMPROVE MF-DRO ══
 #                              ** ANSWERED **
 #
+# ── UPDATE 2026-09-03b: h197 (the human's full specification) is P3, and it
+#    exposed a CONFOUND that makes the sliding-window null unsafe to state.
+#
+#    FINAL SIMPLE REGRET (frozen rel% @ cost 200 -- the ONLY quality comparison
+#    from now on, per the human's standing instruction):
+#        h194 CTRL-K1 (no window)                11.59
+#        h196 WINDOW  (K=8, real actions)        13.96
+#        h197 SPEC    (K=8, L1, real-IG labels)  14.55
+#    h197 - CTRL-K1 = +2.96 (se 1.17), better on 1/5 -> P3.
+#    h197 - h196    = +0.59 (se 1.71) -> the spec's ingredients BEYOND the
+#    action-feeding fix (L1 loss, real-query info-gain labels, window-relative
+#    timestep) bought NOTHING measurable.
+#
+#    THE CONFOUND. Turning the window on cuts LF usage ~3x:
+#        CTRL-K1 lf_fraction 0.261 | h196 0.085 | h197 0.092
+#    On Borehole's 2:1 cost ratio that is materially fewer queries per budget.
+#    Every window arm therefore varies TWO things -- the DT sees history, AND it
+#    spends on more expensive queries -- and both predict the same endpoint.
+#
+#    CONSEQUENCE: "the sliding window does not help / history does not help" is
+#    NOT SAFE TO STATE from h194/h196/h197. That sentence appears above in the
+#    Phase-2 header (H27 clause) and in h196's analysis; it is now qualified.
+#    The MEASUREMENTS stand; only the interpretation is withdrawn. h200 holds the
+#    mix fixed with a matched-ceiling control and can reopen the question.
+#
+#    Third instance of this failure mode here: h60 (Thompson collapsed fidelity
+#    to 99% LF), h145 (quality confounded with endpoint diversity), now the
+#    window arms. The pattern is that a manipulation silently moves the HF/LF
+#    mix, and the mix is never checked because it is not what the arm is about.
+#
+#    ALSO: the early curve was actively misleading. h197 LEADS CTRL-K1 at c=25
+#    (-5.70, 4/5) and c=50 (-6.79, 4/5) and FINISHES WORSE. This is why quality
+#    is now compared ONLY at the endpoint.
+#
 # ── UPDATE 2026-09-03: the answer is UNCHANGED but its SCOPE was overstated,
 #    and a real implementation defect was found underneath one of its nulls.
 #
