@@ -4009,3 +4009,58 @@ No arms launched, no compute.
   isolates the window, and ROI alone already reaches 11.59, so beating 15.82 would say
   nothing about the window.
 - **`research-state.yaml` updated** with h194's full status and the monitoring-hazard fix.
+
+## 2026-09-03 — the audit tick: two defects found, one of them mine
+
+Not an arm-running tick. Three things were found by READING rather than running,
+and all three change what earlier results mean.
+
+**h195/h196 — the sliding window was fed zeroed actions.** The human rejected my
+claim that the window question was "already tested (h27)" and asked for an audit
+against `papers/DT.pdf`. The audit found the history slots carried no actions.
+h196 fixed it: **-2.61 rel% (se 0.93), better on 5/5**, recovering **52%** of the
+window's deficit (+4.99 -> +2.37). The window still hurts, so the direction of
+h27's null survives; its magnitude was half artifact.
+
+**My own real-query `b` was computed over the wrong candidate set.** Uniform
+200-point pool at inference vs the ROI-filtered 600-point pool in training. b
+looked flat and non-monotone (net +2.7%); corrected it falls **-27.9%**. I was one
+step from concluding "the information signal isn't there," which would have been
+an artifact of my own pool choice. `build_roi_pool()` now shares the rule.
+
+**THE_ANSWER was overstated, and the human found it.** Its closing sentence -- "a
+perfect teacher's first move is a random start point" -- is true of h145's oracle
+*by construction* (uniform start), not of good teachers. The human's framing: an
+expert teacher makes the OPTIMAL DECISION AT EVERY STEP, not one that merely
+arrives somewhere good.
+
+This SHARPENS the mechanism rather than weakening it. If the DT emits its
+teacher's tau=0 mean, teacher quality helps iff it improves that mean. Re-reading
+the failures: h145's oracle destroyed tau=0 (uniform -> box centre); h152's beam
+has greedy as its elite first child, so its tau=0 barely moved. **Neither arm ever
+varied the decisive quantity.** That is a gap, not a null.
+
+**h198** (running) is the first teacher here that optimises the TASK: expected
+terminal best HF value under a greedy base policy, GP-only, no oracle access --
+so it is a deployable method, unlike h145. Both label variants run (human: "build
+both and run both"), differing by one flag.
+
+Failures and near-misses this tick, all reported:
+- SC1 "failed" 4/6 -> the SC's own RNG bug (`compute_joint_mf_mes` Thompson-samples
+  and consumes RNG). Fixed, then 6/6.
+- The lookahead's base rollout was cost-bounded, letting an all-LF future run 14
+  steps inside an 8-step rollout. Now step-bounded.
+- Cost was 16.7 h/seed. Two principled fixes -> 2.1 h/seed.
+- A diagnostic hook referenced `teacher_action_stats`, not a parameter of
+  `simulate_mf_trajectory`. Died on NameError in 90 s; removed.
+- The intermediate readout put h197 on an unshifted cost axis (in-flight ckpts
+  have no `is_init`) while CTRL was shifted by -40. It printed "+11.77 worse on
+  5/5"; corrected, "-6.79 better on 4/5". Same class as the h196 partial-ckpt bug:
+  the readout ran fine and printed a confident, wrong answer.
+
+Reflection: this is deepening, not arm-running. The h198 reframe re-reads ~10
+arms' worth of nulls as never having tested the decisive quantity, and two of the
+three findings above were errors in MY OWN instruments. The risk to name: h198 is
+expensive (5.5 h/seed x 10) and justified by a mechanism argument. If it nulls,
+the protocol says that is P2 -- necessity survives, sufficiency refuted -- which
+is still informative, and that was written down BEFORE launch.

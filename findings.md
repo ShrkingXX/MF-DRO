@@ -13,6 +13,55 @@
 # ══ PHASE 2 — WHY BETTER TRAJECTORY QUALITY DOES NOT IMPROVE MF-DRO ══
 #                              ** ANSWERED **
 #
+# ── UPDATE 2026-09-03: the answer is UNCHANGED but its SCOPE was overstated,
+#    and a real implementation defect was found underneath one of its nulls.
+#
+# (1) RETRACTED PHRASING. research-state.yaml's THE_ANSWER used to end "A perfect
+#     teacher's first move is a random start point, whose average is the middle
+#     of the box." WITHDRAWN. That is true of h145's ORACLE BY CONSTRUCTION --
+#     its path is x_tau = x_start + (x*-x_start)*tau/(T-1) with x_start ~
+#     U(domain), so its tau=0 action IS uniform noise -- but it is NOT a property
+#     of good teachers. Raised by the human: an expert teacher should be one that
+#     makes the OPTIMAL DECISION AT EVERY STEP, not one that merely ARRIVES
+#     somewhere good. h145's intermediate steps are points on an arbitrary line
+#     segment, chosen by no criterion at all.
+#
+#     The mechanism is UNCHANGED and now SHARPER: if the DT emits its teacher's
+#     tau=0 action mean, teacher quality helps IFF it improves that mean. This
+#     re-reads the whole failure series as consistent rather than mysterious:
+#       - h145's oracle DESTROYED the tau=0 signal (uniform start -> box centre),
+#         which is exactly why it failed 10/10;
+#       - h152's joint-IG beam has the greedy MES move as its elite node's first
+#         child, so its tau=0 is ~unchanged from the control and it could not
+#         have moved the outcome either.
+#     NEITHER ARM EVER VARIED THE QUANTITY THE MECHANISM SAYS IS DECISIVE. That
+#     is a gap, not a null. Registered as h198 (running).
+#
+# (2) h27's NULL WAS PARTLY AN IMPLEMENTATION DEFECT. The sliding-window null
+#     cited above is qualified. h195 audited the inference path against the DT
+#     paper and found the window was fed ZEROED action tokens -- the history
+#     slots existed but carried nothing. h196 fixed it:
+#         h194 WINDOW (zeroed actions) 16.58  ->  h196 WINDOW (real actions) 13.96
+#         paired -2.61 (se 0.93), better on 5/5 seeds
+#     52% of the window's deficit vs no-window (+4.99 -> +2.37) was that defect.
+#     The window still HURTS when fed correctly (+2.37, P3), so the direction of
+#     the null survives -- but its MAGNITUDE was half artifact, and any claim
+#     resting on the window's size is not safe to quote.
+#
+#     Found ONLY because the human rejected "already tested -- h27" and asked for
+#     an audit against the paper. Neither the identity gate nor code review would
+#     have caught it.
+#
+# (3) A MEASUREMENT OF MINE WAS COMPUTED OVER THE WRONG SET. The real-query
+#     Gumbel scale b (h197) was fitted over a UNIFORM 200-point pool while
+#     training fits it over the ROI-FILTERED 600-point pool. Size alone breaks it
+#     -- thompson_sample_y_star depends on |X| in location AND scale. Symptom: b
+#     looked FLAT and non-monotone across a real run (13/25 steps down, 12 up,
+#     net +2.7%). Corrected, b falls 13.36 -> 9.63 (-27.9%) over 24 queries with
+#     roi_accept 0.086-0.111 (target 0.10). Any claim that "the information
+#     signal is not there at inference" would have been an artifact of my own
+#     pool choice.
+#
 # THE MECHANISM (h185/h186/h188, confirmed on BOTH benchmarks, 10 arms;
 #                and INTERVENTIONALLY confirmed by h192 -- moving the teacher's
 #                tau=0 mean by +0.4192 moves the DT's own query by +0.4585,
