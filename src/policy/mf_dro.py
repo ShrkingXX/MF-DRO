@@ -3299,7 +3299,14 @@ class DirectMFRegretOptimization:
             _K = self.inference_context_k
             _hist = None
             if _K > 1 and self._real_hist:
-                _hist = [{'state': h['state'].float(), 'rtg': h['rtg'], 'btg': h['btg']}
+                # h196: carry 'ax'/'ae' through as well. This construction
+                # built FRESH dicts with only state/rtg/btg, so the recorded
+                # real actions were silently dropped here and the window's
+                # historical action slots stayed zero -- a no-op that would
+                # have been indistinguishable from "the fix is immaterial".
+                # Caught by h196's SC, not by inspection.
+                _hist = [{'state': h['state'].float(), 'rtg': h['rtg'], 'btg': h['btg'],
+                          'ax': h.get('ax'), 'ae': h.get('ae', 0)}
                           for h in self._real_hist[-(_K - 1):]]
             self._last_ctx_len = (len(_hist) + 1) if _hist else 1
             x_t, ell_t = self.dt.propose_mf(

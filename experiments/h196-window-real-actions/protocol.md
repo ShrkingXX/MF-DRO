@@ -70,3 +70,38 @@ must be untouched.
 
 5 workers. **Launched only after h194 Stage 1a's two arms finish**, to avoid adding
 contention to a comparison already in flight.
+
+## SC — FAILED FIRST, then PASSED. A silent no-op the code review would not have caught.
+
+The fix was written, the identity gate passed exactly, and the code *looked* correct. The
+SC ran anyway, because a fix that silently does nothing is indistinguishable from **P2
+("the fix is immaterial")** — which would have been recorded as a result.
+
+**First run: FAIL.**
+```
+calls with a history window   : 8
+window lengths seen           : [1,2,3,4,5,6,7]
+history entries carrying 'ax' : 0-0 of the window
+SC: FAIL -- silent no-op
+```
+
+**Cause.** `_real_hist` did carry the recorded actions, but the window construction in
+`mf_dro.py` built **fresh dicts** and dropped them:
+
+```python
+_hist = [{'state': h['state'].float(), 'rtg': h['rtg'], 'btg': h['btg']}
+          for h in self._real_hist[-(_K - 1):]]      # 'ax'/'ae' silently discarded
+```
+
+Two edits in two files were both correct and the pipeline between them threw the data
+away. Reading either file alone would not have shown it.
+
+**After patching the construction: PASS.**
+```
+history entries carrying 'ax' : 1-7 of the window
+mean |ax| sum                 : 4.0542   (0 would mean zeros still got through)
+SC: PASS -- real actions ARE reaching the window
+```
+
+Independent corroboration: at the same seed and budget the broken build gave
+`iter 1 y=197.3580`, the fixed build gives `y=203.4142` — the behaviour genuinely changed.
