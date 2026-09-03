@@ -231,3 +231,28 @@ the first launch that `pkill -f` had missed; those were killed explicitly by pid
 
 Two lessons, both the opposite of the obvious one: use the tool rather than an ad-hoc
 `ps | grep`, and verify `pkill -f` actually killed what it claimed.
+
+---
+
+## A CONTEMPORANEOUS control is added, before Stage 1a's results are read
+
+Stage 1a was registered against h84's **ROI-Q10 = 11.59** as its K=1 control. Applying the
+human's own h27 lesson to my own control:
+
+- The ROI resolution fix `950fdd6` ("every ROI A/B was confounded") landed **Aug 27
+  03:19**. All five ROI-Q10 seeds were produced **05:44–06:05** — **post-fix**, so the
+  control is not itself confounded. Good.
+- But **17 commits** have touched the DT/policy since. The two that are not probes or
+  documentation are additive hooks (`4051b45` forced_x, `09f2b7c` a results note), so
+  drift is *unlikely* — and "unlikely" is an argument, not a measurement.
+
+**So a matched control is run rather than argued for.** `CTRL-K1`: identical config to the
+WINDOW arm (MES, ROI-Q10) with `inference_context_k=1`, same seeds, launched today on the
+same code. 5 workers, in parallel with Stage 1a — 10 total, within the cap.
+
+**The comparison becomes WINDOW (K=8) vs CTRL-K1 (K=1), both produced today on identical
+code.** The gate and its ±1.26 threshold are unchanged.
+
+**Bonus diagnostic, free:** CTRL-K1 vs h84's 11.59 measures whether 17 commits of drift
+moved the baseline at all. If they agree, h84-era ROI controls remain quotable; if not,
+that is a finding in its own right and would touch more than this arm.
