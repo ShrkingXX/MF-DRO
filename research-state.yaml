@@ -4,6 +4,21 @@
 # completed; the POOL dose ran on the harness as h158.
 # ============================================================================
 current_front:
+  IN_FLIGHT_2026_09_03: 'h197 (the human''s full 7-item specification: MES teacher,
+    MES RTG labelling, L1 loss, K=8 sliding window, real-query info-gain labels,
+    window-relative timestep, dynamic RTG prompt) -- Borehole seeds 42-46, all six
+    SCs passed before launch. h198 (regret-lookahead teacher, BOTH label variants)
+    -- arm a seeds 42-46 launched, arm b pending free slots. NO result is quoted
+    from either yet; finals are written only on completion, and a readout that
+    read partial checkpoints once printed a full verdict from 22%-complete runs.
+
+    COST WARNING, recorded honestly: h198 was estimated at 2.1 h/seed from a
+    micro-benchmark and is measuring ~7 min per BO iteration under 10-way
+    contention, which extrapolates to 11-15 h/seed. If it holds after h197 frees
+    its slots, the fix is to cut rollouts-per-iteration for BOTH h198 arms AND a
+    freshly re-run control -- never for the expensive arm alone, which would
+    confound teacher quality with training-set size.'
+
   question: 'WHY better trajectory quality does not improve MF-DRO.'
   status: 'ANSWERED by intervention (h171/h173), but the answer has TWO STRENGTHS
     and they are scoped differently. WEAK FORM (two benchmarks): a bad first step
