@@ -18452,3 +18452,37 @@ So the accurate statement is neither of the two I had been alternating between:
 
 **No arm was launched for this** (autoresearch is paused). The instrument is in place so
 the real read costs nothing extra whenever a run happens next.
+
+---
+
+## CORRECTION — h27's null is STALE and must not be quoted as settling the window question
+
+Two ticks ago I answered a proposal to feed the DT a sliding window of real history with
+"that was already built and tested — h27". **That was too confident.** The user pushed
+back, and checking the history rather than my own summary:
+
+**33 commits have touched `decisionTransformer.py` or `mf_dro.py` since h27 was added**
+(2026-08-24 18:22). At least three change behaviour:
+
+| commit | date | change |
+|---|---|---|
+| `5cfbd04` | Aug 25 | RTG normalisation blow-up under signed rewards — fixed |
+| `8df9591` | Aug 26 | new defaults: M=3, `n_roi_candidates=600`, refinement OFF |
+| `950fdd6` | Aug 27 | **ROI candidate pool lost resolution — "every ROI A/B was confounded"** |
+
+**h27's bit-identical result is therefore not evidence about the current code**, and
+especially not about any window arm combined with **ROI**, which the Aug 27 fix
+specifically invalidated for every prior A/B.
+
+*(One correction to the user's framing: h27 postdates the target-leakage fix `7bcc3b8`
+by ~15 hours, so it is not pre-leakage-fix. The staleness comes from the three commits
+above.)*
+
+**What survives.** The *prediction* of a null does not rest on h27 — it rests on
+measurements taken this session on the current code: `loss/var` ∈ [0.750, 1.054] across
+10 arms (h185) and state sensitivity 0.0122 (h186). Those still predict a window cannot
+help. **But a prediction is not a result, and h27 is no longer the result.**
+
+**Untested, and named by the user:** the *combination* of an expert (joint
+information-gain) trajectory + longer inference + ROI. h27 used the ordinary MES teacher,
+no ROI, one-step-equivalent inference. The combination has never been run — see h194.
