@@ -1,0 +1,118 @@
+<title>What the Audit Found</title>
+<style>
+:root{
+  --ink:#1a1d21; --ink-soft:#4a5259; --ink-faint:#767f88;
+  --ground:#fbfaf8; --panel:#ffffff; --rule:#e3e0da;
+  --accent:#8c3a2b; --accent-soft:#f2e6e2;
+  --good:#2f6b4f; --bad:#8c3a2b; --flat:#767f88;
+}
+:root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
+  --ink:#e8e6e2; --ink-soft:#b3b0aa; --ink-faint:#8a8781;
+  --ground:#16181a; --panel:#1e2124; --rule:#33383d;
+  --accent:#d98570; --accent-soft:#3a2722;
+  --good:#7fc0a0; --bad:#d98570; --flat:#8a8781;
+}}
+:root[data-theme="dark"]{
+  --ink:#e8e6e2; --ink-soft:#b3b0aa; --ink-faint:#8a8781;
+  --ground:#16181a; --panel:#1e2124; --rule:#33383d;
+  --accent:#d98570; --accent-soft:#3a2722;
+  --good:#7fc0a0; --bad:#d98570; --flat:#8a8781;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);
+  font:16px/1.65 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  margin:0;padding:3rem 1.25rem 5rem}
+.wrap{max-width:47rem;margin:0 auto}
+.eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem}
+h1{font-size:2.3rem;line-height:1.12;margin:0 0 .5rem;text-wrap:balance;letter-spacing:-.015em}
+.dek{font-size:1.08rem;color:var(--ink-soft);margin:0 0 2.5rem;text-wrap:balance}
+h2{font-size:1.32rem;margin:3rem 0 .3rem;text-wrap:balance;letter-spacing:-.01em}
+h2 .n{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;color:var(--accent);
+  display:block;letter-spacing:.1em;margin-bottom:.35rem}
+p{margin:.85rem 0}
+.lede{border-left:2px solid var(--accent);padding-left:1rem;color:var(--ink-soft)}
+table{width:100%;border-collapse:collapse;margin:1.3rem 0;font-size:.9rem;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+th{text-align:left;font-weight:600;color:var(--ink-faint);font-size:.72rem;
+  letter-spacing:.07em;text-transform:uppercase;padding:.4rem .7rem;border-bottom:1px solid var(--rule)}
+td{padding:.5rem .7rem;border-bottom:1px solid var(--rule)}
+td.num{text-align:right}
+tr.hi td{background:var(--accent-soft);font-weight:600}
+.good{color:var(--good)}.bad{color:var(--bad)}.flat{color:var(--flat)}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:3px;
+  padding:1.1rem 1.3rem;margin:1.4rem 0}
+.card h3{margin:0 0 .4rem;font-size:.95rem;font-family:ui-monospace,Menlo,monospace;
+  letter-spacing:.02em;color:var(--accent)}
+.card p{margin:.5rem 0;font-size:.94rem;color:var(--ink-soft)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.86em;
+  background:var(--accent-soft);padding:.1em .35em;border-radius:2px}
+.foot{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--rule);
+  font-size:.84rem;color:var(--ink-faint)}
+.tag{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:.68rem;
+  letter-spacing:.08em;padding:.14em .5em;border:1px solid var(--rule);border-radius:2px;
+  color:var(--ink-faint);margin-right:.4rem}
+</style>
+<div class="wrap">
+<p class="eyebrow">MF-DRO · 3 September 2026</p>
+<h1>What the audit found</h1>
+<p class="dek">Three things were found by reading rather than running. All three change what earlier results mean, and two of them were errors in my own instruments.</p>
+
+<p class="lede">The headline: half of the sliding window's measured harm was an implementation defect, not a finding. And the project's answer to “why doesn't a better teacher help?” was stated too broadly — the two arms that tested it were both structurally incapable of doing so.</p>
+
+<h2><span class="n">01 — confirmed, 5/5 seeds</span>The window was fed zeroed actions</h2>
+<p>You rejected my claim that the sliding-window question was “already tested — h27,” and asked for the implementation to be audited against the DT paper. The audit found the history slots existed but carried <strong>no action tokens</strong>. h196 fixed it.</p>
+<div class="scroll"><table>
+<tr><th>arm</th><th class="num">frozen rel%</th><th class="num">vs no-window</th></tr>
+<tr><td>h194 window — zeroed actions</td><td class="num">16.58</td><td class="num bad">+4.99</td></tr>
+<tr class="hi"><td>h196 window — real actions</td><td class="num">13.96</td><td class="num">+2.37</td></tr>
+<tr><td>control — no window</td><td class="num">11.59</td><td class="num flat">—</td></tr>
+</table></div>
+<p>Paired <strong class="good">−2.61</strong> (se 0.93), better on <strong>5/5 seeds</strong>. <strong>52% of the window's deficit was the defect.</strong> The window still hurts when fed correctly, so the direction of the old null survives — but its magnitude was half artifact, and no claim resting on the window's size is safe to quote.</p>
+<p>Neither the identity gate nor code review would have caught this. It took reading Algorithm 1 against our inference path.</p>
+
+<h2><span class="n">02 — my error</span>I measured <code>b</code> over the wrong set</h2>
+<p>The real-query information-gain label is fitted from a Gumbel scale <code>b</code>. I computed it over a <strong>uniform 200-point pool</strong>; training computes it over the <strong>ROI-filtered 600-point pool</strong>. Size alone breaks it — the estimator depends on |X| in both location and scale.</p>
+<div class="scroll"><table>
+<tr><th>pool used</th><th class="num">net change in b</th><th class="num">steps down / up</th></tr>
+<tr><td>uniform, 200 pts</td><td class="num bad">+2.7%</td><td class="num">13 / 12</td></tr>
+<tr class="hi"><td>ROI-filtered, 600 pts</td><td class="num good">−27.9%</td><td class="num">14 / 9</td></tr>
+</table></div>
+<p>I was one step from concluding “the information signal isn't there at inference.” That would have been an artifact of my own pool choice. The rule is now shared by both paths.</p>
+
+<h2><span class="n">03 — retraction</span>The answer was stated too broadly</h2>
+<p>The project's answer ended: <em>“a perfect teacher's first move is a random start point, whose average is the middle of the box.”</em> <strong>Withdrawn.</strong> That is true of the h145 oracle <em>by construction</em> — its path interpolates from a <code>Uniform(domain)</code> start, so its first action is literally noise — but it is not a property of good teachers.</p>
+<p>Your framing: an expert teacher makes the <strong>optimal decision at every step</strong>, not one that merely <em>arrives</em> somewhere good.</p>
+<p>This makes the mechanism <em>sharper</em>, not weaker. If the model emits its teacher's first-step mean, then teacher quality helps <strong>iff it improves that mean</strong>. Re-reading the failures:</p>
+<div class="card">
+<h3>h145 — the “oracle”</h3>
+<p>Uniform random start → its first-step mean <em>is</em> the box centre. It destroyed exactly the signal the model consumes. Its 10/10 failure is evidence about that construction, not about teacher quality.</p>
+</div>
+<div class="card">
+<h3>h152 — the joint-information-gain beam</h3>
+<p>Optimises <code>argmin b_T</code> — the exact optimum of <em>the reward we wrote down</em>. Its elite node's first child <em>is</em> the greedy move, so its first step barely differs from the control. It could not have moved the outcome either.</p>
+</div>
+<p><strong>Neither arm ever varied the quantity the mechanism says is decisive.</strong> That is a gap, not a null.</p>
+
+<h2><span class="n">04 — running</span>A teacher that optimises the task</h2>
+<p>h198 is the first teacher here that optimises the <strong>task</strong> rather than an information criterion or the labelled reward. Each step, it scores candidates by <em>expected terminal best value</em>: condition on a fantasy outcome, let a greedy policy play out the remaining steps, average over fantasies, take the argmax.</p>
+<p>It is <strong>GP-only — no oracle access</strong>, so unlike h145 it is a deployable method rather than a diagnostic ceiling. Both label variants run as a factorial (your “build both and run both”), differing by a single flag.</p>
+<p>Gate passed before launch: it reduces <em>exactly</em> to greedy at <code>n_c=1</code> (6/6), and its first-step action differs from greedy on <strong>8/12</strong> starts — the decisive quantity does move, so a null here would refute sufficiency, not necessity.</p>
+
+<h2><span class="n">05</span>Failures, in full</h2>
+<div class="scroll"><table>
+<tr><th>what broke</th><th>outcome</th></tr>
+<tr><td>SC1 “failed” 4/6</td><td>the check's own RNG bug — the acquisition is stochastic. Fixed → 6/6</td></tr>
+<tr><td>Lookahead future was cost-bounded</td><td>let a 14-step future run inside an 8-step rollout. Now step-bounded</td></tr>
+<tr><td>Cost was 16.7 h/seed</td><td>infeasible. Two principled fixes → 2.1 h/seed</td></tr>
+<tr><td>Diagnostic hook used a name that didn't exist</td><td>died on NameError in 90 s; removed</td></tr>
+<tr><td>Intermediate readout offset by 40 cost units</td><td>printed “+11.77 worse on 5/5”; corrected, “−6.79 better on 4/5”</td></tr>
+</table></div>
+<p>The last one is the one worth dwelling on. In-flight checkpoints carry no <code>is_init</code> entries, so one arm sat on an unshifted cost axis while the control was shifted by −40. The readout ran without error and printed a confident, <em>sign-inverted</em> answer — the same class as the earlier bug where a readout produced a full verdict from runs that were 22% complete.</p>
+
+<div class="foot">
+<span class="tag">CONFIRMATORY</span><span class="tag">n = 5</span><span class="tag">no p-values</span>
+<p>Frozen metric: simple regret as % of |optimum| at cost 200, Borehole 8D, seeds 42–46. h197 (your full specification) and h198 (both arms) are still running; no result is quoted from them here. Intermediate curves from partial runs are not verdicts.</p>
+</div>
+</div>
