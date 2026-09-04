@@ -20,7 +20,35 @@
 # the endpoint, so reporting one as quality would have been misleading.
 # ============================================================================
 
-current_front:
+  h201_COMPLETE_2026_09_03: 'Both arms finished. h201A (h145''s oracle teacher + K=8
+    window) = 0.00 rel%, 5/5, essentially x*. h201B (SAME oracle teacher, K=1 matched
+    control) = 43.94 -- EXACTLY the saturation floor TAIL-MES independently hit, worse
+    than CTRL-K1 (11.59) on 5/5. Clean ablation: h201A-h201B = -43.94 (the teacher alone,
+    without the window, does nothing); h201B-CTRL-K1 = +32.35 (the window alone, without
+    a teacher whose late step is worth reading, does nothing -- consistent with h196/h197
+    which also hurt under MES+K8). Reconciled against h196/h197 via h202: ALL K=8 arms
+    (h196 0.085 LF, h197 0.092 LF, h201A 0.107 LF) pay an IDENTICAL fidelity-saturation
+    tax vs CTRL-K1''s 0.261 LF, regardless of teacher -- the window is necessary
+    infrastructure but not sufficient; only h201A had a late-step target good enough to
+    outweigh the tax. This is the sharpest confirmation yet of THE_ANSWER''s mechanism
+    (DT emits its teacher''s action mean AT THE READ POSITION) but ALSO surfaces a new,
+    UNVERIFIED structural concern (see NEXT below).'
+
+  OPEN_2026_09_03_RTG_POSITIONAL_OOD: 'Verified in code, NOT yet measured in a live run:
+    the K=8 window''s READOUT token is always conditioned on rtg_tgt (schema value built
+    from rtg[0], the FULL-rollout info gain -- large, positive), regardless of window
+    position. Training''s LAST-position label (rtg[-1] = log(b_values[-1]) - log(b_T), two
+    independent close estimates per mf_dro.py:2109''s own comment) is small and noisy
+    around ZERO. So under K=8 the model is asked to act at (position=7, RTG=large), a
+    combination training never showed it (only ever position=7 paired with RTG~0, and
+    RTG=large paired with position=0). h197''s window fix relabels HISTORY entries via
+    telescoping but does NOT touch the readout token''s own target. Plausible sharper
+    version of h180''s "RTG is architecturally inert" finding: inertness may be
+    POSITION-SPECIFIC (model learned near-zero RTG sensitivity at late positions, where
+    training showed near-zero RTG variance) rather than uniform. NOT YET an experiment --
+    needs a live measurement (histogram rtg[-1] in a training batch vs the rtg_tgt values
+    actually fed at K=8 real inference) before any fix is worth building.'
+
   IN_FLIGHT_2026_09_03: 'h197 (the human''s full 7-item specification: MES teacher,
     MES RTG labelling, L1 loss, K=8 sliding window, real-query info-gain labels,
     window-relative timestep, dynamic RTG prompt) -- Borehole seeds 42-46, all six
