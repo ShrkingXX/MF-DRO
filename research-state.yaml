@@ -20,6 +20,7 @@
 # the endpoint, so reporting one as quality would have been misleading.
 # ============================================================================
 
+current_front:
   h201_COMPLETE_2026_09_03: 'Both arms finished. h201A (h145''s oracle teacher + K=8
     window) = 0.00 rel%, 5/5, essentially x*. h201B (SAME oracle teacher, K=1 matched
     control) = 43.94 -- EXACTLY the saturation floor TAIL-MES independently hit, worse
