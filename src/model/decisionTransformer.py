@@ -592,7 +592,7 @@ class DecisionTransformer(nn.Module):
 
     def propose_mf(self, state, rtg_target, btg_target, timestep=0,
                     use_candidate_scoring=False, candidate_features=None,
-                    fidelity_sampling=True, hist=None):
+                    fidelity_sampling=True, hist=None, abs_t0=None):
         """
         Single-step MF inference.
         state:      [state_dim] tensor
@@ -678,7 +678,15 @@ class DecisionTransformer(nn.Module):
                     if _hx is not None:
                         ax[0, _i] = _hx.reshape(-1)[:self.action_dim].to(ax.dtype)
                         ae[0, _i] = int(_h.get('ae', 0))
-                ts = torch.arange(T, dtype=torch.long).unsqueeze(0)
+                # h205 arm B/C: ABSOLUTE episode indices [n-T+1 .. n], matching
+                # DT Algorithm 1's `t + [len(R)]` (the window slides, t keeps
+                # growing). abs_t0 is the absolute index of the window's FIRST
+                # token; None => the original arange(T) window-relative path,
+                # bit-identical.
+                if abs_t0 is not None:
+                    ts = (int(abs_t0) + torch.arange(T, dtype=torch.long)).unsqueeze(0)
+                else:
+                    ts = torch.arange(T, dtype=torch.long).unsqueeze(0)
             else:
                 T = 1
                 s = state.unsqueeze(0).unsqueeze(0)  # [1,1,state_dim]
@@ -686,7 +694,8 @@ class DecisionTransformer(nn.Module):
                 b = torch.tensor([[[btg_target]]], dtype=state.dtype)
                 ax = torch.zeros(1, 1, self.action_dim, dtype=state.dtype)
                 ae = torch.zeros(1, 1, dtype=torch.long)
-                ts = torch.tensor([[timestep]], dtype=torch.long)
+                ts = torch.tensor([[int(abs_t0) if abs_t0 is not None else timestep]],
+                                  dtype=torch.long)
 
             H = self.hidden_size
 

@@ -2591,6 +2591,16 @@ class DirectMFRegretOptimization:
         # leaves the T=1 path bit-for-bit unchanged.
         self._real_hist = []
         self.inference_context_k = int(getattr(config, 'inference_context_k', 1))
+        # h205. Both default False => bit-identical to every existing arm.
+        #   absolute_timesteps: label positions n_real_iter+tau in training and
+        #     [n-K+1..n] at inference, per DT Algorithm 1's absolute episode
+        #     index, instead of arange(T) which fuses index 7 to "fragment end".
+        #   real_prefix_training: prepend the last K-1 REAL queries to each
+        #     training sequence (loss masked off there), so the readout position
+        #     is trained at the same context DEPTH inference gives it.
+        self.absolute_timesteps = bool(getattr(config, 'absolute_timesteps', False))
+        self.real_prefix_training = bool(getattr(config, 'real_prefix_training', False))
+        self._pos_idx_seen = set()      # SC1: which embedding rows get gradient
         self.data_hf_x = []
         self.data_hf_y = []
         self.data_lf_x = []
@@ -3067,6 +3077,39 @@ class DirectMFRegretOptimization:
 
         return batch
 
+    def _build_real_prefix(self, P):
+        """h205 arm A/C: the last P real queries, as (state, rtg, btg, ax, ae)
+        for use as CONTEXT ahead of a simulated fragment.
+
+        RTG/BTG are labelled by h197's INFERENCE rule -- the telescoping
+        `rtg_tgt + log b_tau - log b_now` anchored at the current dynamic target
+        -- because these positions must look at training time exactly as they
+        look at inference. Labelling them any other way would introduce a NEW
+        train/inference mismatch while fixing the positional one (SC4).
+
+        Returns None when fewer than 1 real query exists (cold start), in which
+        case the caller trains on the bare fragment, exactly as arm B does.
+        """
+        if not self._real_hist or P <= 0:
+            return None
+        win = self._real_hist[-P:]
+        b_now = win[-1].get('b')
+        rtg_tgt = self._last_rtg_target
+        _M = len(self.ko_ensemble)
+        _sidx = 5 * _M + 1
+        out = []
+        for h in win:
+            r = float(h['rtg'])
+            if b_now is not None and h.get('b') is not None:
+                r = float(rtg_tgt + math.log(h['b']) - math.log(b_now))
+            out.append(dict(state=h['state'].reshape(-1).clone(), rtg=r,
+                            btg=float(h['btg']),
+                            ax=(h.get('ax').reshape(-1).clone()
+                                if h.get('ax') is not None else None),
+                            ae=int(h.get('ae', 0)),
+                            step_norm_slot=_sidx))
+        return out
+
     def _train_dt(self, batch):
         """
         Trains on a batch of rollouts whose lengths may differ (Change 1,
@@ -3091,6 +3134,20 @@ class DirectMFRegretOptimization:
         T_max = self.config.rollout_length
         B = len(batch)
         use_cs = self.use_candidate_scoring
+
+        # h205 arm A/C: prepend the last K-1 REAL queries as context. P is the
+        # OFFSET at which the simulated fragment starts, so the readout position
+        # (fragment tau=0) lands at index P -- the same index, with the same
+        # number of predecessors, that inference presents. Loss is masked off
+        # the prefix (valid_mask=False there), which is a LOSS mask only:
+        # decisionTransformer.forward_mf's own docstring states padded tokens
+        # "are still embedded and attended over by the transformer", which is
+        # exactly what makes the prefix serve as context.
+        _prefix = None
+        if self.real_prefix_training:
+            _prefix = self._build_real_prefix(max(int(self.inference_context_k) - 1, 0))
+        P = len(_prefix) if _prefix else 0
+        T_max = T_max + P
 
         state_dim = _get_mf_state_dim(self.d, self.config.M)
         states = torch.zeros(B, T_max, state_dim)
@@ -3120,20 +3177,46 @@ class DirectMFRegretOptimization:
 
         for i, t in enumerate(batch):
             T_i = t['states'].shape[0]  # actual (possibly BES-shortened) length
-            states[i, :T_i] = t['states']
-            actions_ell[i, :T_i] = t['actions_ell']
-            rtg[i, :T_i] = t['rtg']
-            btg[i, :T_i] = t['btg']
-            valid_mask[i, :T_i] = True
+            if P:
+                # Prefix occupies [0, P): real states/conditioning, loss masked.
+                for j, h in enumerate(_prefix):
+                    states[i, j] = h['state'][:state_dim]
+                    rtg[i, j] = h['rtg']
+                    btg[i, j] = h['btg']
+                    actions_ell[i, j] = h['ae']
+                    if (not use_cs) and h['ax'] is not None:
+                        actions_x[i, j] = h['ax'][:self.d]
+                # valid_mask stays False on [0, P): context, not supervision.
+            states[i, P:P + T_i] = t['states']
+            actions_ell[i, P:P + T_i] = t['actions_ell']
+            rtg[i, P:P + T_i] = t['rtg']
+            btg[i, P:P + T_i] = t['btg']
+            valid_mask[i, P:P + T_i] = True
             if use_cs:
-                candidates[i, :T_i] = t['candidates']
-                chosen_idx[i, :T_i] = t['chosen_idx']
-                teacher_scores[i, :T_i] = t['teacher_scores']
-                has_soft[i, :T_i] = t['has_soft']
+                candidates[i, P:P + T_i] = t['candidates']
+                chosen_idx[i, P:P + T_i] = t['chosen_idx']
+                teacher_scores[i, P:P + T_i] = t['teacher_scores']
+                has_soft[i, P:P + T_i] = t['has_soft']
             else:
-                actions_x[i, :T_i] = t['actions_x']
+                actions_x[i, P:P + T_i] = t['actions_x']
 
-        timesteps = torch.arange(T_max).unsqueeze(0).repeat(B, 1)
+        # h205 arm B/C: ABSOLUTE episode index per DT Algorithm 1's
+        # `t + [len(R)]`, instead of arange(T) which makes index 7 mean
+        # "fragment end" in every batch forever. The prefix (when present)
+        # occupies the P real steps immediately BEFORE this iteration, so the
+        # whole sequence is one contiguous absolute run of positions.
+        if self.absolute_timesteps:
+            _n = len(self.iteration_log)          # this query's real index
+            _start = max(_n - P, 0)
+            timesteps = (_start + torch.arange(T_max)).unsqueeze(0).repeat(B, 1)
+            _cap = int(self.dt.max_seq_length) - 1
+            if int(timesteps.max()) > _cap:       # SC3: fail loudly, not silently
+                raise RuntimeError(
+                    f"h205 absolute timestep {int(timesteps.max())} exceeds "
+                    f"max_seq_length-1 ({_cap}). Raise max_seq_length.")
+        else:
+            timesteps = torch.arange(T_max).unsqueeze(0).repeat(B, 1)
+        self._pos_idx_seen.update(range(int(timesteps.min()), int(timesteps.max()) + 1))
 
         # ── Required instrumentation (CRITICAL-2 + ISSUE-4), first BO
         # iteration only. Reports (a) teacher entropy before vs after
@@ -3553,13 +3636,19 @@ class DirectMFRegretOptimization:
                                   'btg': _h['btg'], 'ax': _h.get('ax'),
                                   'ae': _h.get('ae', 0)})
             self._last_ctx_len = (len(_hist) + 1) if _hist else 1
+            # h205 arm B/C: the window's FIRST token sits at absolute index
+            # n-(len(hist)), so the readout (last token, the CURRENT step) lands
+            # at absolute n -- exactly the index training labels this query with.
+            _n_real = len(self.iteration_log)
+            _abs_t0 = (max(_n_real - (len(_hist) if _hist else 0), 0)
+                       if self.absolute_timesteps else None)
             x_t, ell_t = self.dt.propose_mf(
                 state.float(), rtg_tgt, btg_now,
                 timestep=0,
                 use_candidate_scoring=self.use_candidate_scoring,
                 candidate_features=(cand_feats.float() if cand_feats is not None else None),
                 fidelity_sampling=self.fidelity_sampling,
-                hist=_hist,
+                hist=_hist, abs_t0=_abs_t0,
             )
             # H168 CONDITIONING PROBE (read-only, RNG-neutral, OFF by default).
             # h167 found the failing arms' DT fits its teacher 2.5-4x better than
