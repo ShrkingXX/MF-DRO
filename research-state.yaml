@@ -21,6 +21,20 @@
 # ============================================================================
 
 current_front:
+  h205_COMPLETE_2026_09_09: 'CONFIRMATORY, 15/15, 0 tracebacks. Final simple regret (frozen
+    rel% @ cost 200, Borehole 42-46): B absolute-only 10.68, C both 12.27, A prefix-only
+    13.12, vs CTRL-K1 11.59. P1 REFUTED -- A is +1.53 (se 0.20) and worse on 0/5. Ordering
+    prediction A>=C>B REFUTED and exactly INVERTED: observed B>C>A, A-B = +2.44 (se 0.96).
+    The protocol''s registered retraction condition (B >> A) FIRED: RETRACTED -- context
+    depth at the readout is NOT the binding constraint, and the real-history prefix is not
+    neutral but HARMFUL (adding it to B costs 1.59). B - CTRL = -0.91 (se 0.85, 4/5) does
+    NOT clear the +/-1.26 band registered for "no move", so B is not yet a win; no p-values
+    at n=5. EXPLORATORY and unregistered: the K=8 fidelity collapse is GONE in all three
+    arms (LF 0.253 / 0.305 / 0.462 vs h196 0.085, h197 0.092, CTRL 0.261) -- first evidence
+    the collapse was a CONSEQUENCE of the positional/phase defect, not of the window, which
+    is the confound halted h200 was built to attack. But fidelity and regret come apart: A
+    has CTRL-like LF 0.253 and is still the worst arm. K=8 family now reads 14.55 -> 13.96
+    -> 13.12 -> 12.27 -> 10.68; B is the first window arm at or below the no-window control.'
   h201_COMPLETE_2026_09_03: 'Both arms finished. h201A (h145''s oracle teacher + K=8
     window) = 0.00 rel%, 5/5, essentially x*. h201B (SAME oracle teacher, K=1 matched
     control) = 43.94 -- EXACTLY the saturation floor TAIL-MES independently hit, worse

@@ -4064,3 +4064,21 @@ three findings above were errors in MY OWN instruments. The risk to name: h198 i
 expensive (5.5 h/seed x 10) and justified by a mechanism argument. If it nulls,
 the protocol says that is P2 -- necessity survives, sufficiency refuted -- which
 is still informative, and that was written down BEFORE launch.
+
+## 2026-09-09 — h205 complete (CONFIRMATORY). P1 refuted; the ordering prediction inverted.
+
+15/15 finals, 0 tracebacks, ~2h/seed. Final simple regret (frozen rel% @ cost 200):
+B absolute-only **10.68**, C both 12.27, A prefix-only 13.12, CTRL-K1 11.59.
+
+- **P1 REFUTED** — A is +1.53 (se 0.20), worse on 0/5. **P3 supported on A and C.**
+- **Ordering A ≥ C > B REFUTED and exactly inverted** — observed B > C > A.
+- The protocol's own registered retraction condition (**B ≫ A**) fired.
+  **RETRACTED: context depth at the readout is the binding constraint.** The real-history
+  prefix is not neutral — it is harmful (it costs B 1.59 when added).
+- B − CTRL = −0.91 (se 0.85, 4/5) does **not** clear the ±1.26 band registered for "no
+  move". B is not yet a win. No p-values at n=5.
+- EXPLORATORY, unregistered: the K=8 **fidelity collapse is gone in all three arms**
+  (LF 0.253/0.305/0.462 vs h196 0.085, h197 0.092, CTRL 0.261). First evidence the collapse
+  was a consequence of the positional defect rather than of the window — the confound
+  halted h200 was built to attack. But fidelity and regret come apart: A has CTRL-like LF
+  and is still the worst arm.
