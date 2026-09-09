@@ -35,6 +35,14 @@ class DecisionTransformer(nn.Module):
         self.action_embedding = nn.Linear(action_dim, config.hidden_size)
         self.reward_embedding = nn.Linear(1, config.hidden_size)
         self.position_embedding = nn.Embedding(config.max_seq_length, config.hidden_size)
+        # h206: delete the positional signal ENTIRELY. nn.TransformerEncoder
+        # below carries no positional encoding of its own, so this embedding is
+        # the only explicit order signal; with it gone the sequence is ordered
+        # only by the causal mask, and tokens within a step are still told apart
+        # by the four modality-specific embedding layers. Default False =>
+        # bit-identical to every existing arm.
+        self.disable_position_embedding = bool(
+            getattr(config, 'disable_position_embedding', False))
 
         # Transformer
         encoder_layer = nn.TransformerEncoderLayer(
@@ -191,9 +199,6 @@ class DecisionTransformer(nn.Module):
         action_embeddings = self.action_embedding(actions)
         reward_embeddings = self.reward_embedding(rewards.unsqueeze(-1))
 
-        # Create position embeddings
-        position_embeddings = self.position_embedding(timesteps)
-
         # Combine embeddings for sequence input, interleaved per timestep as
         # [r_0, s_0, a_0, r_1, s_1, a_1, ...] -- RTG *first* within each triple.
         # This ordering matters specifically for the causal-masked case (see
@@ -216,7 +221,7 @@ class DecisionTransformer(nn.Module):
         # further down (both assume per-timestep interleaving).
         sequence = torch.stack([reward_embeddings, state_embeddings, action_embeddings], dim=2)
         sequence = sequence.reshape(batch_size, 3 * seq_length, self.hidden_size)
-        sequence = sequence + position_embeddings.repeat_interleave(3, dim=1)
+        sequence = self._add_pos(sequence, timesteps, 3)
 
         # Causal mask: ALWAYS applied (previously gated behind
         # use_quantile_rtg=True only). With RTG first in each triple (above),
@@ -251,6 +256,19 @@ class DecisionTransformer(nn.Module):
         # [r, s, a] per step, so index 2 was the ACTION token (self-visible
         # under the causal mask). Index 1 is the STATE token.
         return transformer_outputs[:, 1::3]
+
+
+    def _add_pos(self, seq, ts, tps):
+        """h206: add the per-timestep positional embedding, or nothing at all.
+
+        The ablation SKIPS THE LOOKUP rather than zeroing the product, so
+        `position_embedding.weight.grad` stays None. A zeroed product would
+        still register an all-zero grad tensor and would be indistinguishable
+        from a silent no-op -- which is exactly what SC1 has to rule out.
+        """
+        if self.disable_position_embedding:
+            return seq
+        return seq + self.position_embedding(ts).repeat_interleave(tps, dim=1)
 
     def forward(self, states, actions, rewards, timesteps, attention_mask=None, return_quantiles=False):
         h_action = self.get_action_hidden_states(states, actions, rewards, timesteps, attention_mask)
@@ -393,9 +411,6 @@ class DecisionTransformer(nn.Module):
         # H4: tokens-per-step depends on rtg_conditioning (4 vs 2).
         _adaln = (self.rtg_conditioning == 'adaln')
         _tps = 2 if _adaln else 4
-        pos_emb = self.position_embedding(timesteps) \
-            .repeat_interleave(_tps, dim=1)                   # [B,_tps*T,H]
-
         if _adaln:
             # [state, action] only -- rtg/btg are removed from the sequence
             # entirely and re-enter via AdaLN on the readout below.
@@ -405,7 +420,7 @@ class DecisionTransformer(nn.Module):
             seq = torch.stack(
                 [rtg_emb, btg_emb, s_emb, a_emb], dim=2
             ).reshape(B, 4 * T, H)                            # [B,4T,H]
-        seq = seq + pos_emb
+        seq = self._add_pos(seq, timesteps, _tps)
 
         # FIX 1: causal mask over the full 4T training sequence. RTG is
         # FIRST within each 4-token group (rtg,btg,s,a), so a_t at 4t+3 can
@@ -712,12 +727,11 @@ class DecisionTransformer(nn.Module):
                 a_emb = self.action_ln(self.action_embed_mf(act_inp))
                 _adaln = (self.rtg_conditioning == 'adaln')
                 _tps = 2 if _adaln else 4
-                pos_emb = self.position_embedding(ts).repeat_interleave(_tps, dim=1)
                 if _adaln:
                     seq = torch.stack([s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
                 else:
                     seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
-                seq = seq + pos_emb
+                seq = self._add_pos(seq, ts, _tps)
                 _L = _tps * T
                 _cm = torch.triu(torch.ones(_L, _L, dtype=torch.bool, device=seq.device),
                                  diagonal=1)
@@ -746,12 +760,11 @@ class DecisionTransformer(nn.Module):
             # this method was just fixed for comes straight back.
             _adaln = (self.rtg_conditioning == 'adaln')
             _tps = 2 if _adaln else 4
-            pos_emb = self.position_embedding(ts).repeat_interleave(_tps, dim=1)
             if _adaln:
                 seq = torch.stack([s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
             else:
                 seq = torch.stack([rtg_emb, btg_emb, s_emb, a_emb], dim=2).reshape(1, _tps * T, H)
-            seq = seq + pos_emb
+            seq = self._add_pos(seq, ts, _tps)
             # FIX 4: apply the SAME causal mask training uses. Without it
             # inference was BIDIRECTIONAL while training was causal -- a
             # train/inference mismatch in the attention pattern itself.

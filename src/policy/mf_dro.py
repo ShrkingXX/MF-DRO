@@ -2542,6 +2542,11 @@ class DirectMFRegretOptimization:
             # here deliberately -- see the H20 note below for what happens to a
             # dt_cfg field that is not.
             loc_loss=getattr(config, 'loc_loss', 'mse'),
+            # h206: forwarded to the DT's OWN config object -- dt_cfg and the
+            # MF-DRO config are separate, and H179/H20 both record what happens
+            # to a field that is set on one and read from the other.
+            disable_position_embedding=getattr(
+                config, 'disable_position_embedding', False),
             # H20 BUG FIX: this was NEVER forwarded, so DecisionTransformer's
             # `getattr(config, 'use_linear_score_head', True)` always saw a
             # dt_cfg without the attribute and silently defaulted to True.
