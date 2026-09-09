@@ -1,0 +1,1 @@
+{"bench": "Borehole_8D", "method": "MF-DRO", "seed": 46, "code": {"commit": "40f5197edd1ea96fa225e5ba31fc991f99825235", "dirty": false, "dirty_files": []}, "phase": "running", "n_queries": 0, "elapsed_s": 20.0, "queries": []}
