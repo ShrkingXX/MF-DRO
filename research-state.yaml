@@ -21,6 +21,22 @@
 # ============================================================================
 
 current_front:
+  h206_COMPLETE_2026_09_13: 'CONFIRMATORY, 10/10, 0 tracebacks. Final simple regret
+    (frozen rel% @ cost 200, Borehole 42-46): N no-position-K8 11.39, P arange-K8 matched
+    control on CURRENT code 14.44, vs h205B absolute-K8 10.68 and CTRL-K1 11.59. FALSIFIER
+    checked first: P - B = +3.76 (se 1.71, 4/5), outside the band -- arange-K8 reproduces
+    h196''s 13.96 on current code, h205 does NOT re-open. P1 SUPPORTED by the registered
+    criterion: N - B = +0.71 (se 1.30) inside +/-1.26. RETRACTED per the protocol''s own
+    registration: "absolute labelling is the fix". B''s mechanism was SUBTRACTIVE -- the
+    arange positional embedding under K=8 was an actively misleading input, and deleting it
+    (N - P = -3.05, 4/5) does what relabelling it did (B - P = -3.76, 4/5). Minimal fix is
+    deletion. Honest limit: paired se 1.30 equals the band and seed 43 carries most of
+    N - B, so "exactly nothing" vs "a little" is not separable at n=5. FIDELITY COLLAPSE NOW
+    PINNED: P LF 0.091 reproduces h196/h197''s 0.085/0.092 exactly; N LF 0.462 matches B''s
+    0.462 exactly. Five window arms, no exceptions -- arange embedding present => LF~0.09,
+    absent => no collapse. Closes the confound halted h200 was built for. With the harmful
+    signal gone the K=8 window is worth ~0 vs no window (N - CTRL -0.20, B - CTRL -0.91),
+    consistent with h198''s single-teacher root cause. NEXT: Q2 (RTG inert).'
   h205_COMPLETE_2026_09_09: 'CONFIRMATORY, 15/15, 0 tracebacks. Final simple regret (frozen
     rel% @ cost 200, Borehole 42-46): B absolute-only 10.68, C both 12.27, A prefix-only
     13.12, vs CTRL-K1 11.59. P1 REFUTED -- A is +1.53 (se 0.20) and worse on 0/5. Ordering

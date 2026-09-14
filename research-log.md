@@ -4082,3 +4082,18 @@ B absolute-only **10.68**, C both 12.27, A prefix-only 13.12, CTRL-K1 11.59.
   was a consequence of the positional defect rather than of the window — the confound
   halted h200 was built to attack. But fidelity and regret come apart: A has CTRL-like LF
   and is still the worst arm.
+
+## 2026-09-13 — h206 complete (CONFIRMATORY). P1 supported; "absolute labelling is the fix" retracted.
+
+10/10 finals, 0 tracebacks. N no-position-K8 **11.39**, P arange-K8 matched control
+**14.44** (current code; reproduces h196's 13.96), vs h205B 10.68, CTRL-K1 11.59.
+
+- **Falsifier first:** P − B = +3.76 (se 1.71, 4/5). h205's separation holds.
+- **P1 supported** by the registered criterion: N − B = +0.71 (se 1.30), inside ±1.26.
+  Honest limit: se equals the band; seed 43 carries most of it.
+- **Retracted** (registered in advance): "absolute labelling is the fix." The arange
+  embedding under K=8 was a harmful input; N − P = −3.05 and B − P = −3.76 are the same
+  effect. Minimal fix is deletion.
+- **Fidelity collapse pinned to the arange signal:** P LF 0.091 = h196/h197 exactly;
+  N LF 0.462 = h205B exactly. Five window arms, zero exceptions. Closes h200's confound.
+- With the harmful signal gone, K=8 ≈ no window (N − CTRL −0.20). Next: Q2.
