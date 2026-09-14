@@ -28,6 +28,12 @@ from benchmarks import get_benchmark
 from dro_runner import _build_mf_dro_config
 
 BUDGET=200.0; CKPT_S=20
+# h207 FIX: run() used to hardcode cfg.rollout_reward="mes_entropy" AFTER
+# _build_mf_dro_config, silently overwriting any worker that set the reward
+# inside its _build patch. h198's label fork (mes_entropy vs improvement) was
+# lost this way -- both arms ran mes_entropy, which is why they were
+# bit-identical. Override via h83.ROLLOUT_REWARD, never inside _build.
+ROLLOUT_REWARD="mes_entropy"
 SPEC={"Currin_2D":dict(n_hf=5,n_lf=15),
       "Hartmann_6D":dict(n_hf=6,n_lf=45),
       "Borehole_8D":dict(n_hf=10,n_lf=20),
@@ -82,7 +88,7 @@ def run(bench, method, seed, ckpt_path):
                 minimum_hf_fraction=0.25,real_hf_warmup=2,cost_budget=BUDGET,
                 initial_hf=sp["n_hf"],initial_lf=sp["n_lf"],dkl_threshold=9999,
                 bes_delta=0.0,rollout_length=8)
-            cfg.seed=seed; cfg.rollout_reward="mes_entropy"
+            cfg.seed=seed; cfg.rollout_reward=ROLLOUT_REWARD
             cfg.use_candidate_scoring=False              # regression head
             mf=DirectMFRegretOptimization(cfg,hf["make_objective"](),lf["make_objective"](),bounds)
             if method=="MF-DRO":

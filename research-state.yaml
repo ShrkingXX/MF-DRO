@@ -21,6 +21,19 @@
 # ============================================================================
 
 current_front:
+  RETRACTION_2026_09_14_h198_RTG_DISCONNECTED: 'h198''s "RTG channel is causally disconnected
+    end-to-end" is RETRACTED. The label fork was a SILENT NO-OP: h83''s worker.py run()
+    hardcodes cfg.rollout_reward="mes_entropy" AFTER _build_mf_dro_config, overwriting
+    h198b''s c.rollout_reward="improvement" set inside its _build patch. Proof: both arms''
+    per-iteration rtg_target is identical to 4 decimals over all ~110 iterations on every
+    seed (impossible for two different reward definitions). Bit-identical traces are
+    exactly what the same labels produce. A direct forward test shows RTG numerically
+    reaches propose_mf''s output (6.1e-02 on x), and h60''s REWARD arm (a real fork, set
+    after the override) moved the outcome. Everything citing h198 as evidence of RTG
+    inertness is withdrawn: research-state h198 entry, h205 protocol sentence, the
+    Layer-3 framing. The single-teacher hypothesis (RTG redundant given state) remains
+    LIVE but now UNTESTED -- it is what Q3 tests, not a premise. h83 worker fixed:
+    module knob ROLLOUT_REWARD, identity gate PASS. Only h198b was affected.'
   h206_COMPLETE_2026_09_13: 'CONFIRMATORY, 10/10, 0 tracebacks. Final simple regret
     (frozen rel% @ cost 200, Borehole 42-46): N no-position-K8 11.39, P arange-K8 matched
     control on CURRENT code 14.44, vs h205B absolute-K8 10.68 and CTRL-K1 11.59. FALSIFIER

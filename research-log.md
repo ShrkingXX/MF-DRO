@@ -4097,3 +4097,14 @@ B absolute-only **10.68**, C both 12.27, A prefix-only 13.12, CTRL-K1 11.59.
 - **Fidelity collapse pinned to the arange signal:** P LF 0.091 = h196/h197 exactly;
   N LF 0.462 = h205B exactly. Five window arms, zero exceptions. Closes h200's confound.
 - With the harmful signal gone, K=8 ≈ no window (N − CTRL −0.20). Next: Q2.
+
+## 2026-09-14 — RETRACTION: h198's "RTG causally disconnected" was a silent config override
+
+Found while designing Q3. Both h198 arms' per-iteration `rtg_target` are identical to 4
+decimals on every seed — two reward definitions cannot do that. Cause: h83 `worker.py`
+`run()` sets `cfg.rollout_reward="mes_entropy"` **after** `_build_mf_dro_config`, wiping
+h198b's `improvement` set inside `_build`. Both arms ran `mes_entropy`; bit-identical
+traces follow trivially. Direct forward test: RTG moves `propose_mf`'s x by 6.1e-02. h60's
+genuine REWARD fork moved outcomes. **RTG is wired; it was never tested by h198.** The
+single-teacher hypothesis survives as a live, untested explanation — now Q3's object, not
+its premise. Fix: `h83.ROLLOUT_REWARD` module knob; identity gate PASS. Only h198b affected.
