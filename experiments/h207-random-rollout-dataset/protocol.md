@@ -214,3 +214,15 @@ it is the arm whose interpretation depends least on the others landing first.
 so the trajectory is bit-identical to an unprobed twin). Sweep [0, 0.02, 0.05, 0.1, 0.2,
 0.3, 0.5, 0.75, 1.0] in normalized-RTG units. Sensitivity = mean over the last 30
 iterations of max over the sweep of |x(rtg) − x(rtg=0)|.
+
+## AMENDMENT 2 (before launch) — longest-first scheduling
+
+20 jobs on 15 slots. The first launch order (NIR, R, MIX, then W) put the slowest arm
+entirely after the fast ones: ~5 workers on 15 cores for W's whole ~3 h. Reordered
+**longest-first** — W, MIX, NIR launch immediately (15), R fills slots as they free —
+so wall ≈ max(T_W, T_NIR + T_R) instead of T_NIR + T_W, with cores busy throughout.
+The supervisor derives the order from SC7's *measured* per-iteration wall rather than
+my estimate. Threads stay 1/worker: raising `torch.set_num_threads` mid-run changes
+floating-point reduction order and would break bit-reproducibility against a 1-thread
+run, which this project's CRN and identity checks depend on. No arm, seed, or analysis
+changes.
