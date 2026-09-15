@@ -1070,7 +1070,11 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             y_star_seed=0,
                             # h207: P(HF) for the "random" teacher. 0.25 is the
                             # value h149 ran with, kept as the default.
-                            random_p_hf=0.25):
+                            random_p_hf=0.25,
+                            # h207: shared IR scoring pool (see __init__). None
+                            # falls back to roi_candidates (Stage-0 v1 behaviour).
+                            ir_pool=None,
+                            ir_probe_second_seed=False):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
     Change 1, may terminate it sooner -- see bes_delta below).
@@ -1490,7 +1494,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             _, b = fit_gumbel_to_samples(y_star_arr)
         return max(b, 1e-12)
 
-    def _rollout_ir(ko_for_ir, tau):
+    def _rollout_ir(ko_for_ir, tau, seed_shift=0):
         """h207: expected INFERENCE REGRET under ko_for_ir over the fixed
         roi_candidates pool:  E[max_x f_H(x)]  -  max_x mu_H(x).
 
@@ -1502,15 +1506,16 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         member at the same tau shares base normals and the argmin over
         rollouts is a PAIRED comparison (h152's winner's-curse lesson).
         """
+        _pool = ir_pool if ir_pool is not None else roi_candidates
         hf_proxy = _build_hf_proxy_model(ko_for_ir)
         _rs = torch.get_rng_state()
         try:
-            torch.manual_seed(int(y_star_seed) + 104729 * int(tau))
-            _ys = thompson_sample_y_star(hf_proxy, roi_candidates, K=K_rtg)
+            torch.manual_seed(int(y_star_seed) + 104729 * int(tau) + int(seed_shift))
+            _ys = thompson_sample_y_star(hf_proxy, _pool, K=K_rtg)
         finally:
             torch.set_rng_state(_rs)
         with torch.no_grad():
-            _mu_H, _ = ko_for_ir.hf_posterior(roi_candidates)
+            _mu_H, _ = ko_for_ir.hf_posterior(_pool)
         return float(np.mean(_ys)) - float(_mu_H.max())
 
     ir_values = []               # h207: IR_tau per step, rollout_reward=="inference_regret"
@@ -2178,8 +2183,13 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         if ir_values:
             ir_T = _rollout_ir(current_ko, len(ir_values))
             rtg_t = torch.tensor([v - ir_T for v in ir_values], dtype=dtype)
+            # SC8: same posterior, independent Thompson draws -> test-retest
+            # noise of the label. After the loop, RNG-restored: no behaviour
+            # change. Off in the arms.
+            ir_T_alt = (_rollout_ir(current_ko, len(ir_values), seed_shift=7_777_777)
+                        if ir_probe_second_seed else float('nan'))
         else:
-            ir_T = float('nan')
+            ir_T = float('nan'); ir_T_alt = float('nan')
             rtg_t = torch.zeros(0, dtype=dtype)
     else:
         b_T = _rollout_gumbel_b(current_ko)
@@ -2204,6 +2214,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     if rollout_reward == "inference_regret":
         traj['ir_0'] = float(ir_values[0]) if ir_values else float('nan')
         traj['ir_T'] = float(ir_T)
+        traj['ir_T_alt'] = float(ir_T_alt)
     if use_candidate_scoring:
         traj['candidates'] = torch.stack(candidates_list)
         # chosen_idx kept for diagnostics (and for the "thompson"/"random"
@@ -2414,6 +2425,20 @@ class DirectMFRegretOptimization:
             dimension=self.d, scramble=True, seed=config.seed + 991)
         _ys_unit = _sobol_ys.draw(Y_STAR_POOL_P).to(dtype=torch.float64)
         self.y_star_pool = bounds[0] + (bounds[1] - bounds[0]) * _ys_unit
+        # h207 (Stage 0 gate miss, SC3): a RUN-FIXED, domain-spanning pool for
+        # IR scoring. Scoring on each rollout's own roi_candidates (a fresh
+        # torch.rand draw per rollout) put ~23 IR-units of pure pool-sampling
+        # noise into IR_0 -- comparable to the top20/bottom20 gap itself -- so
+        # the argmin was selecting on pool luck. One pool for every rollout,
+        # every member and the real posterior makes IR_0 exactly shared within
+        # a member and IR comparable across real iterations. Built only under
+        # the IR label so no other path touches an extra RNG stream.
+        self.ir_pool = None
+        if getattr(config, 'rollout_reward', 'improvement') == 'inference_regret':
+            _sobol_ir = torch.quasirandom.SobolEngine(
+                dimension=self.d, scramble=True, seed=config.seed + 3001)
+            _ir_unit = _sobol_ir.draw(int(getattr(config, 'ir_pool_size', 600))).to(torch.float64)
+            self.ir_pool = bounds[0] + (bounds[1] - bounds[0]) * _ir_unit
         # Candidate scoring vs. regression location head -- see
         # DecisionTransformer.forward_mf/propose_mf's own docstrings.
         # False (default): original regression pipeline, bit-for-bit
@@ -2850,6 +2875,8 @@ class DirectMFRegretOptimization:
                 use_candidate_scoring=self.use_candidate_scoring,
                 rollout_policy=_policy,
                 random_p_hf=getattr(self.config, 'random_p_hf', 0.25),
+                ir_pool=getattr(self, 'ir_pool', None),
+                ir_probe_second_seed=getattr(self.config, 'ir_probe_second_seed', False),
                 rollout_reward=self.rollout_reward,
                 kg_signed=getattr(self.config, 'kg_signed', False),
                 kg_topk=getattr(self.config, 'kg_topk', 1),
@@ -3627,10 +3654,20 @@ class DirectMFRegretOptimization:
                     # h207: IR_real = E[max f_H] - max mu_H on the SAME pool
                     # and the SAME 2000 draws, so the real-side label is the
                     # rollout's _rollout_ir evaluated on the real posterior.
-                    if self.rollout_reward == "inference_regret":
+                    if self.rollout_reward == "inference_regret" and self.ir_pool is not None:
+                        # Same run-fixed pool the training labels were scored
+                        # on, 2000 draws, seeded by iteration and RNG-restored
+                        # (the _b_real draw above consumes global RNG; this
+                        # must not add to it).
+                        _rs_ir = torch.get_rng_state()
+                        try:
+                            torch.manual_seed(self.config.seed + 5003 * len(self.iteration_log))
+                            _ys_ir = thompson_sample_y_star(_proxy, self.ir_pool, K=2000)
+                        finally:
+                            torch.set_rng_state(_rs_ir)
                         with torch.no_grad():
-                            _muH_r, _ = self.ko_ensemble[0].hf_posterior(_cand)
-                        _ir_real = float(np.mean(_ys)) - float(_muH_r.max())
+                            _muH_r, _ = self.ko_ensemble[0].hf_posterior(self.ir_pool)
+                        _ir_real = float(np.mean(_ys_ir)) - float(_muH_r.max())
                 except Exception:
                     _b_real = None
                     _ir_real = None

@@ -66,6 +66,7 @@ def _b(*a, **k):
     c.absolute_timesteps = False; c.real_prefix_training = False
     c.disable_position_embedding = True
     c.random_p_hf = 0.5
+    c.ir_probe_second_seed = True          # SC8: rescore IR_T with an independent draw
     return c
 w._build_mf_dro_config = _b; w.ROLLOUT_REWARD = "inference_regret"; w.BUDGET = BUDGET
 buf = io.StringIO()
@@ -102,20 +103,41 @@ with contextlib.redirect_stdout(io.StringIO()):
 M = len(mf.ko_ensemble)
 def by_member(b, n_per):
     return [b[i*n_per:(i+1)*n_per] for i in range(M)]
-say(f"\nSC3 something to select (per member, 100 random rollouts, IR units raw):")
+# ---- SC8: label RELIABILITY (test-retest), the noise floor for SC3/SC4 -------
+def reliability(groups):
+    """groups: list of per-member lists of (ir_T, ir_T_alt). Within-member
+    variance of ir_T = signal + noise; noise = Var(ir_T - ir_T_alt)/2 pooled.
+    reliability = (V_w - V_n) / V_w."""
+    vw, vn, n = 0.0, 0.0, 0
+    for g in groups:
+        a = np.array([t[0] for t in g]); b = np.array([t[1] for t in g])
+        vw += ((a - a.mean()) ** 2).sum(); vn += ((a - b) ** 2).sum() / 2.0; n += len(g)
+    vw /= max(n - len(groups), 1); vn /= max(n, 1)
+    return float((vw - vn) / vw) if vw > 0 else float("nan"), float(np.sqrt(vn)), float(np.sqrt(vw))
+rel_mes = reliability([[(t['ir_T'], t['ir_T_alt']) for t in g] for g in by_member(b_mes, 20)])
+rel_rnd = reliability([[(t['ir_T'], t['ir_T_alt']) for t in g] for g in by_member(b_rnd, 100)])
+say(f"\nSC8 label reliability of IR_T (within-member signal fraction; noise = independent Thompson draws):")
+say(f"     MES-20/member:    reliability={rel_mes[0]:.3f}   noise sd={rel_mes[1]:.3f}   within sd={rel_mes[2]:.3f}")
+say(f"     random-100/member: reliability={rel_rnd[0]:.3f}   noise sd={rel_rnd[1]:.3f}   within sd={rel_rnd[2]:.3f}")
+ok["SC8"] = np.isfinite(rel_rnd[0]) and rel_rnd[0] > rel_mes[0]
+say(f"     registered: reliability(random) > reliability(MES) -- diversity raises the label's signal fraction")
+say(f"     -> {'PASS' if ok['SC8'] else 'FAIL'}")
+NOISE_SD = rel_rnd[1]
+
+say(f"\nSC3 something to select (per member, 100 random rollouts, IR units raw, ranked by rtg[0] as the code does):")
 sc3 = True; lf_top, lf_all = [], []
 for m, trs in enumerate(by_member(b_rnd, 100)):
     r0 = np.array([float(t['rtg'][0]) for t in trs]); irT = np.array([t['ir_T'] for t in trs])
     ir0 = np.array([t['ir_0'] for t in trs]); lf = np.array([t['lf_fraction'] for t in trs])
-    order = np.argsort(irT); top, bot = order[:20], order[-20:]
-    cv = r0.std() / max(abs(r0.mean()), 1e-12)
-    say(f"     m{m}: IR_0 shared? spread={np.ptp(ir0):.2e}  rtg0 CV={cv:.3f}  "
-        f"IR_T top20={irT[top].mean():.4f} bot20={irT[bot].mean():.4f} med={np.median(irT):.4f}  "
-        f"LF top20={lf[top].mean():.2f} all={lf.mean():.2f}")
-    sc3 &= (np.ptp(ir0) < 1e-6) and (irT[top].mean() < irT[bot].mean()) and (cv > 0.05)
+    order = np.argsort(-r0); top, bot = order[:20], order[-20:]
+    cv = r0.std() / max(abs(r0.mean()), 1e-12); gap = irT[bot].mean() - irT[top].mean()
+    say(f"     m{m}: IR_0 spread={np.ptp(ir0):.2e} (want 0)  rtg0 CV={cv:.3f}  "
+        f"IR_T top20={irT[top].mean():.4f} bot20={irT[bot].mean():.4f} gap={gap:.3f} "
+        f"(= {gap/max(NOISE_SD,1e-9):.1f} x noise sd)  LF top20={lf[top].mean():.2f} all={lf.mean():.2f}")
+    sc3 &= (np.ptp(ir0) < 1e-9) and (gap > 2.0 * NOISE_SD) and (cv > 0.05)
     lf_top.append(lf[top].mean()); lf_all.append(lf.mean())
 ok["SC3"] = bool(sc3)
-say(f"     -> {'PASS' if ok['SC3'] else 'FAIL'}  (IR_0 shared within member, top20 < bot20, CV > 0.05)")
+say(f"     -> {'PASS' if ok['SC3'] else 'FAIL'}  (IR_0 exactly shared, top-bottom gap > 2 x noise sd, CV > 0.05)")
 
 say(f"\nSC4 Layer 3 as a number: eta^2 = between-member SS / total SS of rtg[0]")
 def eta2(groups):

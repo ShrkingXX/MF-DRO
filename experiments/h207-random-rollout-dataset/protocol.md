@@ -226,3 +226,49 @@ my estimate. Threads stay 1/worker: raising `torch.set_num_threads` mid-run chan
 floating-point reduction order and would break bit-reproducibility against a 1-thread
 run, which this project's CRN and identity checks depend on. No arm, seed, or analysis
 changes.
+
+## AMENDMENT 3 — Stage 0 v1 GATE MISS (reported in full), diagnosis, fix, new SC
+
+**Stage 0 v1: FAIL** (SC0 PASS, SC1 PASS, SC6 PASS, SC7 PASS; **SC3 FAIL, SC4 FAIL**).
+The supervisor launched nothing. Full log kept as `logs/stage0_v1_FAIL.log`.
+
+```
+SC3: m0 IR_0 spread=2.28e+01  top20 IR_T=10.05  bot20=25.89   (m1, m2 similar)
+SC4: eta^2(MES)=0.064  eta^2(random)=0.096  -> registered inequality FAILS
+SC5: MES-20 IR_T 11.5/13.9/13.8  vs  top20-of-100-random 14.5/21.2/16.0  (MES better, all 3)
+SC7: MES-20/member 22.1 s   random-100/member 72.7 s   -> W is 3.3x the control per iteration
+```
+
+**Diagnosis — one cause for both failures.** `_rollout_ir` scored each rollout on its own
+`roi_candidates`, which is a fresh `torch.rand` draw per rollout. IR_0 — meant to be
+shared within a member — varied by ~23 IR-units from pool sampling alone, comparable to
+the top20/bottom20 gap (~16). The argmin was partly selecting on pool luck: the exact
+winner's-curse failure the CRN was added to prevent, re-entering through the pool rather
+than the Thompson draws. SC4's η² was computed on labels dominated by that same noise, so
+0.064 vs 0.096 is a noise-to-noise ratio and says nothing about Layer 3 yet.
+
+**Fix (identity gate PASS).** A **run-fixed, domain-spanning scoring pool** `ir_pool`
+(600 scrambled-Sobol points, seeded per run, built only under the IR label). Every
+rollout of every member and the real posterior at inference score on the same points.
+IR_0 is now exactly shared within a member; IR_τ is comparable across real iterations
+(the per-iteration `_b_real` pool resample, which the code's own comment records as
+making b "flat and non-monotone", no longer touches the IR label). Behaviour path
+(`roi_candidates` for choosing x) unchanged, so SC0 parity is re-run, not assumed.
+
+**SC8 added — label reliability (test-retest).** Each rollout's final posterior is
+rescored with an independent Thompson draw (`ir_probe_second_seed`, Stage 0 only,
+RNG-restored). reliability = (V_within − V_noise)/V_within. **Registered:
+reliability(random) > reliability(MES)** — diversity raises the signal fraction of the
+label. This is Q3-data restated in its cleanest form: for single-teacher data the label
+may be mostly fantasy noise, in which case a DT that ignores it is behaving correctly and
+the remedy is behaviour variance, not a different architecture.
+
+**SC3 tightened:** IR_0 spread must be exactly 0; the top-20/bottom-20 gap must exceed
+2× the SC8 noise sd; ranking is by rtg[0] as the code selects.
+
+**SC5 (diagnostic) as measured in v1:** MES beat the best-20-of-100 random winners on all
+three members (+4.2 IR-units mean). Under pool noise, but directionally as leaned (P-W).
+Re-measured in v2.
+
+**SC7:** W ≈ 3.3× the control per iteration (~4.6 h/seed). Longest-first order confirmed
+by measurement: W, MIX, NIR, R.
