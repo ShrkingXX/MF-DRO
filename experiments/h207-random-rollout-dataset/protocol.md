@@ -185,3 +185,32 @@ teacher's `scores=None` falls through to hard targets, as it must.
 Frozen: final simple regret, rel% of |optimum| @ cost 200, metric IMPORTED from h83's
 `sr_curve`/`grid`. Finals only, never `results/ckpt/`. Endpoint only. No p-values at n=5.
 Every run and every gate reported, including misses.
+
+---
+
+## AMENDMENT (before launch, 2026-09-15) — a confound I missed, and a 4th arm
+
+W, R and MIX all use the `inference_regret` label. The control h206N uses `mes_entropy`.
+So every arm-vs-N comparison would have changed TWO things: the data composition AND the
+reward label. h60's genuine reward fork moved the outcome by ~+1 (0/3), so the label
+alone is not nothing. As written, MIX ≠ N could not be attributed.
+
+**Arm N-IR added:** h206N's configuration exactly (20 MES rollouts/member, K=8, no
+positional embedding, ROI-Q10) with `inference_regret` as the label. It is the matched
+control for W/R/MIX — one change from each — and it carries the H168 probe, which h206N
+did not, so the RTG-sensitivity comparison for MIX's mechanism has its baseline.
+
+- **P-NIR:** |N-IR − N| ≤ 1.26. The label alone should not move the endpoint; if it does
+  by more than the band, h60's small effect was real and the IR label is itself an
+  intervention, which reframes the other three arms.
+- **Predictions P-R, P-W, P-MIX are now scored against N-IR**, not N. Their signs and
+  bands are unchanged.
+
+**Compute:** 4 arms × 5 seeds = 20 > 15. Launch order: N-IR, R, MIX first (15 workers);
+W is queued by the supervisor and launches seed-by-seed as slots free. W is last because
+it is the arm whose interpretation depends least on the others landing first.
+
+**Every arm carries the H168 probe** (RNG-neutral: state saved and restored around it,
+so the trajectory is bit-identical to an unprobed twin). Sweep [0, 0.02, 0.05, 0.1, 0.2,
+0.3, 0.5, 0.75, 1.0] in normalized-RTG units. Sensitivity = mean over the last 30
+iterations of max over the sweep of |x(rtg) − x(rtg=0)|.

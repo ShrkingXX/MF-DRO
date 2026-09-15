@@ -1067,7 +1067,10 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             roi_raw_pool=2000,
                             roi_x_star=None,
                             roi_stats=None,
-                            y_star_seed=0):
+                            y_star_seed=0,
+                            # h207: P(HF) for the "random" teacher. 0.25 is the
+                            # value h149 ran with, kept as the default.
+                            random_p_hf=0.25):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
     Change 1, may terminate it sooner -- see bes_delta below).
@@ -1487,6 +1490,30 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             _, b = fit_gumbel_to_samples(y_star_arr)
         return max(b, 1e-12)
 
+    def _rollout_ir(ko_for_ir, tau):
+        """h207: expected INFERENCE REGRET under ko_for_ir over the fixed
+        roi_candidates pool:  E[max_x f_H(x)]  -  max_x mu_H(x).
+
+        E[max] is the Thompson-sample mean (K_rtg joint draws), NOT the Gumbel
+        scale b that _rollout_gumbel_b returns -- b measures uncertainty about
+        the max, this measures the expected gap between the optimum and the
+        point the model would recommend now. CRN: the draw is seeded by
+        (y_star_seed, tau) and the RNG state restored, so every rollout of a
+        member at the same tau shares base normals and the argmin over
+        rollouts is a PAIRED comparison (h152's winner's-curse lesson).
+        """
+        hf_proxy = _build_hf_proxy_model(ko_for_ir)
+        _rs = torch.get_rng_state()
+        try:
+            torch.manual_seed(int(y_star_seed) + 104729 * int(tau))
+            _ys = thompson_sample_y_star(hf_proxy, roi_candidates, K=K_rtg)
+        finally:
+            torch.set_rng_state(_rs)
+        with torch.no_grad():
+            _mu_H, _ = ko_for_ir.hf_posterior(roi_candidates)
+        return float(np.mean(_ys)) - float(_mu_H.max())
+
+    ir_values = []               # h207: IR_tau per step, rollout_reward=="inference_regret"
     states = []
     actions_x = []               # used when use_candidate_scoring=False
     candidates_list = []         # used when use_candidate_scoring=True
@@ -1698,7 +1725,7 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             N = roi_candidates.shape[0]
             cand_idx = torch.randint(0, N, (1,)).item()
             x_tau = roi_candidates[cand_idx]
-            ell_tau = 1 if torch.rand(1).item() < 0.25 else 0
+            ell_tau = 1 if torch.rand(1).item() < random_p_hf else 0
             scores = None
         else:
             x_tau, ell_tau, scores = compute_joint_mf_mes(
@@ -1892,6 +1919,9 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         # No-op (skipped) under rollout_reward=="improvement" -- that mode's
         # RTG signal doesn't use the Gumbel scale, see docstring above.
         b_tau = _rollout_gumbel_b(current_ko) if rollout_reward == "mes_entropy" else None
+        # h207: IR_tau of the posterior BEFORE this step's observation.
+        if rollout_reward == "inference_regret":
+            ir_values.append(_rollout_ir(current_ko, tau))
 
         # 4. Sample fantasy observation -- or, under use_real_rollout_queries
         # (MF-DRO-Real diagnostic), evaluate the TRUE objective at x_tau
@@ -2140,6 +2170,17 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             zero_reward_frac = float((r_t == 0).float().mean())
         else:
             rtg_t = torch.zeros(0, dtype=dtype)
+    elif rollout_reward == "inference_regret":
+        # h207: r_tau = IR_tau - IR_{tau+1}; RTG[tau] = sum_{t>=tau} r_t
+        #              = IR_tau - IR_T.  RTG[0] = IR_0 - IR_T, and IR_0 is
+        # shared by every rollout of a member (same posterior, same CRN
+        # seed), so argmax RTG[0] == argmin IR_T == the winner.
+        if ir_values:
+            ir_T = _rollout_ir(current_ko, len(ir_values))
+            rtg_t = torch.tensor([v - ir_T for v in ir_values], dtype=dtype)
+        else:
+            ir_T = float('nan')
+            rtg_t = torch.zeros(0, dtype=dtype)
     else:
         b_T = _rollout_gumbel_b(current_ko)
         log_b_T = math.log(b_T)
@@ -2160,6 +2201,9 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     }
     if zero_reward_frac is not None:
         traj['zero_reward_frac'] = zero_reward_frac
+    if rollout_reward == "inference_regret":
+        traj['ir_0'] = float(ir_values[0]) if ir_values else float('nan')
+        traj['ir_T'] = float(ir_T)
     if use_candidate_scoring:
         traj['candidates'] = torch.stack(candidates_list)
         # chosen_idx kept for diagnostics (and for the "thompson"/"random"
@@ -2774,78 +2818,106 @@ class DirectMFRegretOptimization:
     def _generate_rollout_batch(self):
         batch = []
         use_pool = getattr(self.config, 'use_teacher_pool', False)
+        # h207: per-member batch COMPOSITION. None (default) reproduces the
+        # original loop exactly: rollouts_per_model draws of self.rollout_policy
+        # (or the ITEM-2 pool). Otherwise a list of (policy, n, topk) specs,
+        # e.g. [('mes', 20, None), ('random', 100, 20)] -- generate n rollouts
+        # under `policy`, keep the topk by rtg[0] (None = keep all). Selection
+        # is by rtg[0] BEFORE the batch-level normalization below, which is a
+        # single scale and so cannot change the order. Policy identity is
+        # recorded on the trajectory for diagnostics only; it never enters
+        # the state or the features.
+        mix = getattr(self.config, 'rollout_mix', None)
+
+        def _roll(ko, _policy):
+            return simulate_mf_trajectory(
+                ko,
+                (self.data_hf_x, self.data_hf_y),
+                (self.data_lf_x, self.data_lf_y),
+                rollout_length=self.config.rollout_length,
+                c_H=self.c_H, c_L=self.c_L,
+                bounds=self.bounds,
+                n_real_iter=len(self.data_hf_y),
+                T_real=self.config.bo_iterations,
+                ko_ensemble_full=self.ko_ensemble,
+                ref_grid=self.state_ref_grid,
+                minimum_hf_fraction=getattr(self.config, 'minimum_hf_fraction', 0.25),
+                tau0_shift_lambda=getattr(self.config, 'tau0_shift_lambda', None),
+                tau0_shift_mode=getattr(self.config, 'tau0_shift_mode', 'centre'),
+                tau0_rot_axes=getattr(self.config, 'tau0_rot_axes', (0, 1)),
+                use_rtg_grounding=getattr(self.config, 'use_rtg_grounding', False),
+                bes_delta=getattr(self.config, 'bes_delta', 0.05),
+                use_candidate_scoring=self.use_candidate_scoring,
+                rollout_policy=_policy,
+                random_p_hf=getattr(self.config, 'random_p_hf', 0.25),
+                rollout_reward=self.rollout_reward,
+                kg_signed=getattr(self.config, 'kg_signed', False),
+                kg_topk=getattr(self.config, 'kg_topk', 1),
+                fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
+                n_roi_candidates=getattr(self.config, 'n_roi_candidates', 600),
+                teacher_lookahead_nc=getattr(self.config, 'teacher_lookahead_nc', 8),
+                teacher_lookahead_M=getattr(self.config, 'teacher_lookahead_M', 4),
+                teacher_lookahead_base_pool=getattr(self.config, 'teacher_lookahead_base_pool', 150),
+                teacher_lookahead_oracle=getattr(self.config, 'teacher_lookahead_oracle', None),
+                teacher_refine_samples=getattr(self.config, 'teacher_refine_samples', 0),
+                teacher_refine_noise=getattr(self.config, 'teacher_refine_noise', 0.05),
+                use_roi=self.use_roi,
+                roi_mode=getattr(self.config, 'roi_mode', 'ucb'),
+                roi_top_q=getattr(self.config, 'roi_top_q', 0.10),
+                roi_y_star_pool=self.y_star_pool,
+                roi_beta_sqrt=getattr(self.config, 'roi_beta_sqrt', 2.0),
+                roi_beta_mode=getattr(self.config, 'roi_beta_mode', 'fixed'),
+                roi_target_accept=getattr(self.config, 'roi_target_accept', 0.10),
+                roi_accept_start=getattr(self.config, 'roi_accept_start', None),
+                roi_accept_end=getattr(self.config, 'roi_accept_end', None),
+                roi_raw_pool=getattr(self.config, 'roi_raw_pool', 2000),
+                roi_x_star=self._roi_x_star,
+                roi_stats=self.roi_stats,
+                use_real_rollout_queries=self.use_real_rollout_queries,
+                f_hf_real=(self.f_hf if self.use_real_rollout_queries else None),
+                f_lf_real=(self.f_lf if self.use_real_rollout_queries else None),
+                refit_hyperparams_in_rollout=self.refit_hyperparams_in_rollout,
+                # Change 3b: seed the recent_hf_frac window from the REAL
+                # recent fidelity history, so tau=0 isn't the hardcoded
+                # 0.5 that real inference never presents.
+                recent_ell_seed=list(self.recent_ell_history),
+                use_candidate_features=self.use_candidate_features,
+                use_state_standardization=self.use_state_standardization,
+                y_star_pool=self.y_star_pool,
+                # Seed derived from the BO ITERATION index (not a run
+                # constant), so a single draw's sampling error is not
+                # frozen across the whole run while each iteration's own
+                # features stay internally consistent/deterministic.
+                y_star_seed=self.config.seed + 7919 * len(self.iteration_log),
+            )
+
         for ko in self.ko_ensemble:
-            for _ in range(self.config.rollouts_per_model):
-                # ITEM 2: teacher sampled UNIFORMLY PER ROLLOUT (one draw for
-                # this whole trajectory's rollout_length steps, not per
-                # step) when use_teacher_pool is set. Teacher identity is
-                # used ONLY to pick which acquisition branch runs inside
-                # simulate_mf_trajectory -- it is never written into the
-                # state or candidate features (both are built purely from
-                # GP posterior/MES quantities, with no policy-identity input
-                # anywhere in _extract_mf_state/build_candidate_features).
-                _policy = (self.TEACHER_POOL[torch.randint(0, len(self.TEACHER_POOL), (1,)).item()]
-                           if use_pool else self.rollout_policy)
-                traj = simulate_mf_trajectory(
-                    ko,
-                    (self.data_hf_x, self.data_hf_y),
-                    (self.data_lf_x, self.data_lf_y),
-                    rollout_length=self.config.rollout_length,
-                    c_H=self.c_H, c_L=self.c_L,
-                    bounds=self.bounds,
-                    n_real_iter=len(self.data_hf_y),
-                    T_real=self.config.bo_iterations,
-                    ko_ensemble_full=self.ko_ensemble,
-                    ref_grid=self.state_ref_grid,
-                    minimum_hf_fraction=getattr(self.config, 'minimum_hf_fraction', 0.25),
-                    tau0_shift_lambda=getattr(self.config, 'tau0_shift_lambda', None),
-                    tau0_shift_mode=getattr(self.config, 'tau0_shift_mode', 'centre'),
-                    tau0_rot_axes=getattr(self.config, 'tau0_rot_axes', (0, 1)),
-                    use_rtg_grounding=getattr(self.config, 'use_rtg_grounding', False),
-                    bes_delta=getattr(self.config, 'bes_delta', 0.05),
-                    use_candidate_scoring=self.use_candidate_scoring,
-                    rollout_policy=_policy,
-                    rollout_reward=self.rollout_reward,
-                    kg_signed=getattr(self.config, 'kg_signed', False),
-                    kg_topk=getattr(self.config, 'kg_topk', 1),
-                    fantasy_mode=getattr(self.config, 'fantasy_mode', 'sample'),
-                    n_roi_candidates=getattr(self.config, 'n_roi_candidates', 600),
-                    teacher_lookahead_nc=getattr(self.config, 'teacher_lookahead_nc', 8),
-                    teacher_lookahead_M=getattr(self.config, 'teacher_lookahead_M', 4),
-                    teacher_lookahead_base_pool=getattr(self.config, 'teacher_lookahead_base_pool', 150),
-                    teacher_lookahead_oracle=getattr(self.config, 'teacher_lookahead_oracle', None),
-                    teacher_refine_samples=getattr(self.config, 'teacher_refine_samples', 0),
-                    teacher_refine_noise=getattr(self.config, 'teacher_refine_noise', 0.05),
-                    use_roi=self.use_roi,
-                    roi_mode=getattr(self.config, 'roi_mode', 'ucb'),
-                    roi_top_q=getattr(self.config, 'roi_top_q', 0.10),
-                    roi_y_star_pool=self.y_star_pool,
-                    roi_beta_sqrt=getattr(self.config, 'roi_beta_sqrt', 2.0),
-                    roi_beta_mode=getattr(self.config, 'roi_beta_mode', 'fixed'),
-                    roi_target_accept=getattr(self.config, 'roi_target_accept', 0.10),
-                    roi_accept_start=getattr(self.config, 'roi_accept_start', None),
-                    roi_accept_end=getattr(self.config, 'roi_accept_end', None),
-                    roi_raw_pool=getattr(self.config, 'roi_raw_pool', 2000),
-                    roi_x_star=self._roi_x_star,
-                    roi_stats=self.roi_stats,
-                    use_real_rollout_queries=self.use_real_rollout_queries,
-                    f_hf_real=(self.f_hf if self.use_real_rollout_queries else None),
-                    f_lf_real=(self.f_lf if self.use_real_rollout_queries else None),
-                    refit_hyperparams_in_rollout=self.refit_hyperparams_in_rollout,
-                    # Change 3b: seed the recent_hf_frac window from the REAL
-                    # recent fidelity history, so tau=0 isn't the hardcoded
-                    # 0.5 that real inference never presents.
-                    recent_ell_seed=list(self.recent_ell_history),
-                    use_candidate_features=self.use_candidate_features,
-                    use_state_standardization=self.use_state_standardization,
-                    y_star_pool=self.y_star_pool,
-                    # Seed derived from the BO ITERATION index (not a run
-                    # constant), so a single draw's sampling error is not
-                    # frozen across the whole run while each iteration's own
-                    # features stay internally consistent/deterministic.
-                    y_star_seed=self.config.seed + 7919 * len(self.iteration_log),
-                )
-                batch.append(traj)
+            specs = ([(None, self.config.rollouts_per_model, None)] if mix is None
+                     else list(mix))
+            for _pol, _n, _topk in specs:
+                member = []
+                for _ in range(int(_n)):
+                    # ITEM 2: teacher sampled UNIFORMLY PER ROLLOUT (one draw for
+                    # this whole trajectory's rollout_length steps, not per
+                    # step) when use_teacher_pool is set. Teacher identity is
+                    # used ONLY to pick which acquisition branch runs inside
+                    # simulate_mf_trajectory -- it is never written into the
+                    # state or candidate features (both are built purely from
+                    # GP posterior/MES quantities, with no policy-identity input
+                    # anywhere in _extract_mf_state/build_candidate_features).
+                    if _pol is not None:
+                        _policy = _pol
+                    else:
+                        _policy = (self.TEACHER_POOL[torch.randint(0, len(self.TEACHER_POOL), (1,)).item()]
+                                   if use_pool else self.rollout_policy)
+                    traj = _roll(ko, _policy)
+                    traj['_policy'] = _policy
+                    member.append(traj)
+                if _topk is not None and int(_topk) < len(member):
+                    member.sort(key=lambda t: (-float(t['rtg'][0]) if t['rtg'].numel() > 0
+                                               else float('inf')))
+                    member = member[:int(_topk)]
+                batch.extend(member)
 
         # RTG-CAP FIX: batch-level normalization for rollout_reward==
         # "improvement" (see simulate_mf_trajectory's own comment on why
@@ -2863,7 +2935,7 @@ class DirectMFRegretOptimization:
         # "raw" skips normalisation entirely so the target is the raw
         # improvement, which spans orders of magnitude over a run by
         # construction. Tests whether RTG is ignored or merely starved.
-        if self.rollout_reward in ("improvement", "kg_incumbent") and \
+        if self.rollout_reward in ("improvement", "kg_incumbent", "inference_regret") and \
                 getattr(self.config, 'rtg_target_mode', 'normalized') != 'raw':
             # Scale by the running max of |rtg[0]|, NOT of rtg[0].
             #
@@ -3515,6 +3587,7 @@ class DirectMFRegretOptimization:
             # Gated on inference_context_k > 1: the default K=1 path must stay
             # bit-identical, and this draws a candidate pool (consuming RNG).
             _b_real = None
+            _ir_real = None          # h207: real-posterior IR, inference_regret mode
             if self.inference_context_k > 1:
                 try:
                     # The pool MUST be built by the same rule the rollout
@@ -3551,8 +3624,16 @@ class DirectMFRegretOptimization:
                     _ys = thompson_sample_y_star(_proxy, _cand, K=2000)
                     _, _bb = fit_gumbel_to_samples(_ys)
                     _b_real = float(max(_bb, 1e-12))
+                    # h207: IR_real = E[max f_H] - max mu_H on the SAME pool
+                    # and the SAME 2000 draws, so the real-side label is the
+                    # rollout's _rollout_ir evaluated on the real posterior.
+                    if self.rollout_reward == "inference_regret":
+                        with torch.no_grad():
+                            _muH_r, _ = self.ko_ensemble[0].hf_posterior(_cand)
+                        _ir_real = float(np.mean(_ys)) - float(_muH_r.max())
                 except Exception:
                     _b_real = None
+                    _ir_real = None
 
             _K = self.inference_context_k
             _hist = None
@@ -3632,7 +3713,19 @@ class DirectMFRegretOptimization:
                 _hist = []
                 for _i, _h in enumerate(_win):
                     _r = _h['rtg']
-                    if _b_now is not None and _bs[_i] is not None:
+                    if self.rollout_reward == "inference_regret":
+                        # h207: same telescoping shape as the log-b rule below,
+                        # in IR units, divided by the batch normalization scale
+                        # the training labels were divided by:
+                        #   R_hat_tau = R_hat_now + (IR_tau - IR_now) / scale.
+                        _ir_i = _h.get('ir')
+                        if _ir_real is not None and _ir_i is not None:
+                            _sc = getattr(self, '_running_max_rtg_raw', 0.0)
+                            if (getattr(self.config, 'rtg_target_mode', 'normalized') == 'raw'
+                                    or not (_sc > 1e-6)):
+                                _sc = 1.0
+                            _r = float(rtg_tgt + (_ir_i - _ir_real) / _sc)
+                    elif _b_now is not None and _bs[_i] is not None:
                         _r = float(rtg_tgt + math.log(_bs[_i]) - math.log(_b_now))
                     _st = _h['state'].float().clone()
                     if _st.reshape(-1).numel() > _sidx:
@@ -3767,6 +3860,7 @@ class DirectMFRegretOptimization:
                                      'ax': x_t.detach().clone().float(),
                                      'ae': int(ell_t),
                                      'b': _b_real,
+                                     'ir': _ir_real,      # h207
                                      'b_acc': getattr(self, '_b_pool_acc', None)})
         # H7: replay the SAME inputs through the iteration-k snapshot. Nothing
         # here is executed -- only the LIVE x_t/ell_t below drive the run --
