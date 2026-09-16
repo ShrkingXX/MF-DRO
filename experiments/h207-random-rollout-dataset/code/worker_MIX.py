@@ -13,7 +13,7 @@ _s = importlib.util.spec_from_file_location(
 h83 = importlib.util.module_from_spec(_s); sys.modules["h83w"] = h83; _s.loader.exec_module(h83)
 RES = os.path.abspath(os.path.join(H, "..", "results")); h83.RES = RES
 from src.policy.mf_dro import DirectMFRegretOptimization as _DMRO
-SWEEP = [0.0, 0.02, 0.05, 0.10, 0.20, 0.30, 0.50, 0.75, 1.00]
+SWEEP = [-1.0, -0.5, -0.2, 0.0, 0.05, 0.10, 0.20, 0.50, 1.00]   # spans the normalized training range under terminal_improvement (scale = max |rtg0|, so the MES half sits near +0.05 and random near -1)
 _OB = h83._build_mf_dro_config
 
 def _build(*a, **k):
