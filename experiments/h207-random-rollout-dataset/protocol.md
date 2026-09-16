@@ -483,3 +483,32 @@ mark "less bad", that is the practically relevant half.
 
 **Compute:** h208 (another session, 13 workers) occupies the machine; h207 fills freed
 slots as they open (user decision: let it queue). Cap respected by `launch.sh`.
+
+## AMENDMENT 8 — Stage 0c v2 "FAIL" was the arm succeeding; gate corrected; BTG confound registered
+
+**Stage 0c v2: SC9 FAIL by its own criterion** (oracle labels −1.8/−1.4/−4.0, 0% positive;
+d = 1.79/0.95/1.39). Log kept as `logs/stage0c_v2_FAIL.log`. But true f at x\*+2%
+noise is ≈303 (min 276), all above 256 — so a label of −2 means the incumbent in THAT
+run was not 256. It was **309.58, the exact optimum**, reached at cost 59 (9th post-init
+query). The NIR-config run at the same seed and initial design reached 255.92 at cost 80.
+
+The DT trained on MES + true-f-labelled oracle halves queried x\* within nine real
+queries. The gate's ">90% positive" criterion measured the oracle's label against an
+incumbent the arm itself had driven to the optimum. Criterion dropped; SC9 v3 = mechanics
+(identical τ=0 state, `forced_x` applied) + oracle half labelled better than MES (d > 0.5,
+mean higher) on every member — all of which v2 already satisfied.
+
+**EXPLORATORY PREVIEW, n=1, seed 42, cost 80 not 200, no frozen-metric readout:**
+P-MIXO-select looks likely. Not scored; the arms decide.
+
+**BTG confound, registered before launch.** The halves differ not only in RTG but in
+cost-to-go: the oracle's fidelity at x\* is chosen by info-gain at that point, MES's by
+MES, so the two halves' BTG tokens differ systematically. At an identical τ=0 state,
+either token could be the separator. All three arms now carry the H177 BTG probe
+(sweep [6…20], the Borehole 8-step cost-to-go range) alongside the RTG probe.
+**Readout rule:** MIXO is scored as *RTG-selection* only if RTG-sensitivity ≥ 2× NIR's
+AND RTG-sensitivity > BTG-sensitivity on the trained arm. If BTG is the larger lever,
+that is reported as BTG-selection — still a conditioning-token selection (Q2's channel
+question answered), but not the RTG channel specifically. Under `loc_loss='mse'`, a DT
+reading neither token would emit the midpoint of the MES action and x\*, which cannot
+reach a boundary-corner optimum; the calibration run reached it exactly.

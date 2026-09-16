@@ -13,7 +13,8 @@ _s = importlib.util.spec_from_file_location(
 h83 = importlib.util.module_from_spec(_s); sys.modules["h83w"] = h83; _s.loader.exec_module(h83)
 RES = os.path.abspath(os.path.join(H, "..", "results")); h83.RES = RES
 from src.policy.mf_dro import DirectMFRegretOptimization as _DMRO
-SWEEP = [-1.0, -0.5, -0.2, 0.0, 0.05, 0.10, 0.20, 0.50, 1.00]   # spans the normalized training range under terminal_improvement (scale = max |rtg0|, so the MES half sits near +0.05 and random near -1)
+SWEEP = [-1.0, -0.5, -0.2, 0.0, 0.05, 0.10, 0.20, 0.50, 1.00]
+BTG_SWEEP = [6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 20.0]   # Borehole 8-step rollout cost-to-go spans [8,16] (c_L=1, c_H=2)   # spans the normalized training range under terminal_improvement (scale = max |rtg0|, so the MES half sits near +0.05 and random near -1)
 _OB = h83._build_mf_dro_config
 
 def _build(*a, **k):
@@ -35,7 +36,7 @@ h83.ROLLOUT_REWARD = "terminal_improvement" # the h207 v3 label, via the knob
 _OI = _DMRO.__init__
 def _init(self, *a, **k):
     _OI(self, *a, **k)
-    self._h168_probe = SWEEP               # RNG-neutral RTG-sensitivity probe
+    self._h168_probe = SWEEP; self._h177_btg_probe = BTG_SWEEP               # RNG-neutral RTG-sensitivity probe
 _DMRO.__init__ = _init
 
 if __name__ == "__main__":
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     r = h83.run(bench, "MF-DRO", seed, os.path.join(RES, "ckpt", tag + ".json"))
     r["_h207"] = dict(arm="MIXR", rollout_mix=repr([('mes', 20, None), ('random', 20, None)]), rollout_reward="terminal_improvement",
                       random_p_hf=0.5, inference_context_k=8, disable_position_embedding=True,
-                      roi="Q10", h168_sweep=SWEEP)
+                      roi="Q10", h168_sweep=SWEEP, h177_btg_sweep=BTG_SWEEP)
     h83._atomic(os.path.join(RES, tag + ".json"), r)
     print(f"[done] {tag} regret={r['final_regret']:.4f} lf_frac={r.get('lf_fraction')} "
           f"wall={r['_wall_s']/60:.1f}m", flush=True)

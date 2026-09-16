@@ -25,6 +25,7 @@ RES = os.path.abspath(os.path.join(H, "..", "results")); h83.RES = RES
 import src.policy.mf_dro as MF
 from src.policy.mf_dro import DirectMFRegretOptimization as _DMRO
 SWEEP = [-1.0, -0.5, -0.2, 0.0, 0.05, 0.10, 0.20, 0.50, 1.00]
+BTG_SWEEP = [6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 20.0]   # Borehole 8-step rollout cost-to-go spans [8,16] (c_L=1, c_H=2)
 XSTAR = {"Hartmann_6D": [0.2017, 0.1500, 0.4769, 0.2753, 0.3116, 0.6573],
          "Borehole_8D": [0.15, 100.0, 95090.9777, 1110.0, 116.0, 700.0, 1120.0, 12045.0]}
 NOISE_FRAC = 0.02
@@ -69,7 +70,7 @@ h83._build_mf_dro_config = _build
 h83.ROLLOUT_REWARD = "terminal_improvement"
 _OI = _DMRO.__init__
 def _init(self, *a, **k):
-    _OI(self, *a, **k); self._h168_probe = SWEEP
+    _OI(self, *a, **k); self._h168_probe = SWEEP; self._h177_btg_probe = BTG_SWEEP
     _ORACLE["mf"] = self                   # the wrapper needs the true objectives
 _DMRO.__init__ = _init
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
                       rollout_reward="terminal_improvement", oracle="x*+N(0,(0.02 range)^2) every step",
                       oracle_label=ORACLE_LABEL,
                       oracle_rollouts=_ORACLE["n"], oracle_max_dev_frac=_ORACLE["max_dev_frac"],
-                      inference_context_k=8, disable_position_embedding=True, roi="Q10", h168_sweep=SWEEP)
+                      inference_context_k=8, disable_position_embedding=True, roi="Q10", h168_sweep=SWEEP, h177_btg_sweep=BTG_SWEEP)
     h83._atomic(os.path.join(RES, tag + ".json"), r)
     print(f"[done] {tag} regret={r['final_regret']:.4f} lf_frac={r.get('lf_fraction')} "
           f"oracle_rollouts={_ORACLE['n']} wall={r['_wall_s']/60:.1f}m", flush=True)
