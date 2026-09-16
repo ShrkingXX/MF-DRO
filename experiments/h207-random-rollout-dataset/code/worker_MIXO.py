@@ -1,10 +1,16 @@
 """h207 arm MIXO -- control's 20 MES + 20 ORACLE rollouts per member. usage: worker_MIXO.py <bench> <seed>
 
-CEILING/DIAGNOSTIC, NOT A METHOD: x* is unavailable at run time. Oracle half =
-x* + N(0, (0.02*range)^2) at EVERY step (fidelity by forced_x's own info-gain
-rule), so MES and oracle rollouts of a member share an identical tau=0 state and
-differ only in action and label. Installed by wrapping simulate_mf_trajectory and
-acting ONLY when rollout_policy == 'oracle'; the MES half is the control's rollouts.
+CEILING/DIAGNOSTIC, NOT A METHOD -- TWO oracle ingredients, both unavailable at
+run time: (1) x*: oracle half = x* + N(0, (0.02*range)^2) at EVERY step (fidelity
+by forced_x's own info-gain rule); (2) TRUE f: the oracle half's rollouts observe
+the true objective at their points (use_real_rollout_queries, those rollouts
+ONLY), so their label is f* - incumbent rather than a posterior fantasy. Stage 0c
+v1 showed why (2) is needed: the GP has no data at Borehole's boundary-corner x*,
+its fantasy there reverts to the prior mean, and 0/60 oracle rollouts IMAGINED
+beating the incumbent -- a posterior-based label cannot credit behaviour the model
+does not yet believe in. MES and oracle rollouts of a member still share an
+identical tau=0 state (no observation has happened yet) and differ only in action
+and label. The MES half is the control's rollouts, fantasy-labelled.
 Base config = h206N (K=8, no positional embedding, ROI-Q10). Label via h83.ROLLOUT_REWARD.
 """
 import os, sys, importlib.util
@@ -23,7 +29,8 @@ XSTAR = {"Hartmann_6D": [0.2017, 0.1500, 0.4769, 0.2753, 0.3116, 0.6573],
          "Borehole_8D": [0.15, 100.0, 95090.9777, 1110.0, 116.0, 700.0, 1120.0, 12045.0]}
 NOISE_FRAC = 0.02
 _ORIG_SIM = MF.simulate_mf_trajectory
-_ORACLE = {"x_star": None, "rng": None, "n": 0, "max_dev_frac": 0.0}
+_ORACLE = {"x_star": None, "rng": None, "n": 0, "max_dev_frac": 0.0, "mf": None}
+ORACLE_LABEL = "true_f"     # Stage 0c v1 fallback, registered in protocol.md amendment 6
 
 def _oracle_path(bounds, T):
     lo, hi = bounds[0], bounds[1]
@@ -41,6 +48,11 @@ def _mixed_sim(*args, **kw):
         T = int(kw.get("rollout_length", args[3] if len(args) > 3 else 8))
         kw["forced_x"] = _oracle_path(bounds, T)
         kw["rollout_policy"] = "mes"          # valid branch; x is overridden by forced_x
+        if ORACLE_LABEL == "true_f":
+            _mf = _ORACLE["mf"]
+            kw["use_real_rollout_queries"] = True
+            kw["f_hf_real"] = _mf.f_hf
+            kw["f_lf_real"] = _mf.f_lf
         _ORACLE["n"] += 1
     return _ORIG_SIM(*args, **kw)
 
@@ -58,6 +70,7 @@ h83.ROLLOUT_REWARD = "terminal_improvement"
 _OI = _DMRO.__init__
 def _init(self, *a, **k):
     _OI(self, *a, **k); self._h168_probe = SWEEP
+    _ORACLE["mf"] = self                   # the wrapper needs the true objectives
 _DMRO.__init__ = _init
 
 if __name__ == "__main__":
@@ -69,6 +82,7 @@ if __name__ == "__main__":
     r = h83.run(bench, "MF-DRO", seed, os.path.join(RES, "ckpt", tag + ".json"))
     r["_h207"] = dict(arm="MIXO", rollout_mix="[('mes',20,None),('oracle',20,None)]",
                       rollout_reward="terminal_improvement", oracle="x*+N(0,(0.02 range)^2) every step",
+                      oracle_label=ORACLE_LABEL,
                       oracle_rollouts=_ORACLE["n"], oracle_max_dev_frac=_ORACLE["max_dev_frac"],
                       inference_context_k=8, disable_position_embedding=True, roi="Q10", h168_sweep=SWEEP)
     h83._atomic(os.path.join(RES, tag + ".json"), r)

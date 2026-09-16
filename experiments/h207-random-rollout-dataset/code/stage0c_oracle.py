@@ -51,8 +51,8 @@ for m in range(M):
     print(f"       label  MES mean {a.mean():8.2f} (sd {a.std(ddof=1):6.2f}, frac>0 {np.mean(a>0):.2f})   "
           f"ORACLE mean {b.mean():8.2f} (sd {b.std(ddof=1):6.2f}, frac>0 {np.mean(b>0):.2f})   d = {dsep:5.2f}")
     per.append(dsep)
-    ok &= (same_state < 1e-6) and (d_orc < 0.1) and (d_mes > 0.1) and (dsep > 1.0) and (b.mean() > a.mean())
-print(f"\nSC9 (GATE): identical tau0 state, forced_x applied, oracle half separated (d > 1) and labelled better on every member")
+    ok &= (same_state < 1e-6) and (d_orc < 0.1) and (d_mes > 0.1) and (dsep > 1.0) and (b.mean() > a.mean()) and (np.mean(b > 0) > 0.9)
+print(f"\nSC9 (GATE): identical tau0 state, forced_x applied, oracle half separated (d > 1), labelled better AND >90% positive on every member")
 print(f"     -> {'PASS' if ok else 'FAIL'}   d per member = {[round(x,2) for x in per]}")
 print(f"STAGE 0c: {'PASS' if ok else 'FAIL'}"); print("=" * 78)
 sys.exit(0 if ok else 1)

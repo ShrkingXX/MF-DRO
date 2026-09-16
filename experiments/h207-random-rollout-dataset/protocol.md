@@ -437,3 +437,49 @@ oracle labels; the selectivity question is unchanged.
   there.
 - **SC9 fail** retracts nothing but says the fantasy-based label cannot credit an oracle
   the GP has not yet learned to believe — a limit of any posterior-based reward, recorded.
+
+## AMENDMENT 7 — Stage 0 v3 PASS; Stage 0c v1 SC9 FAIL (reported); registered fallback activated
+
+**Stage 0 v3: PASS** (SC0, SC1, SC3, SC5 gates; SC6, SC7 diagnostics). Numbers of note:
+no random rollout beat the incumbent (0/300); MES rollouts mostly did not either (frac>0
+0.00/0.15/0.15, mean −24 at cost 40); MIXR halves separated d = 2.96/2.73/1.98; τ=0 action
+explains 14% of the 8-step outcome in random rollouts (R² 0.147/0.108/0.172); member
+identity explains ~0 (η² 0.02 MES, 0.002 random).
+
+**Stage 0c v1: SC9 FAIL.** Log kept as `logs/stage0c_v1_FAIL.log`.
+
+```
+tau0-state diff 0.00e+00 on all members; |a0 - x*| oracle 0.03, MES 0.50   (mechanics correct)
+label  MES −10.6 / +2.1 / −9.6      ORACLE −67.4 / −72.8 / −61.2   (frac>0 0.00/0.00/0.10)
+d = −2.16 / −3.10 / −1.54            (oracle half labelled WORSE)
+```
+
+**Cause.** The label is a posterior fantasy. Borehole's x\* is a boundary corner the real
+run has never queried; the GP posterior there reverts to its prior mean, far below the
+incumbent (256), and eight queries within 2% of one point are effectively one draw.
+0/60 oracle rollouts *imagined* beating the incumbent. This is the registered fallback
+case, and it is also a structural fact worth its own line:
+
+**Hypothesis (recorded, not concluded): a posterior-based return can only credit
+behaviour the model already believes is good.** Under dream rollouts, "good" is
+definitionally "endorsed by the GP", and the GP's endorsement is what MES computes
+directly. The DT paper's stitching from random data uses TRUE hindsight returns; fantasy
+returns cannot supply them. This would explain why no teacher has beaten MES here
+(h145/h146/h198, today's SC5). It is testable: an arm whose labels come from true f is
+exactly the ceiling that separates "the DT cannot select" from "the label cannot see".
+
+**Fallback activated (as registered in Amendment 6):** the oracle half's rollouts observe
+the TRUE objective at their points (`use_real_rollout_queries`, those rollouts only), so
+their label is f\* − incumbent (≈ +50) instead of a fantasy. MES half unchanged
+(fantasy-labelled). The τ=0 state is still identical across halves (no observation has
+happened at τ=0). MIXO is now a ceiling with TWO oracle ingredients — x\* and true f — and
+is the *easiest possible* selectivity test: identical state, two actions, two cleanly
+separated returns. **SC9 v2 adds:** oracle-half label > 0 on > 90% of rollouts.
+
+**Predictions unchanged** (P-MIXO-select lean; MIXO-blur is the decisive negative on the
+RTG channel). One consequence sharpened: if MIXO selects but MIXR does not, the DT can
+pick the good and cannot drop the bad — and since a deployable label can only ever
+mark "less bad", that is the practically relevant half.
+
+**Compute:** h208 (another session, 13 workers) occupies the machine; h207 fills freed
+slots as they open (user decision: let it queue). Cap respected by `launch.sh`.
