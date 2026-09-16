@@ -2176,6 +2176,19 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             zero_reward_frac = float((r_t == 0).float().mean())
         else:
             rtg_t = torch.zeros(0, dtype=dtype)
+    elif rollout_reward == "terminal_improvement":
+        # h207 v3: the frozen endpoint metric's OWN quantity. best OBSERVED
+        # fantasy HF value in the rollout minus the REAL incumbent, unclamped,
+        # written at EVERY tau (a terminal-only return; DT Sec 5.6 shows
+        # delayed returns "minimally affect" the model). No pool, no f*:
+        # the posterior optimum is a per-member constant and cancels in every
+        # ranking and every difference. Negative = the rollout never beat the
+        # incumbent, which is what ranks random rollouts among themselves.
+        _fant_hf = [float(y) for y, e in zip(y_values, actions_ell) if e == 1]
+        _inc = float(real_best_hf) if real_best_hf is not None else 0.0
+        _term = (max(_fant_hf) - _inc) if _fant_hf else (-abs(_inc) - 1.0)
+        rtg_t = torch.full((len(actions_ell),), _term, dtype=dtype)
+        ir_T = float('nan'); ir_T_alt = float('nan')
     elif rollout_reward == "inference_regret":
         # h207: r_tau = IR_tau - IR_{tau+1}; RTG[tau] = sum_{t>=tau} r_t
         #              = IR_tau - IR_T.  RTG[0] = IR_0 - IR_T, and IR_0 is
@@ -2212,6 +2225,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
     }
     if zero_reward_frac is not None:
         traj['zero_reward_frac'] = zero_reward_frac
+    if rollout_reward == "terminal_improvement":
+        traj['term_imp'] = float(rtg_t[0]) if rtg_t.numel() else float('nan')
     if rollout_reward == "inference_regret":
         traj['ir_0'] = float(ir_values[0]) if ir_values else float('nan')
         traj['ir_T'] = float(ir_T)
@@ -2967,7 +2982,8 @@ class DirectMFRegretOptimization:
         # "raw" skips normalisation entirely so the target is the raw
         # improvement, which spans orders of magnitude over a run by
         # construction. Tests whether RTG is ignored or merely starved.
-        if self.rollout_reward in ("improvement", "kg_incumbent", "inference_regret") and \
+        if self.rollout_reward in ("improvement", "kg_incumbent", "inference_regret",
+                                   "terminal_improvement") and \
                 getattr(self.config, 'rtg_target_mode', 'normalized') != 'raw':
             # Scale by the running max of |rtg[0]|, NOT of rtg[0].
             #
@@ -3755,7 +3771,12 @@ class DirectMFRegretOptimization:
                 _hist = []
                 for _i, _h in enumerate(_win):
                     _r = _h['rtg']
-                    if self.rollout_reward == "inference_regret":
+                    if self.rollout_reward == "terminal_improvement":
+                        # h207 v3: terminal-only return -- intermediate rewards
+                        # are zero, so DT's R_tau = R_0 - sum r_t = R_0 for every
+                        # history token. The history carries the current target.
+                        _r = float(rtg_tgt)
+                    elif self.rollout_reward == "inference_regret":
                         # h207: same telescoping shape as the log-b rule below,
                         # in IR units, divided by the batch normalization scale
                         # the training labels were divided by:

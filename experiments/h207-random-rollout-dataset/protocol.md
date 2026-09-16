@@ -312,3 +312,63 @@ which is the frozen endpoint metric's own quantity and needs no pool. Reports SC
 each, MES's IR level by pool, rank agreement between scores, and the action-R² above.
 The score for v3 is chosen from this and registered before v3 runs; the frozen metric's
 own quantity (IMP) is the default unless the diagnostic gives a reason to prefer IR-ROI.
+
+## AMENDMENT 5 — Stage 0b result; label changed to the frozen metric's own quantity; W deprioritised
+
+**Stage 0b (score diagnostic, same batches, four scores):**
+
+```
+SC5 by score    MES-20 vs top-20-of-100 random (selected by that score), 3 members
+  IR-Sobol600   MES 27.9/29.4/29.0   winners 16.8/21.0/20.3   random wins 3/3
+  IR-Sobol3000  MES 24.8/29.7/25.7   winners 18.3/23.6/19.7   random wins 3/3
+  IR-ROI600     MES 26.4/28.7/30.2   winners 17.7/23.7/19.8   random wins 3/3
+  IMP (best observed HF − incumbent)
+                MES  −4.8/+1.6/−15.2  winners −40.9/−27.2/−42.7   MES wins 3/3
+MES IR level by pool: 28.8 / 26.7 / 28.4 (random 25.8 / 26.4 / 25.6)  -> resolution hypothesis REFUTED
+Spearman between scores on 300 random rollouts: 0.00 to 0.27 (IR variants disagree with EACH OTHER)
+Action-R² at τ=0 (random, n=100/member): 0.07–0.13 under every score
+```
+
+**Three conclusions, each of which changes the design:**
+
+1. **The resolution explanation for SC5's flip was wrong** — MES's IR level barely moves
+   across pools. Under IR, MES rollouts genuinely score no better than random ones on
+   average. IR = E[max f] − max μ over a broad pool is dominated by variance at the many
+   far-from-data points, so it rewards *global variance reduction*, which spread-out random
+   queries do about as well as MES. IR is an information criterion in disguise, not a
+   regret.
+2. **IR variants do not even agree with each other** (ρ 0.14–0.27) on which random rollouts
+   are good. SC8's 0.98 reliability was reliability *given a pool*; the ranking is a
+   property of the pool. IR is unusable as a selection score.
+3. **Under the frozen metric's own quantity, the best of 100 random 8-step rollouts is
+   27–43 units below the real incumbent on every member**, while MES rollouts sit at it.
+   Random search in 8-D over 8 steps does not find good points. **The user's argmin
+   spec produces a dataset that never beats the incumbent** — W is now predicted to fail
+   with high confidence, and MIX's random half is ~40 units below its MES half.
+
+**Label for v3: `terminal_improvement`** = best observed fantasy HF − real incumbent,
+unclamped, written at every τ (a terminal-only return; DT §5.6). No pool, no f\*: the
+posterior optimum is a per-member constant that cancels in every ranking and difference.
+This IS "final simple regret" of the rollout up to that constant — faithful to how the
+endpoint metric reads `max y_HF`. The existing `improvement` label clamps at 0 and would
+tie every random rollout at 0, destroying the ranking W and R depend on. Inference
+relabel: history tokens carry the current target (intermediate rewards are zero). SC0
+parity re-run against the last pre-implementation commit (8b25650).
+
+**Registered under the new label, scored against N-IR (now "NIR" = 20 MES + this label):**
+- **P-NIR:** |NIR − h206N| ≤ 1.26 (h60's `improvement` fork moved things ~+1, 0/3; this
+  label is its unclamped terminal cousin).
+- **P-MIX (the arm this experiment now exists for):** the halves are separated by ~40
+  units in the label (SC5 gate: Cohen d > 1 on every member). If RTG is selective at all,
+  MIX ≈ NIR (|MIX − NIR| ≤ 1.26) AND MIX's RTG-sensitivity ≥ 2× NIR's. If the DT ignores
+  RTG, it regresses toward a blurred policy: MIX − NIR > +1.26 with no sensitivity gain.
+  **Lean: MIX − NIR > +1.26** (RTG not selective; the mechanism question of Q2 reopens on
+  the architecture side).
+- **P-R:** R collapses toward the floor (R − NIR > +5). Its dataset never beats the
+  incumbent; no label can select what is not there.
+- **P-W:** W − NIR > +1.26, high confidence, for the same reason. Queued LAST; if the user
+  prefers, it can be dropped without loss to the MIX/NIR/R question.
+
+**Stage 0 v3 gates:** SC0, SC1, SC3 (distinct ranking among random rollouts), **SC5 (halves
+separated, d > 1)**. Diagnostics: SC4 action-R², SC6, SC7. SC8 dropped (label is a
+deterministic function of the rollout).

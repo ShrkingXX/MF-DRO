@@ -31,7 +31,7 @@ def _build(*a, **k):
     return c
 
 h83._build_mf_dro_config = _build
-h83.ROLLOUT_REWARD = "inference_regret"    # the h207 label, via the knob
+h83.ROLLOUT_REWARD = "terminal_improvement" # the h207 v3 label, via the knob
 _OI = _DMRO.__init__
 def _init(self, *a, **k):
     _OI(self, *a, **k)
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     bench, seed = sys.argv[1], int(sys.argv[2])
     tag = f"{bench}__H207R-RANDOM__seed{seed}"
     r = h83.run(bench, "MF-DRO", seed, os.path.join(RES, "ckpt", tag + ".json"))
-    r["_h207"] = dict(arm="R", rollout_mix=repr([('random', 20, None)]), rollout_reward="inference_regret",
+    r["_h207"] = dict(arm="R", rollout_mix=repr([('random', 20, None)]), rollout_reward="terminal_improvement",
                       random_p_hf=0.5, inference_context_k=8, disable_position_embedding=True,
                       roi="Q10", h168_sweep=SWEEP)
     h83._atomic(os.path.join(RES, tag + ".json"), r)
