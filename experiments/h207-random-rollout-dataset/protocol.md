@@ -372,3 +372,68 @@ parity re-run against the last pre-implementation commit (8b25650).
 **Stage 0 v3 gates:** SC0, SC1, SC3 (distinct ranking among random rollouts), **SC5 (halves
 separated, d > 1)**. Diagnostics: SC4 action-R², SC6, SC7. SC8 dropped (label is a
 deterministic function of the rollout).
+
+## AMENDMENT 6 (user decision, before launch) — arms NIR, MIX-random, MIX-oracle; R and W dropped
+
+R and W are dropped: Stage 0b showed their datasets never beat the incumbent (best of 100
+random 8-step rollouts is 27–43 units below it on every member), so both were predicted
+to fail for a reason already understood. Their registered predictions stay on record as
+*predicted, not run*. 3 arms × 5 seeds = 15 workers, one launch, no queue.
+
+**Why MIX-oracle (MIXO).** MIX-random can only show the DT *ignores garbage*. To show RTG
+*selects good behaviour*, the good half must be genuinely good and different from MES at
+the same state. The oracle is the only such source we have. CEILING/DIAGNOSTIC, same
+standing as h201: x\* is not available at run time.
+
+**h201A is re-read.** Under `arange`, index 7 always held the oracle path's τ=7 action,
+which is x\* exactly; at inference the readout sat at index 7; so "emit x\*" was a
+position-keyed constant — THE_ANSWER's mechanism, on the bug h205/h206 removed. h201B
+(K=1, index 0 = the path's random start) hitting the floor is the same fact. **h201A's
+0.00 is therefore not evidence that the window reads history; it is suspected to be the
+positional shortcut.** MIXO under no-position cannot use that shortcut. If it wins, it
+wins by reading RTG.
+
+**Oracle half construction.** `forced_x = x* + N(0, (0.02·range)²)` at EVERY step (not
+h201's random-start interpolation, whose τ=0 action is uniform noise). Fidelity by the
+info-gain rule `forced_x` already applies. At τ=0 the MES and oracle rollouts of a member
+share an identical state and differ only in action and label — the RTG token is the only
+input that can separate them. Installed by wrapping `simulate_mf_trajectory` and acting
+only when `rollout_policy == 'oracle'` (then forwarded as `'mes'` with `forced_x` set), so
+the MES half is byte-for-byte the control's rollouts.
+
+**Label** is `terminal_improvement` for both halves (fantasy-based, deployable for the MES
+half). The oracle half is credited only as far as the GP *believes* x\* is good, which is
+the honest version. **SC9 (GATE, Stage 0c):** at BUDGET=40, oracle-half vs MES-half
+separation Cohen d > 1 on every member AND oracle mean label > MES mean label. If SC9
+fails, registered fallback: label the oracle half by the TRUE f at its points
+(`use_real_rollout_queries` for those rollouts only) and say so — a ceiling is allowed
+oracle labels; the selectivity question is unchanged.
+
+**Predictions (band ±1.26 unless stated; endpoint only):**
+- **P-NIR:** |NIR − h206N| ≤ 1.26 (unchanged).
+- **P-MIXR (random half):** if selective, |MIXR − NIR| ≤ 1.26 with sensitivity ≥ 2× NIR;
+  if not, MIXR − NIR > +1.26. Lean unchanged: not selective.
+- **P-MIXO-select:** MIXO ≤ 3.0 AND RTG-sensitivity ≥ 2× NIR — the DT reads RTG and
+  emits the oracle half.
+- **P-MIXO-blur:** MIXO − NIR > +1.26 with no sensitivity gain — under `loc_loss='mse'`
+  a bimodal target at an identical state regresses to the midpoint of the MES action and
+  x\*, which is worse than either.
+- **P-MIXO-partial:** anything between — reported as such.
+- **Lean: P-MIXO-select.** At an identical τ=0 state the loss can only fall by reading
+  the RTG token, and h206 showed the token numerically reaches the output. If this lean
+  is right, Q2's answer is: RTG works when the data gives it something to select, and the
+  single teacher was why it *looked* inert. If MIXO selects and MIXR does not, the DT
+  can pick the good but not drop the bad — reported as such.
+- **Ordering, so it can be wrong:** MIXO < NIR ≈ MIXR (if select) or MIXO > MIXR ≥ NIR
+  (if blur). I commit to the first.
+
+**What each outcome RETRACTS:**
+- **MIXO-select** retracts nothing but re-grounds h201: the window's value was RTG-keyed
+  selection, not position-keyed memorisation, and the single-teacher account of RTG
+  inertness is CONFIRMED by intervention.
+- **MIXO-blur** retracts the h201 reading entirely (the 0.00 was the positional bug) AND
+  refutes the single-teacher account: given a perfectly separable good half at an identical
+  state, the DT still does not read RTG — the cause is architectural/training. Q2 reopens
+  there.
+- **SC9 fail** retracts nothing but says the fantasy-based label cannot credit an oracle
+  the GP has not yet learned to believe — a limit of any posterior-based reward, recorded.
