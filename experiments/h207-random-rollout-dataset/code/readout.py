@@ -35,7 +35,7 @@ def sens_arm(pat): return {int(f.split("seed")[1].split(".")[0]): sens(f) for f 
 def lf_arm(pat): return [json.load(open(f)).get("lf_fraction") for f in sorted(glob.glob(pat))]
 
 E = f"{REPO}/experiments"; R = f"{E}/h207-random-rollout-dataset/results"
-ARMS = {"NIR": "H207NIR-MES-IR", "R": "H207R-RANDOM", "MIX": "H207MIX", "W": "H207W-TOP20"}
+ARMS = {"NIR": "H207NIR-MES-IR", "MIXR": "H207MIXR", "MIXO": "H207MIXO"}
 P = {k: f"{R}/Borehole_8D__{v}__seed4[2-6].json" for k, v in ARMS.items()}
 A = {k: arm(p) for k, p in P.items()}
 N = arm(f"{E}/h206-no-position/results/Borehole_8D__H206N-NOPOS__seed4[2-6].json")
@@ -54,12 +54,12 @@ def paired(x, xn, y, yn):
     return float(np.mean(d))
 
 print(f"\n  FINAL SIMPLE REGRET -- frozen rel% of |optimum| @ cost 200 (Borehole_8D, seeds 42-46)\n")
-print(line("N-IR  20 MES/member, IR label", A["NIR"]))
-print(line("MIX   20 MES + 20 random", A["MIX"]))
-print(line("R     20 random, unselected", A["R"]))
-print(line("W     top-20 of 100 random", A["W"]))
+print(line("NIR   20 MES/member, terminal_improvement", A["NIR"]))
+print(line("MIXR  20 MES + 20 random", A["MIXR"]))
+print(line("MIXO  20 MES + 20 ORACLE (ceiling)", A["MIXO"]))
 print(line("h206N 20 MES, mes_entropy (ctrl)", N))
 print(line("CTRL-K1 (no window)", C))
+print(f"    {'h201A oracle-only K=8 (arange, ref)':34s} {0.00:7.2f}  suspected positional shortcut")
 print(f"    {'h149 random teacher, K=1 (ref)':34s} {43.94:7.2f}  = saturation floor")
 
 print(f"\n  P-NIR FIRST -- is the label alone an intervention?  (band +/-{BAND})\n")
@@ -67,28 +67,27 @@ d = paired(A["NIR"], "NIR", N, "N") if A["NIR"] and N else None
 if d is not None:
     print(f"    -> {'P-NIR SUPPORTED: label alone within band' if abs(d) <= BAND else 'P-NIR REFUTED: the IR label is itself an intervention -- reframe the arms below'}")
 
-print(f"\n  P-R / P-W / P-MIX against N-IR  (registered ordering MIX >= N > W > R)\n")
-for k in ("MIX", "R", "W"):
+print(f"\n  P-MIXR / P-MIXO against NIR  (registered lean: MIXO <= 3.0 with >= 2x sensitivity; MIXR not selective)\n")
+for k in ("MIXR", "MIXO"):
     if A[k] and A["NIR"]: paired(A[k], k, A["NIR"], "NIR")
-dR = paired(A["R"], "R", A["NIR"], "NIR") if False else None
-if A["R"] and A["NIR"]:
-    dR = float(np.mean([A["R"][s] - A["NIR"][s] for s in sorted(set(A["R"]) & set(A["NIR"]))]))
-    print(f"\n    R: " + ("within band of N-IR -> RTG-based selection from diverse data WORKS; Q3-data CONFIRMED"
-                         if abs(dR) <= BAND else "worse than N-IR by > band -> P-R as leaned (R collapses)"
-                         if dR > BAND else "BETTER than N-IR by > band -> retracts 'best-of-random is weak'"))
+if A["MIXO"]:
+    mo = float(np.mean(list(A["MIXO"].values())))
+    print(f"\n    MIXO mean {mo:.2f}: " + ("P-MIXO-SELECT (<= 3.0): the DT reads RTG and emits the oracle half"
+          if mo <= 3.0 else "P-MIXO-BLUR or PARTIAL -- see sensitivity below"))
 
 print(f"\n  RTG SENSITIVITY (H168 probe, last 30 iters, max|dx| over sweep vs rtg=0)\n")
 S = {k: sens_arm(p) for k, p in P.items()}
-for k in ("NIR", "MIX", "R", "W"):
+for k in ("NIR", "MIXR", "MIXO"):
     if S[k]:
         print(f"    {k:4s} mean {np.mean(list(S[k].values())):.4f}   " +
               "  ".join(f"{s}:{v:.4f}" for s, v in sorted(S[k].items())))
-if S["MIX"] and S["NIR"]:
-    ratio = np.mean(list(S["MIX"].values())) / max(np.mean(list(S["NIR"].values())), 1e-12)
-    print(f"    MIX / N-IR sensitivity ratio = {ratio:.2f}x  (registered: >= 2x if RTG became selective)")
+for k in ("MIXR", "MIXO"):
+    if S[k] and S["NIR"]:
+        ratio = np.mean(list(S[k].values())) / max(np.mean(list(S["NIR"].values())), 1e-12)
+        print(f"    {k} / NIR sensitivity ratio = {ratio:.2f}x  (registered: >= 2x if RTG became selective)")
 
 print(f"\n  LF fraction (CTRL-K1 0.261, h206N 0.462)\n")
-for k in ("NIR", "MIX", "R", "W"):
+for k in ("NIR", "MIXR", "MIXO"):
     lf = [x for x in lf_arm(P[k]) if x is not None]
     if lf: print(f"    {k:4s} {np.mean(lf):.3f}   " + "  ".join(f"{x:.2f}" for x in lf))
 print()

@@ -16,7 +16,7 @@ mkdir -p $R/logs $R/results/ckpt
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 say(){ echo "[$(date '+%H:%M:%S')] $*"; }
 nrun(){ bash tools/count_workers.sh 2>/dev/null | wc -l | tr -d ' '; }
-ORDER="${ORDER:-W MIX NIR R}"
+ORDER="${ORDER:-MIXO MIXR NIR}"
 say "queue order (longest first): $ORDER"
 for A in $ORDER; do
   for s in 42 43 44 45 46; do
@@ -26,4 +26,4 @@ for A in $ORDER; do
     say "launched $A seed $s  (running: $(nrun)/15)"
   done
 done
-say "all 20 launched; $(nrun)/15 running"
+say "all launched; $(nrun)/15 running"
