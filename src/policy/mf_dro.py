@@ -1074,7 +1074,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             # h207: shared IR scoring pool (see __init__). None
                             # falls back to roi_candidates (Stage-0 v1 behaviour).
                             ir_pool=None,
-                            ir_probe_second_seed=False):
+                            ir_probe_second_seed=False,
+                            ir_keep_final_ko=False):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
     Change 1, may terminate it sooner -- see bes_delta below).
@@ -2215,6 +2216,9 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         traj['ir_0'] = float(ir_values[0]) if ir_values else float('nan')
         traj['ir_T'] = float(ir_T)
         traj['ir_T_alt'] = float(ir_T_alt)
+        if ir_keep_final_ko:            # Stage-0 score diagnostic only
+            traj['_final_ko'] = current_ko
+            traj['_roi_candidates'] = roi_candidates
     if use_candidate_scoring:
         traj['candidates'] = torch.stack(candidates_list)
         # chosen_idx kept for diagnostics (and for the "thompson"/"random"
@@ -2877,6 +2881,7 @@ class DirectMFRegretOptimization:
                 random_p_hf=getattr(self.config, 'random_p_hf', 0.25),
                 ir_pool=getattr(self, 'ir_pool', None),
                 ir_probe_second_seed=getattr(self.config, 'ir_probe_second_seed', False),
+                ir_keep_final_ko=getattr(self.config, 'ir_keep_final_ko', False),
                 rollout_reward=self.rollout_reward,
                 kg_signed=getattr(self.config, 'kg_signed', False),
                 kg_topk=getattr(self.config, 'kg_topk', 1),

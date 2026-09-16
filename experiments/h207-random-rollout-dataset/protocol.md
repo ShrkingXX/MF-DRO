@@ -272,3 +272,43 @@ Re-measured in v2.
 
 **SC7:** W ≈ 3.3× the control per iteration (~4.6 h/seed). Longest-first order confirmed
 by measurement: W, MIX, NIR, R.
+
+## AMENDMENT 4 — Stage 0 v2 GATE MISS on SC8 (a finding), and a score diagnostic before v3
+
+**Stage 0 v2: FAIL on SC8 only** (SC0/SC1/SC3/SC4/SC6/SC7 PASS). Nothing launched. Log
+kept as `logs/stage0_v2_FAIL.log`.
+
+```
+SC3  IR_0 spread 0.00e+00 on all members; top20/bot20 gap = 16-21 x noise sd   PASS
+SC4  eta^2(MES)=0.042  eta^2(random)=0.020                                    PASS (inequality)
+SC8  reliability  MES 0.993 (within sd 7.85, noise sd 0.67)
+                  random 0.978 (within sd 4.56, noise sd 0.68)               FAIL
+SC5  MES IR_T ~28 vs top-20 random ~19: random winners BETTER 3/3  (v1: MES better 3/3)
+SC7  W = 2.98x control per iteration
+```
+
+**SC8 refutes the "cleanest form" I registered in Amendment 3.** The single-teacher label
+is NOT mostly noise: 99% of within-member IR_T variance is real. MES rollouts vary hugely
+in outcome (sd 7.8) for the same τ=0 action, driven by fantasy luck. So RTG in
+single-teacher data is reliable outcome information that is **independent of the action**
+— I(action; RTG | state) ≈ 0 by construction. SC4's inequality passes but its magnitude
+(η² = 0.04) refutes the "RTG tracks the world, which is in the state" story as well:
+member identity explains 4% of RTG variance. **Layer 3, restated correctly: diversity's
+job is to make RTG depend on the action, not to reduce its noise or its redundancy with
+the state.** Stage 0 v3 gates on that quantity directly (R² of the score on the τ=0
+action within member, random vs MES).
+
+**SC5 flipped and is not trusted.** Changing the scoring pool from per-rollout ROI-600 to
+a fixed global Sobol-600 moved MES's IR_T from ~12 to ~28 while moving the random
+winners' from ~14 to ~19. A 600-point global pool in 8-D cannot resolve the peak MES
+rollouts sharpen, so the score under-credits exactly what MES does well — a bias toward
+the arm under test. Launching W on such a score would be launching on a thumb on the
+scale.
+
+**Stage 0b (running):** the same batches scored four ways — IR on Sobol-600 (v2), IR on
+Sobol-3000 (resolution check), IR on ONE seeded ROI-600 pool per member (shared within
+member, resolves the peak), and IMP = best OBSERVED fantasy HF minus the real incumbent,
+which is the frozen endpoint metric's own quantity and needs no pool. Reports SC5 under
+each, MES's IR level by pool, rank agreement between scores, and the action-R² above.
+The score for v3 is chosen from this and registered before v3 runs; the frozen metric's
+own quantity (IMP) is the default unless the diagnostic gives a reason to prefer IR-ROI.
