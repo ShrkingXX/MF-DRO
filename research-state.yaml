@@ -21,6 +21,21 @@
 # ============================================================================
 
 current_front:
+  h207_COMPLETE_2026_09_17: 'CONFIRMATORY on arms, 15/15. Frozen rel% @ cost 200, Borehole
+    42-46: NIR (20 MES, terminal_improvement label) 12.62; MIXR (20 MES + 20 random) 6.22;
+    MIXO (20 MES + 20 oracle, ceiling) 0.00. P-NIR SUPPORTED (+1.23 vs h206N, inside band).
+    P-MIXO: regret met (0.00 5/5) but the REGISTERED MECHANISM RULE FAILED -- RTG sens 1.40x
+    (< 2x), BTG negligible; the early-iteration probe shows MIXO emits x within 0.18 of x*
+    REGARDLESS of RTG (NIR 0.67): the oracle half is a constant regression target and the
+    MSE location head is dragged toward it. Loss-side analogue of h201A''s positional
+    shortcut. MIXO is NOT evidence the DT reads RTG; h201A''s 0.00 is RETRACTED as
+    history-reading evidence; the single-teacher account of RTG inertness is NOT confirmed
+    (easiest possible selectivity test, no selection). Q2 reopens on the architecture side.
+    P-MIXR: registered lean REFUTED on regret -- MIXR beats NIR by 6.40 (se 2.33, 4/5) and
+    matches MF-MES (6.40), first deployable arm to do so. Mechanism NOT established: RTG
+    sens 1.11x last-30 (3.5x first-30, exploratory), BTG negligible, LF 0.44->0.27, and an
+    UNREGISTERED data-quantity confound (120 vs 60 traj/iter). NEXT: replicate MIXR on
+    Borehole 47-51 + Hartmann 42-46 with NIR-120 (40 MES/member) as the quantity control.'
   h208_COMPLETE_2026_09_17_OLD_DRO_ROLLOUT_LENGTH_NULL: 'CONFIRMATORY, 60/60, 0 failures,
     SC1-SC4 pass. h172''s rollout-length dose on the ORIGINAL SF-DRO (papers/Old_dro.py,
     UNMODIFIED, current src DT) in its original setting: Ackley 10D, 505 evals, original

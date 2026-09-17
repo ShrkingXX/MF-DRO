@@ -4146,3 +4146,14 @@ L=4 over 3 iterations) and would have compressed it to ~1.0 over a full run — 
 had to run ES-OFF, with ESON-L4 kept as the literal anchor. Per-iteration cost at L=8 grew
 4.4 → 27.8 s from n=5 to n=450 (GP posterior over the 2,000-candidate search, 80× per
 iteration); my 40-min estimate was 136 min. Longest-first queue held the 13 slots busy.
+
+## 2026-09-17 — h207 complete. MIXR beats every control (6.22 vs 12.62, 4/5); MIXO's 0.00 is a shortcut, not RTG.
+
+NIR 12.62, MIXR **6.22**, MIXO 0.00 (frozen, Borehole 42–46). P-NIR supported. P-MIXO's
+registered mechanism rule FAILED (RTG sens 1.40× < 2×, BTG ~0): the early probe shows
+MIXO emits x within 0.18 of x\* regardless of RTG — the MSE location head is dragged toward
+the oracle half's constant target. Loss-side analogue of h201A's positional shortcut;
+neither oracle result says anything about RTG. Single-teacher account NOT confirmed; Q2
+reopens on the architecture side. P-MIXR lean REFUTED on regret: −6.40 vs NIR (4/5),
+matches MF-MES. Mechanism open; data-quantity confound (120 vs 60 traj/iter) unregistered.
+Next: replicate on fresh seeds + Hartmann with NIR-120 control.
