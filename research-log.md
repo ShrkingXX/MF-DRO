@@ -4108,3 +4108,41 @@ traces follow trivially. Direct forward test: RTG moves `propose_mf`'s x by 6.1e
 genuine REWARD fork moved outcomes. **RTG is wired; it was never tested by h198.** The
 single-teacher hypothesis survives as a live, untested explanation — now Q3's object, not
 its premise. Fix: `h83.ROLLOUT_REWARD` module knob; identity gate PASS. Only h198b affected.
+
+## 2026-09-17 — h208 complete (CONFIRMATORY). Rollout length is inert in the ORIGINAL SF-DRO too; its rollouts were length 1 all along.
+
+h172's dose transplanted to `papers/Old_dro.py` (unmodified; subclassed for diagnostics
+and one arm) in the original setting: Ackley 10D, 505 evals, `dro.yaml` verbatim, seeds
+42–51. 60/60, 0 failures, SC1–SC4 pass. Final simple regret (noiseless f at the observed
+incumbent): L1 **3.09**, L2 3.73, L4 3.37, L8 **3.08**, L8-TRUNC 2.88, ESON-L4 **2.32**.
+
+- **Registered verdict NULL.** L8 − L1 = −0.007 (se 0.27, better on 5/10, d = −0.01).
+  L8 − L8-TRUNC = +0.20 (se 0.28, 3/10): training on positions 1–7 of the same rollouts,
+  with the same rtg[0], adds nothing over position 0 alone. L8-TRUNC − L1 = −0.21: the
+  label horizon is inert too — the confound h172 registered and could not separate.
+- **P2 holds**: 35 / 51 / 82 / 136 min for L = 1/2/4/8. 3.9× wall for zero regret.
+- **Structural finding, not predicted:** the literal original config (`early_stop: true`,
+  1e-4) realised rollout length **1.03**. All ten rollouts stop at step 1 from iteration
+  13–26 onward; 97.5% of trajectories are one non-improving step, i.e. **rtg[0] = 0** —
+  the same event, matching to 3 decimals. The original DT was trained on (constant state,
+  RTG 0, teacher action) and queried at `target_rtg = 1.0`. The multi-step trajectory
+  in the paper's design was nominal after the first ~20 iterations. Even at ES-OFF L=8,
+  rtg[0] is zero on 87% of trajectories.
+- So the original "does not use rollout data beyond step 1" three ways: readout is
+  position 0 at timestep 0 (construction); positions ≥ 1 rarely existed (practice);
+  forcing them to exist changes nothing (intervention).
+- **Unregistered, unexplained:** ESON-L4 is the best arm, beating its ES-OFF twin L4 by
+  1.05 (se 0.19, 9/10) and L1 by 0.77 (se 0.26, 8/10), despite identical realised length,
+  rtg0 statistics and improvement counts after iteration 100; the curves separate only in
+  the last 200 evaluations (behind L1 at 30–105, level at 305). Chance at n=10 over seven
+  contrasts, or early longer rollouts steering the search — not separable here.
+- L2 is a non-monotone excursion (+0.64 vs L1, 3 se, 3/10). Reported, not interpreted.
+- Caveat stated before launch: runs on the current `src` DT (causal, state-token readout).
+  The paper's action-token readout under bidirectional attention could copy its target;
+  on that model the dose would be flat for the wrong reason.
+
+Instrument notes: the Bayesian early stop compressed the dose in the smoke (mean 2.2 at
+L=4 over 3 iterations) and would have compressed it to ~1.0 over a full run — the dose arms
+had to run ES-OFF, with ESON-L4 kept as the literal anchor. Per-iteration cost at L=8 grew
+4.4 → 27.8 s from n=5 to n=450 (GP posterior over the 2,000-candidate search, 80× per
+iteration); my 40-min estimate was 136 min. Longest-first queue held the 13 slots busy.

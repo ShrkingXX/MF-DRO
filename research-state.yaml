@@ -21,6 +21,29 @@
 # ============================================================================
 
 current_front:
+  h208_COMPLETE_2026_09_17_OLD_DRO_ROLLOUT_LENGTH_NULL: 'CONFIRMATORY, 60/60, 0 failures,
+    SC1-SC4 pass. h172''s rollout-length dose on the ORIGINAL SF-DRO (papers/Old_dro.py,
+    UNMODIFIED, current src DT) in its original setting: Ackley 10D, 505 evals, original
+    dro.yaml config, seeds 42-51. Final simple regret (f_true at observed incumbent):
+    L1 3.09, L2 3.73, L4 3.37, L8 3.08, L8-TRUNC 2.88, ESON-L4 (literal config, early
+    stop ON) 2.32. REGISTERED VERDICT NULL: L8-L1 = -0.007 (se 0.27, 5/10, d=-0.01);
+    L8-L8TRUNC = +0.20 (se 0.28, 3/10). Later-step rollout data forced to exist changes
+    nothing; the rtg[0] horizon is inert too (L8TRUNC-L1 = -0.21, inside 2 se). P2 holds:
+    wall 35/51/82/136 min for L=1/2/4/8, 3.9x for zero regret. STRUCTURAL FINDING: under
+    the ORIGINAL early-stop config the realised rollout length is 1.03 (97.5% of rollouts
+    one step; all ten rollouts length-1 from iteration 13-26 on) and rtg[0] = 0 on 97.5%
+    of trajectories -- the same event. The original DT was trained on (same state, RTG 0,
+    teacher action) and queried at target_rtg 1.0: the teacher-action-mean mechanism
+    (THE_ANSWER) in its most extreme form. So "the original does not use rollout data
+    beyond step 1" holds by construction (position-0 readout), in practice (positions >= 1
+    rarely existed) and by intervention (they change nothing when forced). UNREGISTERED and
+    unexplained: ESON-L4 beats its ES-OFF twin L4 by 1.05 (se 0.19, 9/10) and L1 by 0.77
+    (se 0.26, 8/10) despite identical realised length / rtg0 stats / improvement counts
+    after iteration 100 -- diverges only in the last 200 evals; chance at n=10 x 7
+    contrasts or early-rollout steering, not separable here. L2 excursion +0.64 vs L1
+    (3 se) reported, not interpreted. Caveat: current-src DT readout, not the paper''s
+    bidirectional action-token one (stated pre-launch; the original readout could copy
+    its target, so the dose would be uninformative on it).'
   RETRACTION_2026_09_14_h198_RTG_DISCONNECTED: 'h198''s "RTG channel is causally disconnected
     end-to-end" is RETRACTED. The label fork was a SILENT NO-OP: h83''s worker.py run()
     hardcodes cfg.rollout_reward="mes_entropy" AFTER _build_mf_dro_config, overwriting
