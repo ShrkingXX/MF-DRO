@@ -13,6 +13,67 @@
 # ══ PHASE 2 — WHY BETTER TRAJECTORY QUALITY DOES NOT IMPROVE MF-DRO ══
 #                              ** ANSWERED **
 #
+# ── UPDATE 2026-09-18: the window/RTG arc (h205–h209) is closed. Four results, one
+#    mechanism, two retractions. Read this before the older Phase-2 updates below.
+#
+#    (1) THE K=8 WINDOW'S DAMAGE WAS A BUG, NOT THE TEACHER (h205, h206).
+#        _train_dt labelled every fragment arange(8); index 7 meant "7 steps into a
+#        fantasy, RTG~0" forever, and the K=8 readout sat at index 7. Five window arms,
+#        no exceptions: embedding present -> 14.4 and LF collapse to ~0.09; absent ->
+#        11.4, no collapse. Deleting the positional embedding (h206N 11.39) is within
+#        noise of absolute labelling (h205B 10.68) and of K=1 (11.59). The fidelity
+#        collapse that h202 attributed to "the window" is pinned to this signal.
+#        REAL PREFIX TRAINING (h205A) HURTS: 13.12, worse than no window, on 5/5.
+#
+#    (2) RETRACTION: h198's "RTG is causally disconnected end-to-end" was a config
+#        override. h83's worker.py run() sets cfg.rollout_reward="mes_entropy" AFTER
+#        _build_mf_dro_config; h198b's 'improvement' set inside _build was wiped, both
+#        arms ran mes_entropy, both arms' per-iteration rtg_target are identical to 4
+#        decimals. RTG numerically reaches the output (6e-2 on x, direct test). Fixed
+#        with a module knob h83.ROLLOUT_REWARD. Only h198b was affected.
+#
+#    (3) THE DT DOES NOT SELECT BY RTG EVEN WHEN IT COULD (h207 MIXO). Identical
+#        tau=0 state, two actions, labels 40 units apart, true-f oracle half: the DT
+#        reached 0.00 on 5/5 -- but with RTG-sensitivity 1.4x the control and BTG ~0,
+#        and the early probe shows it emitting x within 0.18 of x* REGARDLESS of RTG
+#        (control 0.67). The MSE location head averaged the two halves; on Borehole the
+#        midpoint of a MES action and a corner optimum is a great query. h201A's 0.00
+#        is RETRACTED as evidence the window reads history: it was the arange shortcut
+#        (index 7 always held the oracle path's tau=7 action = x*). Both oracle results
+#        are shortcuts. The single-teacher account of RTG inertness is NOT confirmed --
+#        Q2 is an architecture/loss question, not a data question.
+#
+#    (4) MIXR (20 MES + 20 random-in-ROI rollouts per member) IS A REAL BOREHOLE GAIN
+#        THAT DOES NOT TRANSFER (h207, h209). Borehole: 6.22 vs 12.62 (42-46) and 4.84
+#        vs 10.41 (47-51), 10/10 seeds, not data volume (NIR120 = 14.04). Hartmann:
+#        12.08 vs 9.75, worse on 4/5, LF fraction down on 5/5. MECHANISM: the random
+#        half shifts the regression mean. Real HF queries land on more box faces
+#        (dims-on-face 1.3-1.75 vs 0.5-0.95; MF-MES 2.5; Borehole's optimum has 7/8
+#        dims on faces, Hartmann's is interior) and the fidelity head moves toward HF
+#        (cheap at 2:1, costly at 8:1). This is MF-DRO's known Borehole boundary
+#        aversion, accidentally corrected. Not RTG selection; not diversity-learning.
+#
+#    THE ONE MECHANISM: everything that has ever moved the endpoint moved the
+#    CONDITIONAL MEAN of the training actions at the read position. ROI moved the
+#    candidate pool; the arange bug moved which phase's mean was read; MIXO and MIXR
+#    moved it by mixing in a biased half. THE_ANSWER ("the DT emits its teacher's
+#    action mean at the read position") is confirmed a fourth time. The lever that
+#    would change the regime is a head that does not average: H102's L1 (median sits
+#    AT a bound) is already in the code and is the principled version of what MIXR
+#    does by accident, with no fidelity cost. That is h210's first arm.
+#
+#    OPEN AND FLAGGED: NIR-H (K=8, nopos) = 9.75 vs the last full run's K=1 = 5.93 on
+#    Hartmann. The K=8 line was validated on Borehole only. A current-code Hartmann
+#    CTRL-K1 is the missing control and runs before any tuning.
+#
+#    Also closed this arc: random search under the posterior does not find good
+#    points in 8-D over 8 steps (best of 100 random rollouts is 27-43 units below the
+#    incumbent on every member; Stage 0b/v3), so the argmin-winner spec (W) and pure
+#    random data (R) were dropped before running. IR (E[max f] - max mu) is an
+#    information criterion in disguise -- MES rollouts score no better than random
+#    under it on any pool, and IR variants disagree with each other (rho 0.14-0.27).
+#
+#
 # ── UPDATE 2026-09-03b: h197 (the human's full specification) is P3, and it
 #    exposed a CONFOUND that makes the sliding-window null unsafe to state.
 #
