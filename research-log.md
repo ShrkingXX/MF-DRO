@@ -4157,3 +4157,14 @@ neither oracle result says anything about RTG. Single-teacher account NOT confir
 reopens on the architecture side. P-MIXR lean REFUTED on regret: −6.40 vs NIR (4/5),
 matches MF-MES. Mechanism open; data-quantity confound (120 vs 60 traj/iter) unregistered.
 Next: replicate on fresh seeds + Hartmann with NIR-120 control.
+
+## 2026-09-18 — h209 complete: MIXR's Borehole gain is real and replicated (5/5 fresh seeds), not data volume, and does not transfer to Hartmann. Mechanism: the random half shifts the regression mean.
+
+P-H FAILED with the LF signature (+2.33, 1/5, LF down 5/5). P-Q: quantity ruled out (MIXR
+beats NIR120 by 7.82, 5/5). P-B47 SUPPORTED (−5.56, se 1.51, 5/5). Trace diagnostic: MIXR's
+real queries sit on more box faces (1.28–1.75 dims vs NIR 0.5–0.95; MF-MES 2.52) — Borehole's
+optimum is a corner, Hartmann's is interior. The random half biases the MSE location head
+toward faces and the fidelity head toward HF; Borehole rewards both, Hartmann punishes
+both. Same mechanism as MIXO. Not RTG, not diversity-learning. It's the known boundary
+aversion, crudely fixed; the principled fix is H102's L1 loss. Missing control flagged:
+current-code Hartmann CTRL-K1.

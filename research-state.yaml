@@ -21,6 +21,21 @@
 # ============================================================================
 
 current_front:
+  h209_COMPLETE_2026_09_18: 'CONFIRMATORY, 25/25. P-H FAILED with the registered LF signature:
+    MIXR-H 12.08 vs NIR-H 9.75 (+2.33, 1/5), LF dropped on 5/5. P-Q: quantity ruled out
+    (NIR120 14.04 vs NIR 12.62; MIXR beats NIR120 by 7.82, 5/5). P-B47 SUPPORTED: MIXR 4.84
+    vs NIR 10.41 on fresh seeds (-5.56, se 1.51, 5/5). Verdict 2/3: the Borehole gain is
+    REAL (10/10 seeds, two seed sets), not data volume, and does NOT transfer to Hartmann.
+    MECHANISM (exploratory, from traces): the random half SHIFTS THE REGRESSION MEAN --
+    real HF queries land on more box faces (dims-on-face MIXR 1.28/1.75 vs NIR 0.95/0.51;
+    MF-MES 2.52; Borehole optimum has 7/8 dims on faces) and the fidelity head moves toward
+    HF. Borehole rewards both (corner optimum, 2:1), Hartmann punishes both (interior, 8:1).
+    Same mechanism MIXO exposed. Not RTG selection, not learning-from-diversity. This is
+    MF-DRO''s known Borehole boundary aversion, accidentally corrected. Principled fix
+    already in code: H102 loc_loss=l1. Retracted: random rollouts as a method; the
+    diversity account. MISSING CONTROL flagged: current-code Hartmann CTRL-K1 (NIR-H 9.75
+    vs last full run 5.93 -- the K=8 line was never validated off Borehole). NEXT h210:
+    Hartmann CTRL-K1, p_HF-matched MIXR, L1 on NIR, both benchmarks.'
   h207_COMPLETE_2026_09_17: 'CONFIRMATORY on arms, 15/15. Frozen rel% @ cost 200, Borehole
     42-46: NIR (20 MES, terminal_improvement label) 12.62; MIXR (20 MES + 20 random) 6.22;
     MIXO (20 MES + 20 oracle, ceiling) 0.00. P-NIR SUPPORTED (+1.23 vs h206N, inside band).
