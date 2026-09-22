@@ -26,13 +26,13 @@ print(f"CTRLK1-H : K={mf.inference_context_k} reward={mf.rollout_reward} nopos={
 r, mf = run_one("worker_L1NIR", "Borehole_8D")
 c2 = (mf.dt.loc_loss == "l1" and mf.inference_context_k == 8 and mf.dt.disable_position_embedding and mf.rollout_reward == "terminal_improvement")
 print(f"L1NIR-B  : K={mf.inference_context_k} reward={mf.rollout_reward} nopos={mf.dt.disable_position_embedding} loss={mf.dt.loc_loss}  -> {'ok' if c2 else 'BAD'}"); ok &= c2
-r, mf = run_one("worker_MIXRP25", "Borehole_8D")
+r, mf = run_one("worker_MIXRP72", "Borehole_8D")
 with contextlib.redirect_stdout(io.StringIO()):
     b = mf._generate_rollout_batch()
 rnd = [t for t in b if t.get('_policy') == 'random']; mes = [t for t in b if t.get('_policy') == 'mes']
 hf_rnd = float(np.mean([1 - t['lf_fraction'] for t in rnd])); hf_mes = float(np.mean([1 - t['lf_fraction'] for t in mes]))
-c3 = (mf.dt.loc_loss == "mse" and getattr(mf.config, 'random_p_hf', None) == 0.25 and len(rnd) == 60 and abs(hf_rnd - 0.25) < 0.08)
-print(f"MIXRP25-B: loss={mf.dt.loc_loss} random_p_hf={getattr(mf.config,'random_p_hf',None)} batch {len(mes)} mes + {len(rnd)} random; HF frac in rollouts: random {hf_rnd:.2f} (want ~0.25), MES {hf_mes:.2f}  -> {'ok' if c3 else 'BAD'}"); ok &= c3
+c3 = (mf.dt.loc_loss == "mse" and getattr(mf.config, 'random_p_hf', None) == 0.72 and len(rnd) == 60 and abs(hf_rnd - hf_mes) < 0.08)
+print(f"MIXRP72-B: loss={mf.dt.loc_loss} random_p_hf={getattr(mf.config,'random_p_hf',None)} batch {len(mes)} mes + {len(rnd)} random; HF frac in rollouts: random {hf_rnd:.2f} vs MES {hf_mes:.2f} (want |diff| < 0.08 = mix-matched)  -> {'ok' if c3 else 'BAD'}"); ok &= c3
 r, mf = run_one("worker_L1NIR", "Hartmann_6D")
 c4 = (mf.dt.loc_loss == "l1")
 print(f"L1NIR-H  : loss={mf.dt.loc_loss} K={mf.inference_context_k}  -> {'ok' if c4 else 'BAD'}"); ok &= c4

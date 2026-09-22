@@ -9,5 +9,5 @@ launch(){ while [ "$(nrun)" -ge 15 ]; do sleep 60; done
   sleep 3; say "launched $1 $2 seed $3  (running: $(nrun)/15)"; }
 for s in 42 43 44 45 46; do launch CTRLK1 Hartmann_6D $s; launch L1NIR Hartmann_6D $s; done
 for s in 42 43 44 45 46; do launch L1NIR Borehole_8D $s; done
-for s in 42 43 44 45 46; do launch MIXRP25 Borehole_8D $s; done
+for s in 42 43 44 45 46; do launch MIXRP72 Borehole_8D $s; done
 say "all 20 launched; $(nrun)/15 running"

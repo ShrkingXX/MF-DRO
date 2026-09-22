@@ -49,9 +49,14 @@
 #        12.08 vs 9.75, worse on 4/5, LF fraction down on 5/5. MECHANISM: the random
 #        half shifts the regression mean. Real HF queries land on more box faces
 #        (dims-on-face 1.3-1.75 vs 0.5-0.95; MF-MES 2.5; Borehole's optimum has 7/8
-#        dims on faces, Hartmann's is interior) and the fidelity head moves toward HF
-#        (cheap at 2:1, costly at 8:1). This is MF-DRO's known Borehole boundary
-#        aversion, accidentally corrected. Not RTG selection; not diversity-learning.
+#        dims on faces, Hartmann's is interior) and real queries go more HF (LF 0.44
+#        -> 0.27 Borehole, 0.56 -> 0.44 Hartmann). CORRECTION 2026-09-22 (h210 smoke):
+#        the causal form "the random half's 50% HF retrains the fidelity head toward
+#        HF" is WRONG -- MES rollouts are 72% HF, so the random half at 0.5 DILUTES HF
+#        in training while real queries go MORE HF; the LF-drop observable stands, its
+#        cause is open (state-dependence of the fidelity head is the live candidate).
+#        This is MF-DRO's known Borehole boundary aversion, accidentally corrected.
+#        Not RTG selection; not diversity-learning.
 #
 #    THE ONE MECHANISM: everything that has ever moved the endpoint moved the
 #    CONDITIONAL MEAN of the training actions at the read position. ROI moved the

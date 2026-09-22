@@ -75,3 +75,30 @@ on the L1 arms and `'mse'` on the others (a silent default is the failure mode);
 
 Frozen: final simple regret, rel% of |optimum| @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## AMENDMENT 1 (before launch) — smoke v1 FAIL corrects the fidelity mechanism; arm re-specified
+
+**Smoke v1: FAIL** on the MIXR-P25 check (log kept as `logs/smoke_v1_FAIL.log`):
+`random HF frac 0.37 (want ~0.25), MES 0.72`. The 0.37 is `minimum_hf_fraction=0.25`
+flooring the running fraction inside each rollout. The 0.72 is the finding: **MES's own
+training rollouts are 72% HF**, so the random half at p_HF=0.5 (≈54% HF) was *diluting*
+HF in the training mix — while MIXR's real queries went *more* HF (LF 0.44 → 0.27 on
+Borehole, 0.56 → 0.44 on Hartmann). The real-query fidelity moved opposite to the
+training-mix shift.
+
+**Correction, recorded here and in findings.md:** the sentence "the random half's 50% HF
+moves the fidelity head toward HF" is WRONG in its causal form. The LF-drop observable on
+both benchmarks stands; its cause is not the random half's fidelity composition. Live
+candidates: the fidelity head's state-dependence (MIXR's boundary-shifted queries produce
+posteriors where the head prefers HF), or the `minimum_hf_fraction` / `p_pred` interaction
+at inference. Neither is tested here.
+
+**Arm re-specified: MIXR-P72-B** — `random_p_hf = 0.72`, matching the MES rollouts'
+measured HF fraction, so the training mix's fidelity composition is UNCHANGED by the
+random half and any real-query LF change must come from location/state effects. Smoke
+check becomes |HF_random − HF_MES| < 0.08 on an actual batch (mix-matched), not a fixed
+target. **P-P72** replaces P-P25 with the same logic: if regret stays < NIR − 1.26 with
+the mix matched, the location shift is a real mechanism independent of the fidelity
+composition; if regret returns to NIR's, the gain rode on the random half's fidelity
+composition after all (which, given 0.72 vs 0.54, would mean *diluting* HF helped — a
+different story from the one retracted above).
