@@ -102,3 +102,20 @@ the mix matched, the location shift is a real mechanism independent of the fidel
 composition; if regret returns to NIR's, the gain rode on the random half's fidelity
 composition after all (which, given 0.72 vs 0.54, would mean *diluting* HF helped — a
 different story from the one retracted above).
+
+## AMENDMENT 2 (before launch, user's bet) — 5th arm: L1 + MIXR with MES majority
+
+**L1-MIXR-B** — Borehole 42–46, 20 MES + 10 random per member (`random_p_hf=0.5` as in
+h207's MIXR), `loc_loss='l1'`. With MES in the majority the median at a given state is
+the MES mode, so the random half cannot drag the location head; it can only supply
+coverage. This is the direct test of the mean-vs-median account *with* the random half
+present, and it separates from L1-NIR-B:
+
+- **P-L1MIXR:** L1-MIXR-B − NIR-B < −1.26 on ≥ 4/5.
+- **Reading against L1-NIR-B:** if L1-NIR-B alone recovers MIXR's gain, the random half's
+  coverage was never needed (the boundary fix is the whole story). If L1-MIXR-B recovers
+  it and L1-NIR-B does not, the coverage matters and the median head is what lets it be
+  used without being dragged — the user's account. If neither recovers it, the
+  mean-vs-median account of MIXR is wrong (P-L1-B fail already covers this).
+- 25 runs total; queued last. The other four dials (p_HF dose above 0.72, ratio, label,
+  random source) are deferred to h211 and depend on what h210 says.
