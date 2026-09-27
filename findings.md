@@ -81,6 +81,20 @@
 #    reference for any MIXR claim is CTRL-K1: Borehole 11.59 -> 6.22, about 5.4 points.
 #    The highest-value untested cell is MIXR on the K=1 base.
 #
+#    MEASURED 2026-09-27 (loop audit, experiments/h211-mixr-on-k1/loop-audit.md): under
+#    the `terminal_improvement` label the INFERENCE RTG TARGET IS PINNED AT 0.5 for
+#    essentially the whole run (MIXR-B: 9 distinct values over 117 iterations, mean
+#    0.511; NIR-B 34/134) whereas `mes_entropy` gives 82-110 distinct values over the
+#    same horizon. Cause: rtg_tgt = max(batch_max rtg0, 0.5*running_max rtg0) is a FLOOR
+#    for non-negative RTG (Old_dro clamps reward at >=0), but terminal_improvement drops
+#    that clamp, so once the incumbent rises every batch_max is negative and the alpha
+#    term becomes a permanent CEILING above all training data. Under K=8 the
+#    terminal-return relabel additionally sets EVERY window token to that same constant.
+#    CONSEQUENCE: MIXR's gain CANNOT be an RTG-conditioning effect -- the channel is a
+#    constant input by construction. Independent confirmation of the 1.1-1.4x sensitivity
+#    readings and of P-NIR's neutrality, and it narrows the surviving mechanism to the
+#    training-data composition changing the learned STATE -> ACTION map.
+#
 #    Also closed this arc: random search under the posterior does not find good
 #    points in 8-D over 8 steps (best of 100 random rollouts is 27-43 units below the
 #    incumbent on every member; Stage 0b/v3), so the argmin-winner spec (W) and pure
