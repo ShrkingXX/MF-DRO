@@ -57,10 +57,16 @@
 #        composition: MIXR-P72, with the random half's HF fraction matched to the MES
 #        rollouts', keeps the gain (-4.72, se 0.96, 5/5) with dims-on-face 0.92, i.e.
 #        no boundary shift either. WHAT SURVIVES is the bare effect: adding UNSELECTED
-#        random-in-ROI rollouts to the MES training set improves Borehole ~5-6 points
-#        across 15/15 seeds and three configurations, for a reason NOT YET IDENTIFIED.
-#        Not volume (h209 NIR120), not boundary, not fidelity, not RTG selection.
-#        Untested candidates: state coverage, action-distribution variance, ROI shape.
+#        random-in-ROI rollouts to the MES training set improves Borehole for a reason
+#        NOT YET IDENTIFIED, across 20/20 seeds and FOUR configurations (h211 added the
+#        clean one: CTRL-K1 11.59 -> MIXR-K1 7.17, 5/5, no window / no positional change
+#        / no label change, i.e. the effect is NOT a K=8 interaction). Ruled out: data
+#        volume (h209 NIR120), boundary geometry (h210 L1 + MIXR-P72 dims-on-face),
+#        fidelity composition (h210 MIXR-P72), RTG conditioning (audit: the channel is a
+#        CONSTANT input), the window (h211 P-B). Untested: state coverage,
+#        action-distribution variance, ROI shape. On Hartmann the random half HURTS
+#        (+5.26 at K=1, h211 P-H), so it is not a method -- the registered
+#        "<= CTRL-K1 on BOTH benchmarks" rule is NOT met and no single config is kept.
 #
 #    THE ONE MECHANISM: everything that has ever moved the endpoint moved the
 #    CONDITIONAL MEAN of the training actions at the read position. ROI moved the
@@ -72,8 +78,13 @@
 #    does by accident, with no fidelity cost. That is h210's first arm.
 #
 #    SETTLED 2026-09-27 (h210 P-CTRL): the missing control reproduces the last full run
-#    BIT-IDENTICALLY (CTRL-K1-H 5.93; paired +0.00, se 0.00, 5/5). No code drift. So the
-#    ~3.8-point Hartmann gap is the K=8 CONFIGURATION itself, and item (1)'s "K=8 ~ K=1"
+#    BIT-IDENTICALLY (CTRL-K1-H 5.93; paired +0.00, se 0.00, 5/5). No code drift.
+#    ** ATTRIBUTION CORRECTED same day by h211 P-LABEL: the Hartmann gap is the LABEL,
+#    NOT the window. terminal_improvement ALONE at K=1 costs +5.80 on 0/5 (K1-TI-H 11.73
+#    vs CTRL-K1-H 5.93); adding the window on top RECOVERS 1.98 (NIR-H 9.75). Cause is
+#    the pinned-at-0.5 inference RTG target documented in the loop audit below. The
+#    sentence "the ~3.8-point gap is the K=8 configuration" is RETRACTED. ** Item (1)'s
+#    "K=8 ~ K=1"
 #    is a BOREHOLE-ONLY statement -- a SCOPE CORRECTION, not a retraction; the Borehole
 #    measurements stand. The K=8 window has never beaten K=1 on any benchmark: it costs
 #    ~1 point on Borehole and ~3.8 on Hartmann. NIR (the K=8 control every MIXR number is
