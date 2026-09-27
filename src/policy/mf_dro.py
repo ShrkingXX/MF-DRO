@@ -1075,7 +1075,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             # falls back to roi_candidates (Stage-0 v1 behaviour).
                             ir_pool=None,
                             ir_probe_second_seed=False,
-                            ir_keep_final_ko=False):
+                            ir_keep_final_ko=False,
+                            rtg_rng_parity=False):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
     Change 1, may terminate it sooner -- see bes_delta below).
@@ -1924,7 +1925,24 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         # (observed 0.6-0.78 instead of well under 0.5).
         # No-op (skipped) under rollout_reward=="improvement" -- that mode's
         # RTG signal doesn't use the Gumbel scale, see docstring above.
-        b_tau = _rollout_gumbel_b(current_ko) if rollout_reward == "mes_entropy" else None
+        # h213 RNG PARITY. _rollout_gumbel_b -> thompson_sample_y_star ->
+        # posterior.rsample() draws from the GLOBAL torch RNG, so a label that
+        # computes b_tau consumes T+1 Thompson draws per rollout and a label
+        # that does not consumes zero. At 60-120 rollouts x 8 steps per BO
+        # iteration the two streams diverge before the first real decision --
+        # measured: same seed, same initial design, first real query already
+        # differs (experiments/h212-rtg-target-schema/rng-parity-note.md). Any
+        # cross-label comparison is then a different random realisation, not an
+        # A/B. rtg_rng_parity=True draws b_tau under EVERY label and discards it
+        # when unused, so the stream is identical and the label is the only
+        # thing that varies. Default False => bit-for-bit unchanged.
+        if rollout_reward == "mes_entropy":
+            b_tau = _rollout_gumbel_b(current_ko)
+        elif rtg_rng_parity:
+            _ = _rollout_gumbel_b(current_ko)      # draw and discard: parity only
+            b_tau = None
+        else:
+            b_tau = None
         # h207: IR_tau of the posterior BEFORE this step's observation.
         if rollout_reward == "inference_regret":
             ir_values.append(_rollout_ir(current_ko, tau))
@@ -2210,6 +2228,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
         log_b_T = math.log(b_T)
         rtg_values = [math.log(b) - log_b_T for b in b_values]
         rtg_t = torch.tensor(rtg_values, dtype=dtype)
+    if rollout_reward != "mes_entropy" and rtg_rng_parity:
+        _ = _rollout_gumbel_b(current_ko)          # h213: the post-loop b_T draw, matched
 
     traj = {
         'states': torch.stack(states),
@@ -2926,6 +2946,7 @@ class DirectMFRegretOptimization:
                 ir_pool=getattr(self, 'ir_pool', None),
                 ir_probe_second_seed=getattr(self.config, 'ir_probe_second_seed', False),
                 ir_keep_final_ko=getattr(self.config, 'ir_keep_final_ko', False),
+                rtg_rng_parity=getattr(self.config, 'rtg_rng_parity', False),
                 rollout_reward=self.rollout_reward,
                 kg_signed=getattr(self.config, 'kg_signed', False),
                 kg_topk=getattr(self.config, 'kg_topk', 1),
