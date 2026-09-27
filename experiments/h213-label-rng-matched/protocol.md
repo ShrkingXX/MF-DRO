@@ -89,3 +89,31 @@ first. 1 thread/worker.
 
 Frozen: final simple regret, rel% of |optimum| @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## AMENDMENT 1 (before launch) — the Stage 0 gate was wrong, and the fix is confirmed working
+
+**Smoke v1 FAIL was a bad gate, not a bad fix.** v1 required the parity run to reproduce
+the `mes_entropy` control's **first real query**. That is the wrong criterion: with RNG
+matched the two labels generate the *same rollouts*, but attach *different RTG numbers*,
+and RTG is an input to DT training — so the trained model, and therefore the first query,
+**should** differ. That difference is the label effect, i.e. the hypothesis under test, not
+a precondition for testing it. Log kept as `logs/smoke_v1_WRONGGATE.log`.
+
+**Parity is confirmed by direct measurement.** From an identical state and seed, one
+rollout batch under each label:
+
+```
+  mes_entropy : thompson calls = 963   rollouts = 60   post-batch RNG fingerprint = +1.250309758
+  TI + parity : thompson calls = 963   rollouts = 60   post-batch RNG fingerprint = +1.250309758
+```
+
+Identical call count, identical stream position. `rtg_rng_parity` works.
+
+(An earlier probe compared *total* Thompson calls over a whole run — 4815 vs 5778 — and was
+**confounded**: the budget is cost-based, so the two labels run different numbers of
+iterations and the totals differ for that reason alone. It located nothing and is not
+evidence of a parity gap.)
+
+**Gate v2:** from an identical state and seed, the two labels must produce **bit-identical**
+rollout data (`states`, `actions_x`, `actions_ell`) and **different** `rtg`. That is the
+one-factor condition, stated correctly.
