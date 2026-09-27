@@ -49,14 +49,18 @@
 #        12.08 vs 9.75, worse on 4/5, LF fraction down on 5/5. MECHANISM: the random
 #        half shifts the regression mean. Real HF queries land on more box faces
 #        (dims-on-face 1.3-1.75 vs 0.5-0.95; MF-MES 2.5; Borehole's optimum has 7/8
-#        dims on faces, Hartmann's is interior) and real queries go more HF (LF 0.44
-#        -> 0.27 Borehole, 0.56 -> 0.44 Hartmann). CORRECTION 2026-09-22 (h210 smoke):
-#        the causal form "the random half's 50% HF retrains the fidelity head toward
-#        HF" is WRONG -- MES rollouts are 72% HF, so the random half at 0.5 DILUTES HF
-#        in training while real queries go MORE HF; the LF-drop observable stands, its
-#        cause is open (state-dependence of the fidelity head is the live candidate).
-#        This is MF-DRO's known Borehole boundary aversion, accidentally corrected.
-#        Not RTG selection; not diversity-learning.
+#        dims on faces, Hartmann's is interior) and real queries go more HF.
+#        ** BOTH MECHANISMS RETRACTED 2026-09-27 by h210. ** (a) mean-vs-median: the
+#        median head (L1) alone is WORSE (16.50 vs MSE's 12.62, 1/5) and its
+#        dims-on-face is 0.97 vs MSE's 0.95 -- it does not move queries to the faces
+#        at all, so the boundary-proximity correlation was NOT causal. (b) fidelity
+#        composition: MIXR-P72, with the random half's HF fraction matched to the MES
+#        rollouts', keeps the gain (-4.72, se 0.96, 5/5) with dims-on-face 0.92, i.e.
+#        no boundary shift either. WHAT SURVIVES is the bare effect: adding UNSELECTED
+#        random-in-ROI rollouts to the MES training set improves Borehole ~5-6 points
+#        across 15/15 seeds and three configurations, for a reason NOT YET IDENTIFIED.
+#        Not volume (h209 NIR120), not boundary, not fidelity, not RTG selection.
+#        Untested candidates: state coverage, action-distribution variance, ROI shape.
 #
 #    THE ONE MECHANISM: everything that has ever moved the endpoint moved the
 #    CONDITIONAL MEAN of the training actions at the read position. ROI moved the
@@ -67,9 +71,15 @@
 #    AT a bound) is already in the code and is the principled version of what MIXR
 #    does by accident, with no fidelity cost. That is h210's first arm.
 #
-#    OPEN AND FLAGGED: NIR-H (K=8, nopos) = 9.75 vs the last full run's K=1 = 5.93 on
-#    Hartmann. The K=8 line was validated on Borehole only. A current-code Hartmann
-#    CTRL-K1 is the missing control and runs before any tuning.
+#    SETTLED 2026-09-27 (h210 P-CTRL): the missing control reproduces the last full run
+#    BIT-IDENTICALLY (CTRL-K1-H 5.93; paired +0.00, se 0.00, 5/5). No code drift. So the
+#    ~3.8-point Hartmann gap is the K=8 CONFIGURATION itself, and item (1)'s "K=8 ~ K=1"
+#    is a BOREHOLE-ONLY statement -- a SCOPE CORRECTION, not a retraction; the Borehole
+#    measurements stand. The K=8 window has never beaten K=1 on any benchmark: it costs
+#    ~1 point on Borehole and ~3.8 on Hartmann. NIR (the K=8 control every MIXR number is
+#    measured against) is therefore WORSE than plain K=1 on both, and the honest
+#    reference for any MIXR claim is CTRL-K1: Borehole 11.59 -> 6.22, about 5.4 points.
+#    The highest-value untested cell is MIXR on the K=1 base.
 #
 #    Also closed this arc: random search under the posterior does not find good
 #    points in 8-D over 8 steps (best of 100 random rollouts is 27-43 units below the

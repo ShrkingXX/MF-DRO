@@ -14,7 +14,7 @@ _s = importlib.util.spec_from_file_location("a83", os.path.join(REPO, "experimen
 a83 = importlib.util.module_from_spec(_s); sys.modules["a83"] = a83; _s.loader.exec_module(a83)
 from benchmarks import get_benchmark
 E = os.path.join(REPO, "experiments"); G = np.linspace(0, 200, 201)
-C = {"MF-MES": "#3a3a38", "MF-GP-UCB": "#8a8a86", "SF-DRO": "#b0b0ab", "MF-DRO no-ROI": "#c9c9c4",
+C = {"MIXR-P72": "#1baf7a", "L1-NIR": "#eda100", "MF-MES": "#3a3a38", "MF-GP-UCB": "#8a8a86", "SF-DRO": "#b0b0ab", "MF-DRO no-ROI": "#c9c9c4",
      "ROI-Q10 K=1": "#2a78d6", "NIR": "#eb6834", "MIXR": "#1baf7a", "MIXO": "#4a3aa7", "CTRL-K1-H": "#2a78d6"}
 def mean_curve(pat, b):
     opt = float(get_benchmark(f"{b}_HF")["known_optimal_value"]); k = 100.0 / abs(opt)
@@ -32,6 +32,8 @@ SERIES = {
   ("ROI-Q10 K=1",   f"{E}/h84-roi-strategy/results/Borehole_8D__ROI-Q10__seed4[2-6].json", 1.6, "-"),
   ("NIR",           f"{E}/h207-random-rollout-dataset/results/Borehole_8D__H207NIR-MES-IR__seed4[2-6].json", 1.6, "-"),
   ("MIXR",          f"{E}/h207-random-rollout-dataset/results/Borehole_8D__H207MIXR__seed4[2-6].json", 2.2, "-"),
+  ("MIXR-P72",      f"{E}/h210-mean-vs-median/results/Borehole_8D__H210MIXRP72__seed4[2-6].json", 2.0, "-"),
+  ("L1-NIR",        f"{E}/h210-mean-vs-median/results/Borehole_8D__H210L1NIR__seed4[2-6].json", 1.4, "--"),
   ],
  "Hartmann_6D": [
   ("MF-DRO no-ROI", f"{E}/h83-main-comparison/results/Hartmann_6D__MF-DRO__seed4[2-6].json", 1.0, "-"),
@@ -41,10 +43,10 @@ SERIES = {
   ("ROI-Q10 K=1",   f"{E}/h84-roi-strategy/results/Hartmann_6D__ROI-Q10__seed4[2-6].json", 1.6, "-"),
   ("NIR",           f"{E}/h209-mixr-replication/results/Hartmann_6D__H209NIR__seed4[2-6].json", 1.6, "-"),
   ("MIXR",          f"{E}/h209-mixr-replication/results/Hartmann_6D__H209MIXR__seed4[2-6].json", 2.2, "-"),
-  ("CTRL-K1-H",     f"{E}/h210-mean-vs-median/results/Hartmann_6D__H210CTRLK1__seed4[2-6].json", 1.6, ":")]}
+  ("CTRL-K1-H",     f"{E}/h210-mean-vs-median/results/Hartmann_6D__H210CTRLK1__seed4[2-6].json", 1.6, ":"),
+  ("L1-NIR",        f"{E}/h210-mean-vs-median/results/Hartmann_6D__H210L1NIR__seed4[2-6].json", 1.4, "--")]}
 # h210 registered leans (protocol.md), drawn HOLLOW at cost 200; replaced by measured curves as they land
-EXPECT = {"Borehole_8D": [("L1-NIR-B", 8.0, "#eb6834"), ("MIXR-P72-B", 9.0, "#1baf7a"), ("L1-MIXR-B", 7.0, "#1baf7a")],
-          "Hartmann_6D": [("CTRL-K1-H", 5.93, "#2a78d6"), ("L1-NIR-H", 9.75, "#eb6834")]}
+EXPECT = {"Borehole_8D": [], "Hartmann_6D": []}   # h210 has landed; all arms measured
 plt.rcParams.update({"font.size": 9, "axes.grid": True, "grid.alpha": 0.22, "axes.spines.top": False,
                      "axes.spines.right": False, "figure.dpi": 160, "savefig.bbox": "tight", "font.family": "sans-serif"})
 fig, axes = plt.subplots(1, 2, figsize=(14.5, 5.2)); fig.subplots_adjust(wspace=0.62)
@@ -71,7 +73,7 @@ for ax, (b, series) in zip(axes, SERIES.items()):
                     color=("#52514e" if kind == "expected" else "#0b0b0b"),
                     arrowprops=dict(arrowstyle="-", color=col, lw=0.6, ls=(":" if kind == "expected" else "-"), shrinkA=0, shrinkB=2))
     if b == "Borehole_8D":
-        ax.text(0.02, 0.96, "MIXO (MES + oracle half; ceiling, not deployable) reaches 0.00 by cost ~45 on 5/5 -- not drawn",
+        ax.text(0.02, 0.96, "MIXO (MES + oracle half; ceiling, not deployable) reaches 0.00 by cost ~45 on 5/5 -- not drawn.\nL1-MIXR (20+10, median head) finishes 10.61 -- omitted for legibility.",
                 transform=ax.transAxes, fontsize=7.2, color="#52514e", va="top")
     ax.set_yscale("log"); ax.set_xlim(0, 200); ax.set_xlabel("cost after initial design")
     ax.set_title(f"{b.replace('_', ' ')} — mean over seeds 42–46")
@@ -82,9 +84,10 @@ leg = [Line2D([], [], color="#3a3a38", lw=1.8, label="MF-MES (strongest baseline
        Line2D([], [], color="#2a78d6", lw=1.6, label="ROI-Q10 K=1 — MF-DRO in the last full run"),
        Line2D([], [], color="#eb6834", lw=1.6, label="NIR — K=8, no positional emb., terminal_improvement (control)"),
        Line2D([], [], color="#1baf7a", lw=2.2, label="MIXR — NIR + 20 unselected random rollouts/member"),
-       Line2D([], [], marker="o", mfc="white", mec="#52514e", ls="", label="h210 registered lean (not yet measured)")]
-fig.legend(handles=leg, loc="lower center", ncol=3, frameon=False, fontsize=8, bbox_to_anchor=(0.5, -0.06))
-fig.suptitle("Regret vs cost — current arms against the baselines (endpoint is the only verdict; curves are diagnostic)", y=1.01, fontsize=11)
+       Line2D([], [], color="#1baf7a", lw=2.0, label="MIXR-P72 — HF mix matched to MES (h210)"),
+       Line2D([], [], color="#eda100", lw=1.4, ls="--", label="L1-NIR — median head, MES data only (h210)")]
+fig.legend(handles=leg, loc="lower center", ncol=3, frameon=False, fontsize=8, bbox_to_anchor=(0.5, -0.14))
+fig.suptitle("Regret vs cost — all measured arms against the baselines (endpoint is the only verdict; curves are diagnostic)", y=1.01, fontsize=11)
 out = os.path.join(REPO, "to_human", "regret_cost_current_vs_baselines.png"); fig.savefig(out); print("wrote", out)
 print("\nendpoint (cost 200), mean over seeds:")
 for (b, nm), (v, n) in sorted(table.items()): print(f"  {b:12s} {nm:14s} {v:7.2f}  n={n}")
