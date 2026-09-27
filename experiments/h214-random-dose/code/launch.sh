@@ -1,0 +1,14 @@
+#!/bin/bash
+cd /Users/yurucui/Desktop/DRO-Code/DRO-aistats-submission
+R=experiments/h214-random-dose; mkdir -p $R/logs $R/results/ckpt
+export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1
+say(){ echo "[$(date '+%H:%M:%S')] $*"; }
+nrun(){ bash tools/count_workers.sh 2>/dev/null | wc -l | tr -d ' '; }
+launch(){ while [ "$(nrun)" -ge 15 ]; do sleep 120; done
+  nohup .venv/bin/python $R/code/worker_$1.py $2 $3 > $R/logs/${1}_${2%%_*}_seed$3.log 2>&1 &
+  sleep 3; say "launched $1 $2 seed $3  (running: $(nrun)/15)"; }
+# longest first: D120 (4.0x rollout cost), D60 (2.5x), RROI (0.5x)
+for s in 42 43 44 45 46; do launch D120 Borehole_8D $s; done
+for s in 42 43 44 45 46; do launch D60  Borehole_8D $s; done
+for s in 42 43 44 45 46; do launch RROI Borehole_8D $s; done
+say "all 15 launched; $(nrun)/15 running"
