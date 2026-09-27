@@ -21,6 +21,24 @@
 # ============================================================================
 
 current_front:
+  h211_COMPLETE_2026_09_27: 'CONFIRMATORY, 15/15. P-B SUPPORTED: MIXR-K1-B 7.17 vs CTRL-K1
+    11.59, -4.42 (se 1.67) on 5/5 -- the random-rollout effect TRANSFERS off the K=8 base
+    and is now measured against the real reference; cleanest form yet (ROI-Q10 + 20 random
+    rollouts/member, no window, no label change). P-H SUPPORTED: MIXR-K1-H 11.19 vs 5.93,
+    +5.26 (se 3.09, 4/5) -- the Hartmann harm is the random half, not the window. P-LABEL
+    FAILED and RETRACTS h210''s attribution: terminal_improvement ALONE at K=1 costs +5.80
+    on 0/5 (K1-TI-H 11.73 vs CTRL-K1-H 5.93). The Hartmann gap is the LABEL, not the
+    window -- and the window partially MASKS it (NIR-H, K=8 + label, is 9.75, recovering
+    1.98). Matches the same-day loop audit: under terminal_improvement the inference RTG
+    target is pinned at 0.5, above all training data, because max(batch_max,
+    alpha*running_max) is a floor designed for Old_dro''s non-negative RTG and the label
+    drops that clamp. Neutral on Borehole (h207 P-NIR +1.23), costly on Hartmann.
+    DECISION RULE (registered) NOT MET: MIXR-K1 is -4.42 on Borehole, +5.26 on Hartmann;
+    no single configuration kept; per-benchmark numbers reported, no method claim. The
+    Borehole effect now holds across 20/20 seeds and FOUR configurations; mechanism still
+    unidentified -- not volume, boundary, fidelity, RTG conditioning, or the window.
+    NEXT (proposed): fix the target schema for signed RTG and re-measure the label on
+    Hartmann; MIXR-K1 on Currin and Ackley as genuinely held-out benchmarks.'
   h210_COMPLETE_2026_09_27: 'CONFIRMATORY, 25/25. P-CTRL SUPPORTED EXACTLY: CTRL-K1-H = 5.93,
     paired vs h84 ROI-Q10 = +0.00 se 0.00 on 5/5, bit-identical seed for seed -- NO code
     drift. Consequence: the ~3.8-pt Hartmann gap is the K=8 CONFIGURATION, and h206''s

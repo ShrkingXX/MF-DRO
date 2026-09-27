@@ -4180,3 +4180,14 @@ keeps the gain (−4.72, se 0.96, **5/5**) with dims-on-face 0.92, i.e. no bound
 Surviving: random-rollout augmentation improves Borehole ~5–6 pts on 15/15 seeds across 3
 configurations, mechanism unidentified. Scope: NIR is worse than plain K=1 on both
 benchmarks, so the honest reference is CTRL-K1 (11.59 → 6.22).
+
+## 2026-09-27 — h211: the effect transfers off the window (Borehole 11.59 → 7.17, 5/5); the Hartmann problem is the LABEL, not the window.
+
+P-B supported: MIXR-K1-B 7.17 vs CTRL-K1 11.59, −4.42 (se 1.67), 5/5 — random-rollout
+augmentation is not a K=8 interaction. P-H supported: +5.26 on Hartmann, the harm is the
+random half. **P-LABEL failed and retracts h210's attribution**: `terminal_improvement`
+alone at K=1 costs **+5.80 on 0/5** (11.73 vs 5.93); adding the window *recovers* 1.98
+(NIR-H 9.75). Matches the loop audit — the inference RTG target is pinned at 0.5 under that
+label, above all training data. Registered decision rule NOT met (−4.42 Borehole, +5.26
+Hartmann): no single configuration kept. Borehole effect now 20/20 seeds, four
+configurations, mechanism still unidentified.
