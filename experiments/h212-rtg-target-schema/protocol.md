@@ -89,3 +89,26 @@ visibly gone. A silent default is the failure mode.
 
 Frozen: final simple regret, rel% of |optimum| @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## AMENDMENT 1 (before launch) — smoke v1 gate was a measurement bug; and a warning on P-NEUTRAL
+
+**Smoke v1 FAIL was the gate, not the arm.** Criterion was `distinct rtg_target > 20`, but
+a BUDGET=60 smoke records only ~18 BO iterations, so it was unreachable by construction.
+TIPCT-H produced **18 distinct values in 18 iterations** — perfect de-pinning — and failed.
+Log kept as `logs/smoke_v1_GATEBUG.log`.
+
+The pinning signature is a **mode**, not a count: the floored run sat at 0.5 for 108 of 117
+iterations (modal fraction 0.92). Gate v2 is `modal_frac < 0.5` with `distinct >= 5` —
+horizon-independent. Under it TIPCT-H's modal fraction is 1/18 = 0.056.
+
+**Measured, and it confirms the fix does what it should:** TIPCT-H's target now ranges
+[−0.169, 0.653] with mean 0.180 — it goes *negative*, i.e. inside the training distribution,
+where the floored schema pinned it at 0.5 above everything.
+
+**Warning on P-NEUTRAL, recorded before results.** The negative control MIXRK1-PCT-B ran
+targets in [0.152, 0.272]; the floored `mes_entropy` control ran [0.299, 0.859]. The 90th
+percentile of a batch sits systematically **below** `max(batch_max, alpha·running_max)`, so
+the schema changes the target *level* even where nothing was pinned. **P-NEUTRAL is
+therefore at genuine risk by design**, and a P-NEUTRAL failure should be read as "q=90 is a
+less ambitious target", not as "the schema is an uninterpretable global intervention".
+q is NOT being retuned in response to this diagnostic — the arm is run as registered.
