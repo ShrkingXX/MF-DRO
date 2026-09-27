@@ -2289,6 +2289,10 @@ class MFTargetSchemas:
         self.c_H = c_H
         self.running_max_rtg = 0.0
         self.running_min_btg = float('inf')
+        # h212: 'floored' (default) = the original schema, bit-identical.
+        # 'percentile' = q-th percentile of the batch's own rtg[0].
+        self.rtg_target_schema = 'floored'
+        self.rtg_target_q = 90.0
 
     def update_and_get_rtg_target(self, rollout_batch):
         """
@@ -2306,6 +2310,26 @@ class MFTargetSchemas:
         rtg0_list = [traj['rtg'][0].item() for traj in rollout_batch]
         batch_max = max(rtg0_list)
         self.running_max_rtg = max(self.running_max_rtg, batch_max)
+
+        # h212: the floor above is only a FLOOR while RTG is non-negative --
+        # Old_dro.py clamps its reward at >= 0 (L816-829), so alpha*running_max
+        # sits BELOW batch_max and only binds when a batch is unusually poor.
+        # Under a signed label (terminal_improvement) rtg[0] goes negative once
+        # the real incumbent outgrows what a fantasy rollout can reach, and then
+        # alpha*(positive running_max) is a permanent CEILING above everything in
+        # the batch: measured, the target pinned at 0.5 for 108 of 117 iterations
+        # while mes_entropy gave 82-110 distinct values (see
+        # experiments/h211-mixr-on-k1/loop-audit.md). Conditioning on a value the
+        # training data no longer contains is the defect, not the reward itself.
+        #
+        # 'percentile' keeps the intent -- ask for a near-best rollout -- in a
+        # form that is scale- and sign-agnostic: the q-th percentile of THIS
+        # batch's rtg[0], which is inside the training distribution by
+        # construction and tracks it as the run progresses.
+        # 'floored' (default) is the original, bit-for-bit.
+        if getattr(self, 'rtg_target_schema', 'floored') == 'percentile':
+            return float(np.percentile(np.asarray(rtg0_list, dtype=float),
+                                        float(getattr(self, 'rtg_target_q', 90.0))))
         return max(batch_max,
                     self.alpha_rtg * self.running_max_rtg)
 
@@ -2678,6 +2702,11 @@ class DirectMFRegretOptimization:
             alpha_rtg=config.alpha_rtg, alpha_btg=config.alpha_btg,
             c_L=config.c_L, c_H=config.c_H
         )
+        # h212: forwarded onto the schema object AFTER construction (its
+        # __init__ signature is shared with SF-DRO and is not changed here).
+        self.schemas.rtg_target_schema = str(
+            getattr(config, 'rtg_target_schema', 'floored'))
+        self.schemas.rtg_target_q = float(getattr(config, 'rtg_target_q', 90.0))
 
         # SLIDING-WINDOW INFERENCE: the real (state, rtg, btg) actually used at
         # each past real iteration, oldest first. inference_context_k=1 (default)
