@@ -21,6 +21,24 @@
 # ============================================================================
 
 current_front:
+  h210_COMPLETE_2026_09_27: 'CONFIRMATORY, 25/25. P-CTRL SUPPORTED EXACTLY: CTRL-K1-H = 5.93,
+    paired vs h84 ROI-Q10 = +0.00 se 0.00 on 5/5, bit-identical seed for seed -- NO code
+    drift. Consequence: the ~3.8-pt Hartmann gap is the K=8 CONFIGURATION, and h206''s
+    "K=8 ~ K=1" is a BOREHOLE-ONLY statement (scope correction; h206''s Borehole numbers
+    stand). P-L1-H SUPPORTED (L1-NIR-H 8.87 vs NIR-H 9.75, -0.88, inside band): the median
+    head is free on an interior optimum. P-L1-B FAILED (16.50, worse than MSE on 4/5) ->
+    RETRACTED the mean-vs-median account of MIXR; the diagnostic is decisive, L1-NIR-B''s
+    dims-on-face 0.97 == MSE''s 0.95, the median head does NOT move queries to the faces.
+    P-P72 SUPPORTED and is the cleanest form: MIXR-P72 (HF mix matched to MES) gains -4.72
+    on 5/5, se 0.96, with dims-on-face 0.92 = NO boundary shift -> RETRACTED the
+    fidelity-composition account too. P-L1MIXR FAILED (10.61, 3/5). WHAT SURVIVES: adding
+    unselected random-in-ROI rollouts improves Borehole ~5-6 pts across 15/15 seeds and 3
+    configurations, for a reason NOT identified -- not volume, not boundary, not fidelity.
+    Untested candidates: state coverage, action-distribution variance, ROI-shape. SCOPE:
+    NIR is WORSE than plain K=1 on both benchmarks (12.62 vs 11.59; 9.75 vs 5.93), so every
+    MIXR gain sits on a handicapped base; the honest reference is CTRL-K1 (Borehole 11.59
+    -> 6.22 = 5.4 pts). NEXT (proposed, not registered): h211 MIXR on the K=1 base both
+    benchmarks + K1/terminal_improvement on Hartmann to isolate label from window.'
   h209_COMPLETE_2026_09_18: 'CONFIRMATORY, 25/25. P-H FAILED with the registered LF signature:
     MIXR-H 12.08 vs NIR-H 9.75 (+2.33, 1/5), LF dropped on 5/5. P-Q: quantity ruled out
     (NIR120 14.04 vs NIR 12.62; MIXR beats NIR120 by 7.82, 5/5). P-B47 SUPPORTED: MIXR 4.84

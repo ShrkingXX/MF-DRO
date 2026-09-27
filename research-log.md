@@ -4168,3 +4168,15 @@ toward faces and the fidelity head toward HF; Borehole rewards both, Hartmann pu
 both. Same mechanism as MIXO. Not RTG, not diversity-learning. It's the known boundary
 aversion, crudely fixed; the principled fix is H102's L1 loss. Missing control flagged:
 current-code Hartmann CTRL-K1.
+
+## 2026-09-27 — h210 complete. Both mechanism accounts of MIXR refuted; the effect survives unexplained; "K=8 ≈ K=1" is Borehole-only.
+
+CTRL-K1-H reproduces the last full run **bit-identically** (+0.00, se 0.00, 5/5) — no code
+drift, so the ~3.8-pt Hartmann gap is the K=8 configuration itself. L1-NIR-B is *worse*
+(16.50 vs 12.62, 1/5) with dims-on-face 0.97 ≈ MSE's 0.95 → **mean-vs-median account
+retracted**; the boundary correlation was not causal. MIXR-P72 (HF mix matched to MES)
+keeps the gain (−4.72, se 0.96, **5/5**) with dims-on-face 0.92, i.e. no boundary shift →
+**fidelity-composition account retracted**. L1-MIXR 10.61 (3/5) — L1 is a drag here.
+Surviving: random-rollout augmentation improves Borehole ~5–6 pts on 15/15 seeds across 3
+configurations, mechanism unidentified. Scope: NIR is worse than plain K=1 on both
+benchmarks, so the honest reference is CTRL-K1 (11.59 → 6.22).
