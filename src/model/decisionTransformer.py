@@ -315,7 +315,7 @@ class DecisionTransformer(nn.Module):
                     rtg, btg, timesteps, attention_mask=None,
                     actions_x=None,
                     candidates=None, chosen_idx=None,
-                    valid_mask=None, use_candidate_scoring=False,
+                    valid_mask=None, fid_mask=None, use_candidate_scoring=False,
                     teacher_scores=None, has_soft=None,
                     return_loss_breakdown=False):
         """
@@ -578,7 +578,20 @@ class DecisionTransformer(nn.Module):
             x_pred_out = None   # not used in scoring mode
 
         # Fidelity loss -- IDENTICAL in both modes.
-        if valid_mask is not None:
+        #
+        # h216: fid_mask [B,T] optionally zeroes the FIDELITY loss on chosen
+        # trajectories while leaving the LOCATION loss untouched. The random
+        # half of a MIXR batch picks its fidelity from Bernoulli(random_p_hf),
+        # i.e. it carries NO information about which fidelity is right -- but
+        # its LOCATIONS do carry the ROI's spread. Training the fidelity head
+        # on that half is pure noise injection, and it is measurable: MIXR
+        # shifts real-query LF by -0.136 (Borehole) and -0.095 (Hartmann)
+        # against CTRL-K1, which at 2:1 is cheap and at 8:1 costs ~33% of the
+        # budget. None (default) => bit-for-bit unchanged.
+        if fid_mask is not None:
+            _fm = fid_mask.float()
+            vm = (valid_mask.float() * _fm) if valid_mask is not None else _fm
+        elif valid_mask is not None:
             vm = valid_mask.float()   # [B, T]
             L_fid = (
                 F.binary_cross_entropy(

@@ -3350,8 +3350,18 @@ class DirectMFRegretOptimization:
             teacher_scores = None
             has_soft = None
 
+        # h216: rows of the batch whose FIDELITY choice carries no information.
+        # The 'random' teacher draws ell from Bernoulli(random_p_hf), so those
+        # rollouts teach the fidelity head noise while their LOCATIONS still
+        # carry the ROI's spread. fid_loss_policies names the policies to keep;
+        # None (default) keeps everything => bit-for-bit unchanged.
+        _fid_keep = getattr(self.config, 'fid_loss_policies', None)
+        fid_mask = torch.ones(B, T_max, dtype=torch.bool) if _fid_keep is not None else None
+
         for i, t in enumerate(batch):
             T_i = t['states'].shape[0]  # actual (possibly BES-shortened) length
+            if fid_mask is not None and t.get('_policy') not in _fid_keep:
+                fid_mask[i, :] = False
             if P:
                 # Prefix occupies [0, P): real states/conditioning, loss masked.
                 for j, h in enumerate(_prefix):
@@ -3463,6 +3473,7 @@ class DirectMFRegretOptimization:
                 candidates=(candidates.float() if candidates is not None else None),
                 chosen_idx=chosen_idx,
                 valid_mask=valid_mask,
+                fid_mask=fid_mask,
                 use_candidate_scoring=use_cs,
                 teacher_scores=(teacher_scores.float()
                                 if (teacher_scores is not None
