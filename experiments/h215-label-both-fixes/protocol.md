@@ -68,3 +68,36 @@ harmful on Hartmann and that is a finding about the reward, not its plumbing.
 
 Frozen: final simple regret, rel% of |optimum| @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## STOOD DOWN before launch (2026-09-28) — the label it repairs is being abandoned
+
+Nothing ran. On review prompted by the user: **`terminal_improvement` has never produced a
+benefit on any benchmark**, and the case for repairing it is weak next to the case for
+dropping it.
+
+| test of the label, in isolation | result |
+|---|---|
+| h207 P-NIR — Borehole, label alone (RNG unmatched) | +1.23, inside band — neutral |
+| h213 P-LABEL-B — Borehole, **RNG matched** | −1.06, inside band — neutral |
+| h213 P-LABEL-H — Hartmann, **RNG matched** | **+3.06, 0/5 — harmful** |
+
+Neutral at best, harmful at worst, and it cost two repair experiments (h212, h213) plus
+this one. Meanwhile `mes_entropy`:
+
+- is what the **best configuration on both benchmarks** uses (CTRL-K1: 11.59 / 5.93);
+- is what the **best deployable result** uses (MIXR-K1 Borehole 7.17, h211);
+- has an RTG that is already a **proper future-only return-to-go** — `log b_τ − log b_T`
+  telescopes to the remaining information gain and decreases over τ, matching DT's
+  `R_t = Σ_{t'≥t} r_{t'}` in shape as well as in name;
+- needs **no** schema fix — its target already varies (82–110 distinct values), and h212's
+  P-NEUTRAL showed the percentile schema *hurts* it by +3.52.
+
+So the pinned-target defect, the RNG-parity defect and the flat-RTG credit problem are all
+consequences of a label we adopted for a principled reason (match the scored metric) that
+never paid off. h215 would have told us whether that label's Hartmann penalty was
+deployment or definition — a question about a label we are not going to use. Confirmatory
+of a retraction, not decision-relevant.
+
+**Kept on the record, not deleted**: the flags it would have exercised
+(`rtg_target_schema`, `rtg_rng_parity`) are committed, gated, identity-gate-clean, and
+would be needed by any future signed-reward label.
