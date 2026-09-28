@@ -21,6 +21,22 @@
 # ============================================================================
 
 current_front:
+  h212_h213_COMPLETE_2026_09_28: 'BOTH CONFIRMATORY. h213 (label, RNG-MATCHED -- the first
+    true one-factor label test): TI-PAR-H 8.99 vs CTRL-K1-H 5.93 = +3.06 (se 1.55, 0/5), so
+    P-LABEL-H SUPPORTED and MY REGISTERED LEAN (label inert once RNG matched) was WRONG.
+    Borehole neutral (-1.06, 3/5, inside band), reproducing h207 as a genuine one-factor
+    test. h211''s P-LABEL +5.80 is PARTIALLY RETRACTED: roughly half was random-stream
+    divergence, half the label; direction stands, magnitude does not. h212 (target schema):
+    P-FIX SUPPORTED and is the LARGER effect -- un-pinning the RTG target recovers 5.27 on
+    5/5 and brings terminal_improvement on Hartmann from 11.73 to 6.46, within 0.53 of the
+    mes_entropy control. P-NEUTRAL FAILED as registered at-risk: percentile HURTS where the
+    target already varied (MIXRK1-PCT +3.52 on 0/5 vs MIXR-K1) because q=90 sits below
+    max(batch_max, alpha*running_max) and is a less ambitious target. So percentile is NOT a
+    universal fix -- it repairs the signed-label pinning and regresses the unsigned case; a
+    SIGN-AWARE rule is what the evidence supports and is not yet implemented. MISSING ARM,
+    prediction registered: terminal_improvement + percentile + RNG parity should land within
+    the band of CTRL-K1-H, i.e. the label''s Hartmann penalty was entirely its DEPLOYMENT
+    (schema + unmatched stream), not the reward definition.'
   h211_COMPLETE_2026_09_27: 'CONFIRMATORY, 15/15. P-B SUPPORTED: MIXR-K1-B 7.17 vs CTRL-K1
     11.59, -4.42 (se 1.67) on 5/5 -- the random-rollout effect TRANSFERS off the K=8 base
     and is now measured against the real reference; cleanest form yet (ROI-Q10 + 20 random

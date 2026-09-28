@@ -20,7 +20,10 @@ def run_one(modname,bench,budget=30.0):
     MF.DirectMFRegretOptimization.__init__=_oi
     return CAP["mf"]
 print("="*78)
-EXP={"worker_RROI":(0,60),"worker_D60":(60,180),"worker_D120":(60,360)}
+# totals are PER BATCH = per-member spec x M(=3) members. v1 had 180/360 here,
+# which was my arithmetic error, not a bad arm: D60 is 20 MES + 60 random per
+# member = 240 total, D120 is 20 + 120 = 420 total. The batches were correct.
+EXP={"worker_RROI":(0,60),"worker_D60":(60,240),"worker_D120":(60,420)}
 for modname,(n_mes,n_tot) in EXP.items():
     mf=run_one(modname,"Borehole_8D")
     with contextlib.redirect_stdout(io.StringIO()): b=mf._generate_rollout_batch()

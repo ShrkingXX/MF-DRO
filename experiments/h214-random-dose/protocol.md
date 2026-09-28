@@ -86,3 +86,10 @@ Borehole at MIXR-K1 (20+20) ran ~150 min/seed; D120 is ~4x the rollout cost, so 
 
 Frozen: final simple regret, rel% of |optimum| @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## AMENDMENT 1 (before launch) — smoke v1 FAIL was my arithmetic, not the arms
+
+The gate's expected batch totals were wrong: totals are *per batch* = per-member spec x M(=3)
+members, so D60 is 20 MES + 60 random per member = **240** total and D120 is **420**, not the
+180/360 I wrote. The observed batches were correct (`D120: batch 420={'random':360,'mes':60}`).
+Log kept as `logs/smoke_v1_GATEARITH.log`. No arm, seed, or prediction changes.

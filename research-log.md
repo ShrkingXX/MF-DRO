@@ -4191,3 +4191,15 @@ alone at K=1 costs **+5.80 on 0/5** (11.73 vs 5.93); adding the window *recovers
 label, above all training data. Registered decision rule NOT met (−4.42 Borehole, +5.26
 Hartmann): no single configuration kept. Borehole effect now 20/20 seeds, four
 configurations, mechanism still unidentified.
+
+## 2026-09-28 — h212 + h213: the RTG target schema carried most of the "label" penalty; the label itself costs half what h211 measured.
+
+**h213** (first RNG-matched label test): TI-PAR-H **8.99** vs CTRL-K1-H 5.93 = **+3.06**
+(0/5). My registered lean — that the label would be inert once RNG was matched — was
+**wrong**. Borehole neutral (−1.06, inside band). h211's +5.80 is partially retracted:
+about half was stream divergence.
+**h212** (schema): un-pinning the target recovers **5.27 on 5/5**, taking
+`terminal_improvement` on Hartmann from 11.73 to **6.46**, within 0.53 of the control.
+P-NEUTRAL failed as registered at-risk — percentile *hurts* the unsigned label (+3.52, 0/5)
+because q=90 asks for less. A sign-aware rule is what the evidence supports; not yet built.
+Missing arm (prediction registered): label + percentile + parity ≈ CTRL-K1-H.
