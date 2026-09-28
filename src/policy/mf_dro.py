@@ -2568,6 +2568,10 @@ class DirectMFRegretOptimization:
         # below 0.5.
         self.fidelity_sampling = getattr(config, 'fidelity_sampling', True)
         self.rollout_policy = getattr(config, 'rollout_policy', 'mes')
+        # h218: action-target jitter (see _generate_rollout_batch). 0.0 => inert.
+        self._action_jitter = float(getattr(config, 'action_jitter', 0.0))
+        self._action_jitter_policies = getattr(config, 'action_jitter_policies', None)
+        self._jitter_rng = torch.Generator().manual_seed(int(config.seed) + 8191)
         # ITEM 1: default switched to regret-based RTG ("improvement");
         # mes_entropy still available via explicit config.rollout_reward.
         self.rollout_reward = getattr(config, 'rollout_reward', 'improvement')
@@ -3009,6 +3013,21 @@ class DirectMFRegretOptimization:
                                    if use_pool else self.rollout_policy)
                     traj = _roll(ko, _policy)
                     traj['_policy'] = _policy
+                    # h218: jitter the recorded ACTION TARGETS of selected policies,
+                    # leaving states, fidelities, outcomes and RTG untouched. This
+                    # isolates "spread in the regression target" from every other
+                    # thing the random half brings (different states, different
+                    # outcomes, a different RTG distribution, more data). Drawn from
+                    # a DEDICATED generator so the global RNG stream is untouched --
+                    # h213 measured how easily an extra draw desynchronises two arms.
+                    # action_jitter = 0.0 (default) => bit-for-bit unchanged.
+                    if (self._action_jitter > 0.0 and traj.get('actions_x') is not None
+                            and (self._action_jitter_policies is None
+                                 or _policy in self._action_jitter_policies)):
+                        _ax = traj['actions_x']
+                        _n = torch.randn(_ax.shape, generator=self._jitter_rng,
+                                          dtype=_ax.dtype)
+                        traj['actions_x'] = (_ax + self._action_jitter * _n).clamp(0.0, 1.0)
                     member.append(traj)
                 if _topk is not None and int(_topk) < len(member):
                     member.sort(key=lambda t: (-float(t['rtg'][0]) if t['rtg'].numel() > 0
