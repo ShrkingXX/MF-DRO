@@ -92,6 +92,24 @@
 #    reference for any MIXR claim is CTRL-K1: Borehole 11.59 -> 6.22, about 5.4 points.
 #    The highest-value untested cell is MIXR on the K=1 base.
 #
+#    MEASURED 2026-09-29 -- THE RTG LABEL CARRIES NO INFORMATION ABOUT THE FIRST ACTION.
+#    Adjusted R^2 of rtg[0] on (x_0, ell_0), within ensemble member, n=100 rollouts each:
+#    MES +0.007, random -0.045. BOTH ZERO, while the tau=0 action varies (spread 0.35 MES,
+#    0.70 random, 20 distinct actions of 20) and rtg[0] varies (sd 0.10-0.16). They do not
+#    vary TOGETHER. rtg[0] is dominated by the other seven steps and by fantasy-sampling
+#    luck, so the label says "this rollout got lucky", not "this action was better".
+#    RETRACTS h207 SC4's "the tau=0 action explains 14% of the outcome" -- that was RAW R^2
+#    with 10 params on n=100, whose null expectation is ~0.09; almost the whole figure was
+#    the parameter count. CONSEQUENCE: this sits UPSTREAM of the head (h220), the target
+#    schema (h212) and RNG parity (h213) -- none of them can extract selection from a label
+#    that does not encode it, and it explains why low-quality contrast did not make RTG
+#    selective (the random half's returns are equally uncorrelated with its actions).
+#    Since h208 measured the OTHER channel (positions 1-7 as supervision) inert too, this
+#    is why rollout steps tau>0 cannot reach the real query at all. Fixes that target it
+#    directly: common random numbers across a member's rollouts; a shorter credit horizon
+#    (h172's L=1 was 13.69 vs 15.82); advantage-style baseline subtraction. See
+#    experiments/h221-rtg-credit-assignment/rtg-carries-no-action-information.md
+#
 #    DECISION 2026-09-28: THE K=8 WINDOW IS DROPPED. It has never beaten K=1 on any
 #    benchmark -- Borehole 12.62 (NIR) vs 11.59 (CTRL-K1), Hartmann 9.75 vs 5.93 -- and
 #    h210's P-CTRL showed the K=1 reference reproduces the last full run BIT-IDENTICALLY
