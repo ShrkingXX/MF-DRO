@@ -21,6 +21,22 @@
 # ============================================================================
 
 current_front:
+  h217_COMPLETE_2026_09_28: 'CONFIRMATORY, 10/10, BOTH PREDICTIONS FAILED. Currin MIXR-K1
+    0.0107 vs ROI-Q10 0.1255 (-0.1148, se 0.1057, 3/5) -- nominally better but the whole
+    mean is seed 43 alone and the benchmark is saturated at 0.01-0.13%, so READ AS A NULL
+    per the pre-registered caveat. Ackley MIXR 4.0013 vs 3.7425 (+0.2589, se 0.3722, 2/5)
+    -- inside its own se, NULL. P-CURRIN and P-ACKLEY both predicted clear harm. SYNTHESIS
+    HALF-RETRACTED: "MIXR helps only where MF-DRO is broken" SURVIVES (Borehole is the only
+    benchmark where MF-DRO loses to the best baseline and the only one where MIXR helps);
+    "it hurts everywhere else" is RETRACTED -- neutral on Currin and Ackley, Hartmann is the
+    sole harm. MIXR is neutral-or-better on 3 of 4 benchmarks. NEW PATTERN (exploratory,
+    4 points, cost ratio confounded with dimension): the effect is MONOTONE IN THE COST
+    RATIO -- Borehole 2:1 helps -4.42, Currin 3:1 neutral, Ackley 5:1 neutral, Hartmann 8:1
+    hurts +5.26. Consistent with fidelity economics: MIXR shifts real queries toward HF
+    (LF -0.136 Borehole, -0.095 Hartmann) and the value of that shift is set by HF cost.
+    POINTS AT: random_p_hf matched to the MES half on BOTH benchmarks; h210 MIXR-P72 already
+    showed matching PRESERVES the Borehole gain (-4.72, 5/5) on the K=8 base and it has
+    never been run on Hartmann or CTRL-K1.'
   DECISIONS_2026_09_28: 'TWO COMPONENTS DROPPED. (1) K=8 WINDOW: never beat K=1 on any
     benchmark (Borehole 12.62 vs 11.59; Hartmann 9.75 vs 5.93) and h210 P-CTRL showed K=1
     reproduces the last full run BIT-IDENTICALLY, so the gap is configuration not drift.

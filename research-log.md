@@ -4203,3 +4203,13 @@ about half was stream divergence.
 P-NEUTRAL failed as registered at-risk — percentile *hurts* the unsigned label (+3.52, 0/5)
 because q=90 asks for less. A sign-aware rule is what the evidence supports; not yet built.
 Missing arm (prediction registered): label + percentile + parity ≈ CTRL-K1-H.
+
+## 2026-09-28 — h217: MIXR is NEUTRAL on both held-out benchmarks. Both my predictions failed.
+
+Currin −0.1148 (se 0.1057, 3/5, and the whole mean is seed 43 on a saturated benchmark);
+Ackley +0.2589 (se 0.3722, 2/5). Both nulls; I predicted clear harm on both.
+**Half the synthesis retracted**: "MIXR helps only where MF-DRO is broken" stands, "it hurts
+everywhere else" does not — neutral on Currin and Ackley, harmful only on Hartmann.
+**New pattern (exploratory):** the effect is monotone in the HF:LF cost ratio — 2:1 helps,
+3:1 and 5:1 neutral, 8:1 hurts. Consistent with fidelity economics. Points at a
+`random_p_hf` matched arm on both benchmarks.
