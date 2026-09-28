@@ -21,6 +21,21 @@
 # ============================================================================
 
 current_front:
+  DECISIONS_2026_09_28: 'TWO COMPONENTS DROPPED. (1) K=8 WINDOW: never beat K=1 on any
+    benchmark (Borehole 12.62 vs 11.59; Hartmann 9.75 vs 5.93) and h210 P-CTRL showed K=1
+    reproduces the last full run BIT-IDENTICALLY, so the gap is configuration not drift.
+    h194-h206 succeeded only in making it stop hurting, reaching parity on Borehole alone.
+    All further work on the CTRL-K1 base. (2) terminal_improvement LABEL: never helped
+    anywhere (h207 +1.23 neutral; h213 RNG-matched -1.06 Borehole neutral, +3.06 Hartmann
+    harmful 0/5); its pinned target, RNG gap and FLAT non-future-only RTG were all
+    consequences of adopting it. mes_entropy''s RTG telescopes to the remaining information
+    gain and decreases over tau, matching DT''s definition. h215 stood down before launch.
+    NEXT: h216 -- MIXR shifts real-query LF by -0.136 (Borehole, 2:1, cheap, helps -4.42)
+    and -0.095 (Hartmann, 8:1, ~33% of budget, hurts +5.26): ONE mechanism, opposite
+    economics. The shift is UNEARNED (random teacher draws fidelity from a Bernoulli) while
+    its LOCATIONS carry the ROI spread. fid_mask trains the fidelity head on MES rollouts
+    only. P-B is the first real mechanism test; both predictions holding would meet the
+    both-benchmarks rule for the first time.'
   h212_h213_COMPLETE_2026_09_28: 'BOTH CONFIRMATORY. h213 (label, RNG-MATCHED -- the first
     true one-factor label test): TI-PAR-H 8.99 vs CTRL-K1-H 5.93 = +3.06 (se 1.55, 0/5), so
     P-LABEL-H SUPPORTED and MY REGISTERED LEAN (label inert once RNG matched) was WRONG.

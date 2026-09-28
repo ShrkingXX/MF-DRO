@@ -92,6 +92,27 @@
 #    reference for any MIXR claim is CTRL-K1: Borehole 11.59 -> 6.22, about 5.4 points.
 #    The highest-value untested cell is MIXR on the K=1 base.
 #
+#    DECISION 2026-09-28: THE K=8 WINDOW IS DROPPED. It has never beaten K=1 on any
+#    benchmark -- Borehole 12.62 (NIR) vs 11.59 (CTRL-K1), Hartmann 9.75 vs 5.93 -- and
+#    h210's P-CTRL showed the K=1 reference reproduces the last full run BIT-IDENTICALLY
+#    (+0.00, se 0.00, 5/5), so the gap is the configuration, not drift. Everything from
+#    h194 to h206 was spent making the window stop HURTING, which succeeded (the arange
+#    positional bug, item 1) but only ever reached parity, and only on Borehole. All
+#    further work is on the CTRL-K1 base: ROI-Q10, K=1, mes_entropy, positional embedding
+#    left as-is. The K=8 measurements stand as measurements; the window is not part of
+#    the method.
+#
+#    DECISION 2026-09-28: THE terminal_improvement LABEL IS DROPPED. It never produced a
+#    benefit anywhere (h207 P-NIR +1.23 neutral; h213 RNG-matched: Borehole -1.06 neutral,
+#    Hartmann +3.06 HARMFUL on 0/5) and it cost three experiments to investigate. Its
+#    defects -- the pinned inference target, the RNG-parity gap, and a FLAT RTG that is
+#    not future-only -- are all consequences of adopting it. mes_entropy needs none of
+#    those fixes: its RTG log(b_tau)-log(b_T) telescopes to the REMAINING information gain
+#    and decreases over tau, matching DT's R_t = sum_{t'>=t} r_t' in shape as well as name,
+#    and its inference target already varies (82-110 distinct values vs 9). The repair
+#    flags (rtg_target_schema, rtg_rng_parity, fid_mask) remain gated and identity-clean
+#    for any future signed-reward label. h215 was stood down before launch on this basis.
+#
 #    MEASURED 2026-09-27 (loop audit, experiments/h211-mixr-on-k1/loop-audit.md): under
 #    the `terminal_improvement` label the INFERENCE RTG TARGET IS PINNED AT 0.5 for
 #    essentially the whole run (MIXR-B: 9 distinct values over 117 iterations, mean
