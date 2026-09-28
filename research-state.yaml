@@ -21,6 +21,26 @@
 # ============================================================================
 
 current_front:
+  h214_h218_COMPLETE_2026_09_29: 'BOTH CONFIRMATORY, 30/30, 0 tracebacks, Borehole 42-46,
+    CTRL-K1 base. h214 DOSE: 0 random 11.59, 20 random 7.17, 60 random 9.82, 120 random
+    13.47 -- P-DOSE (user''s hypothesis, monotone improvement) NOT SUPPORTED; more random
+    is monotonically WORSE and D120 is worse than no random at all. My non-monotone lean is
+    PARTIALLY supported (reversal right, D60 ~ MIXR wrong at +2.65). INTERIOR OPTIMUM at
+    ~20 random per member = 1:1 with MES. R-ROI (all-random, ROI pool) 40.51 vs h149''s
+    uniform-pool 43.94: the ROI pool buys 3.4 points and nothing more; the MES half is not
+    optional. h218 P-COV: R-ROI-120 41.90 vs R-ROI 40.51 = +1.38 (se 0.52, 0/5) -- 6x the
+    rollouts is slightly WORSE, so COVERAGE IS REFUTED BY SIGN; the conditional-mean
+    account predicted no change and lands just outside the band, reported as directionally
+    surviving rather than as a win. h218 P-SPREAD FAILED: JIT10 13.20 (+1.61), JIT25 22.76
+    (+11.17, 0/5), both worse, monotone in dose, and JIT25''s action-target dispersion is
+    0.700 -- EXACTLY the all-random batch''s -- so it was NOT under-dosed. MIXR''s gain is
+    not action-target spread. ELIMINATED NOW: volume, boundary geometry, fidelity
+    composition, RTG conditioning, the window, coverage/more-random-data, action-target
+    spread. The JIT elimination is the informative one: it keeps the MES rollouts'' STATES
+    and OUTCOMES and changes only the recorded ACTION, so what the random half contributes
+    needs NEW ROLLOUTS. SURVIVING CANDIDATE: state coverage. Next arm is DAgger-shaped --
+    random rollouts for the STATES they visit, relabelled with the action MES would take
+    there, separating which states are in the training set from which actions are labelled.'
   h217_COMPLETE_2026_09_28: 'CONFIRMATORY, 10/10, BOTH PREDICTIONS FAILED. Currin MIXR-K1
     0.0107 vs ROI-Q10 0.1255 (-0.1148, se 0.1057, 3/5) -- nominally better but the whole
     mean is seed 43 alone and the benchmark is saturated at 0.01-0.13%, so READ AS A NULL
