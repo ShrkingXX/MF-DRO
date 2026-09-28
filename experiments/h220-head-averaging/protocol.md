@@ -86,3 +86,18 @@ the failure mode.
 Primary: |x − x\*| from the probe (a mechanism readout, not the frozen metric).
 Secondary: frozen final simple regret, rel% @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## AMENDMENT 1 (before launch) — a label interaction the smoke measures rather than assumes
+
+The MIXO arms now run under **`mes_entropy`** (the CTRL-K1 base's label), not
+`terminal_improvement` as h207's MIXO did. That changes what the oracle half's RTG *means*.
+Under `terminal_improvement` it was `f* − incumbent ≈ +50`, unambiguously "good". Under an
+**information-gain** reward, an oracle that queries x\* repeatedly is information-**poor**
+after the first hit, so its `rtg[0]` may come out **lower** than the MES half's — i.e. the
+label may mark the oracle half as the *worse* one.
+
+This does **not** invalidate the primary readout. |x − x\*| measures whether the head emits
+a midpoint or a mode, and h207 established that MIXO's midpoint was emitted **regardless of
+RTG** (0.18 at rtg=−1 and 0.16 at rtg=+1). The averaging question is about the loss, not the
+labels. But it does change what any secondary RTG story would mean, so the smoke **reports
+`rtg[0]` per policy** and states which half the label favours, instead of my assuming it.
