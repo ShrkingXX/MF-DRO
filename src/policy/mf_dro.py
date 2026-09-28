@@ -1076,7 +1076,8 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
                             ir_pool=None,
                             ir_probe_second_seed=False,
                             ir_keep_final_ko=False,
-                            rtg_rng_parity=False):
+                            rtg_rng_parity=False,
+                            fantasy_crn_seed=None):
     """
     One MF rollout, up to rollout_length steps (Bayesian Early Stopping,
     Change 1, may terminate it sooner -- see bes_delta below).
@@ -1954,8 +1955,26 @@ def simulate_mf_trajectory(ko_model, real_data_hf, real_data_lf,
             f_real = f_hf_real if ell_tau == 1 else f_lf_real
             y_tau = f_real(x_tau.unsqueeze(0)).reshape(-1)[0].item()
         else:
-            y_tau = current_ko.sample_fantasy(x_tau, 'LH'[ell_tau],
-                                               mode=fantasy_mode)
+            if fantasy_crn_seed is None:
+                y_tau = current_ko.sample_fantasy(x_tau, 'LH'[ell_tau],
+                                                   mode=fantasy_mode)
+            else:
+                # h221 CRN. Measured: adjusted R^2 of rtg[0] on the FIRST ACTION is
+                # +0.007 (MES) and -0.045 (random) -- the outcome is uncorrelated with
+                # the action it is supposed to label, because every rollout draws its
+                # own fantasy noise at every step and that noise swamps the action
+                # signal. Seeding by (crn_seed, tau) gives every rollout of a member the
+                # SAME noise at the same step index, so two rollouts differing only in
+                # their first action become directly comparable -- the same reason
+                # regret_lookahead_teacher already uses CRN. RNG state is saved and
+                # restored, so no other consumer is perturbed. None => unchanged.
+                _rs = torch.get_rng_state()
+                try:
+                    torch.manual_seed(int(fantasy_crn_seed) + 1000003 * int(tau))
+                    y_tau = current_ko.sample_fantasy(x_tau, 'LH'[ell_tau],
+                                                       mode=fantasy_mode)
+                finally:
+                    torch.set_rng_state(_rs)
 
         # 4a. rollout_reward=="improvement" only: per-step improvement
         # reward, using the incumbent BEFORE this step's own observation.
@@ -2926,6 +2945,11 @@ class DirectMFRegretOptimization:
         # the state or the features.
         mix = getattr(self.config, 'rollout_mix', None)
 
+        # h221: one CRN seed per (member, BO iteration) -- shared by every rollout of
+        # that member, so their fantasy noise streams coincide step for step.
+        _crn_on = bool(getattr(self.config, 'fantasy_crn', False))
+        _crn_seed = None
+
         def _roll(ko, _policy):
             return simulate_mf_trajectory(
                 ko,
@@ -2951,6 +2975,7 @@ class DirectMFRegretOptimization:
                 ir_probe_second_seed=getattr(self.config, 'ir_probe_second_seed', False),
                 ir_keep_final_ko=getattr(self.config, 'ir_keep_final_ko', False),
                 rtg_rng_parity=getattr(self.config, 'rtg_rng_parity', False),
+                fantasy_crn_seed=_crn_seed,
                 rollout_reward=self.rollout_reward,
                 kg_signed=getattr(self.config, 'kg_signed', False),
                 kg_topk=getattr(self.config, 'kg_topk', 1),
@@ -2992,7 +3017,11 @@ class DirectMFRegretOptimization:
                 y_star_seed=self.config.seed + 7919 * len(self.iteration_log),
             )
 
-        for ko in self.ko_ensemble:
+        for _m_idx, ko in enumerate(self.ko_ensemble):
+            _mstart = len(batch)
+            if _crn_on:
+                _crn_seed = (int(self.config.seed) + 104729 * len(self.iteration_log)
+                             + 7919 * _m_idx)
             specs = ([(None, self.config.rollouts_per_model, None)] if mix is None
                      else list(mix))
             for _pol, _n, _topk in specs:
@@ -3034,6 +3063,21 @@ class DirectMFRegretOptimization:
                                                else float('inf')))
                     member = member[:int(_topk)]
                 batch.extend(member)
+            # h221 ADVANTAGE BASELINE. rtg[0] is dominated by luck shared across a
+            # member's rollouts (they start from the same posterior); subtracting that
+            # member's mean rtg[0] removes the shared component and leaves the part
+            # that differs BETWEEN rollouts, which is the part a first action could be
+            # responsible for. Applied per member, to the whole rtg vector so the
+            # telescoping shape is preserved, and BEFORE the batch-level normalisation
+            # below (a single scale, so it cannot change the ordering). False => inert.
+            if getattr(self.config, 'rtg_advantage', False):
+                _mem = batch[_mstart:]
+                _r0 = [float(t['rtg'][0]) for t in _mem if t['rtg'].numel() > 0]
+                if _r0:
+                    _base = float(np.mean(_r0))
+                    for t in _mem:
+                        if t['rtg'].numel() > 0:
+                            t['rtg'] = t['rtg'] - _base
 
         # RTG-CAP FIX: batch-level normalization for rollout_reward==
         # "improvement" (see simulate_mf_trajectory's own comment on why
