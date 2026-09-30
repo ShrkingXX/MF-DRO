@@ -92,6 +92,20 @@
 #    reference for any MIXR claim is CTRL-K1: Borehole 11.59 -> 6.22, about 5.4 points.
 #    The highest-value untested cell is MIXR on the K=1 base.
 #
+#    CLOSED 2026-09-30 -- THE RETURN CHANNEL IS INERT AT BOTH ENDS, BY MEASUREMENT.
+#    LABEL END (h221 gate): common random numbers across a member's rollouts leave the
+#    first action explaining ZERO of rtg[0] (adj R^2 baseline +0.024, CRN -0.020, ADV
+#    +0.067). The decoupling is structural, not sampling noise; remaining candidates are
+#    the 8-step credit horizon (h172 L=1 13.69 vs 15.82; h208 L1 ~ L8) and the near-
+#    optimality of MES's first actions. HEAD END (h220): with an oracle half at 1/3 of
+#    the batch, MSE emits |x-x*| 0.39 and L1 emits 0.42 (a mode-selecting head would emit
+#    ~0.67); P-HEAD threshold 0.45 FAILED. The MSE head is a mixture-weighted mean (0.18
+#    at 50/50, 0.39 at 2:1) and the median blends too. Neither is a plumbing defect. This
+#    is the mechanism behind every RTG null (h180, h198-corrected, label swaps, target
+#    schema) and behind why added diversity -- random half, oracle half, multi-teacher --
+#    is averaged rather than exploited. Positive side result: MIXR-L1 = 6.43 on Borehole
+#    (ties MF-MES 6.40; -0.74 vs MIXR-K1, inside band).
+#
 #    MEASURED 2026-09-29 -- THE RTG LABEL CARRIES NO INFORMATION ABOUT THE FIRST ACTION.
 #    Adjusted R^2 of rtg[0] on (x_0, ell_0), within ensemble member, n=100 rollouts each:
 #    MES +0.007, random -0.045. BOTH ZERO, while the tau=0 action varies (spread 0.35 MES,
