@@ -98,3 +98,31 @@ the argument, not the lean.
 
 Frozen: final simple regret, rel% of |optimum| @ cost 200, imported from h83's `grid`.
 Finals only. Every run reported.
+
+## GATE MISS (2026-09-30) — SC1 failed, arms not launched
+
+```
+adj R^2 of rtg[0] on (x0, ell0), n=100/member
+  baseline (as measured)   [0.027, 0.005, 0.041]   mean +0.024
+  CRN                      [-0.015, -0.010, -0.036] mean -0.020
+  ADV                      [0.083,  0.107, 0.011]  mean +0.067
+  CRN+ADV                  [0.051, -0.015, -0.053] mean -0.005
+SC1 (GATE) CRN raises adj R^2 above 0.10 on >= 2 of 3 members -> FAIL
+```
+
+CRN did not restore the correlation between the first action and the rollout's return — it
+is **slightly worse** than baseline. The supervisor launched nothing, as registered.
+
+**What this establishes** (the registered reading of an SC1 failure): **fantasy sampling
+noise is not what decouples `rtg[0]` from the first action.** Sharing the noise stream
+across a member's rollouts changes nothing, so the decoupling comes from the other
+candidate — the **8-step credit horizon**. The first action's contribution is diluted by
+the seven that follow, regardless of how the noise is drawn.
+
+The advantage baseline is the only thing that moved the number (+0.067 vs +0.024), and even
+that is small and inside the spread across members.
+
+**Registered consequence:** the arm becomes `rollout_length=1`, where `rtg[0]` is a pure
+function of step 0. h172 already measured L=1 at **13.69 vs the control's 15.82** (better
+on 4/5) on MF-DRO, and h208 measured L1 ≈ L8 on the original — both consistent with this
+diagnosis. Not launched here; registered as the successor arm.

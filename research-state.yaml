@@ -21,6 +21,23 @@
 # ============================================================================
 
 current_front:
+  h220_h221_2026_09_30: 'h220 CONFIRMATORY 15/15: P-HEAD FAILED. |x-x*| of the emitted query
+    (first 10 iters) is 0.359 under L1 vs 0.342 under MSE on the SAME 20 MES + 10 oracle
+    mixture -- a 0.017 difference where the MSE-to-control span is 0.33. THE MEDIAN HEAD
+    AVERAGES TOO. The output tracks the PROPORTION of oracle data (h207 50/50 -> 0.18, this
+    2:1 -> 0.34, no oracle -> 0.67) and not the loss function, so "the DT cannot select" is
+    NOT repairable by the loss; the next suspect is architecture (gating / mixture density),
+    a build not a flag. SECONDARY: P-MIXR-L1 SUPPORTED -- MIXR-L1 6.43 vs MIXR-K1 7.17,
+    -0.75 (se 1.21, 3/5), inside band, and h210''s +3.88 L1 drag was WINDOW-SPECIFIC (free
+    on CTRL-K1). MIXR-L1 is nominally the best deployable number so far (6.43 vs MF-MES
+    6.40) with a much tighter per-seed spread (5.28-7.73 vs 2.04-10.96), but the difference
+    from MIXR-K1 is inside noise. The MIXO arms are NOT a ceiling here (11.97 / 10.26, both
+    worse than CTRL-K1) because under mes_entropy the oracle half is labelled WORSE
+    (rtg[0] mes +0.129 vs oracle -0.106) -- anticipated in Amendment 1. h221 GATE MISS,
+    NOT LAUNCHED: CRN did NOT restore the action signal (adj R^2 baseline +0.024 -> CRN
+    -0.020; ADV +0.067). So fantasy NOISE is not what decouples rtg[0] from the first
+    action -- the 8-step CREDIT HORIZON is. Points at rollout_length=1, which h172 already
+    measured at 13.69 vs 15.82 (4/5).'
   h214_h218_COMPLETE_2026_09_29: 'BOTH CONFIRMATORY, 30/30, 0 tracebacks, Borehole 42-46,
     CTRL-K1 base. h214 DOSE: 0 random 11.59, 20 random 7.17, 60 random 9.82, 120 random
     13.47 -- P-DOSE (user''s hypothesis, monotone improvement) NOT SUPPORTED; more random
